@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GXD6 Dice Roller</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #ccc;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      color: #eee;
+      margin-bottom: 10px;
+    }
+    .controls {
+      margin: 10px 0;
+    }
+    input[type="number"], select {
+      padding: 6px;
+      margin: 0 10px;
+      background-color: #222;
+      border: 1px solid #666;
+      color: #eee;
+      font-size: 14px;
+      width: 80px;
+    }
+    .button {
+      padding: 10px 20px;
+      margin: 10px 5px;
+      font-size: 16px;
+      background-color: #444;
+      color: #fff;
+      border: 2px solid #888;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #666;
+    }
+    .dice-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 300px;
+      margin: 20px auto;
+    }
+    .die {
+      width: 48px;
+      height: 48px;
+      font-size: 28px;
+      margin: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #666;
+      background-color: #222;
+      color: #aaa;
+    }
+    .held-success {
+      color: #00ff00;
+      font-weight: bold;
+    }
+    .held-bane {
+      color: #ff3333;
+      font-weight: bold;
+    }
+    .stats {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+    }
+    .stat-box {
+      background-color: #333;
+      padding: 10px 20px;
+      border: 2px solid #777;
+      font-size: 16px;
+      min-width: 100px;
+      color: #eee;
+    }
+    .stat-label {
+      font-size: 14px;
+      color: #aaa;
+    }
+    .push-info {
+      color: #888;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    .adjust-buttons {
+      margin: 10px auto;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-width: 320px;
+    }
+    .adjust-buttons button {
+      padding: 4px 8px;
+      font-size: 13px;
+      background-color: #222;
+      color: #eee;
+      border: 1px solid #555;
+      cursor: pointer;
+    }
+    .adjust-buttons button:hover {
+      background-color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>GXD6 Dice Roller</h1>
+
+  <div class="controls">
+    <label>Dice Pool:
+      <input type="number" id="diceCount" min="1" max="20" value="10">
+    </label>
+    <label>Pushes:
+      <select id="pushLimit">
+        <option value="1">1 Push</option>
+        <option value="2">2 Pushes</option>
+        <option value="unlimited">Unlimited</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="adjust-buttons">
+    <button onclick="adjustDicePool(-5)">-5</button>
+    <button onclick="adjustDicePool(-4)">-4</button>
+    <button onclick="adjustDicePool(-3)">-3</button>
+    <button onclick="adjustDicePool(-2)">-2</button>
+    <button onclick="adjustDicePool(-1)">-1</button>
+    <button onclick="adjustDicePool(1)">+1</button>
+    <button onclick="adjustDicePool(2)">+2</button>
+    <button onclick="adjustDicePool(3)">+3</button>
+    <button onclick="adjustDicePool(4)">+4</button>
+    <button onclick="adjustDicePool(5)">+5</button>
+    <button onclick="adjustDicePool(6)">+6</button>
+    <button onclick="adjustDicePool(7)">+7</button>
+    <button onclick="adjustDicePool(8)">+8</button>
+    <button onclick="adjustDicePool(9)">+9</button>
+    <button onclick="adjustDicePool(10)">+10</button>
+  </div>
+
+  <button class="button" onclick="rollDice()">🎲 Roll Dice</button>
+  <button class="button" onclick="pushRoll()">🔥 Push Roll</button>
+  <button class="button" onclick="clearAll()">🧹 Clear All</button>
+
+  <div class="push-info" id="pushInfo">Pushes Used: 0</div>
+
+  <div class="dice-container" id="diceArea"></div>
+
+  <div class="stats">
+    <div class="stat-box">
+      <div class="stat-label">✠ Successes</div>
+      <div id="successCount">0</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">💀 Banes</div>
+      <div id="baneCount">0</div>
+    </div>
+  </div>
+
+  <script>
+    let currentDice = [];
+    let pushCount = 0;
+
+    function rollDie() {
+      return Math.floor(Math.random() * 6) + 1;
+    }
+
+    function rollDice() {
+      const diceCount = parseInt(document.getElementById("diceCount").value);
+      if (diceCount < 1 || diceCount > 20) return;
+
+      currentDice = [];
+      for (let i = 0; i < diceCount; i++) {
+        currentDice.push({ value: rollDie(), held: false });
+      }
+      pushCount = 0;
+      renderDice();
+    }
+
+    function pushRoll() {
+      const pushLimit = document.getElementById("pushLimit").value;
+      if (pushLimit !== "unlimited" && pushCount >= parseInt(pushLimit)) {
+        alert("No more pushes allowed.");
+        return;
+      }
+
+      for (let die of currentDice) {
+        if (die.value !== 1 && die.value !== 6) {
+          die.value = rollDie();
+        } else {
+          die.held = true;
+        }
+      }
+      pushCount++;
+      renderDice();
+    }
+
+    function clearAll() {
+      currentDice = [];
+      pushCount = 0;
+      document.getElementById("diceArea").innerHTML = "";
+      document.getElementById("successCount").textContent = "0";
+      document.getElementById("baneCount").textContent = "0";
+      document.getElementById("pushInfo").textContent = "Pushes Used: 0";
+      document.getElementById("diceCount").value = "10";
+    }
+
+    function renderDice() {
+      const diceArea = document.getElementById("diceArea");
+      diceArea.innerHTML = "";
+      let successes = 0;
+      let banes = 0;
+
+      currentDice.forEach(die => {
+        const span = document.createElement("div");
+        span.classList.add("die");
+        const unicode = String.fromCharCode(0x267F + die.value);
+        span.textContent = unicode;
+
+        if (die.value === 1) {
+          span.classList.add("held-bane");
+          banes++;
+        } else if (die.value === 6) {
+          span.classList.add("held-success");
+          successes++;
+        }
+
+        diceArea.appendChild(span);
+      });
+
+      document.getElementById("successCount").textContent = successes;
+      document.getElementById("baneCount").textContent = banes;
+      document.getElementById("pushInfo").textContent = `Pushes Used: ${pushCount}`;
+    }
+
+    function adjustDicePool(amount) {
+      const input = document.getElementById("diceCount");
+      let current = parseInt(input.value) || 0;
+      current += amount;
+      if (current < 1) current = 1;
+      if (current > 20) current = 20;
+      input.value = current;
+    }
+  </script>
+</body>
+</html>
