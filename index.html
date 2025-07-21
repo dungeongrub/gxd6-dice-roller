@@ -3,26 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <title>GXD6 Dice Roller</title>
-
-  <!-- Fonts -->
   <style>
     @font-face {
       font-family: 'Dominica';
-      src: url('fonts/Dominica.ttf') format('truetype');
+      src: url('fonts/DOMINICA.TTF') format('truetype');
     }
 
     @font-face {
       font-family: 'DominicanSC';
-      src: url('fonts/DominicanSC-Regular.ttf') format('truetype');
+      src: url('fonts/Dominican-Small-Caps-Small-Caps.ttf') format('truetype');
     }
 
     @font-face {
       font-family: 'DeutschGothic';
-      src: url('fonts/DeutschGothic-Regular.ttf') format('truetype');
+      src: url('fonts/DeutschGothic.ttf') format('truetype');
     }
 
     body {
-      background-image: url('img/parchment.png');
+      background-image: url('img/GXD6 Greyscale paper background.jpg');
       background-size: cover;
       background-attachment: fixed;
       color: #ccc;
@@ -265,14 +263,17 @@
         dieDiv.className = "die";
 
         const img = document.createElement("img");
-        if (die.value === 1) {
-          img.src = "img/skull.png";
-          banes++;
-        } else if (die.value === 6) {
-          img.src = "img/torch.png";
-          successes++;
-        } else {
-          img.src = `img/dice_${die.value}.png`;
+        switch (die.value) {
+          case 1:
+            img.src = "img/Baned6.png";
+            banes++;
+            break;
+          case 6:
+            img.src = "img/Success_d6.png";
+            successes++;
+            break;
+          default:
+            img.src = `img/${die.value}_d6.png`;
         }
 
         dieDiv.appendChild(img);
