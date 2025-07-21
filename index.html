@@ -3,22 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <title>GXD6 Dice Roller</title>
+
+  <!-- Fonts -->
   <style>
+    @font-face {
+      font-family: 'Dominica';
+      src: url('fonts/Dominica.ttf') format('truetype');
+    }
+
+    @font-face {
+      font-family: 'DominicanSC';
+      src: url('fonts/DominicanSC-Regular.ttf') format('truetype');
+    }
+
+    @font-face {
+      font-family: 'DeutschGothic';
+      src: url('fonts/DeutschGothic-Regular.ttf') format('truetype');
+    }
+
     body {
-      background-color: #111;
+      background-image: url('img/parchment.png');
+      background-size: cover;
+      background-attachment: fixed;
       color: #ccc;
-      font-family: 'Courier New', monospace;
+      font-family: 'Dominica', serif;
       text-align: center;
       padding: 20px;
     }
+
     h1 {
-      font-size: 24px;
+      font-family: 'DominicanSC', serif;
+      font-size: 36px;
       color: #eee;
       margin-bottom: 10px;
     }
+
     .controls {
       margin: 10px 0;
     }
+
     input[type="number"], select {
       padding: 6px;
       margin: 0 10px;
@@ -28,6 +51,7 @@
       font-size: 14px;
       width: 80px;
     }
+
     .button {
       padding: 10px 20px;
       margin: 10px 5px;
@@ -37,86 +61,95 @@
       border: 2px solid #888;
       cursor: pointer;
     }
+
     .button:hover {
       background-color: #666;
     }
+
     .dice-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      max-width: 300px;
+      max-width: 320px;
       margin: 20px auto;
     }
+
     .die {
       width: 48px;
       height: 48px;
-      font-size: 28px;
       margin: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    }
+
+    .die img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
       border: 2px solid #666;
-      background-color: #222;
-      color: #aaa;
+      background-color: #111;
     }
-    .held-success {
-      color: #00ff00;
-      font-weight: bold;
-    }
-    .held-bane {
-      color: #ff3333;
-      font-weight: bold;
-    }
+
     .stats {
       margin-top: 15px;
       display: flex;
       justify-content: center;
       gap: 40px;
     }
+
     .stat-box {
-      background-color: #333;
+      background-color: rgba(0, 0, 0, 0.7);
       padding: 10px 20px;
       border: 2px solid #777;
       font-size: 16px;
       min-width: 100px;
       color: #eee;
     }
+
     .stat-label {
+      font-family: 'DominicanSC', serif;
       font-size: 14px;
       color: #aaa;
     }
+
     .push-info {
       color: #888;
       font-size: 14px;
       margin-top: 10px;
     }
+
     .adjust-buttons {
-      margin: 10px auto;
+      margin: 15px auto;
       display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: center;
       gap: 6px;
-      max-width: 320px;
     }
+
+    .adjust-buttons .row {
+      display: flex;
+      gap: 6px;
+    }
+
     .adjust-buttons button {
-      padding: 4px 8px;
+      padding: 6px 10px;
       font-size: 13px;
       background-color: #222;
       color: #eee;
       border: 1px solid #555;
       cursor: pointer;
     }
+
     .adjust-buttons button:hover {
       background-color: #333;
     }
   </style>
 </head>
+
 <body>
   <h1>GXD6 Dice Roller</h1>
 
   <div class="controls">
     <label>Dice Pool:
-      <input type="number" id="diceCount" min="1" max="20" value="10">
+      <input type="number" id="diceCount" min="1" max="20" value="0">
     </label>
     <label>Pushes:
       <select id="pushLimit">
@@ -128,21 +161,27 @@
   </div>
 
   <div class="adjust-buttons">
-    <button onclick="adjustDicePool(-5)">-5</button>
-    <button onclick="adjustDicePool(-4)">-4</button>
-    <button onclick="adjustDicePool(-3)">-3</button>
-    <button onclick="adjustDicePool(-2)">-2</button>
-    <button onclick="adjustDicePool(-1)">-1</button>
-    <button onclick="adjustDicePool(1)">+1</button>
-    <button onclick="adjustDicePool(2)">+2</button>
-    <button onclick="adjustDicePool(3)">+3</button>
-    <button onclick="adjustDicePool(4)">+4</button>
-    <button onclick="adjustDicePool(5)">+5</button>
-    <button onclick="adjustDicePool(6)">+6</button>
-    <button onclick="adjustDicePool(7)">+7</button>
-    <button onclick="adjustDicePool(8)">+8</button>
-    <button onclick="adjustDicePool(9)">+9</button>
-    <button onclick="adjustDicePool(10)">+10</button>
+    <div class="row">
+      <button onclick="adjustDicePool(1)">+1</button>
+      <button onclick="adjustDicePool(2)">+2</button>
+      <button onclick="adjustDicePool(3)">+3</button>
+      <button onclick="adjustDicePool(4)">+4</button>
+      <button onclick="adjustDicePool(5)">+5</button>
+    </div>
+    <div class="row">
+      <button onclick="adjustDicePool(6)">+6</button>
+      <button onclick="adjustDicePool(7)">+7</button>
+      <button onclick="adjustDicePool(8)">+8</button>
+      <button onclick="adjustDicePool(9)">+9</button>
+      <button onclick="adjustDicePool(10)">+10</button>
+    </div>
+    <div class="row">
+      <button onclick="adjustDicePool(-1)">-1</button>
+      <button onclick="adjustDicePool(-2)">-2</button>
+      <button onclick="adjustDicePool(-3)">-3</button>
+      <button onclick="adjustDicePool(-4)">-4</button>
+      <button onclick="adjustDicePool(-5)">-5</button>
+    </div>
   </div>
 
   <button class="button" onclick="rollDice()">🎲 Roll Dice</button>
@@ -174,7 +213,10 @@
 
     function rollDice() {
       const diceCount = parseInt(document.getElementById("diceCount").value);
-      if (diceCount < 1 || diceCount > 20) return;
+      if (diceCount < 1 || diceCount > 20) {
+        alert("Set a valid dice pool (1–20) using the buttons below.");
+        return;
+      }
 
       currentDice = [];
       for (let i = 0; i < diceCount; i++) {
@@ -209,7 +251,7 @@
       document.getElementById("successCount").textContent = "0";
       document.getElementById("baneCount").textContent = "0";
       document.getElementById("pushInfo").textContent = "Pushes Used: 0";
-      document.getElementById("diceCount").value = "10";
+      document.getElementById("diceCount").value = "0";
     }
 
     function renderDice() {
@@ -219,20 +261,22 @@
       let banes = 0;
 
       currentDice.forEach(die => {
-        const span = document.createElement("div");
-        span.classList.add("die");
-        const unicode = String.fromCharCode(0x267F + die.value);
-        span.textContent = unicode;
+        const dieDiv = document.createElement("div");
+        dieDiv.className = "die";
 
+        const img = document.createElement("img");
         if (die.value === 1) {
-          span.classList.add("held-bane");
+          img.src = "img/skull.png";
           banes++;
         } else if (die.value === 6) {
-          span.classList.add("held-success");
+          img.src = "img/torch.png";
           successes++;
+        } else {
+          img.src = `img/dice_${die.value}.png`;
         }
 
-        diceArea.appendChild(span);
+        dieDiv.appendChild(img);
+        diceArea.appendChild(dieDiv);
       });
 
       document.getElementById("successCount").textContent = successes;
@@ -244,7 +288,7 @@
       const input = document.getElementById("diceCount");
       let current = parseInt(input.value) || 0;
       current += amount;
-      if (current < 1) current = 1;
+      if (current < 0) current = 0;
       if (current > 20) current = 20;
       input.value = current;
     }
