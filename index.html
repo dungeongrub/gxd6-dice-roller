@@ -1,15 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>GXD6 Dice Roller</title>
-  <style>
-    /* === CUSTOM FONTS === */
-    @font-face {
-      font-family: 'Dominica';
-      src: url('fonts/DOMINICA.TTF') format('truetype');
-    }
+  <meta charset="UTF-8" />
+  <title>Gxd6 Dice Roller</title>
 
+  <style>
+    /* --- FONTS --- */
     @font-face {
       font-family: 'DominicanSC';
       src: url('fonts/Dominican-Small-Caps-Small-Caps.ttf') format('truetype');
@@ -20,115 +16,80 @@
       src: url('fonts/DeutschGothic.ttf') format('truetype');
     }
 
-    /* === BASE STYLES === */
+    @font-face {
+      font-family: 'Dominica';
+      src: url('fonts/DOMINICA.TTF') format('truetype');
+    }
+
+    /* --- BASE STYLING --- */
     body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Dominica', serif;
       background-image: url('img/GXD6 Greyscale paper background.jpg');
       background-size: cover;
       background-attachment: fixed;
-      color: #ccc;
-      font-family: 'Dominica', serif;
+      color: #111;
       text-align: center;
       padding: 20px;
     }
 
     h1 {
       font-family: 'DominicanSC', serif;
-      font-size: 36px;
-      color: #eee;
+      font-size: 42px;
+      color: #000;
+      text-transform: lowercase;
+      font-variant: small-caps;
       letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    label,
-    .stat-label {
-      font-family: 'DominicanSC', serif;
-      font-size: 14px;
-      color: #aaa;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
+      margin-bottom: 20px;
     }
 
     .controls {
-      margin: 10px 0;
+      margin-bottom: 15px;
+      font-family: 'DominicanSC';
+      font-size: 16px;
     }
 
     input[type="number"], select {
       padding: 6px;
       margin: 0 10px;
-      background-color: #222;
-      border: 1px solid #666;
-      color: #eee;
-      font-size: 14px;
-      width: 80px;
-    }
-
-    .button {
-      padding: 10px 20px;
-      margin: 10px 5px;
+      background-color: #fff;
+      border: 2px solid #444;
+      color: #111;
       font-size: 16px;
-      background-color: #444;
-      color: #fff;
-      border: 2px solid #888;
-      cursor: pointer;
-      font-family: 'DominicanSC', serif;
-      text-transform: uppercase;
+      width: 70px;
+      font-family: 'Dominica';
     }
 
-    .button:hover {
-      background-color: #666;
-    }
-
-    .dice-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: 320px;
-      margin: 20px auto;
-    }
-
-    .die {
-      width: 48px;
-      height: 48px;
-      margin: 6px;
-    }
-
-    .die img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      border: 2px solid #666;
-      background-color: #111;
-    }
-
-    .stats {
-      margin-top: 15px;
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-    }
-
-    .stat-box {
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 10px 20px;
-      border: 2px solid #777;
-      font-size: 16px;
-      min-width: 100px;
-      color: #eee;
-    }
-
-    .push-info {
-      color: #888;
-      font-size: 14px;
+    .main-buttons {
       margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
     }
 
+    .main-button {
+      width: 64px;
+      height: 64px;
+      background-color: transparent;
+      border: none;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      cursor: pointer;
+    }
+
+    .main-button:hover {
+      filter: brightness(1.2);
+    }
+
+    /* --- Pool Adjust Buttons --- */
     .adjust-buttons {
-      margin: 15px auto;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 6px;
+      margin: 15px 0;
     }
 
     .adjust-buttons .row {
@@ -136,66 +97,115 @@
       gap: 6px;
     }
 
-    .adjust-buttons button {
-      padding: 6px 10px;
-      font-size: 13px;
-      background-color: #222;
-      color: #eee;
-      border: 1px solid #555;
+    .adjust-btn {
+      width: 48px;
+      height: 48px;
+      background-image: url('img/Coin_frame.png');
+      background-size: cover;
+      background-position: center;
+      border: none;
+      font-family: 'DeutschGothic';
+      font-size: 16px;
+      color: #000;
       cursor: pointer;
-      font-family: 'DominicanSC', serif;
-      text-transform: uppercase;
     }
 
-    .adjust-buttons button:hover {
-      background-color: #333;
+    .adjust-btn:hover {
+      filter: brightness(1.2);
+      transform: scale(1.05);
+    }
+
+    /* --- Dice Display Area --- */
+    .dice-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      max-width: 320px;
+      margin: 20px auto;
+      padding: 10px;
+      border: 3px solid #222;
+      background-color: rgba(255,255,255,0.6);
+    }
+
+    .die {
+      width: 50px;
+      height: 50px;
+    }
+
+    .die img {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* --- Stats Area --- */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 20px;
+    }
+
+    .stat-box {
+      padding: 10px 20px;
+      border: 3px solid #222;
+      background-color: rgba(255,255,255,0.7);
+      font-family: 'DominicanSC';
+      font-size: 16px;
+      min-width: 100px;
+    }
+
+    .push-info {
+      margin-top: 10px;
+      font-size: 14px;
+      font-family: 'DominicanSC';
     }
   </style>
 </head>
 
 <body>
-  <h1>GXD6 Dice Roller</h1>
+  <h1>Gxd6 Dice Roller</h1>
 
   <div class="controls">
-    <label>Dice Pool:
-      <input type="number" id="diceCount" min="1" max="20" value="0">
-    </label>
-    <label>Pushes:
-      <select id="pushLimit">
-        <option value="1">1 Push</option>
-        <option value="2">2 Pushes</option>
-        <option value="unlimited">Unlimited</option>
-      </select>
-    </label>
+    Dice Pool:
+    <input type="number" id="diceCount" min="1" max="20" value="0">
+    Pushes:
+    <select id="pushLimit">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="unlimited">∞</option>
+    </select>
   </div>
 
   <div class="adjust-buttons">
     <div class="row">
-      <button onclick="adjustDicePool(1)">+1</button>
-      <button onclick="adjustDicePool(2)">+2</button>
-      <button onclick="adjustDicePool(3)">+3</button>
-      <button onclick="adjustDicePool(4)">+4</button>
-      <button onclick="adjustDicePool(5)">+5</button>
+      <button class="adjust-btn" onclick="adjustDicePool(1)">+1</button>
+      <button class="adjust-btn" onclick="adjustDicePool(2)">+2</button>
+      <button class="adjust-btn" onclick="adjustDicePool(3)">+3</button>
+      <button class="adjust-btn" onclick="adjustDicePool(4)">+4</button>
+      <button class="adjust-btn" onclick="adjustDicePool(5)">+5</button>
     </div>
     <div class="row">
-      <button onclick="adjustDicePool(6)">+6</button>
-      <button onclick="adjustDicePool(7)">+7</button>
-      <button onclick="adjustDicePool(8)">+8</button>
-      <button onclick="adjustDicePool(9)">+9</button>
-      <button onclick="adjustDicePool(10)">+10</button>
+      <button class="adjust-btn" onclick="adjustDicePool(6)">+6</button>
+      <button class="adjust-btn" onclick="adjustDicePool(7)">+7</button>
+      <button class="adjust-btn" onclick="adjustDicePool(8)">+8</button>
+      <button class="adjust-btn" onclick="adjustDicePool(9)">+9</button>
+      <button class="adjust-btn" onclick="adjustDicePool(10)">+10</button>
     </div>
     <div class="row">
-      <button onclick="adjustDicePool(-1)">-1</button>
-      <button onclick="adjustDicePool(-2)">-2</button>
-      <button onclick="adjustDicePool(-3)">-3</button>
-      <button onclick="adjustDicePool(-4)">-4</button>
-      <button onclick="adjustDicePool(-5)">-5</button>
+      <button class="adjust-btn" onclick="adjustDicePool(-1)">-1</button>
+      <button class="adjust-btn" onclick="adjustDicePool(-2)">-2</button>
+      <button class="adjust-btn" onclick="adjustDicePool(-3)">-3</button>
+      <button class="adjust-btn" onclick="adjustDicePool(-4)">-4</button>
+      <button class="adjust-btn" onclick="adjustDicePool(-5)">-5</button>
     </div>
   </div>
 
-  <button class="button" onclick="rollDice()">🎲 Roll Dice</button>
-  <button class="button" onclick="pushRoll()">🔥 Push Roll</button>
-  <button class="button" onclick="clearAll()">🧹 Clear All</button>
+  <div class="main-buttons">
+    <button class="main-button" onclick="rollDice()" style="background-image: url('img/roll_icon.png');" title="Roll Dice"></button>
+    <button class="main-button" onclick="pushRoll()" style="background-image: url('img/push_icon.png');" title="Push Roll"></button>
+    <button class="main-button" onclick="clearAll()" style="background-image: url('img/clear_icon.png');" title="Clear All"></button>
+  </div>
 
   <div class="push-info" id="pushInfo">Pushes Used: 0</div>
 
@@ -203,108 +213,114 @@
 
   <div class="stats">
     <div class="stat-box">
-      <div class="stat-label">✠ Successes</div>
+      <div>Successes</div>
       <div id="successCount">0</div>
     </div>
     <div class="stat-box">
-      <div class="stat-label">💀 Banes</div>
+      <div>Banes</div>
       <div id="baneCount">0</div>
     </div>
   </div>
-
-  <script>
+ <script>
     let currentDice = [];
     let pushCount = 0;
 
-    function rollDie() {
-      return Math.floor(Math.random() * 6) + 1;
+    function adjustDicePool(amount) {
+      const input = document.getElementById("diceCount");
+      let val = parseInt(input.value) || 0;
+      val = Math.max(0, val + amount);
+      input.value = val;
     }
 
     function rollDice() {
-      const diceCount = parseInt(document.getElementById("diceCount").value);
-      if (diceCount < 1 || diceCount > 20) {
-        alert("Set a valid dice pool (1–20) using the buttons below.");
+      const num = parseInt(document.getElementById("diceCount").value);
+      if (!num || num < 1 || num > 20) {
+        alert("Choose 1 to 20 dice.");
         return;
       }
 
       currentDice = [];
-      for (let i = 0; i < diceCount; i++) {
-        currentDice.push({ value: rollDie(), held: false });
-      }
       pushCount = 0;
-      renderDice();
+      document.getElementById("pushInfo").textContent = "Pushes Used: 0";
+      document.getElementById("successCount").textContent = 0;
+      document.getElementById("baneCount").textContent = 0;
+
+      for (let i = 0; i < num; i++) {
+        const roll = Math.floor(Math.random() * 6) + 1;
+        currentDice.push({ value: roll, held: roll === 1 || roll === 6 });
+      }
+
+      displayDice();
     }
 
     function pushRoll() {
-      const pushLimit = document.getElementById("pushLimit").value;
-      if (pushLimit !== "unlimited" && pushCount >= parseInt(pushLimit)) {
-        alert("No more pushes allowed.");
+      if (currentDice.length === 0) {
+        alert("Roll first!");
         return;
       }
 
-      for (let die of currentDice) {
-        if (die.value !== 1 && die.value !== 6) {
-          die.value = rollDie();
-        } else {
-          die.held = true;
-        }
+      const limit = document.getElementById("pushLimit").value;
+      if (limit !== "unlimited" && pushCount >= parseInt(limit)) {
+        alert("Push limit reached.");
+        return;
       }
+
       pushCount++;
-      renderDice();
+      document.getElementById("pushInfo").textContent = `Pushes Used: ${pushCount}`;
+
+      currentDice = currentDice.map(die => {
+        if (!die.held) {
+          const roll = Math.floor(Math.random() * 6) + 1;
+          return { value: roll, held: roll === 1 || roll === 6 };
+        }
+        return die;
+      });
+
+      displayDice();
     }
 
     function clearAll() {
       currentDice = [];
       pushCount = 0;
       document.getElementById("diceArea").innerHTML = "";
-      document.getElementById("successCount").textContent = "0";
-      document.getElementById("baneCount").textContent = "0";
+      document.getElementById("successCount").textContent = 0;
+      document.getElementById("baneCount").textContent = 0;
       document.getElementById("pushInfo").textContent = "Pushes Used: 0";
-      document.getElementById("diceCount").value = "0";
+      document.getElementById("diceCount").value = 0;
     }
 
-    function renderDice() {
-      const diceArea = document.getElementById("diceArea");
-      diceArea.innerHTML = "";
+    function displayDice() {
+      const container = document.getElementById("diceArea");
+      container.innerHTML = "";
+
       let successes = 0;
       let banes = 0;
 
       currentDice.forEach(die => {
-        const dieDiv = document.createElement("div");
-        dieDiv.className = "die";
+        const div = document.createElement("div");
+        div.className = "die";
 
         const img = document.createElement("img");
-        switch (die.value) {
-          case 1:
-            img.src = "img/Baned6.png";
-            banes++;
-            break;
-          case 6:
-            img.src = "img/Success_d6.png";
-            successes++;
-            break;
-          default:
-            img.src = `img/${die.value}_d6.png`;
+        let path = "";
+
+        if (die.value === 1) {
+          path = "img/Baned6.png";
+          banes++;
+        } else if (die.value === 6) {
+          path = "img/Success_d6.png";
+          successes++;
+        } else {
+          path = `img/${die.value}_d6.png`;
         }
 
-        dieDiv.appendChild(img);
-        diceArea.appendChild(dieDiv);
+        img.src = path;
+        div.appendChild(img);
+        container.appendChild(div);
       });
 
       document.getElementById("successCount").textContent = successes;
       document.getElementById("baneCount").textContent = banes;
-      document.getElementById("pushInfo").textContent = `Pushes Used: ${pushCount}`;
-    }
-
-    function adjustDicePool(amount) {
-      const input = document.getElementById("diceCount");
-      let current = parseInt(input.value) || 0;
-      current += amount;
-      if (current < 0) current = 0;
-      if (current > 20) current = 20;
-      input.value = current;
     }
   </script>
 </body>
 </html>
-
