@@ -172,14 +172,26 @@
     </div>
   </div>
 
-  <div class="pool-buttons">
-    ${[...Array(10)].map((_, i) =>
-      `<button class="pool-btn" onclick="changePool(${i + 1})">+${i + 1}</button>`
-    ).join('')}
-    ${[...Array(5)].map((_, i) =>
-      `<button class="pool-btn" onclick="changePool(-${i + 1})">−${i + 1}</button>`
-    ).join('')}
-  </div>
+<div class="pool-buttons">
+  <button class="pool-btn" onclick="changePool(1)">+1</button>
+  <button class="pool-btn" onclick="changePool(2)">+2</button>
+  <button class="pool-btn" onclick="changePool(3)">+3</button>
+  <button class="pool-btn" onclick="changePool(4)">+4</button>
+  <button class="pool-btn" onclick="changePool(5)">+5</button>
+
+  <button class="pool-btn" onclick="changePool(6)">+6</button>
+  <button class="pool-btn" onclick="changePool(7)">+7</button>
+  <button class="pool-btn" onclick="changePool(8)">+8</button>
+  <button class="pool-btn" onclick="changePool(9)">+9</button>
+  <button class="pool-btn" onclick="changePool(10)">+10</button>
+
+  <button class="pool-btn" onclick="changePool(-1)">−1</button>
+  <button class="pool-btn" onclick="changePool(-2)">−2</button>
+  <button class="pool-btn" onclick="changePool(-3)">−3</button>
+  <button class="pool-btn" onclick="changePool(-4)">−4</button>
+  <button class="pool-btn" onclick="changePool(-5)">−5</button>
+</div>
+
 
   <div class="action-buttons">
     <button class="action" onclick="rollDice()"><img src="img/roll_icon.png" alt="Roll"></button>
