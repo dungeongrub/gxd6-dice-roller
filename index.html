@@ -1,263 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GXD6 Dice Roller</title>
+
+  <!-- Fonts -->
   <style>
-    /* ====== Font Loading ====== */
     @font-face {
-      font-family: 'Dominica';
+      font-family: 'Dominican';
       src: url('fonts/DOMINICA.TTF') format('truetype');
     }
+
     @font-face {
       font-family: 'DominicanSC';
       src: url('fonts/DOMISC__.TTF') format('truetype');
     }
+
     @font-face {
       font-family: 'DeutschGothic';
       src: url('fonts/DeutschGothic.ttf') format('truetype');
     }
 
     body {
-      background: url('img/GXD6 Greyscale paper background.jpg') no-repeat center center fixed;
+      background-image: url("img/GXD6 Greyscale paper background.jpg");
       background-size: cover;
-      color: black;
-      font-family: 'Dominica', serif;
+      color: #000;
+      font-family: 'Dominican', serif;
       text-align: center;
+      margin: 0;
       padding: 20px;
     }
 
     h1 {
       font-family: 'DominicanSC', serif;
       font-size: 36px;
-      text-transform: capitalize;
-      margin-bottom: 30px;
-    }
-
-    .dice-area {
-      display: grid;
-      grid-template-columns: repeat(5, 64px);
-      gap: 10px;
-      justify-content: center;
-      margin: 20px 0;
-    }
-
-    .dice {
-      width: 64px;
-      height: 64px;
-    }
-
-    .button-row {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 15px 0;
-    }
-
-    .gxd6-button {
-      background: url('img/button_icon.png') no-repeat center center;
-      background-size: cover;
-      width: 72px;
-      height: 72px;
-      border: none;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .gxd6-button img {
-      width: 40px;
-      height: 40px;
-      position: absolute;
-      top: 16px;
-      left: 16px;
-    }
-
-    .builder-button {
-      background: url('img/Coin_frame.png') no-repeat center center;
-      background-size: cover;
-      width: 64px;
-      height: 64px;
-      font-family: 'DeutschGothic', serif;
-      font-size: 20px;
-      color: black;
-      border: none;
-      cursor: pointer;
-    }
-
-    .summary {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 30px;
-      margin: 20px auto;
-      font-family: 'DominicanSC', serif;
-      font-size: 20px;
-    }
-
-    .summary img {
-      width: 32px;
-      vertical-align: middle;
-      margin-right: 8px;
+      margin-bottom: 10px;
     }
 
     #dice-pool {
+      font-family: 'DeutschGothic';
       font-size: 28px;
-      font-family: 'DeutschGothic', serif;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
+    }
+
+    #pool-buttons button {
+      background: url('img/Coin_frame.png') no-repeat center center;
+      background-size: contain;
+      border: none;
+      font-family: 'DeutschGothic';
+      font-size: 20px;
+      width: 50px;
+      height: 50px;
+      margin: 4px;
+      cursor: pointer;
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .action-button {
+      background: url('img/button_icon.png') no-repeat center center;
+      background-size: contain;
+      border: none;
+      width: 70px;
+      height: 70px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .action-button img {
+      width: 35px;
+      height: 35px;
+      position: absolute;
+      top: 17px;
+      left: 17px;
+    }
+
+    #push-control {
+      margin-top: 10px;
+      margin-bottom: -10px;
+      font-family: 'DominicanSC';
+      font-size: 16px;
+    }
+
+    #pushesAllowed {
+      font-family: 'Dominican';
+      font-size: 14px;
+      padding: 3px;
+      margin-left: 5px;
+    }
+
+    #dice-display {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 300px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .dice-img {
+      width: 50px;
+      height: 50px;
+      margin: 3px;
+    }
+
+    #results {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+      align-items: center;
+    }
+
+    .result-box {
+      font-family: 'DominicanSC';
+      text-align: center;
+    }
+
+    .result-count {
+      font-family: 'DeutschGothic';
+      font-size: 32px;
+    }
+
+    .result-box img {
+      width: 30px;
+      vertical-align: middle;
     }
   </style>
 </head>
 <body>
-
   <h1>Gxd6 Dice Roller</h1>
+  <div id="dice-pool">Dice Pool: <span id="poolValue">0</span></div>
 
-  <div id="dice-pool">Dice Pool: <span id="diceCount">0</span></div>
-
-  <!-- 🧮 Pool Builder -->
-  <div class="button-row">
-    <!-- Row 1: +1 to +5 -->
-    <button class="builder-button" onclick="adjustDice(1)">+1</button>
-    <button class="builder-button" onclick="adjustDice(2)">+2</button>
-    <button class="builder-button" onclick="adjustDice(3)">+3</button>
-    <button class="builder-button" onclick="adjustDice(4)">+4</button>
-    <button class="builder-button" onclick="adjustDice(5)">+5</button>
-  </div>
-  <div class="button-row">
-    <!-- Row 2: +6 to +10 -->
-    <button class="builder-button" onclick="adjustDice(6)">+6</button>
-    <button class="builder-button" onclick="adjustDice(7)">+7</button>
-    <button class="builder-button" onclick="adjustDice(8)">+8</button>
-    <button class="builder-button" onclick="adjustDice(9)">+9</button>
-    <button class="builder-button" onclick="adjustDice(10)">+10</button>
-  </div>
-  <div class="button-row">
-    <!-- Row 3: -1 to -5 -->
-    <button class="builder-button" onclick="adjustDice(-1)">−1</button>
-    <button class="builder-button" onclick="adjustDice(-2)">−2</button>
-    <button class="builder-button" onclick="adjustDice(-3)">−3</button>
-    <button class="builder-button" onclick="adjustDice(-4)">−4</button>
-    <button class="builder-button" onclick="adjustDice(-5)">−5</button>
+  <div id="pool-buttons">
+    <div>
+      <button onclick="changePool(1)">+1</button>
+      <button onclick="changePool(2)">+2</button>
+      <button onclick="changePool(3)">+3</button>
+      <button onclick="changePool(4)">+4</button>
+      <button onclick="changePool(5)">+5</button>
+    </div>
+    <div>
+      <button onclick="changePool(6)">+6</button>
+      <button onclick="changePool(7)">+7</button>
+      <button onclick="changePool(8)">+8</button>
+      <button onclick="changePool(9)">+9</button>
+      <button onclick="changePool(10)">+10</button>
+    </div>
+    <div>
+      <button onclick="changePool(-1)">-1</button>
+      <button onclick="changePool(-2)">-2</button>
+      <button onclick="changePool(-3)">-3</button>
+      <button onclick="changePool(-4)">-4</button>
+      <button onclick="changePool(-5)">-5</button>
+    </div>
   </div>
 
-  <!-- 🎲 Roll / Push / Clear -->
-  <div class="button-row">
-    <button class="gxd6-button" onclick="rollDice()">
+  <div id="push-control">
+    Pushes Allowed:
+    <select id="pushesAllowed">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="∞">∞</option>
+    </select>
+  </div>
+
+  <div class="action-buttons">
+    <button class="action-button" onclick="rollDice()">
       <img src="img/roll_icon.png" alt="Roll">
     </button>
-    <button class="gxd6-button" onclick="pushRoll()">
+    <button class="action-button" onclick="pushRoll()">
       <img src="img/push_icon.png" alt="Push">
     </button>
-    <button class="gxd6-button" onclick="clearAll()">
+    <button class="action-button" onclick="clearAll()">
       <img src="img/clear_icon.png" alt="Clear">
     </button>
   </div>
 
-  <!-- 🎯 Dice Area -->
-  <div class="dice-area" id="diceArea"></div>
+  <div id="dice-display"></div>
 
-  <!-- ✅ Summary -->
-  <div class="summary">
-    <div><img src="img/success_icon.png" alt="Success"> <span id="successCount">0</span></div>
-    <div><img src="img/bane_icon.png" alt="Bane"> <span id="baneCount">0</span></div>
+  <div id="results">
+    <div class="result-box">
+      <img src="img/Success_d6.png" alt="Successes"><br>
+      <span class="result-count" id="successes">0</span>
+    </div>
+    <div class="result-box">
+      <img src="img/Baned6.png" alt="Banes"><br>
+      <span class="result-count" id="banes">0</span>
+    </div>
   </div>
 
-  <!-- ⚙️ Logic -->
   <script>
-    let diceCount = 0;
+    let pool = 0;
     let pushCount = 0;
-    let lastRoll = [];
+    let heldDice = [];
 
-    function adjustDice(amount) {
-      diceCount = Math.max(0, Math.min(20, diceCount + amount));
-      document.getElementById("diceCount").textContent = diceCount;
+    function changePool(val) {
+      pool = Math.max(0, pool + val);
+      document.getElementById("poolValue").innerText = pool;
     }
 
     function clearAll() {
-      document.getElementById("diceArea").innerHTML = "";
-      document.getElementById("successCount").textContent = "0";
-      document.getElementById("baneCount").textContent = "0";
-      diceCount = 0;
-      lastRoll = [];
+      document.getElementById("dice-display").innerHTML = '';
+      document.getElementById("successes").innerText = '0';
+      document.getElementById("banes").innerText = '0';
+      pool = 0;
       pushCount = 0;
-      document.getElementById("diceCount").textContent = diceCount;
+      heldDice = [];
+      document.getElementById("poolValue").innerText = pool;
     }
 
-    function rollDice(isPush = false) {
-      let area = document.getElementById("diceArea");
-      area.innerHTML = "";
-      let successes = 0, banes = 0;
-      let newRoll = [];
-
-      for (let i = 0; i < diceCount; i++) {
-        let roll = Math.floor(Math.random() * 6) + 1;
-        newRoll.push(roll);
-
-        let img = document.createElement("img");
-        img.classList.add("dice");
-
-        if (roll === 1) {
-          img.src = "img/bane_icon.png";
-          banes++;
-        } else if (roll === 6) {
-          img.src = "img/success_icon.png";
-          successes++;
-        } else {
-          img.src = `img/${roll}_d6.png`;
-        }
-
-        area.appendChild(img);
-      }
-
-      document.getElementById("successCount").textContent = successes;
-      document.getElementById("baneCount").textContent = banes;
-      lastRoll = newRoll;
+    function rollDice() {
       pushCount = 0;
+      heldDice = [];
+      roll(pool);
     }
 
     function pushRoll() {
-      if (lastRoll.length === 0) return;
+      const maxPush = document.getElementById("pushesAllowed").value;
+      if (maxPush !== '∞' && pushCount >= parseInt(maxPush)) return;
 
-      let area = document.getElementById("diceArea");
-      let successes = 0;
-      let banes = 0;
-      let pushedRoll = [];
+      const newPool = heldDice.filter(d => d >= 2 && d <= 5).length;
+      heldDice = heldDice.filter(d => d === 1 || d === 6);
+      pushCount++;
+      roll(newPool, true);
+    }
 
-      area.innerHTML = "";
+    function roll(count, isPush = false) {
+      const display = document.getElementById("dice-display");
+      if (!isPush) display.innerHTML = '';
 
-      for (let i = 0; i < lastRoll.length; i++) {
-        let value = lastRoll[i];
-        let roll = value;
+      let successes = isPush ? parseInt(document.getElementById("successes").innerText) : 0;
+      let banes = isPush ? parseInt(document.getElementById("banes").innerText) : 0;
 
-        // Hold 1s and 6s
-        if (value === 1 || value === 6) {
-          roll = value;
-        } else {
-          roll = Math.floor(Math.random() * 6) + 1;
-        }
-
-        pushedRoll.push(roll);
-
-        let img = document.createElement("img");
-        img.classList.add("dice");
+      for (let i = 0; i < count; i++) {
+        let roll = Math.floor(Math.random() * 6) + 1;
+        heldDice.push(roll);
+        let img = document.createElement('img');
+        img.classList.add('dice-img');
 
         if (roll === 1) {
-          img.src = "img/bane_icon.png";
+          img.src = 'img/Baned6.png';
           banes++;
         } else if (roll === 6) {
-          img.src = "img/success_icon.png";
+          img.src = 'img/Success_d6.png';
           successes++;
         } else {
           img.src = `img/${roll}_d6.png`;
         }
 
-        area.appendChild(img);
+        display.appendChild(img);
       }
 
-      lastRoll = pushedRoll;
-      document.getElementById("successCount").textContent = successes;
-      document.getElementById("baneCount").textContent = banes;
-      pushCount++;
+      document.getElementById("successes").innerText = successes;
+      document.getElementById("banes").innerText = banes;
     }
   </script>
 </body>
