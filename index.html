@@ -32,10 +32,11 @@
 
     .top-bar {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
-      max-width: 700px;
+      gap: 8px;
       margin: 0 auto 10px;
+      max-width: 400px;
     }
 
     .dice-pool-label {
@@ -43,10 +44,10 @@
     }
 
     .push-limit {
-      font-size: 0.8em;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
+      font-size: 0.75em;
+      transform: scale(0.85);
+      transform-origin: top right;
+      text-align: center;
     }
 
     .push-limit label {
@@ -61,11 +62,15 @@
 
     .pool-buttons {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 10px;
-      justify-content: center;
-      margin: 20px auto;
-      max-width: 340px;
+      align-items: center;
+      margin: 20px 0;
+    }
+
+    .pool-row {
+      display: flex;
+      gap: 10px;
     }
 
     .pool-btn {
@@ -161,21 +166,27 @@
   </div>
 
   <div class="pool-buttons">
-    <button class="pool-btn" onclick="changePool(1)">+1</button>
-    <button class="pool-btn" onclick="changePool(2)">+2</button>
-    <button class="pool-btn" onclick="changePool(3)">+3</button>
-    <button class="pool-btn" onclick="changePool(4)">+4</button>
-    <button class="pool-btn" onclick="changePool(5)">+5</button>
-    <button class="pool-btn" onclick="changePool(6)">+6</button>
-    <button class="pool-btn" onclick="changePool(7)">+7</button>
-    <button class="pool-btn" onclick="changePool(8)">+8</button>
-    <button class="pool-btn" onclick="changePool(9)">+9</button>
-    <button class="pool-btn" onclick="changePool(10)">+10</button>
-    <button class="pool-btn" onclick="changePool(-1)">−1</button>
-    <button class="pool-btn" onclick="changePool(-2)">−2</button>
-    <button class="pool-btn" onclick="changePool(-3)">−3</button>
-    <button class="pool-btn" onclick="changePool(-4)">−4</button>
-    <button class="pool-btn" onclick="changePool(-5)">−5</button>
+    <div class="pool-row">
+      <button class="pool-btn" onclick="changePool(1)">+1</button>
+      <button class="pool-btn" onclick="changePool(2)">+2</button>
+      <button class="pool-btn" onclick="changePool(3)">+3</button>
+      <button class="pool-btn" onclick="changePool(4)">+4</button>
+      <button class="pool-btn" onclick="changePool(5)">+5</button>
+    </div>
+    <div class="pool-row">
+      <button class="pool-btn" onclick="changePool(6)">+6</button>
+      <button class="pool-btn" onclick="changePool(7)">+7</button>
+      <button class="pool-btn" onclick="changePool(8)">+8</button>
+      <button class="pool-btn" onclick="changePool(9)">+9</button>
+      <button class="pool-btn" onclick="changePool(10)">+10</button>
+    </div>
+    <div class="pool-row">
+      <button class="pool-btn" onclick="changePool(-1)">−1</button>
+      <button class="pool-btn" onclick="changePool(-2)">−2</button>
+      <button class="pool-btn" onclick="changePool(-3)">−3</button>
+      <button class="pool-btn" onclick="changePool(-4)">−4</button>
+      <button class="pool-btn" onclick="changePool(-5)">−5</button>
+    </div>
   </div>
 
   <div class="icon-row">
