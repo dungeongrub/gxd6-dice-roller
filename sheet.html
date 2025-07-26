@@ -119,73 +119,83 @@
       <button onclick="loadCharacter()">Load</button>
     </div>
   </div>
-
- <!-- Firebase SDKs -->
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+
 <script>
+  // Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
     authDomain: "gxd6-character-sheet.firebaseapp.com",
     projectId: "gxd6-character-sheet",
-    storageBucket: "gxd6-character-sheet.firebasestorage.app",
+    storageBucket: "gxd6-character-sheet.appspot.com",
     messagingSenderId: "761778638151",
     appId: "1:761778638151:web:06a1d72423a7e980889062"
   };
 
-  // Initialize Firebase and Firestore
+  // Initialize Firebase
   const app = firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
-</script>
 
-<!-- Your existing script goes AFTER Firebase is initialized -->
-<script>
   function saveCharacter() {
-    const name = document.getElementById("charName").value;
-    if (!name) return alert("Please enter a character name.");
+    const name = document.getElementById("charName").value.trim();
+    if (!name) {
+      alert("Please enter a character name.");
+      return;
+    }
 
-    const data = {
+    const characterData = {
       name: name,
-      archetype: document.getElementById("archetype").value,
-      xp: document.getElementById("xp").value,
-      strength: document.getElementById("strength").value,
-      agility: document.getElementById("agility").value,
-      wits: document.getElementById("wits").value,
-      empathy: document.getElementById("empathy").value,
-      gear: document.getElementById("gear").value,
+      archetype: document.getElementById("archetype").value.trim(),
+      xp: document.getElementById("xp").value.trim(),
+      strength: document.getElementById("strength").value.trim(),
+      agility: document.getElementById("agility").value.trim(),
+      wits: document.getElementById("wits").value.trim(),
+      empathy: document.getElementById("empathy").value.trim(),
+      gear: document.getElementById("gear").value.trim()
     };
 
-    db.collection("characters").doc(name).set(data).then(() => {
-      alert("Character saved.");
-    }).catch((error) => {
-      console.error("Error saving:", error);
-      alert("Save failed. See console.");
-    });
+    db.collection("characters").doc(name).set(characterData)
+      .then(() => alert("✅ Character saved successfully!"))
+      .catch((error) => {
+        console.error("Save error:", error);
+        alert("❌ Failed to save character.");
+      });
   }
 
   function loadCharacter() {
-    const name = document.getElementById("charName").value;
-    if (!name) return alert("Please enter a character name.");
+    const name = document.getElementById("charName").value.trim();
+    if (!name) {
+      alert("Please enter a character name.");
+      return;
+    }
 
-    db.collection("characters").doc(name).get().then((doc) => {
-      if (doc.exists) {
+    db.collection("characters").doc(name).get()
+      .then((doc) => {
+        if (!doc.exists) {
+          alert("❌ No character found with that name.");
+          return;
+        }
+
         const data = doc.data();
-        document.getElementById("archetype").value = data.archetype || '';
-        document.getElementById("xp").value = data.xp || '';
-        document.getElementById("strength").value = data.strength || '';
-        document.getElementById("agility").value = data.agility || '';
-        document.getElementById("wits").value = data.wits || '';
-        document.getElementById("empathy").value = data.empathy || '';
-        document.getElementById("gear").value = data.gear || '';
-      } else {
-        alert("No character found.");
-      }
-    }).catch((error) => {
-      console.error("Error loading:", error);
-      alert("Load failed. See console.");
-    });
+        document.getElementById("archetype").value = data.archetype || "";
+        document.getElementById("xp").value = data.xp || "";
+        document.getElementById("strength").value = data.strength || "";
+        document.getElementById("agility").value = data.agility || "";
+        document.getElementById("wits").value = data.wits || "";
+        document.getElementById("empathy").value = data.empathy || "";
+        document.getElementById("gear").value = data.gear || "";
+
+        alert("✅ Character loaded.");
+      })
+      .catch((error) => {
+        console.error("Load error:", error);
+        alert("❌ Failed to load character.");
+      });
   }
 </script>
+
 
 </body>
 </html>
