@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>GxD6 Character Sheet</title>
   <style>
     @font-face {
@@ -10,50 +10,54 @@
     }
 
     body {
-      background: url('img/GXD6 Greyscale paper background.jpg') no-repeat center center fixed;
+      background-image: url('img/GXD6 Greyscale paper background.jpg');
       background-size: cover;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
       font-family: 'DominicanSmall', serif;
+      text-align: center;
       color: black;
       padding: 20px;
-      text-align: center;
     }
 
     h1 {
       font-size: 2.5em;
-      margin-bottom: 20px;
-    }
-
-    .sheet-container {
-      background-color: rgba(255, 255, 255, 0.95);
-      border-radius: 10px;
-      padding: 20px;
-      max-width: 800px;
-      margin: auto;
-    }
-
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-      font-variant: small-caps;
+      margin-bottom: 1em;
     }
 
     input, textarea {
-      width: 95%;
-      padding: 6px;
-      margin-bottom: 10px;
-      border: 1px solid black;
-      border-radius: 4px;
-      font-family: 'DominicanSmall', serif;
+      width: 90%;
+      padding: 8px;
+      margin: 5px;
+      font-size: 1em;
+      font-family: 'DominicanSmall';
     }
 
-    .stat-group {
+    textarea {
+      height: 100px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .flex-row {
       display: flex;
       justify-content: space-between;
       gap: 10px;
     }
 
-    .stat-group input {
+    .flex-row input {
       width: 100%;
     }
 
@@ -61,30 +65,25 @@
       margin-top: 20px;
     }
 
-    .icon-button {
-      padding: 10px 20px;
-      background: black;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+    .button-row button {
       font-family: 'DominicanSmall';
-      font-size: 1.2em;
+      font-size: 1em;
+      padding: 10px 20px;
       margin: 0 10px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+      cursor: pointer;
     }
 
-    .icon-button img {
-      height: 18px;
+    .icon {
+      vertical-align: middle;
+      margin-right: 8px;
     }
   </style>
 </head>
 <body>
+
   <h1>GxD6 Character Sheet</h1>
 
-  <div class="sheet-container">
+  <div class="container">
     <label for="charName">Character Name</label>
     <input type="text" id="charName" />
 
@@ -94,7 +93,7 @@
     <label for="xp">XP</label>
     <input type="text" id="xp" />
 
-    <div class="stat-group">
+    <div class="flex-row">
       <div>
         <label for="strength">Strength</label>
         <input type="text" id="strength" />
@@ -113,24 +112,20 @@
     <input type="text" id="empathy" />
 
     <label for="notes">Gear / Notes</label>
-    <textarea id="notes" rows="4"></textarea>
+    <textarea id="notes"></textarea>
 
     <div class="button-row">
-      <button class="icon-button" onclick="saveCharacter()">
-        <img src="img/save_icon.png" /> Save
-      </button>
-      <button class="icon-button" onclick="loadCharacter()">
-        <img src="img/load_icon.png" /> Load
-      </button>
+      <button onclick="saveCharacter()">💾 Save</button>
+      <button onclick="loadCharacter()">📂 Load</button>
     </div>
   </div>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
 
   <script>
-    // Firebase config
+    // Firebase setup
     const firebaseConfig = {
       apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
       authDomain: "gxd6-character-sheet.firebaseapp.com",
@@ -140,15 +135,18 @@
       appId: "1:761778638151:web:06a1d72423a7e980889062"
     };
 
-    // Init Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // Save Function
     function saveCharacter() {
-      const name = document.getElementById('charName').value || "Unnamed";
+      const name = document.getElementById('charName').value;
+      if (!name) {
+        alert("Enter character name to save.");
+        return;
+      }
 
-      const data = {
-        name: name,
+      const characterData = {
         archetype: document.getElementById('archetype').value,
         xp: document.getElementById('xp').value,
         strength: document.getElementById('strength').value,
@@ -158,14 +156,22 @@
         notes: document.getElementById('notes').value
       };
 
-      db.collection("characters").doc(name).set(data)
-        .then(() => alert("✅ Character saved!"))
-        .catch((error) => alert("❌ Error saving: " + error));
+      db.collection("characters").doc(name).set(characterData)
+        .then(() => {
+          alert("✅ Character saved.");
+        })
+        .catch((error) => {
+          alert("❌ Error saving: " + error);
+        });
     }
 
+    // Load Function
     function loadCharacter() {
       const name = document.getElementById('charName').value;
-      if (!name) return alert("❗ Enter the character's name to load it.");
+      if (!name) {
+        alert("Enter character name to load.");
+        return;
+      }
 
       db.collection("characters").doc(name).get()
         .then((doc) => {
@@ -178,13 +184,16 @@
             document.getElementById('wits').value = data.wits || '';
             document.getElementById('empathy').value = data.empathy || '';
             document.getElementById('notes').value = data.notes || '';
-            alert("✅ Character loaded!");
+            alert("✅ Character loaded.");
           } else {
-            alert("⚠️ No character found with that name.");
+            alert("⚠️ Character not found.");
           }
         })
-        .catch((error) => alert("❌ Error loading: " + error));
+        .catch((error) => {
+          alert("❌ Error loading: " + error);
+        });
     }
   </script>
+
 </body>
 </html>
