@@ -102,6 +102,7 @@
         <label>Character Name</label>
         <input id="charName" type="text" />
       </div>
+      <button onclick="saveCharacter()">💾 Save Character</button>
       <div class="field">
         <label>Archetype</label>
         <input id="charArchetype" type="text" />
@@ -201,5 +202,36 @@
         .catch((error) => alert("Error loading: " + error));
     }
   </script>
+  <script>
+  // Function to save character to Firebase
+  function saveCharacter() {
+    const name = document.getElementById('charName')?.value;
+    if (!name) {
+      alert("⚠️ Please enter a character name first!");
+      return;
+    }
+
+    const doc = {
+      name: name,
+      archetype: document.getElementById('charArchetype')?.value || '',
+      xp: parseInt(document.getElementById('charXP')?.value) || 0,
+      strength: parseInt(document.getElementById('charStr')?.value) || 0,
+      agility: parseInt(document.getElementById('charAgi')?.value) || 0,
+      wits: parseInt(document.getElementById('charWits')?.value) || 0,
+      empathy: parseInt(document.getElementById('charEmp')?.value) || 0,
+      gear: document.getElementById('charGear')?.value || ''
+    };
+
+    db.collection("characters").doc(name).set(doc)
+      .then(() => {
+        alert("✅ Character saved successfully!");
+      })
+      .catch((error) => {
+        console.error("❌ Error saving character:", error);
+        alert("❌ Failed to save character.");
+      });
+  }
+</script>
+
 </body>
 </html>
