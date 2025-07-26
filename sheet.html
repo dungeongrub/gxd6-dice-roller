@@ -133,14 +133,14 @@
     <label for="charName">Character Name</label>
     <input type="text" id="charName">
 
-    <label for="archetype">Archetype</label>
-    <input type="text" id="archetype">
+    <label for="Archetypes">Archetypes</label>
+    <input type="text" id="archetypes">
 
     <label for="xp">XP</label>
     <input type="text" id="xp">
 
-    <label for="profession">Profession</label>
-    <input type="text" id="profession">
+    <label for="professions">Professions</label>
+    <input type="text" id="professions">
 
     <label for="notes">Gear / Notes</label>
     <textarea id="notes" rows="4"></textarea>
@@ -236,9 +236,9 @@
     function saveCharacter() {
       const data = {
         name: document.getElementById("charName").value,
-        archetype: document.getElementById("archetype").value,
+        archetypes: document.getElementById("archetypes").value,
         xp: document.getElementById("xp").value,
-        profession: document.getElementById("profession").value,
+        professions: document.getElementById("professions").value,
         notes: document.getElementById("notes").value,
         brawn: document.getElementById("brawn").value,
         agility: document.getElementById("agility").value,
@@ -282,9 +282,9 @@
             return;
           }
           const data = doc.data();
-          document.getElementById("archetype").value = data.archetype;
+          document.getElementById("archetypes").value = data.archetypes;
           document.getElementById("xp").value = data.xp;
-          document.getElementById("profession").value = data.profession;
+          document.getElementById("professions").value = data.professions;
           document.getElementById("notes").value = data.notes;
           document.getElementById("brawn").value = data.brawn;
           document.getElementById("agility").value = data.agility;
