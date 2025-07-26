@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>GxD6 Character Sheet</title>
   <style>
     @font-face {
@@ -9,87 +9,75 @@
       src: url('fonts/DOMISC__.TTF') format('truetype');
     }
 
-    @font-face {
-      font-family: 'DeutschGothic';
-      src: url('fonts/DeutschGothic.ttf') format('truetype');
-    }
-
     body {
-      background-image: url('img/GXD6 Greyscale paper background.jpg');
+      background: url('img/GXD6 Greyscale paper background.jpg') no-repeat center center fixed;
       background-size: cover;
       font-family: 'DominicanSmall', serif;
-      padding: 20px;
       color: black;
+      padding: 20px;
+      text-align: center;
     }
 
     h1 {
       font-size: 2.5em;
-      text-align: center;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
     }
 
     .sheet-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      max-width: 900px;
-      margin: 0 auto;
-      background-color: rgba(255, 255, 255, 0.7);
-      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.95);
       border-radius: 10px;
-    }
-
-    .section {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-
-    .field {
-      flex: 1 1 200px;
-      display: flex;
-      flex-direction: column;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
     }
 
     label {
-      font-family: 'DominicanSmall';
-      font-size: 1em;
-      margin-bottom: 5px;
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+      font-variant: small-caps;
     }
 
     input, textarea {
-      font-family: 'DeutschGothic', sans-serif;
-      font-size: 1.1em;
-      padding: 5px;
-      border: 1px solid #333;
-      border-radius: 5px;
-      background-color: #fdfdfd;
+      width: 95%;
+      padding: 6px;
+      margin-bottom: 10px;
+      border: 1px solid black;
+      border-radius: 4px;
+      font-family: 'DominicanSmall', serif;
     }
 
-    textarea {
-      resize: vertical;
-    }
-
-    .buttons {
+    .stat-group {
       display: flex;
-      justify-content: center;
-      gap: 20px;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .stat-group input {
+      width: 100%;
+    }
+
+    .button-row {
       margin-top: 20px;
     }
 
-    .btn {
+    .icon-button {
       padding: 10px 20px;
-      font-size: 1.1em;
-      font-family: 'DominicanSmall';
-      background-color: #222;
-      color: #fff;
+      background: black;
+      color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
+      font-family: 'DominicanSmall';
+      font-size: 1.2em;
+      margin: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .btn:hover {
-      background-color: #444;
+    .icon-button img {
+      height: 18px;
     }
   </style>
 </head>
@@ -97,141 +85,106 @@
   <h1>GxD6 Character Sheet</h1>
 
   <div class="sheet-container">
-    <div class="section">
-      <div class="field">
-        <label>Character Name</label>
-        <input id="charName" type="text" />
+    <label for="charName">Character Name</label>
+    <input type="text" id="charName" />
+
+    <label for="archetype">Archetype</label>
+    <input type="text" id="archetype" />
+
+    <label for="xp">XP</label>
+    <input type="text" id="xp" />
+
+    <div class="stat-group">
+      <div>
+        <label for="strength">Strength</label>
+        <input type="text" id="strength" />
       </div>
-      <button onclick="saveCharacter()">💾 Save Character</button>
-      <div class="field">
-        <label>Archetype</label>
-        <input id="charArchetype" type="text" />
+      <div>
+        <label for="agility">Agility</label>
+        <input type="text" id="agility" />
       </div>
-      <div class="field">
-        <label>XP</label>
-        <input id="charXP" type="number" />
+      <div>
+        <label for="wits">Wits</label>
+        <input type="text" id="wits" />
       </div>
     </div>
 
-    <div class="section">
-      <div class="field">
-        <label>Strength</label>
-        <input id="charStr" type="number" />
-      </div>
-      <div class="field">
-        <label>Agility</label>
-        <input id="charAgi" type="number" />
-      </div>
-      <div class="field">
-        <label>Wits</label>
-        <input id="charWits" type="number" />
-      </div>
-      <div class="field">
-        <label>Empathy</label>
-        <input id="charEmp" type="number" />
-      </div>
-    </div>
+    <label for="empathy">Empathy</label>
+    <input type="text" id="empathy" />
 
-    <div class="section">
-      <div class="field" style="flex: 1 1 100%;">
-        <label>Gear / Notes</label>
-        <textarea id="charGear" rows="4"></textarea>
-      </div>
-    </div>
+    <label for="notes">Gear / Notes</label>
+    <textarea id="notes" rows="4"></textarea>
 
-    <div class="buttons">
-      <button class="btn" onclick="saveCharacter()">💾 Save</button>
-      <button class="btn" onclick="loadCharacter()">📂 Load</button>
+    <div class="button-row">
+      <button class="icon-button" onclick="saveCharacter()">
+        <img src="img/save_icon.png" /> Save
+      </button>
+      <button class="icon-button" onclick="loadCharacter()">
+        <img src="img/load_icon.png" /> Load
+      </button>
     </div>
   </div>
 
-  <!-- ✅ Firebase SDK -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
 
   <script>
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
       authDomain: "gxd6-character-sheet.firebaseapp.com",
       projectId: "gxd6-character-sheet",
-      storageBucket: "gxd6-character-sheet.firebasestorage.app",
+      storageBucket: "gxd6-character-sheet.appspot.com",
       messagingSenderId: "761778638151",
       appId: "1:761778638151:web:06a1d72423a7e980889062"
     };
 
+    // Init Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     function saveCharacter() {
-      const doc = {
-        name: document.getElementById('charName').value,
-        archetype: document.getElementById('charArchetype').value,
-        xp: document.getElementById('charXP').value,
-        strength: document.getElementById('charStr').value,
-        agility: document.getElementById('charAgi').value,
-        wits: document.getElementById('charWits').value,
-        empathy: document.getElementById('charEmp').value,
-        gear: document.getElementById('charGear').value,
+      const name = document.getElementById('charName').value || "Unnamed";
+
+      const data = {
+        name: name,
+        archetype: document.getElementById('archetype').value,
+        xp: document.getElementById('xp').value,
+        strength: document.getElementById('strength').value,
+        agility: document.getElementById('agility').value,
+        wits: document.getElementById('wits').value,
+        empathy: document.getElementById('empathy').value,
+        notes: document.getElementById('notes').value
       };
 
-      db.collection("characters").doc(doc.name).set(doc)
-        .then(() => alert("Character saved!"))
-        .catch((error) => alert("Error saving: " + error));
+      db.collection("characters").doc(name).set(data)
+        .then(() => alert("✅ Character saved!"))
+        .catch((error) => alert("❌ Error saving: " + error));
     }
 
     function loadCharacter() {
-      const name = prompt("Enter the character name to load:");
-      if (!name) return;
+      const name = document.getElementById('charName').value;
+      if (!name) return alert("❗ Enter the character's name to load it.");
 
       db.collection("characters").doc(name).get()
         .then((doc) => {
           if (doc.exists) {
             const data = doc.data();
-            document.getElementById('charName').value = data.name;
-            document.getElementById('charArchetype').value = data.archetype;
-            document.getElementById('charXP').value = data.xp;
-            document.getElementById('charStr').value = data.strength;
-            document.getElementById('charAgi').value = data.agility;
-            document.getElementById('charWits').value = data.wits;
-            document.getElementById('charEmp').value = data.empathy;
-            document.getElementById('charGear').value = data.gear;
+            document.getElementById('archetype').value = data.archetype || '';
+            document.getElementById('xp').value = data.xp || '';
+            document.getElementById('strength').value = data.strength || '';
+            document.getElementById('agility').value = data.agility || '';
+            document.getElementById('wits').value = data.wits || '';
+            document.getElementById('empathy').value = data.empathy || '';
+            document.getElementById('notes').value = data.notes || '';
+            alert("✅ Character loaded!");
           } else {
-            alert("Character not found.");
+            alert("⚠️ No character found with that name.");
           }
         })
-        .catch((error) => alert("Error loading: " + error));
+        .catch((error) => alert("❌ Error loading: " + error));
     }
   </script>
-  <script>
-  // Function to save character to Firebase
-  function saveCharacter() {
-    const name = document.getElementById('charName')?.value;
-    if (!name) {
-      alert("⚠️ Please enter a character name first!");
-      return;
-    }
-
-    const doc = {
-      name: name,
-      archetype: document.getElementById('charArchetype')?.value || '',
-      xp: parseInt(document.getElementById('charXP')?.value) || 0,
-      strength: parseInt(document.getElementById('charStr')?.value) || 0,
-      agility: parseInt(document.getElementById('charAgi')?.value) || 0,
-      wits: parseInt(document.getElementById('charWits')?.value) || 0,
-      empathy: parseInt(document.getElementById('charEmp')?.value) || 0,
-      gear: document.getElementById('charGear')?.value || ''
-    };
-
-    db.collection("characters").doc(name).set(doc)
-      .then(() => {
-        alert("✅ Character saved successfully!");
-      })
-      .catch((error) => {
-        console.error("❌ Error saving character:", error);
-        alert("❌ Failed to save character.");
-      });
-  }
-</script>
-
 </body>
 </html>
