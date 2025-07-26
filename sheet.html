@@ -120,80 +120,72 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+ <!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
+    authDomain: "gxd6-character-sheet.firebaseapp.com",
+    projectId: "gxd6-character-sheet",
+    storageBucket: "gxd6-character-sheet.firebasestorage.app",
+    messagingSenderId: "761778638151",
+    appId: "1:761778638151:web:06a1d72423a7e980889062"
+  };
 
-  <script>
-    // Firebase setup
-    const firebaseConfig = {
-      apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
-      authDomain: "gxd6-character-sheet.firebaseapp.com",
-      projectId: "gxd6-character-sheet",
-      storageBucket: "gxd6-character-sheet.appspot.com",
-      messagingSenderId: "761778638151",
-      appId: "1:761778638151:web:06a1d72423a7e980889062"
+  // Initialize Firebase and Firestore
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
+
+<!-- Your existing script goes AFTER Firebase is initialized -->
+<script>
+  function saveCharacter() {
+    const name = document.getElementById("charName").value;
+    if (!name) return alert("Please enter a character name.");
+
+    const data = {
+      name: name,
+      archetype: document.getElementById("archetype").value,
+      xp: document.getElementById("xp").value,
+      strength: document.getElementById("strength").value,
+      agility: document.getElementById("agility").value,
+      wits: document.getElementById("wits").value,
+      empathy: document.getElementById("empathy").value,
+      gear: document.getElementById("gear").value,
     };
 
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    db.collection("characters").doc(name).set(data).then(() => {
+      alert("Character saved.");
+    }).catch((error) => {
+      console.error("Error saving:", error);
+      alert("Save failed. See console.");
+    });
+  }
 
-    // Save Function
-    function saveCharacter() {
-      const name = document.getElementById('charName').value;
-      if (!name) {
-        alert("Enter character name to save.");
-        return;
+  function loadCharacter() {
+    const name = document.getElementById("charName").value;
+    if (!name) return alert("Please enter a character name.");
+
+    db.collection("characters").doc(name).get().then((doc) => {
+      if (doc.exists) {
+        const data = doc.data();
+        document.getElementById("archetype").value = data.archetype || '';
+        document.getElementById("xp").value = data.xp || '';
+        document.getElementById("strength").value = data.strength || '';
+        document.getElementById("agility").value = data.agility || '';
+        document.getElementById("wits").value = data.wits || '';
+        document.getElementById("empathy").value = data.empathy || '';
+        document.getElementById("gear").value = data.gear || '';
+      } else {
+        alert("No character found.");
       }
-
-      const characterData = {
-        archetype: document.getElementById('archetype').value,
-        xp: document.getElementById('xp').value,
-        strength: document.getElementById('strength').value,
-        agility: document.getElementById('agility').value,
-        wits: document.getElementById('wits').value,
-        empathy: document.getElementById('empathy').value,
-        notes: document.getElementById('notes').value
-      };
-
-      db.collection("characters").doc(name).set(characterData)
-        .then(() => {
-          alert("✅ Character saved.");
-        })
-        .catch((error) => {
-          alert("❌ Error saving: " + error);
-        });
-    }
-
-    // Load Function
-    function loadCharacter() {
-      const name = document.getElementById('charName').value;
-      if (!name) {
-        alert("Enter character name to load.");
-        return;
-      }
-
-      db.collection("characters").doc(name).get()
-        .then((doc) => {
-          if (doc.exists) {
-            const data = doc.data();
-            document.getElementById('archetype').value = data.archetype || '';
-            document.getElementById('xp').value = data.xp || '';
-            document.getElementById('strength').value = data.strength || '';
-            document.getElementById('agility').value = data.agility || '';
-            document.getElementById('wits').value = data.wits || '';
-            document.getElementById('empathy').value = data.empathy || '';
-            document.getElementById('notes').value = data.notes || '';
-            alert("✅ Character loaded.");
-          } else {
-            alert("⚠️ Character not found.");
-          }
-        })
-        .catch((error) => {
-          alert("❌ Error loading: " + error);
-        });
-    }
-  </script>
+    }).catch((error) => {
+      console.error("Error loading:", error);
+      alert("Load failed. See console.");
+    });
+  }
+</script>
 
 </body>
 </html>
