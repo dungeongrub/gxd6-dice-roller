@@ -2,53 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>GxD6 Character Sheet</title>
+  <title>GXD6 Character Sheet</title>
   <style>
     @font-face {
       font-family: 'DominicanSmall';
       src: url('fonts/DOMISC__.TTF') format('truetype');
     }
 
+    @font-face {
+      font-family: 'DeutschGothic';
+      src: url('fonts/DeutschGothic.ttf') format('truetype');
+    }
+
     body {
-      background-image: url('img/GXD6 Greyscale paper background.jpg');
-      background-size: cover;
-      background-attachment: fixed;
-      background-repeat: no-repeat;
+      background-color: #f5f5f5;
       font-family: 'DominicanSmall', serif;
-      text-align: center;
-      color: black;
       padding: 20px;
+      max-width: 600px;
+      margin: auto;
     }
 
     h1 {
-      font-size: 2.5em;
-      margin-bottom: 1em;
+      text-align: center;
+      font-size: 2.2em;
+      margin-bottom: 20px;
     }
 
-    input, textarea {
-      width: 90%;
-      padding: 8px;
-      margin: 5px;
-      font-size: 1em;
-      font-family: 'DominicanSmall';
-    }
-
-    textarea {
-      height: 100px;
-    }
-
-    label {
-      font-weight: bold;
+    .container label {
       display: block;
       margin-top: 10px;
     }
 
-    .container {
-      background: rgba(255, 255, 255, 0.8);
-      border-radius: 10px;
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
+    .container input,
+    .container textarea,
+    .container select {
+      width: 100%;
+      padding: 8px;
+      font-family: 'DominicanSmall';
+      font-size: 1em;
+      margin-top: 4px;
     }
 
     .flex-row {
@@ -57,31 +49,33 @@
       gap: 10px;
     }
 
-    .flex-row input {
-      width: 100%;
+    .flex-row > div {
+      flex: 1;
     }
 
     .button-row {
+      display: flex;
+      justify-content: space-between;
       margin-top: 20px;
     }
 
-    .button-row button {
+    button {
       font-family: 'DominicanSmall';
       font-size: 1em;
-      padding: 10px 20px;
-      margin: 0 10px;
+      padding: 10px 15px;
+      background-color: #222;
+      color: white;
+      border: none;
       cursor: pointer;
     }
 
-    .icon {
-      vertical-align: middle;
-      margin-right: 8px;
+    button:hover {
+      background-color: #444;
     }
   </style>
 </head>
 <body>
-
-  <h1>GxD6 Character Sheet</h1>
+  <h1>GXD6 Character Sheet</h1>
 
   <div class="container">
     <label for="charName">Character Name</label>
@@ -111,74 +105,74 @@
     <label for="empathy">Empathy</label>
     <input type="text" id="empathy" />
 
-    <label for="notes">Gear / Notes</label>
-   <textarea id="gear"></textarea>
+    <label for="gear">Gear / Notes</label>
+    <textarea id="gear"></textarea>
 
     <div class="button-row">
-      <button onclick="saveCharacter()">Save</button>
-      <button onclick="loadCharacter()">Load</button>
+      <button onclick="saveCharacter()">💾 Save</button>
+      <button onclick="loadCharacter()">📂 Load</button>
     </div>
   </div>
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
 
-<script>
-  // Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
-    authDomain: "gxd6-character-sheet.firebaseapp.com",
-    projectId: "gxd6-character-sheet",
-    storageBucket: "gxd6-character-sheet.appspot.com",
-    messagingSenderId: "761778638151",
-    appId: "1:761778638151:web:06a1d72423a7e980889062"
-  };
+  <!-- Firebase SDK (Modular, works with GitHub Pages) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-  // Initialize Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
-  function saveCharacter() {
-    const name = document.getElementById("charName").value.trim();
-    if (!name) {
-      alert("Please enter a character name.");
-      return;
-    }
-
-    const characterData = {
-      name: name,
-      archetype: document.getElementById("archetype").value.trim(),
-      xp: document.getElementById("xp").value.trim(),
-      strength: document.getElementById("strength").value.trim(),
-      agility: document.getElementById("agility").value.trim(),
-      wits: document.getElementById("wits").value.trim(),
-      empathy: document.getElementById("empathy").value.trim(),
-      gear: document.getElementById("gear").value.trim()
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
+      authDomain: "gxd6-character-sheet.firebaseapp.com",
+      projectId: "gxd6-character-sheet",
+      storageBucket: "gxd6-character-sheet.appspot.com",
+      messagingSenderId: "761778638151",
+      appId: "1:761778638151:web:06a1d72423a7e980889062"
     };
 
-    db.collection("characters").doc(name).set(characterData)
-      .then(() => alert("✅ Character saved successfully!"))
-      .catch((error) => {
-        console.error("Save error:", error);
-        alert("❌ Failed to save character.");
-      });
-  }
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  function loadCharacter() {
-    const name = document.getElementById("charName").value.trim();
-    if (!name) {
-      alert("Please enter a character name.");
-      return;
-    }
+    window.saveCharacter = async function () {
+      const name = document.getElementById("charName").value.trim();
+      if (!name) {
+        alert("Please enter a character name.");
+        return;
+      }
 
-    db.collection("characters").doc(name).get()
-      .then((doc) => {
-        if (!doc.exists) {
-          alert("❌ No character found with that name.");
+      const characterData = {
+        name,
+        archetype: document.getElementById("archetype").value.trim(),
+        xp: document.getElementById("xp").value.trim(),
+        strength: document.getElementById("strength").value.trim(),
+        agility: document.getElementById("agility").value.trim(),
+        wits: document.getElementById("wits").value.trim(),
+        empathy: document.getElementById("empathy").value.trim(),
+        gear: document.getElementById("gear").value.trim()
+      };
+
+      try {
+        await setDoc(doc(db, "characters", name), characterData);
+        alert("✅ Character saved!");
+      } catch (error) {
+        console.error("Save failed", error);
+        alert("❌ Failed to save.");
+      }
+    };
+
+    window.loadCharacter = async function () {
+      const name = document.getElementById("charName").value.trim();
+      if (!name) {
+        alert("Please enter a character name.");
+        return;
+      }
+
+      try {
+        const docSnap = await getDoc(doc(db, "characters", name));
+        if (!docSnap.exists()) {
+          alert("❌ Character not found.");
           return;
         }
 
-        const data = doc.data();
+        const data = docSnap.data();
         document.getElementById("archetype").value = data.archetype || "";
         document.getElementById("xp").value = data.xp || "";
         document.getElementById("strength").value = data.strength || "";
@@ -187,15 +181,12 @@
         document.getElementById("empathy").value = data.empathy || "";
         document.getElementById("gear").value = data.gear || "";
 
-        alert("✅ Character loaded.");
-      })
-      .catch((error) => {
-        console.error("Load error:", error);
+        alert("✅ Character loaded!");
+      } catch (error) {
+        console.error("Load failed", error);
         alert("❌ Failed to load character.");
-      });
-  }
-</script>
-
-
+      }
+    };
+  </script>
 </body>
 </html>
