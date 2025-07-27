@@ -93,6 +93,66 @@
       cursor: pointer;
     }
 
+    /* Attribute + Skill Boxes */
+    .attribute-skill-block {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .attribute-group {
+      flex: 1 1 300px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 15px;
+      border: 2px solid #999;
+      border-radius: 8px;
+    }
+
+    .attribute-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .attribute-label {
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+
+    .attribute-max {
+      font-size: 0.9em;
+      margin-top: 5px;
+    }
+
+    .attribute-input {
+      width: 50px;
+      font-size: 1.2em;
+      text-align: center;
+    }
+
+    .skills-list {
+      margin-top: 10px;
+    }
+
+    .skill-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .skill-row label {
+      width: 130px;
+      font-size: 0.95em;
+    }
+
+    .skill-input {
+      width: 40px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -110,12 +170,10 @@
       <label for="charName">Character Name</label>
       <input type="text" id="charName">
     </div>
-
     <div class="field">
       <label for="gender">Gender</label>
       <input type="text" id="gender" maxlength="20">
     </div>
-
     <div class="field">
       <label for="xp">XP</label>
       <input type="text" id="xp" maxlength="3">
@@ -127,24 +185,74 @@
       <label for="archetypes">Archetype</label>
       <input type="text" id="archetypes">
     </div>
-
     <div class="field">
       <label for="archetype2">Archetype 2</label>
       <input type="text" id="archetype2">
     </div>
-
     <div class="field">
       <label for="professions">Profession</label>
       <input type="text" id="professions">
     </div>
-
     <div class="field">
       <label for="profession2">Profession 2</label>
       <input type="text" id="profession2">
     </div>
   </div>
 
-  <!-- Notes at the bottom -->
+  <!-- Attributes + Skills -->
+  <div class="attribute-skill-block">
+    <div class="attribute-group">
+      <div class="attribute-info">
+        <div class="attribute-label">Brawn</div>
+        <input class="attribute-input" type="number" id="brawn" min="1" max="5">
+      </div>
+      <div class="skills-list">
+        <div class="skill-row"><label for="endurance">Endurance</label><input class="skill-input" id="endurance" type="number" min="0" max="6"></div>
+        <div class="skill-row"><label for="fight">Fight</label><input class="skill-input" id="fight" type="number" min="0" max="6"></div>
+        <div class="skill-row"><label for="might">Might</label><input class="skill-input" id="might" type="number" min="0" max="6"></div>
+      </div>
+    </div>
+
+    <div class="attribute-group">
+      <div class="attribute-info">
+        <div class="attribute-label">Agility</div>
+        <input class="attribute-input" type="number" id="agility" min="1" max="5">
+      </div>
+      <div class="skills-list">
+        <div class="skill-row"><label for="marksmanship">Marksmanship</label><input class="skill-input" id="marksmanship" type="number" min="0" max="6"></div>
+        <div class="skill-row"><label for="mobility">Mobility</label><input class="skill-input" id="mobility" type="number" min="0" max="6"></div>
+        <div class="skill-row"><label for="precision">Precision</label><input class="skill-input" id="precision" type="number" min="0" max="6"></div>
+      </div>
+    </div>
+
+    <div class="attribute-group">
+      <div class="attribute-info">
+        <div class="attribute-label">Wits</div>
+        <input class="attribute-input" type="number" id="wits" min="1" max="5">
+      </div>
+      <div class="skills-list">
+        <div class="skill-row"><label for="heal">Heal</label><input class="skill-input" id="heal" type="number" min="0" max="6"></div>
+        <div class="skill-row"><label for="insight">Insight</label><input class="skill-input" id="insight" type="number" min="0" max="6"></div>
+        <div class="skill-row"><label for="logic">Logic</label><input class="skill-input" id="logic" type="number" min="0" max="6"></div>
+        <div class="skill-row"><label for="survival">Survival</label><input class="skill-input" id="survival" type="number" min="0" max="6"></div>
+        <div class="skill-row"><label for="vigilance">Vigilance</label><input class="skill-input" id="vigilance" type="number" min="0" max="6"></div>
+      </div>
+    </div>
+
+    <div class="attribute-group">
+      <div class="attribute-info">
+        <div class="attribute-label">Will</div>
+        <input class="attribute-input" type="number" id="will" min="1" max="5">
+      </div>
+      <div class="skills-list">
+        <div class="skill-row"><label for="inspire">Inspire</label><input class="skill-input" id="inspire" type="number" min="0" max="6"></div>
+        <div class="skill-row"><label for="manipulate">Manipulate</label><input class="skill-input" id="manipulate" type="number" min="0" max="6"></div>
+        <div class="skill-row"><label for="resolve">Resolve</label><input class="skill-input" id="resolve" type="number" min="0" max="6"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes Field -->
   <label for="notes">Gear / Notes</label>
   <textarea id="notes"></textarea>
 
