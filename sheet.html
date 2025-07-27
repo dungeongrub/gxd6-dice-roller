@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>GXD6 Character Sheet</title>
+  <title>GxD6 Character Sheet</title>
   <style>
     @font-face {
       font-family: 'DominicanSmall';
@@ -23,28 +23,23 @@
       padding: 20px;
     }
 
-    h1 {
-      text-align: center;
-      font-size: 2em;
-    }
-
     label {
       display: block;
       margin-bottom: 4px;
     }
 
     input, textarea {
-      padding: 5px;
       font-family: 'DominicanSmall';
+      padding: 4px;
       font-size: 1em;
-      box-sizing: border-box;
     }
 
     .flex-row {
       display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
       flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
     .field {
@@ -53,86 +48,70 @@
     }
 
     #charName {
-      min-width: 180px;
-      flex: 1;
+      width: 300px;
     }
 
     #gender {
-      width: 160px;
-      max-length: 20;
+      width: 130px;
     }
 
     #xp {
       width: 60px;
-      text-align: center;
     }
 
-    #archetypes, #archetype2,
-    #professions, #profession2 {
+    #archetypes, #professions {
       width: 180px;
     }
 
-    textarea {
+    #notes {
       width: 100%;
-      min-height: 100px;
-      resize: vertical;
-      margin-top: 15px;
+      height: 100px;
+      margin-top: 20px;
     }
 
     .button-row {
+      position: absolute;
+      top: 20px;
+      right: 30px;
       display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-bottom: 15px;
+      gap: 12px;
     }
 
-    .btn {
-      padding: 10px 20px;
+    button {
       font-family: 'DominicanSmall';
       font-size: 1em;
+      padding: 6px 12px;
       cursor: pointer;
     }
 
     /* Attribute + Skill Boxes */
-.attribute-skill-block {
-  display: flex;
-  justify-content: flex-start;   /* Align to left */
-  gap: 10px;                     /* 50% smaller than previous 20px */
-  margin-top: 20px;
-  width: fit-content;            /* Shrinks to fit its contents */
-  flex-wrap: wrap;               /* ✅ Allows wrapping on smaller screens */
-}
+    .attribute-skill-block {
+      display: flex;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
 
-    
     .attribute-group {
-      width: 1 1 260px;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 15px;
-      border: 2px solid #999;
-      border-radius: 8px;
+      width: 260px;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 10px;
+      border: 2px solid #888;
+      border-radius: 6px;
     }
 
     .attribute-info {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.2em;
       margin-bottom: 10px;
     }
 
-    .attribute-label {
-      font-weight: bold;
-      font-size: 1.2em;
-    }
-
-    .attribute-max {
-      font-size: 0.9em;
-      margin-top: 5px;
-    }
-
     .attribute-input {
-      width: 50px;
-      font-size: 1.2em;
+      width: 40px;
       text-align: center;
+      font-size: 1.1em;
     }
 
     .skills-list {
@@ -148,7 +127,6 @@
 
     .skill-row label {
       width: 130px;
-      font-size: 0.95em;
     }
 
     .skill-input {
@@ -158,19 +136,20 @@
   </style>
 </head>
 <body>
-  <h1>GXD6 Character Sheet</h1>
 
-  <!-- Save/Load Buttons -->
   <div class="button-row">
-    <button class="btn" onclick="saveCharacter()">Save</button>
-    <button class="btn" onclick="loadCharacter()">Load</button>
+    <button onclick="saveCharacter()">Save</button>
+    <button onclick="loadCharacter()">Load</button>
   </div>
 
-  <!-- Top Info Fields -->
+  <h1>GxD6 Character Sheet</h1>
+
+  <!-- Character Identity -->
+  <div class="flex-row">
     <div class="field">
-  <label for="charName">Character Name</label>
-  <input type="text" id="charName" maxlength="30" style="width: 240px;">
-</div>
+      <label for="charName">Character Name</label>
+      <input type="text" id="charName" maxlength="30">
+    </div>
     <div class="field">
       <label for="gender">Gender</label>
       <input type="text" id="gender" maxlength="20">
@@ -183,81 +162,65 @@
 
   <div class="flex-row">
     <div class="field">
-      <label for="archetypes">Archetype</label>
-      <input type="text" id="archetypes">
+      <label for="archetypes">Archetypes</label>
+      <input type="text" id="archetypes" placeholder="e.g. Mystic / Hunter">
     </div>
     <div class="field">
-      <label for="archetype2">Archetype 2</label>
-      <input type="text" id="archetype2">
-    </div>
-    <div class="field">
-      <label for="professions">Profession</label>
-      <input type="text" id="professions">
-    </div>
-    <div class="field">
-      <label for="profession2">Profession 2</label>
-      <input type="text" id="profession2">
+      <label for="professions">Professions</label>
+      <input type="text" id="professions" placeholder="e.g. Guide / Tinkerer">
     </div>
   </div>
 
-  <!-- Attributes + Skills -->
+  <!-- Attributes & Skills -->
   <div class="attribute-skill-block">
     <div class="attribute-group">
-      <div class="attribute-info">
-        <div class="attribute-label">Brawn</div>
-        <input class="attribute-input" type="number" id="brawn" min="1" max="5">
-      </div>
+      <div class="attribute-info">BRAWN</div>
+      <input type="number" class="attribute-input" id="brawn" min="1" max="5">
       <div class="skills-list">
-        <div class="skill-row"><label for="endurance">Endurance</label><input class="skill-input" id="endurance" type="number" min="0" max="6"></div>
-        <div class="skill-row"><label for="fight">Fight</label><input class="skill-input" id="fight" type="number" min="0" max="6"></div>
-        <div class="skill-row"><label for="might">Might</label><input class="skill-input" id="might" type="number" min="0" max="6"></div>
+        <div class="skill-row"><label>Endurance</label><input type="number" class="skill-input" id="endurance" min="0" max="6"></div>
+        <div class="skill-row"><label>Fight</label><input type="number" class="skill-input" id="fight" min="0" max="6"></div>
+        <div class="skill-row"><label>Might</label><input type="number" class="skill-input" id="might" min="0" max="6"></div>
       </div>
     </div>
 
     <div class="attribute-group">
-      <div class="attribute-info">
-        <div class="attribute-label">Agility</div>
-        <input class="attribute-input" type="number" id="agility" min="1" max="5">
-      </div>
+      <div class="attribute-info">AGILITY</div>
+      <input type="number" class="attribute-input" id="agility" min="1" max="5">
       <div class="skills-list">
-        <div class="skill-row"><label for="marksmanship">Marksmanship</label><input class="skill-input" id="marksmanship" type="number" min="0" max="6"></div>
-        <div class="skill-row"><label for="mobility">Mobility</label><input class="skill-input" id="mobility" type="number" min="0" max="6"></div>
-        <div class="skill-row"><label for="precision">Precision</label><input class="skill-input" id="precision" type="number" min="0" max="6"></div>
+        <div class="skill-row"><label>Marksmanship</label><input type="number" class="skill-input" id="marksmanship" min="0" max="6"></div>
+        <div class="skill-row"><label>Mobility</label><input type="number" class="skill-input" id="mobility" min="0" max="6"></div>
+        <div class="skill-row"><label>Precision</label><input type="number" class="skill-input" id="precision" min="0" max="6"></div>
       </div>
     </div>
 
     <div class="attribute-group">
-      <div class="attribute-info">
-        <div class="attribute-label">Wits</div>
-        <input class="attribute-input" type="number" id="wits" min="1" max="5">
-      </div>
+      <div class="attribute-info">WITS</div>
+      <input type="number" class="attribute-input" id="wits" min="1" max="5">
       <div class="skills-list">
-        <div class="skill-row"><label for="heal">Heal</label><input class="skill-input" id="heal" type="number" min="0" max="6"></div>
-        <div class="skill-row"><label for="insight">Insight</label><input class="skill-input" id="insight" type="number" min="0" max="6"></div>
-        <div class="skill-row"><label for="logic">Logic</label><input class="skill-input" id="logic" type="number" min="0" max="6"></div>
-        <div class="skill-row"><label for="survival">Survival</label><input class="skill-input" id="survival" type="number" min="0" max="6"></div>
-        <div class="skill-row"><label for="vigilance">Vigilance</label><input class="skill-input" id="vigilance" type="number" min="0" max="6"></div>
+        <div class="skill-row"><label>Heal</label><input type="number" class="skill-input" id="heal" min="0" max="6"></div>
+        <div class="skill-row"><label>Insight</label><input type="number" class="skill-input" id="insight" min="0" max="6"></div>
+        <div class="skill-row"><label>Logic</label><input type="number" class="skill-input" id="logic" min="0" max="6"></div>
+        <div class="skill-row"><label>Survival</label><input type="number" class="skill-input" id="survival" min="0" max="6"></div>
+        <div class="skill-row"><label>Vigilance</label><input type="number" class="skill-input" id="vigilance" min="0" max="6"></div>
       </div>
     </div>
 
     <div class="attribute-group">
-      <div class="attribute-info">
-        <div class="attribute-label">Will</div>
-        <input class="attribute-input" type="number" id="will" min="1" max="5">
-      </div>
+      <div class="attribute-info">WILL</div>
+      <input type="number" class="attribute-input" id="will" min="1" max="5">
       <div class="skills-list">
-        <div class="skill-row"><label for="inspire">Inspire</label><input class="skill-input" id="inspire" type="number" min="0" max="6"></div>
-        <div class="skill-row"><label for="manipulate">Manipulate</label><input class="skill-input" id="manipulate" type="number" min="0" max="6"></div>
-        <div class="skill-row"><label for="resolve">Resolve</label><input class="skill-input" id="resolve" type="number" min="0" max="6"></div>
+        <div class="skill-row"><label>Inspire</label><input type="number" class="skill-input" id="inspire" min="0" max="6"></div>
+        <div class="skill-row"><label>Manipulate</label><input type="number" class="skill-input" id="manipulate" min="0" max="6"></div>
+        <div class="skill-row"><label>Resolve</label><input type="number" class="skill-input" id="resolve" min="0" max="6"></div>
       </div>
     </div>
   </div>
 
-  <!-- Notes Field -->
-  <label for="notes">Gear / Notes</label>
+  <!-- Notes -->
+  <label for="notes">Gear & Notes</label>
   <textarea id="notes"></textarea>
 
-  <!-- FIREBASE SDK -->
+  <!-- ✅ Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
   <script>
@@ -269,7 +232,6 @@
       messagingSenderId: "761778638151",
       appId: "1:761778638151:web:06a1d72423a7e980889062"
     };
-
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
@@ -279,10 +241,28 @@
         gender: document.getElementById("gender").value,
         xp: document.getElementById("xp").value,
         archetypes: document.getElementById("archetypes").value,
-        archetype2: document.getElementById("archetype2").value,
         professions: document.getElementById("professions").value,
-        profession2: document.getElementById("profession2").value,
-        notes: document.getElementById("notes").value
+        notes: document.getElementById("notes").value,
+        brawn: document.getElementById("brawn").value,
+        agility: document.getElementById("agility").value,
+        wits: document.getElementById("wits").value,
+        will: document.getElementById("will").value,
+        skills: {
+          endurance: document.getElementById("endurance").value,
+          fight: document.getElementById("fight").value,
+          might: document.getElementById("might").value,
+          marksmanship: document.getElementById("marksmanship").value,
+          mobility: document.getElementById("mobility").value,
+          precision: document.getElementById("precision").value,
+          heal: document.getElementById("heal").value,
+          insight: document.getElementById("insight").value,
+          logic: document.getElementById("logic").value,
+          survival: document.getElementById("survival").value,
+          vigilance: document.getElementById("vigilance").value,
+          inspire: document.getElementById("inspire").value,
+          manipulate: document.getElementById("manipulate").value,
+          resolve: document.getElementById("resolve").value
+        }
       };
 
       db.collection("characters").doc(data.name).set(data)
@@ -299,16 +279,25 @@
             return;
           }
           const data = doc.data();
-          document.getElementById("gender").value = data.gender || '';
-          document.getElementById("xp").value = data.xp || '';
-          document.getElementById("archetypes").value = data.archetypes || '';
-          document.getElementById("archetype2").value = data.archetype2 || '';
-          document.getElementById("professions").value = data.professions || '';
-          document.getElementById("profession2").value = data.profession2 || '';
-          document.getElementById("notes").value = data.notes || '';
+          document.getElementById("gender").value = data.gender;
+          document.getElementById("xp").value = data.xp;
+          document.getElementById("archetypes").value = data.archetypes;
+          document.getElementById("professions").value = data.professions;
+          document.getElementById("notes").value = data.notes;
+          document.getElementById("brawn").value = data.brawn;
+          document.getElementById("agility").value = data.agility;
+          document.getElementById("wits").value = data.wits;
+          document.getElementById("will").value = data.will;
+
+          for (const skill in data.skills) {
+            document.getElementById(skill).value = data.skills[skill];
+          }
+
+          alert("Character loaded!");
         })
         .catch(err => alert("Error loading: " + err));
     }
   </script>
+
 </body>
 </html>
