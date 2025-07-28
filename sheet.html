@@ -139,50 +139,49 @@
 
   <h1>GxD6 Character Sheet</h1>
 
-<!-- 🔹 Line 1 -->
-<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
+<!-- 🔹 Line 1: Character Name | Gender | Save | Load -->
+<div style="display: flex; align-items: flex-end; gap: 5px; margin-bottom: 10px;">
   <!-- Character Name -->
-  <div style="flex: 2;">
-    <label for="charName">Character Name</label>
-    <input type="text" id="charName" style="width: 100%;">
+  <div>
+    <label for="charName">Character Name</label><br>
+    <input type="text" id="charName" maxlength="30" style="width: 240px;">
   </div>
 
   <!-- Gender -->
-  <div style="flex: 1;">
-    <label for="gender">Gender</label>
-    <input type="text" id="gender" style="width: 100%;">
+  <div>
+    <label for="gender">Gender</label><br>
+    <input type="text" id="gender" maxlength="10" style="width: 90px;">
   </div>
 
   <!-- Save / Load Buttons -->
-  <div style="display: flex; gap: 6px; align-items: end;">
+  <div style="margin-left: auto; display: flex; gap: 6px; align-items: flex-end;">
     <button onclick="saveCharacter()">Save</button>
     <button onclick="loadCharacter()">Load</button>
   </div>
 </div>
 
-<!-- 🔹 Line 2 -->
-<div style="display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px;">
+<!-- 🔹 Line 2: Archetypes | Professions | XP -->
+<div style="display: flex; align-items: flex-start; gap: 5px; margin-bottom: 20px;">
   <!-- Archetypes -->
-  <div style="flex: 2;">
-    <label for="archetype1">Archetypes</label>
-    <input type="text" id="archetype1" style="width: 100%; margin-bottom: 2px;">
-    <input type="text" id="archetype2" style="width: 100%;">
+  <div>
+    <label for="archetype1">Archetypes</label><br>
+    <input type="text" id="archetype1" maxlength="15" style="width: 120px; margin-bottom: 2px;"><br>
+    <input type="text" id="archetype2" maxlength="15" style="width: 120px;">
   </div>
 
   <!-- Professions -->
-  <div style="flex: 2;">
-    <label for="profession1">Professions</label>
-    <input type="text" id="profession1" style="width: 100%; margin-bottom: 2px;">
-    <input type="text" id="profession2" style="width: 100%;">
+  <div>
+    <label for="profession1">Professions</label><br>
+    <input type="text" id="profession1" maxlength="15" style="width: 120px; margin-bottom: 2px;"><br>
+    <input type="text" id="profession2" maxlength="15" style="width: 120px;">
   </div>
 
   <!-- XP -->
-  <div style="width: 60px;">
-    <label for="xp">XP</label>
-    <input type="text" id="xp" maxlength="3" style="width: 100%;">
+  <div>
+    <label for="xp">XP</label><br>
+    <input type="text" id="xp" maxlength="3" style="width: 40px;">
   </div>
 </div>
-
 
   <!-- Attributes & Skills -->
   <div class="attribute-skill-block">
