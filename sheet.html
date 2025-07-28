@@ -139,46 +139,54 @@
 
   <h1>GxD6 Character Sheet</h1>
 
-<!-- 🔹 Line 1: Character Name | Gender | Save | Load -->
-<div style="display: flex; align-items: flex-end; gap: 5px; margin-bottom: 10px;">
+<!-- 🔹 Fully Aligned Line with Labels + Inputs + Buttons -->
+<div style="display: flex; align-items: flex-end; gap: 5px; flex-wrap: wrap; margin-bottom: 20px;">
+
   <!-- Character Name -->
-  <div>
-    <label for="charName">Character Name</label><br>
+  <div style="display: flex; flex-direction: column;">
+    <label for="charName" style="margin-bottom: 2px;">Character Name</label>
     <input type="text" id="charName" maxlength="30" style="width: 240px;">
   </div>
 
+  <!-- Save Button -->
+  <div style="display: flex; flex-direction: column;">
+    <label style="visibility: hidden; height: 18px;">Save</label>
+    <button onclick="saveCharacter()">Save</button>
+  </div>
+
+  <!-- Load Button -->
+  <div style="display: flex; flex-direction: column;">
+    <label style="visibility: hidden; height: 18px;">Load</label>
+    <button onclick="loadCharacter()">Load</button>
+  </div>
+
   <!-- Gender -->
-  <div>
-    <label for="gender">Gender</label><br>
+  <div style="display: flex; flex-direction: column;">
+    <label for="gender" style="margin-bottom: 2px;">Gender</label>
     <input type="text" id="gender" maxlength="10" style="width: 90px;">
   </div>
 
-  <!-- Save / Load Buttons -->
-  <div style="margin-left: auto; display: flex; gap: 6px; align-items: flex-end;">
-    <button onclick="saveCharacter()">Save</button>
-    <button onclick="loadCharacter()">Load</button>
-  </div>
-</div>
-
-<!-- 🔹 Line 2: Archetypes | Professions | XP -->
-<div style="display: flex; align-items: flex-start; gap: 5px; margin-bottom: 20px;">
   <!-- Archetypes -->
-  <div>
-    <label for="archetype1">Archetypes</label><br>
-    <input type="text" id="archetype1" maxlength="15" style="width: 120px; margin-bottom: 2px;"><br>
-    <input type="text" id="archetype2" maxlength="15" style="width: 120px;">
+  <div style="display: flex; flex-direction: column;">
+    <label for="archetype1" style="margin-bottom: 2px;">Archetypes</label>
+    <div style="display: flex; gap: 2px;">
+      <input type="text" id="archetype1" maxlength="15" style="width: 110px;">
+      <input type="text" id="archetype2" maxlength="15" style="width: 110px;">
+    </div>
   </div>
 
   <!-- Professions -->
-  <div>
-    <label for="profession1">Professions</label><br>
-    <input type="text" id="profession1" maxlength="21" style="width: 200px; margin-bottom: 2px;"><br>
-    <input type="text" id="profession2" maxlength="21" style="width: 200px;">
+  <div style="display: flex; flex-direction: column;">
+    <label for="profession1" style="margin-bottom: 2px;">Professions</label>
+    <div style="display: flex; gap: 2px;">
+      <input type="text" id="profession1" maxlength="15" style="width: 110px;">
+      <input type="text" id="profession2" maxlength="15" style="width: 110px;">
+    </div>
   </div>
 
   <!-- XP -->
-  <div>
-    <label for="xp">XP</label><br>
+  <div style="display: flex; flex-direction: column;">
+    <label for="xp" style="margin-bottom: 2px;">XP</label>
     <input type="text" id="xp" maxlength="3" style="width: 40px;">
   </div>
 </div>
