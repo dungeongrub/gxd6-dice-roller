@@ -137,39 +137,52 @@
 </head>
 <body>
 
-  <div class="button-row">
+  <h1>GxD6 Character Sheet</h1>
+
+<!-- 🔹 Line 1 -->
+<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
+  <!-- Character Name -->
+  <div style="flex: 2;">
+    <label for="charName">Character Name</label>
+    <input type="text" id="charName" style="width: 100%;">
+  </div>
+
+  <!-- Gender -->
+  <div style="flex: 1;">
+    <label for="gender">Gender</label>
+    <input type="text" id="gender" style="width: 100%;">
+  </div>
+
+  <!-- Save / Load Buttons -->
+  <div style="display: flex; gap: 6px; align-items: end;">
     <button onclick="saveCharacter()">Save</button>
     <button onclick="loadCharacter()">Load</button>
   </div>
+</div>
 
-  <h1>GxD6 Character Sheet</h1>
-
-  <!-- Character Identity -->
-  <div class="flex-row">
-    <div class="field">
-      <label for="charName">Character Name</label>
-      <input type="text" id="charName" maxlength="30">
-    </div>
-    <div class="field">
-      <label for="gender">Gender</label>
-      <input type="text" id="gender" maxlength="20">
-    </div>
-    <div class="field">
-      <label for="xp">XP</label>
-      <input type="text" id="xp" maxlength="3">
-    </div>
+<!-- 🔹 Line 2 -->
+<div style="display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px;">
+  <!-- Archetypes -->
+  <div style="flex: 2;">
+    <label for="archetype1">Archetypes</label>
+    <input type="text" id="archetype1" style="width: 100%; margin-bottom: 2px;">
+    <input type="text" id="archetype2" style="width: 100%;">
   </div>
 
-  <div class="flex-row">
-    <div class="field">
-      <label for="archetypes">Archetypes</label>
-      <input type="text" id="archetypes" placeholder="e.g. Enforcer/Mystic">
-    </div>
-    <div class="field">
-      <label for="professions">Professions</label>
-      <input type="text" id="professions" placeholder="e.g. Ditch Medic/Vigilante">
-    </div>
+  <!-- Professions -->
+  <div style="flex: 2;">
+    <label for="profession1">Professions</label>
+    <input type="text" id="profession1" style="width: 100%; margin-bottom: 2px;">
+    <input type="text" id="profession2" style="width: 100%;">
   </div>
+
+  <!-- XP -->
+  <div style="width: 60px;">
+    <label for="xp">XP</label>
+    <input type="text" id="xp" maxlength="3" style="width: 100%;">
+  </div>
+</div>
+
 
   <!-- Attributes & Skills -->
   <div class="attribute-skill-block">
