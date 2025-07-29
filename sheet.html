@@ -5,7 +5,7 @@
   <title>GxD6 Character Sheet</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: 'DominicanSmall', serif;
       background-image: url('img/GXD6 Greyscale paper background.jpg');
       background-size: cover;
       background-attachment: fixed;
@@ -62,7 +62,7 @@
     }
 
     .attribute-box input {
-      width: 40px;
+      width: 20px;
     }
 
     .conditions {
@@ -110,8 +110,8 @@
 
     <div class="field">
       <label for="profession1">Professions</label>
-      <input type="text" id="profession1" maxlength="15">
-      <input type="text" id="profession2" maxlength="15">
+      <input type="text" id="profession1" maxlength="20">
+      <input type="text" id="profession2" maxlength="20">
     </div>
 
     <div class="field">
@@ -165,10 +165,10 @@
   </div>
 
   <div class="conditions">
-    <label><input type="checkbox" id="broken"> Broken</label>
-    <label><input type="checkbox" id="injured"> Injured</label>
-    <label><input type="checkbox" id="unstable"> Unstable</label>
-    <label><input type="checkbox" id="panicked"> Panicked</label>
+    <label><input type="checkbox" id="starving"> Starving</label>
+    <label><input type="checkbox" id="sleepless"> Sleepless</label>
+    <label><input type="checkbox" id="dehydrated"> Dehydrated</label>
+    <label><input type="checkbox" id="hypothermic"> Hypothermic</label>
   </div>
 
   <div class="gear-notes">
@@ -229,10 +229,10 @@
           resolve: document.getElementById("resolve").value
         },
         conditions: {
-          broken: document.getElementById("broken").checked,
-          injured: document.getElementById("injured").checked,
-          unstable: document.getElementById("unstable").checked,
-          panicked: document.getElementById("panicked").checked
+          starving: document.getElementById("starving").checked,
+          sleepless: document.getElementById("sleepless").checked,
+          dehydrated: document.getElementById("dehydrated").checked,
+          hypothermic: document.getElementById("hypothermic").checked
         },
         notes: document.getElementById("notes").value
       };
