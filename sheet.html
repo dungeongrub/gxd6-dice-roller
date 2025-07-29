@@ -2,215 +2,181 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>GXD6 Character Sheet</title>
+  <title>GxD6 Character Sheet</title>
   <style>
-    @font-face {
-      font-family: 'DominicanSmall';
-      src: url('fonts/DOMISC__.TTF') format('truetype');
-    }
-
-    @font-face {
-      font-family: 'DeutschGothic';
-      src: url('fonts/DeutschGothic.ttf') format('truetype');
-    }
-
     body {
-      font-family: 'DominicanSmall', serif;
+      font-family: 'Arial', sans-serif;
       background-image: url('img/GXD6 Greyscale paper background.jpg');
       background-size: cover;
       background-attachment: fixed;
       background-repeat: no-repeat;
-      color: black;
       padding: 20px;
+      color: black;
     }
 
     .flex-row {
       display: flex;
-      align-items: flex-end;
-      gap: 5px;
       flex-wrap: wrap;
+      gap: 5px;
+      align-items: flex-end;
+      margin-bottom: 10px;
     }
 
     .field {
       display: flex;
       flex-direction: column;
-      margin-bottom: 10px;
+      gap: 2px;
     }
 
-    .field input {
-      font-family: 'DominicanSmall';
-      font-size: 1em;
-      padding: 3px;
-    }
+    #charName { width: 250px; }
+    #gender { width: 100px; }
+    #xp { width: 50px; }
 
-    #charName {
-      width: 240px;
-    }
-
-    #gender {
-      width: 120px;
-    }
-
-    #xp {
-      width: 50px;
-    }
-
-    #archetypes, #archetype2,
-    #professions, #profession2 {
+    #archetype1, #archetype2,
+    #profession1, #profession2 {
       width: 180px;
     }
 
     .button-row {
-      margin-left: auto;
       display: flex;
-      gap: 8px;
+      gap: 10px;
+      margin-left: auto;
     }
 
-    button {
-      padding: 6px 14px;
-      font-family: 'DominicanSmall';
-      font-size: 0.9em;
-      cursor: pointer;
-    }
-
-    /* Attribute + Skill Grid */
     .attribute-skill-block {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 30px;
-      max-width: 600px;
+      margin-top: 20px;
     }
 
-    .attribute-group {
+    .attribute-box {
       width: 260px;
-      border: 2px solid #444;
-      background-color: rgba(255, 255, 255, 0.85);
-      padding: 12px;
-      border-radius: 6px;
+      padding: 10px;
+      border: 1px solid #000;
+      background: rgba(255, 255, 255, 0.8);
     }
 
-    .attribute-title {
-      font-family: 'DeutschGothic';
-      font-size: 1.2em;
-      margin-bottom: 5px;
-      text-align: center;
+    .attribute-box h3 {
+      margin: 5px 0;
     }
 
-    .attribute-value {
-      width: 50px;
-      text-align: center;
-      margin: 0 auto 10px;
-      font-size: 1em;
-    }
-
-    .skill-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
-    }
-
-    .skill-row label {
-      width: 130px;
-    }
-
-    .skill-row input {
+    .attribute-box input {
       width: 40px;
-      text-align: center;
+    }
+
+    .conditions {
+      margin-top: 20px;
+      display: flex;
+      gap: 20px;
     }
 
     .gear-notes {
       margin-top: 30px;
     }
 
-    .gear-notes textarea {
+    textarea {
       width: 100%;
-      height: 80px;
-      font-family: 'DominicanSmall';
-      font-size: 1em;
+      height: 100px;
     }
+
   </style>
 </head>
 <body>
 
-  <!-- Top section: Character info -->
   <div class="flex-row">
     <div class="field">
       <label for="charName">Character Name</label>
       <input type="text" id="charName" maxlength="30">
     </div>
-    <div class="button-row">
-      <button onclick="saveCharacter()">Save</button>
-      <button onclick="loadCharacter()">Load</button>
-    </div>
+
     <div class="field">
       <label for="gender">Gender</label>
       <input type="text" id="gender" maxlength="10">
     </div>
-    <div class="field">
-      <label for="xp">XP</label>
-      <input type="text" id="xp" maxlength="3">
+
+    <div class="button-row">
+      <button onclick="saveCharacter()">Save</button>
+      <button onclick="loadCharacter()">Load</button>
     </div>
   </div>
 
-  <!-- Line 2: Archetypes and Professions -->
   <div class="flex-row">
     <div class="field">
-      <label for="archetypes">Archetypes</label>
-      <input type="text" id="archetypes" maxlength="15" />
-      <input type="text" id="archetype2" maxlength="15" style="margin-top: 2px;" />
+      <label for="archetype1">Archetypes</label>
+      <input type="text" id="archetype1" maxlength="15">
+      <input type="text" id="archetype2" maxlength="15">
     </div>
+
     <div class="field">
-      <label for="professions">Professions</label>
-      <input type="text" id="professions" maxlength="15" />
-      <input type="text" id="profession2" maxlength="15" style="margin-top: 2px;" />
+      <label for="profession1">Professions</label>
+      <input type="text" id="profession1" maxlength="15">
+      <input type="text" id="profession2" maxlength="15">
+    </div>
+
+    <div class="field">
+      <label for="xp">XP</label>
+      <input type="number" id="xp" maxlength="3">
     </div>
   </div>
 
-  <!-- Attributes + Skills -->
   <div class="attribute-skill-block">
-    <div class="attribute-group">
-      <div class="attribute-title">BRAWN</div>
-      <input type="number" id="brawn" min="1" max="5" class="attribute-value">
-      <div class="skill-row"><label for="endurance">Endurance</label><input id="endurance" type="number" min="0" max="6" /></div>
-      <div class="skill-row"><label for="fight">Fight</label><input id="fight" type="number" min="0" max="6" /></div>
-      <div class="skill-row"><label for="might">Might</label><input id="might" type="number" min="0" max="6" /></div>
+    <div class="attribute-box">
+      <h3>Brawn</h3>
+      <label>Base <input type="number" id="brawn" min="1" max="5"></label>
+      <label>Current <input type="number" id="brawnCurrent" min="0" max="5"></label>
+      <hr>
+      <label>Endurance <input type="number" id="endurance" min="0" max="6"></label>
+      <label>Fight <input type="number" id="fight" min="0" max="6"></label>
+      <label>Might <input type="number" id="might" min="0" max="6"></label>
     </div>
 
-    <div class="attribute-group">
-      <div class="attribute-title">AGILITY</div>
-      <input type="number" id="agility" min="1" max="5" class="attribute-value">
-      <div class="skill-row"><label for="marksmanship">Marksmanship</label><input id="marksmanship" type="number" min="0" max="6" /></div>
-      <div class="skill-row"><label for="mobility">Mobility</label><input id="mobility" type="number" min="0" max="6" /></div>
-      <div class="skill-row"><label for="precision">Precision</label><input id="precision" type="number" min="0" max="6" /></div>
+    <div class="attribute-box">
+      <h3>Agility</h3>
+      <label>Base <input type="number" id="agility" min="1" max="5"></label>
+      <label>Current <input type="number" id="agilityCurrent" min="0" max="5"></label>
+      <hr>
+      <label>Marksmanship <input type="number" id="marksmanship" min="0" max="6"></label>
+      <label>Mobility <input type="number" id="mobility" min="0" max="6"></label>
+      <label>Precision <input type="number" id="precision" min="0" max="6"></label>
     </div>
 
-    <div class="attribute-group">
-      <div class="attribute-title">WITS</div>
-      <input type="number" id="wits" min="1" max="5" class="attribute-value">
-      <div class="skill-row"><label for="heal">Heal</label><input id="heal" type="number" min="0" max="6" /></div>
-      <div class="skill-row"><label for="insight">Insight</label><input id="insight" type="number" min="0" max="6" /></div>
-      <div class="skill-row"><label for="logic">Logic</label><input id="logic" type="number" min="0" max="6" /></div>
-      <div class="skill-row"><label for="survival">Survival</label><input id="survival" type="number" min="0" max="6" /></div>
-      <div class="skill-row"><label for="vigilance">Vigilance</label><input id="vigilance" type="number" min="0" max="6" /></div>
+    <div class="attribute-box">
+      <h3>Wits</h3>
+      <label>Base <input type="number" id="wits" min="1" max="5"></label>
+      <label>Current <input type="number" id="witsCurrent" min="0" max="5"></label>
+      <hr>
+      <label>Heal <input type="number" id="heal" min="0" max="6"></label>
+      <label>Insight <input type="number" id="insight" min="0" max="6"></label>
+      <label>Logic <input type="number" id="logic" min="0" max="6"></label>
+      <label>Survival <input type="number" id="survival" min="0" max="6"></label>
+      <label>Vigilance <input type="number" id="vigilance" min="0" max="6"></label>
     </div>
 
-    <div class="attribute-group">
-      <div class="attribute-title">WILL</div>
-      <input type="number" id="will" min="1" max="5" class="attribute-value">
-      <div class="skill-row"><label for="inspire">Inspire</label><input id="inspire" type="number" min="0" max="6" /></div>
-      <div class="skill-row"><label for="manipulate">Manipulate</label><input id="manipulate" type="number" min="0" max="6" /></div>
-      <div class="skill-row"><label for="resolve">Resolve</label><input id="resolve" type="number" min="0" max="6" /></div>
+    <div class="attribute-box">
+      <h3>Will</h3>
+      <label>Base <input type="number" id="will" min="1" max="5"></label>
+      <label>Current <input type="number" id="willCurrent" min="0" max="5"></label>
+      <hr>
+      <label>Inspire <input type="number" id="inspire" min="0" max="6"></label>
+      <label>Manipulate <input type="number" id="manipulate" min="0" max="6"></label>
+      <label>Resolve <input type="number" id="resolve" min="0" max="6"></label>
     </div>
   </div>
 
-  <!-- Gear / Notes -->
+  <div class="conditions">
+    <label><input type="checkbox" id="broken"> Broken</label>
+    <label><input type="checkbox" id="injured"> Injured</label>
+    <label><input type="checkbox" id="unstable"> Unstable</label>
+    <label><input type="checkbox" id="panicked"> Panicked</label>
+  </div>
+
   <div class="gear-notes">
     <label for="notes">Gear / Notes</label>
     <textarea id="notes"></textarea>
   </div>
 
-  <!-- ✅ Firebase SDK -->
+  <!-- ✅ Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
   <script>
@@ -227,19 +193,25 @@
     const db = firebase.firestore();
 
     function saveCharacter() {
+      const name = document.getElementById("charName").value;
+      if (!name) return alert("Enter character name to save.");
+
       const data = {
-        name: document.getElementById("charName").value,
+        name: name,
         gender: document.getElementById("gender").value,
-        archetypes: document.getElementById("archetypes").value,
+        archetype1: document.getElementById("archetype1").value,
         archetype2: document.getElementById("archetype2").value,
-        professions: document.getElementById("professions").value,
+        profession1: document.getElementById("profession1").value,
         profession2: document.getElementById("profession2").value,
         xp: document.getElementById("xp").value,
         brawn: document.getElementById("brawn").value,
+        brawnCurrent: document.getElementById("brawnCurrent").value,
         agility: document.getElementById("agility").value,
+        agilityCurrent: document.getElementById("agilityCurrent").value,
         wits: document.getElementById("wits").value,
+        witsCurrent: document.getElementById("witsCurrent").value,
         will: document.getElementById("will").value,
-        notes: document.getElementById("notes").value,
+        willCurrent: document.getElementById("willCurrent").value,
         skills: {
           endurance: document.getElementById("endurance").value,
           fight: document.getElementById("fight").value,
@@ -255,40 +227,57 @@
           inspire: document.getElementById("inspire").value,
           manipulate: document.getElementById("manipulate").value,
           resolve: document.getElementById("resolve").value
-        }
+        },
+        conditions: {
+          broken: document.getElementById("broken").checked,
+          injured: document.getElementById("injured").checked,
+          unstable: document.getElementById("unstable").checked,
+          panicked: document.getElementById("panicked").checked
+        },
+        notes: document.getElementById("notes").value
       };
 
-      db.collection("characters").doc(data.name).set(data)
-        .then(() => alert("Character saved!"))
-        .catch(err => alert("Error saving: " + err));
+      db.collection("characters").doc(name).set(data)
+        .then(() => alert("✅ Character saved"))
+        .catch(err => alert("❌ Error saving: " + err));
     }
 
     function loadCharacter() {
       const name = document.getElementById("charName").value;
+      if (!name) return alert("Enter character name to load.");
+
       db.collection("characters").doc(name).get()
         .then(doc => {
-          if (!doc.exists) return alert("Character not found!");
-          const data = doc.data();
-          document.getElementById("gender").value = data.gender;
-          document.getElementById("archetypes").value = data.archetypes;
-          document.getElementById("archetype2").value = data.archetype2;
-          document.getElementById("professions").value = data.professions;
-          document.getElementById("profession2").value = data.profession2;
-          document.getElementById("xp").value = data.xp;
-          document.getElementById("brawn").value = data.brawn;
-          document.getElementById("agility").value = data.agility;
-          document.getElementById("wits").value = data.wits;
-          document.getElementById("will").value = data.will;
-          document.getElementById("notes").value = data.notes;
+          if (!doc.exists) return alert("❌ Character not found.");
 
-          for (const skill in data.skills) {
-            if (document.getElementById(skill))
-              document.getElementById(skill).value = data.skills[skill];
+          const d = doc.data();
+          document.getElementById("gender").value = d.gender || '';
+          document.getElementById("archetype1").value = d.archetype1 || '';
+          document.getElementById("archetype2").value = d.archetype2 || '';
+          document.getElementById("profession1").value = d.profession1 || '';
+          document.getElementById("profession2").value = d.profession2 || '';
+          document.getElementById("xp").value = d.xp || '';
+
+          document.getElementById("brawn").value = d.brawn || '';
+          document.getElementById("brawnCurrent").value = d.brawnCurrent || '';
+          document.getElementById("agility").value = d.agility || '';
+          document.getElementById("agilityCurrent").value = d.agilityCurrent || '';
+          document.getElementById("wits").value = d.wits || '';
+          document.getElementById("witsCurrent").value = d.witsCurrent || '';
+          document.getElementById("will").value = d.will || '';
+          document.getElementById("willCurrent").value = d.willCurrent || '';
+
+          for (let s in d.skills) {
+            if (document.getElementById(s)) document.getElementById(s).value = d.skills[s];
           }
+          for (let c in d.conditions) {
+            if (document.getElementById(c)) document.getElementById(c).checked = d.conditions[c];
+          }
+          document.getElementById("notes").value = d.notes || '';
 
-          alert("Character loaded!");
+          alert("✅ Character loaded");
         })
-        .catch(err => alert("Error loading: " + err));
+        .catch(err => alert("❌ Error loading: " + err));
     }
   </script>
 </body>
