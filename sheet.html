@@ -9,19 +9,17 @@
       font-family: 'DominicanSmall';
       src: url('fonts/DOMISC__.TTF') format('truetype');
     }
-
     @font-face {
       font-family: 'Dominican';
       src: url('fonts/DOMINICA.TTF') format('truetype');
     }
-
     @font-face {
       font-family: 'DeutschGothic';
       src: url('fonts/DeutschGothic.ttf') format('truetype');
     }
 
     body {
-      font-family: 'DominicanSmall', 'Georgia', serif;
+      font-family: 'DominicanSmall', Georgia, serif;
       background-image: url('img/GXD6 Greyscale paper background.jpg');
       background-size: cover;
       background-attachment: fixed;
@@ -45,80 +43,24 @@
       font-family: 'DeutschGothic', monospace;
     }
 
-    /* 🧱 Layout */
-    .flex-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      align-items: flex-end;
-      margin-bottom: 10px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    #charName { width: 250px; }
-    #gender { width: 100px; }
-    #xp { width: 50px; }
-
-    #archetype1, #archetype2,
-    #profession1, #profession2 {
-      width: 180px;
-    }
-
-    .button-row {
-      display: flex;
-      gap: 10px;
-      margin-left: auto;
-    }
-
-    .attribute-skill-block {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .attribute-box {
-      width: 260px;
-      padding: 10px;
-      border: 1px solid #000;
-      background: rgba(255, 255, 255, 0.8);
-    }
-
-    .attribute-box h3 {
-      margin: 5px 0;
-    }
-
-    .attribute-box input {
-      width: 20px;
-    }
-
-    .conditions {
-      margin-top: 20px;
-      display: flex;
-      gap: 20px;
-    }
-
-    .gear-notes {
-      margin-top: 30px;
-    }
-
-    textarea {
-      width: 100%;
-      height: 100px;
-    }
-
-    #loginForm {
-      margin-bottom: 15px;
-    }
+    /* Layout */
+    .flex-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: flex-end; margin-bottom: 10px; }
+    .field { display: flex; flex-direction: column; gap: 2px; }
+    #charName { width: 250px; } #gender { width: 100px; } #xp { width: 50px; }
+    #archetype1, #archetype2, #profession1, #profession2 { width: 180px; }
+    .button-row { display: flex; gap: 10px; margin-left: auto; }
+    .attribute-skill-block { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .attribute-box { width: 260px; padding: 10px; border: 1px solid #000; background: rgba(255,255,255,0.8); }
+    .attribute-box h3 { margin: 5px 0; }
+    .attribute-box input { width: 20px; }
+    .conditions { margin-top: 20px; display: flex; gap: 20px; }
+    .gear-notes { margin-top: 30px; }
+    textarea { width: 100%; height: 100px; }
+    #loginForm { margin-bottom: 15px; }
   </style>
 </head>
-<body>
 
+<body>
   <!-- 🔐 Login Form -->
   <div id="loginForm">
     <label>Email: <input id="email" type="email"></label>
@@ -136,38 +78,34 @@
       <label for="charName">Character Name</label>
       <input type="text" id="charName" maxlength="30">
     </div>
-
     <div class="field">
       <label for="gender">Gender</label>
       <input type="text" id="gender" maxlength="10">
     </div>
-
     <div class="field">
       <label for="characterSelect">Saved Characters</label>
       <select id="characterSelect">
         <option value="">-- Select Character --</option>
       </select>
     </div>
-
     <div class="button-row">
       <button onclick="saveCharacter()">Save</button>
       <button onclick="loadCharacter()">Load</button>
     </div>
   </div>
 
+  <!-- Archetypes, Professions, XP -->
   <div class="flex-row">
     <div class="field">
-      <label for="archetype1">Archetypes</label>
+      <label>Archetypes</label>
       <input type="text" id="archetype1">
       <input type="text" id="archetype2">
     </div>
-
     <div class="field">
-      <label for="profession1">Professions</label>
+      <label>Professions</label>
       <input type="text" id="profession1">
       <input type="text" id="profession2">
     </div>
-
     <div class="field">
       <label for="xp">XP</label>
       <input type="number" id="xp">
@@ -175,18 +113,68 @@
   </div>
 
   <!-- Attributes and Skills -->
-  <!-- (Keep the rest of your attributes/skills HTML the same) -->
+  <div class="attribute-skill-block">
+    <!-- Brawn -->
+    <div class="attribute-box">
+      <h3>Brawn</h3>
+      <label>Base<input type="number" id="brawn" min="1" max="5"></label>
+      <label>Current<input type="number" id="brawnCurrent" min="0" max="5"></label>
+      <hr>
+      <label>Endurance<input type="number" id="endurance" min="0" max="6"></label>
+      <label>Fight<input type="number" id="fight" min="0" max="6"></label>
+      <label>Might<input type="number" id="might" min="0" max="6"></label>
+    </div>
+    <!-- Agility -->
+    <div class="attribute-box">
+      <h3>Agility</h3>
+      <label>Base<input type="number" id="agility" min="1" max="5"></label>
+      <label>Current<input type="number" id="agilityCurrent" min="0" max="5"></label>
+      <hr>
+      <label>Marksmanship<input type="number" id="marksmanship" min="0" max="6"></label>
+      <label>Mobility<input type="number" id="mobility" min="0" max="6"></label>
+      <label>Precision<input type="number" id="precision" min="0" max="6"></label>
+    </div>
+    <!-- Wits -->
+    <div class="attribute-box">
+      <h3>Wits</h3>
+      <label>Base<input type="number" id="wits" min="1" max="5"></label>
+      <label>Current<input type="number" id="witsCurrent" min="0" max="5"></label>
+      <hr>
+      <label>Heal<input type="number" id="heal" min="0" max="6"></label>
+      <label>Insight<input type="number" id="insight" min="0" max="6"></label>
+      <label>Logic<input type="number" id="logic" min="0" max="6"></label>
+      <label>Survival<input type="number" id="survival" min="0" max="6"></label>
+      <label>Vigilance<input type="number" id="vigilance" min="0" max="6"></label>
+    </div>
+    <!-- Will -->
+    <div class="attribute-box">
+      <h3>Will</h3>
+      <label>Base<input type="number" id="will" min="1" max="5"></label>
+      <label>Current<input type="number" id="willCurrent" min="0" max="5"></label>
+      <hr>
+      <label>Inspire<input type="number" id="inspire" min="0" max="6"></label>
+      <label>Manipulate<input type="number" id="manipulate" min="0" max="6"></label>
+      <label>Resolve<input type="number" id="resolve" min="0" max="6"></label>
+    </div>
+  </div>
+
+  <div class="conditions">
+    <label><input type="checkbox" id="starving"> Starving</label>
+    <label><input type="checkbox" id="sleepless"> Sleepless</label>
+    <label><input type="checkbox" id="dehydrated"> Dehydrated</label>
+    <label><input type="checkbox" id="hypothermic"> Hypothermic</label>
+  </div>
 
   <div class="gear-notes">
     <label for="notes">Gear / Notes</label>
     <textarea id="notes"></textarea>
   </div>
 
-  <!-- 🔥 Firebase SDK + Script -->
+  <!-- 🔥 Firebase Auth & Firestore Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import {
-      getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs
+      getFirestore, collection, doc, getDoc, setDoc, deleteDoc, getDocs
     } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     import {
       getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
@@ -201,7 +189,6 @@
       messagingSenderId: "761778638151",
       appId: "1:761778638151:web:06a1d72423a7e980889062"
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
@@ -223,107 +210,53 @@
       selectEl.innerHTML = '<option value="">-- Select Character --</option>';
       const snapshot = await getDocs(collection(db, uid, "characters"));
       snapshot.forEach(docSnap => {
-        const name = docSnap.id;
         const opt = document.createElement("option");
-        opt.value = name;
-        opt.text = name;
+        opt.value = docSnap.id;
+        opt.text = docSnap.id;
         selectEl.appendChild(opt);
       });
     }
 
     window.saveCharacter = async () => {
-  const user = auth.currentUser;
-  if (!user) return alert("Please sign in first.");
-
-  const name = document.getElementById("charName").value;
-  if (!name) return alert("Enter character name.");
-
-  // Collect the character data
-  const data = {
-    name,
-    gender: document.getElementById("gender").value,
-    archetype1: document.getElementById("archetype1").value,
-    archetype2: document.getElementById("archetype2").value,
-    profession1: document.getElementById("profession1").value,
-    profession2: document.getElementById("profession2").value,
-    xp: Number(document.getElementById("xp").value) || 0,
-    notes: document.getElementById("notes").value
-    // 🔁 Add your attributes, skills, conditions as needed
-  };
-
-  // 🧠 Debug: Wrap Firestore call with logs and catch
-  try {
-    console.log(`📝 Saving character "${name}" for user UID: ${user.uid}`);
-    console.log("📦 Data being saved:", data);
-
-    await setDoc(doc(db, user.uid, "characters", name), data);
-
-    console.log("✅ Character saved successfully!");
-    alert("✅ Character saved");
-    populateCharacterList(user.uid);
-  } catch (err) {
-    console.error("❌ Error saving character:", err);
-    alert("❌ Save failed: " + err.message);
-  }
-};
-
-    window.loadCharacter = async () => {
       const user = auth.currentUser;
-      if (!user) return alert("Sign in first.");
-      const name = selectEl.value || document.getElementById("charName").value;
-      if (!name) return alert("Select or enter name.");
+      if (!user) return alert("Please sign in first.");
+      const name = document.getElementById("charName").value.trim();
+      if (!name) return alert("Enter character name.");
 
-      const snap = await getDoc(doc(db, user.uid, "characters", name));
-      if (!snap.exists()) return alert("Character not found.");
-      const d = snap.data();
+      const data = {
+        name,
+        gender: document.getElementById("gender").value,
+        archetype1: document.getElementById("archetype1").value,
+        archetype2: document.getElementById("archetype2").value,
+        profession1: document.getElementById("profession1").value,
+        profession2: document.getElementById("profession2").value,
+        xp: Number(document.getElementById("xp").value) || 0,
+        brawn: Number(document.getElementById("brawn").value) || 0,
+        brawnCurrent: Number(document.getElementById("brawnCurrent").value) || 0,
+        agility: Number(document.getElementById("agility").value) || 0,
+        agilityCurrent: Number(document.getElementById("agilityCurrent").value) || 0,
+        wits: Number(document.getElementById("wits").value) || 0,
+        witsCurrent: Number(document.getElementById("witsCurrent").value) || 0,
+        will: Number(document.getElementById("will").value) || 0,
+        willCurrent: Number(document.getElementById("willCurrent").value) || 0,
+        skills: {
+          endurance: Number(document.getElementById("endurance").value) || 0,
+          fight: Number(document.getElementById("fight").value) || 0,
+          might: Number(document.getElementById("might").value) || 0,
+          marksmanship: Number(document.getElementById("marksmanship").value) || 0,
+          mobility: Number(document.getElementById("mobility").value) || 0,
+          precision: Number(document.getElementById("precision").value) || 0,
+          heal: Number(document.getElementById("heal").value) || 0,
+          insight: Number(document.getElementById("insight").value) || 0,
+          logic: Number(document.getElementById("logic").value) || 0,
+          survival: Number(document.getElementById("survival").value) || 0,
+          vigilance: Number(document.getElementById("vigilance").value) || 0,
+          inspire: Number(document.getElementById("inspire").value) || 0,
+          manipulate: Number(document.getElementById("manipulate").value) || 0,
+          resolve: Number(document.getElementById("resolve").value) || 0
+        },
+        conditions: {
+          starving: document.getElementById("starving").checked,
+          sleepless: document.getElementById("sleepless").
 
-      document.getElementById("charName").value = d.name;
-      document.getElementById("gender").value = d.gender || '';
-      document.getElementById("archetype1").value = d.archetype1 || '';
-      document.getElementById("archetype2").value = d.archetype2 || '';
-      document.getElementById("profession1").value = d.profession1 || '';
-      document.getElementById("profession2").value = d.profession2 || '';
-      document.getElementById("xp").value = d.xp || 0;
-      document.getElementById("notes").value = d.notes || '';
-    };
-
-    window.deleteCharacter = async () => {
-      const user = auth.currentUser;
-      const name = selectEl.value;
-      if (!user || !name) return alert("Select a character first.");
-      if (!confirm(`Delete '${name}'?`)) return;
-      await deleteDoc(doc(db, user.uid, "characters", name));
-      alert("Deleted.");
-      populateCharacterList(user.uid);
-    };
-
-    // 🔐 Auth Functions
-    window.signUp = async () => {
-      const email = document.getElementById("email").value;
-      const pw = document.getElementById("password").value;
-      await createUserWithEmailAndPassword(auth, email, pw);
-      alert("Signed up!");
-    };
-
-    window.signIn = async () => {
-      const email = document.getElementById("email").value;
-      const pw = document.getElementById("password").value;
-      await signInWithEmailAndPassword(auth, email, pw);
-      alert("Signed in!");
-    };
-
-    window.signOutUser = async () => {
-      await signOut(auth);
-      alert("Signed out.");
-    };
-
-    window.deleteAccount = async () => {
-      const user = auth.currentUser;
-      if (!user) return;
-      if (!confirm("Delete your account permanently?")) return;
-      await deleteUser(user);
-      alert("Account deleted.");
-    };
-  </script>
-</body>
-</html>
+::contentReference[oaicite:0]{index=0}
