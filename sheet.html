@@ -5,18 +5,9 @@
   <title>GxD6 Character Sheet</title>
   <style>
     /* 🎨 Font setup */
-    @font-face {
-      font-family: 'DominicanSmall';
-      src: url('fonts/DOMISC__.TTF') format('truetype');
-    }
-    @font-face {
-      font-family: 'Dominican';
-      src: url('fonts/DOMINICA.TTF') format('truetype');
-    }
-    @font-face {
-      font-family: 'DeutschGothic';
-      src: url('fonts/DeutschGothic.ttf') format('truetype');
-    }
+    @font-face { font-family: 'DominicanSmall'; src: url('fonts/DOMISC__.TTF') format('truetype'); }
+    @font-face { font-family: 'Dominican'; src: url('fonts/DOMINICA.TTF') format('truetype'); }
+    @font-face { font-family: 'DeutschGothic'; src: url('fonts/DeutschGothic.ttf') format('truetype'); }
 
     body {
       font-family: 'DominicanSmall', Georgia, serif;
@@ -27,41 +18,26 @@
       padding: 20px;
       color: black;
     }
-
-    h1, h2, h3 {
-      font-family: 'DominicanSmall', serif;
-      font-variant: small-caps;
-    }
-
-    label,
-    input[type="text"],
-    textarea {
-      font-family: 'Dominican', serif;
-    }
-
-    input[type="number"] {
-      font-family: 'DeutschGothic', monospace;
-    }
+    h1,h2,h3 { font-family: 'DominicanSmall', serif; font-variant: small-caps; }
+    label, input[type="text"], textarea { font-family: 'Dominican', serif; }
+    input[type="number"] { font-family: 'DeutschGothic', monospace; }
 
     /* Layout */
     .flex-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: flex-end; margin-bottom: 10px; }
     .field { display: flex; flex-direction: column; gap: 2px; }
     #charName { width: 250px; } #gender { width: 100px; } #xp { width: 50px; }
-    #archetype1, #archetype2, #profession1, #profession2 { width: 180px; }
+    #archetype1,#archetype2,#profession1,#profession2 { width: 180px; }
     .button-row { display: flex; gap: 10px; margin-left: auto; }
     .attribute-skill-block { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
     .attribute-box { width: 260px; padding: 10px; border: 1px solid #000; background: rgba(255,255,255,0.8); }
-    .attribute-box h3 { margin: 5px 0; }
-    .attribute-box input { width: 20px; }
+    .attribute-box h3 { margin: 5px 0; } .attribute-box input { width: 20px; }
     .conditions { margin-top: 20px; display: flex; gap: 20px; }
-    .gear-notes { margin-top: 30px; }
-    textarea { width: 100%; height: 100px; }
+    .gear-notes { margin-top: 30px; } textarea { width: 100%; height: 100px; }
     #loginForm { margin-bottom: 15px; }
   </style>
 </head>
-
 <body>
-  <!-- 🔐 Login Form -->
+  <!-- Login UI -->
   <div id="loginForm">
     <label>Email: <input id="email" type="email"></label>
     <label>Password: <input id="password" type="password"></label>
@@ -72,74 +48,44 @@
   <button onclick="deleteAccount()">Delete Account</button>
   <button onclick="deleteCharacter()">Delete Character</button>
 
-  <!-- 📝 Character Form -->
+  <!-- Form UI -->
   <div class="flex-row">
-    <div class="field">
-      <label for="charName">Character Name</label>
-      <input type="text" id="charName" maxlength="30">
-    </div>
-    <div class="field">
-      <label for="gender">Gender</label>
-      <input type="text" id="gender" maxlength="10">
-    </div>
-    <div class="field">
-      <label for="characterSelect">Saved Characters</label>
-      <select id="characterSelect">
-        <option value="">-- Select Character --</option>
-      </select>
-    </div>
+    <div class="field"><label>Character Name<input type="text" id="charName" maxlength="30"></label></div>
+    <div class="field"><label>Gender<input type="text" id="gender" maxlength="10"></label></div>
+    <div class="field"><label>Saved Characters<select id="characterSelect"><option value="">-- Select Character --</option></select></label></div>
     <div class="button-row">
       <button onclick="saveCharacter()">Save</button>
       <button onclick="loadCharacter()">Load</button>
     </div>
   </div>
 
-  <!-- Archetypes, Professions, XP -->
   <div class="flex-row">
-    <div class="field">
-      <label>Archetypes</label>
-      <input type="text" id="archetype1">
-      <input type="text" id="archetype2">
-    </div>
-    <div class="field">
-      <label>Professions</label>
-      <input type="text" id="profession1">
-      <input type="text" id="profession2">
-    </div>
-    <div class="field">
-      <label for="xp">XP</label>
-      <input type="number" id="xp">
-    </div>
+    <div class="field"><label>Archetypes<input type="text" id="archetype1"><input type="text" id="archetype2"></label></div>
+    <div class="field"><label>Professions<input type="text" id="profession1"><input type="text" id="profession2"></label></div>
+    <div class="field"><label>XP<input type="number" id="xp"></label></div>
   </div>
 
-  <!-- Attributes and Skills -->
   <div class="attribute-skill-block">
     <!-- Brawn -->
-    <div class="attribute-box">
-      <h3>Brawn</h3>
+    <div class="attribute-box"><h3>Brawn</h3>
       <label>Base<input type="number" id="brawn" min="1" max="5"></label>
-      <label>Current<input type="number" id="brawnCurrent" min="0" max="5"></label>
-      <hr>
+      <label>Current<input type="number" id="brawnCurrent" min="0" max="5"></label><hr>
       <label>Endurance<input type="number" id="endurance" min="0" max="6"></label>
       <label>Fight<input type="number" id="fight" min="0" max="6"></label>
       <label>Might<input type="number" id="might" min="0" max="6"></label>
     </div>
     <!-- Agility -->
-    <div class="attribute-box">
-      <h3>Agility</h3>
+    <div class="attribute-box"><h3>Agility</h3>
       <label>Base<input type="number" id="agility" min="1" max="5"></label>
-      <label>Current<input type="number" id="agilityCurrent" min="0" max="5"></label>
-      <hr>
+      <label>Current<input type="number" id="agilityCurrent" min="0" max="5"></label><hr>
       <label>Marksmanship<input type="number" id="marksmanship" min="0" max="6"></label>
       <label>Mobility<input type="number" id="mobility" min="0" max="6"></label>
       <label>Precision<input type="number" id="precision" min="0" max="6"></label>
     </div>
     <!-- Wits -->
-    <div class="attribute-box">
-      <h3>Wits</h3>
+    <div class="attribute-box"><h3>Wits</h3>
       <label>Base<input type="number" id="wits" min="1" max="5"></label>
-      <label>Current<input type="number" id="witsCurrent" min="0" max="5"></label>
-      <hr>
+      <label>Current<input type="number" id="witsCurrent" min="0" max="5"></label><hr>
       <label>Heal<input type="number" id="heal" min="0" max="6"></label>
       <label>Insight<input type="number" id="insight" min="0" max="6"></label>
       <label>Logic<input type="number" id="logic" min="0" max="6"></label>
@@ -147,11 +93,9 @@
       <label>Vigilance<input type="number" id="vigilance" min="0" max="6"></label>
     </div>
     <!-- Will -->
-    <div class="attribute-box">
-      <h3>Will</h3>
+    <div class="attribute-box"><h3>Will</h3>
       <label>Base<input type="number" id="will" min="1" max="5"></label>
-      <label>Current<input type="number" id="willCurrent" min="0" max="5"></label>
-      <hr>
+      <label>Current<input type="number" id="willCurrent" min="0" max="5"></label><hr>
       <label>Inspire<input type="number" id="inspire" min="0" max="6"></label>
       <label>Manipulate<input type="number" id="manipulate" min="0" max="6"></label>
       <label>Resolve<input type="number" id="resolve" min="0" max="6"></label>
@@ -165,21 +109,13 @@
     <label><input type="checkbox" id="hypothermic"> Hypothermic</label>
   </div>
 
-  <div class="gear-notes">
-    <label for="notes">Gear / Notes</label>
-    <textarea id="notes"></textarea>
-  </div>
+  <div class="gear-notes"><label>Gear / Notes<textarea id="notes"></textarea></label></div>
 
-  <!-- 🔥 Firebase Auth & Firestore Logic -->
+  <!-- 🔥 Firebase + Auth Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import {
-      getFirestore, collection, doc, getDoc, setDoc, deleteDoc, getDocs
-    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-    import {
-      getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
-      signInWithEmailAndPassword, signOut, deleteUser
-    } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, collection, doc, getDoc, setDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
@@ -222,7 +158,6 @@
       if (!user) return alert("Please sign in first.");
       const name = document.getElementById("charName").value.trim();
       if (!name) return alert("Enter character name.");
-
       const data = {
         name,
         gender: document.getElementById("gender").value,
@@ -257,6 +192,68 @@
         },
         conditions: {
           starving: document.getElementById("starving").checked,
-          sleepless: document.getElementById("sleepless").
+          sleepless: document.getElementById("sleepless").checked,
+          dehydrated: document.getElementById("dehydrated").checked,
+          hypothermic: document.getElementById("hypothermic").checked
+        },
+        notes: document.getElementById("notes").value
+      };
+      try {
+        const charRef = doc(collection(db, user.uid, "characters"), name);
+        console.log("Saving to path:", charRef.path);
+        console.log("Data:", data);
+        await setDoc(charRef, data);
+        console.log("Character saved");
+        alert("✅ Character saved");
+        populateCharacterList(user.uid);
+      } catch (err) {
+        console.error("Save failed:", err);
+        alert("❌ Save failed: " + err.message);
+      }
+    };
 
-::contentReference[oaicite:0]{index=0}
+    window.loadCharacter = async () => {
+      const user = auth.currentUser;
+      if (!user) return alert("Please sign in first.");
+      const name = selectEl.value || document.getElementById("charName").value.trim();
+      if (!name) return alert("Select or enter character name.");
+      try {
+        const charRef = doc(collection(db, user.uid, "characters"), name);
+        console.log("Loading from path:", charRef.path);
+        const docSnap = await getDoc(charRef);
+        if (!docSnap.exists()) { alert("❌ Character not found."); return; }
+        const d = docSnap.data();
+        console.log("Loaded data:", d);
+        document.getElementById("charName").value = d.name || '';
+        document.getElementById("gender").value = d.gender || '';
+        document.getElementById("archetype1").value = d.archetype1 || '';
+        document.getElementById("archetype2").value = d.archetype2 || '';
+        document.getElementById("profession1").value = d.profession1 || '';
+        document.getElementById("profession2").value = d.profession2 || '';
+        document.getElementById("xp").value = d.xp || '';
+        document.getElementById("brawn").value = d.brawn || '';
+        document.getElementById("brawnCurrent").value = d.brawnCurrent || '';
+        document.getElementById("agility").value = d.agility || '';
+        document.getElementById("agilityCurrent").value = d.agilityCurrent || '';
+        document.getElementById("wits").value = d.wits || '';
+        document.getElementById("witsCurrent").value = d.witsCurrent || '';
+        document.getElementById("will").value = d.will || '';
+        document.getElementById("willCurrent").value = d.willCurrent || '';
+        for (let s in d.skills) {
+          if (document.getElementById(s)) document.getElementById(s).value = d.skills[s];
+        }
+        for (let c in d.conditions) {
+          if (document.getElementById(c)) document.getElementById(c).checked = d.conditions[c];
+        }
+        document.getElementById("notes").value = d.notes || '';
+        alert("✅ Character loaded");
+      } catch (err) {
+        console.error("Load failed:", err);
+        alert("❌ Load failed: " + err.message);
+      }
+    };
+
+    window.deleteCharacter = async () => {
+      const user = auth.currentUser;
+      const name = selectEl.value;
+      if (!
