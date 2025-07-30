@@ -4,22 +4,16 @@
   <meta charset="UTF-8">
   <title>GxD6 Character Sheet</title>
   <style>
-    /* Fonts */
+    /* Font setup */
     @font-face { font-family: 'DominicanSmall'; src: url('fonts/DOMISC__.TTF') format('truetype'); }
     @font-face { font-family: 'Dominican'; src: url('fonts/DOMINICA.TTF') format('truetype'); }
     @font-face { font-family: 'DeutschGothic'; src: url('fonts/DeutschGothic.ttf') format('truetype'); }
 
-    body {
-      font-family: 'DominicanSmall', Georgia, serif;
-      background-image: url('img/GXD6 Greyscale paper background.jpg');
-      background-size: cover;
-      padding: 20px;
-      color: black;
-    }
-
+    /* Font application */
+    body { font-family: 'DominicanSmall', Georgia, serif; background: #fff url('img/GXD6 Greyscale paper background.jpg') center/cover fixed; padding: 20px; }
     h1,h2,h3 { font-family: 'DominicanSmall', serif; font-variant: small-caps; }
     label, input[type="text"], textarea { font-family: 'Dominican', serif; }
-    input[type="number"] { font-family: 'DeutschGothic', monospace; }
+    input[type="number"] { font-family: 'DeutschGothic', monospace; width: 20px; }
 
     /* Layout */
     .flex-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: flex-end; margin-bottom: 10px; }
@@ -27,10 +21,8 @@
     #charName { width: 250px; } #gender { width: 100px; } #xp { width: 50px; }
     #archetype1,#archetype2,#profession1,#profession2 { width: 180px; }
     .button-row { display: flex; gap: 10px; margin-left: auto; }
-    .attribute-skill-block { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .attribute-skill-block { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
     .attribute-box { width: 260px; padding: 10px; border: 1px solid #000; background: rgba(255,255,255,0.8); }
-    .attribute-box h3 { margin: 5px 0; }
-    .attribute-box input { width: 20px; }
     .conditions { margin-top: 20px; display: flex; gap: 20px; }
     .gear-notes { margin-top: 30px; }
     textarea { width: 100%; height: 100px; }
@@ -39,7 +31,7 @@
 </head>
 <body>
 
-  <!-- ✅ Login UI -->
+  <!-- Login & account buttons -->
   <div id="loginForm">
     <label>Email: <input id="email" type="email"></label>
     <label>Password: <input id="password" type="password"></label>
@@ -50,7 +42,7 @@
   <button onclick="deleteAccount()">Delete Account</button>
   <button onclick="deleteCharacter()">Delete Character</button>
 
-  <!-- 📝 Character Form -->
+  <!-- Character form UI -->
   <div class="flex-row">
     <div class="field"><label>Character Name<input type="text" id="charName"></label></div>
     <div class="field"><label>Gender<input type="text" id="gender"></label></div>
@@ -64,10 +56,10 @@
   <div class="flex-row">
     <div class="field"><label>Archetypes<input type="text" id="archetype1"><input type="text" id="archetype2"></label></div>
     <div class="field"><label>Professions<input type="text" id="profession1"><input type="text" id="profession2"></label></div>
-    <div class="field"><label>XP<input type="number" id="xp"></label></div>
+    <div class="field"><label>XP<input type="number" id="xp" min="0"></label></div>
   </div>
 
-  <!-- Attributes & Skills -->
+  <!-- Attributes & skills -->
   <div class="attribute-skill-block">
     <div class="attribute-box"><h3>Brawn</h3>
       <label>Base<input type="number" id="brawn" min="1" max="5"></label>
@@ -112,20 +104,22 @@
     <label>Gear / Notes<textarea id="notes"></textarea></label>
   </div>
 
-  <!-- 🔥 Firebase & Auth Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getFirestore, collection, doc, getDoc, setDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
+    // 🔐 Insert your actual Firebase config here
     const firebaseConfig = {
-	apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
-	authDomain: "gxd6-character-sheet.firebaseapp.com",
-      projectId: "gxd6-character-sheet",
-      storageBucket: "gxd6-character-sheet.appspot.com",
-      messagingSenderId: "761778638151",
-      appId: "1:761778638151:web:06a1d72423a7e980889062"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
+  authDomain: "gxd6-character-sheet.firebaseapp.com",
+  projectId: "gxd6-character-sheet",
+  storageBucket: "gxd6-character-sheet.firebasestorage.app",
+  messagingSenderId: "761778638151",
+  appId: "1:761778638151:web:06a1d72423a7e980889062"
+};
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
@@ -145,7 +139,7 @@
 
     async function populateCharacterList(uid) {
       selectEl.innerHTML = '<option value="">-- Select Character --</option>';
-      const snap = await getDocs(collection(db, uid, "characters"));
+      const snap = await getDocs(collection(db, "users", uid, "characters"));
       snap.forEach(docSnap => {
         const opt = document.createElement("option");
         opt.value = docSnap.id;
@@ -157,39 +151,52 @@
     window.signUp = async () => {
       const email = document.getElementById("email").value;
       const pw = document.getElementById("password").value;
-      if (pw.length < 6) return alert("🔐 Password must be at least 6 characters.");
+      if (pw.length < 6) return alert("Password must be at least 6 characters.");
       try {
         await createUserWithEmailAndPassword(auth, email, pw);
         alert("✅ Signed up!");
-      } catch (e) { console.error(e); alert("Sign‑up failed: " + e.message); }
+      } catch (e) {
+        console.error(e);
+        alert("❌ Sign-up failed: " + e.message);
+      }
     };
 
     window.signIn = async () => {
       const email = document.getElementById("email").value;
       const pw = document.getElementById("password").value;
-      if (pw.length < 6) return alert("🔐 Password must be at least 6 characters.");
+      if (pw.length < 6) return alert("Password must be at least 6 characters.");
       try {
         await signInWithEmailAndPassword(auth, email, pw);
         alert("✅ Signed in!");
-      } catch (e) { console.error(e); alert("Sign‑in failed: (" + e.code + ") " + e.message); }
+      } catch (e) {
+        console.error(e);
+        alert(`❌ Sign-in failed (${e.code}): ${e.message}`);
+      }
     };
 
-    window.signOutUser = async () => { await signOut(auth); alert("👋 Signed out"); };
+    window.signOutUser = async () => {
+      await signOut(auth);
+      alert("👋 Signed out.");
+    };
 
     window.deleteAccount = async () => {
       const user = auth.currentUser;
-      if (user && confirm("Delete your account permanently?")) {
-        try {
-          await deleteUser(user);
-          alert("✅ Account deleted");
-        } catch (e) { console.error(e); alert("Account deletion failed: " + e.message); }
+      if (!user || !confirm("Delete your account permanently?")) return;
+      try {
+        await deleteUser(user);
+        alert("✅ Account deleted.");
+      } catch (e) {
+        console.error(e);
+        alert("❌ Account deletion failed: " + e.message);
       }
     };
 
     window.saveCharacter = async () => {
       const user = auth.currentUser;
       const name = document.getElementById("charName").value.trim();
-      if (!user || !name) return alert("❗ Sign in and enter a character name.");
+      if (!user || !name) return alert("Please sign in and enter a character name.");
+
+      // Gather data from inputs
       const data = {
         name,
         gender: document.getElementById("gender").value,
@@ -213,7 +220,8 @@
           marksmanship: Number(document.getElementById("marksmanship").value) || 0,
           mobility: Number(document.getElementById("mobility").value) || 0,
           precision: Number(document.getElementById("precision").value) || 0,
-          heal: Number(document.getElementById("heal").value) || 0, insight: Number(document.getElementById("insight").value) || 0,
+          heal: Number(document.getElementById("heal").value) || 0,
+          insight: Number(document.getElementById("insight").value) || 0,
           logic: Number(document.getElementById("logic").value) || 0,
           survival: Number(document.getElementById("survival").value) || 0,
           vigilance: Number(document.getElementById("vigilance").value) || 0,
@@ -229,30 +237,33 @@
         },
         notes: document.getElementById("notes").value
       };
+
       try {
-        const ref = doc(collection(db, auth.currentUser.uid, "characters"), name);
-        console.log("Saving to:", ref.path, data);
-        await setDoc(ref, data);
-        alert("✅ Character saved");
-        populateCharacterList(auth.currentUser.uid);
+        const docRef = doc(collection(db, "users", user.uid, "characters"), name);
+        console.log("Saving to:", docRef.path, data);
+        await setDoc(docRef, data);
+        alert("✅ Character saved.");
+        populateCharacterList(user.uid);
       } catch (e) {
         console.error(e);
-        alert("Save failed: " + e.message);
+        alert("❌ Save failed: " + e.message);
       }
     };
 
     window.loadCharacter = async () => {
       const user = auth.currentUser;
-      const name = document.getElementById("characterSelect").value || document.getElementById("charName").value.trim();
-      if (!user || !name) return alert("❗ Sign in and select or type a character name.");
+      const name = document.getElementById("characterSelect").value ||
+                   document.getElementById("charName").value.trim();
+      if (!user || !name) return alert("Please sign in and select or enter a character name.");
+
       try {
-        const ref = doc(collection(db, user.uid, "characters"), name);
-        console.log("Loading from:", ref.path);
-        const snap = await getDoc(ref);
-        if (!snap.exists()) return alert("❌ Character not found");
+        const docRef = doc(collection(db, "users", user.uid, "characters"), name);
+        console.log("Loading from:", docRef.path);
+        const snap = await getDoc(docRef);
+        if (!snap.exists()) return alert("❌ Character not found.");
+
         const d = snap.data();
         console.log("Loaded:", d);
-
         document.getElementById("charName").value = d.name || '';
         document.getElementById("gender").value = d.gender || '';
         document.getElementById("archetype1").value = d.archetype1 || '';
@@ -271,26 +282,27 @@
         for (let s in d.skills) if (document.getElementById(s)) document.getElementById(s).value = d.skills[s];
         for (let c in d.conditions) if (document.getElementById(c)) document.getElementById(c).checked = d.conditions[c];
         document.getElementById("notes").value = d.notes || '';
-        alert("✅ Character loaded");
+        alert("✅ Character loaded.");
       } catch (e) {
         console.error(e);
-        alert("Load failed: " + e.message);
+        alert("❌ Load failed: " + e.message);
       }
     };
 
     window.deleteCharacter = async () => {
       const user = auth.currentUser;
       const name = document.getElementById("characterSelect").value;
-      if (!user || !name || !confirm(`Delete "${name}"?`)) return;
+      if (!user || !name || !confirm(`Delete "${name}" permanently?`)) return;
       try {
-        await deleteDoc(doc(collection(db, user.uid, "characters"), name));
-        alert("✅ Character deleted");
+        await deleteDoc(doc(collection(db, "users", user.uid, "characters"), name));
+        alert("✅ Character deleted.");
         populateCharacterList(user.uid);
       } catch (e) {
         console.error(e);
-        alert("Delete failed: " + e.message);
+        alert("❌ Delete failed: " + e.message);
       }
     };
+
   </script>
 </body>
 </html>
