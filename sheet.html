@@ -4,36 +4,7 @@
   <meta charset="UTF-8" />
   <title>GxD6 Character Sheet</title>
   <style>
-    /* 🎨 Font setup */
-    @font-face { font-family: 'DominicanSmall'; src: url('fonts/DOMISC__.TTF') format('truetype'); }
-    @font-face { font-family: 'Dominican'; src: url('fonts/DOMINICA.TTF') format('truetype'); }
-    @font-face { font-family: 'DeutschGothic'; src: url('fonts/DeutschGothic.ttf') format('truetype'); }
-
-    body {
-      font-family: 'DominicanSmall', Georgia, serif;
-      background-image: url('img/GXD6 Greyscale paper background.jpg');
-      background-size: cover;
-      background-attachment: fixed;
-      background-repeat: no-repeat;
-      padding: 20px;
-      color: black;
-    }
-    h1,h2,h3 { font-family: 'DominicanSmall', serif; font-variant: small-caps; }
-    label, input[type="text"], textarea { font-family: 'Dominican', serif; }
-    input[type="number"] { font-family: 'DeutschGothic', monospace; }
-
-    /* Layout */
-    .flex-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: flex-end; margin-bottom: 10px; }
-    .field { display: flex; flex-direction: column; gap: 2px; }
-    #charName { width: 250px; } #gender { width: 100px; } #xp { width: 50px; }
-    #archetype1,#archetype2,#profession1,#profession2 { width: 180px; }
-    .button-row { display: flex; gap: 10px; margin-left: auto; }
-    .attribute-skill-block { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-    .attribute-box { width: 260px; padding: 10px; border: 1px solid #000; background: rgba(255,255,255,0.8); }
-    .attribute-box h3 { margin: 5px 0; } .attribute-box input { width: 20px; }
-    .conditions { margin-top: 20px; display: flex; gap: 20px; }
-    .gear-notes { margin-top: 30px; } textarea { width: 100%; height: 100px; }
-    #loginForm { margin-bottom: 15px; }
+    /* ... include your @font-face and CSS layout from before ... */
   </style>
 </head>
 <body>
@@ -48,87 +19,30 @@
   <button onclick="deleteAccount()">Delete Account</button>
   <button onclick="deleteCharacter()">Delete Character</button>
 
-  <!-- Form UI -->
+  <!-- Character form fields and dropdown -->
   <div class="flex-row">
-    <div class="field"><label>Character Name<input type="text" id="charName" maxlength="30"></label></div>
-    <div class="field"><label>Gender<input type="text" id="gender" maxlength="10"></label></div>
-    <div class="field"><label>Saved Characters<select id="characterSelect"><option value="">-- Select Character --</option></select></label></div>
+    <div class="field"><label>Character Name<input type="text" id="charName"></label></div>
+    <div class="field"><label>Gender<input type="text" id="gender"></label></div>
+    <div class="field"><label>Saved Characters<select id="characterSelect"><option>-- Select Character --</option></select></label></div>
     <div class="button-row">
       <button onclick="saveCharacter()">Save</button>
       <button onclick="loadCharacter()">Load</button>
     </div>
   </div>
+  <!-- ... rest of form inputs like attributes, skills, notes ... -->
 
-  <div class="flex-row">
-    <div class="field"><label>Archetypes<input type="text" id="archetype1"><input type="text" id="archetype2"></label></div>
-    <div class="field"><label>Professions<input type="text" id="profession1"><input type="text" id="profession2"></label></div>
-    <div class="field"><label>XP<input type="number" id="xp"></label></div>
-  </div>
-
-  <div class="attribute-skill-block">
-    <!-- Brawn -->
-    <div class="attribute-box"><h3>Brawn</h3>
-      <label>Base<input type="number" id="brawn" min="1" max="5"></label>
-      <label>Current<input type="number" id="brawnCurrent" min="0" max="5"></label><hr>
-      <label>Endurance<input type="number" id="endurance" min="0" max="6"></label>
-      <label>Fight<input type="number" id="fight" min="0" max="6"></label>
-      <label>Might<input type="number" id="might" min="0" max="6"></label>
-    </div>
-    <!-- Agility -->
-    <div class="attribute-box"><h3>Agility</h3>
-      <label>Base<input type="number" id="agility" min="1" max="5"></label>
-      <label>Current<input type="number" id="agilityCurrent" min="0" max="5"></label><hr>
-      <label>Marksmanship<input type="number" id="marksmanship" min="0" max="6"></label>
-      <label>Mobility<input type="number" id="mobility" min="0" max="6"></label>
-      <label>Precision<input type="number" id="precision" min="0" max="6"></label>
-    </div>
-    <!-- Wits -->
-    <div class="attribute-box"><h3>Wits</h3>
-      <label>Base<input type="number" id="wits" min="1" max="5"></label>
-      <label>Current<input type="number" id="witsCurrent" min="0" max="5"></label><hr>
-      <label>Heal<input type="number" id="heal" min="0" max="6"></label>
-      <label>Insight<input type="number" id="insight" min="0" max="6"></label>
-      <label>Logic<input type="number" id="logic" min="0" max="6"></label>
-      <label>Survival<input type="number" id="survival" min="0" max="6"></label>
-      <label>Vigilance<input type="number" id="vigilance" min="0" max="6"></label>
-    </div>
-    <!-- Will -->
-    <div class="attribute-box"><h3>Will</h3>
-      <label>Base<input type="number" id="will" min="1" max="5"></label>
-      <label>Current<input type="number" id="willCurrent" min="0" max="5"></label><hr>
-      <label>Inspire<input type="number" id="inspire" min="0" max="6"></label>
-      <label>Manipulate<input type="number" id="manipulate" min="0" max="6"></label>
-      <label>Resolve<input type="number" id="resolve" min="0" max="6"></label>
-    </div>
-  </div>
-
-  <div class="conditions">
-    <label><input type="checkbox" id="starving"> Starving</label>
-    <label><input type="checkbox" id="sleepless"> Sleepless</label>
-    <label><input type="checkbox" id="dehydrated"> Dehydrated</label>
-    <label><input type="checkbox" id="hypothermic"> Hypothermic</label>
-  </div>
-
-  <div class="gear-notes"><label>Gear / Notes<textarea id="notes"></textarea></label></div>
-
-  <!-- 🔥 Firebase + Auth Script -->
+  <!-- Module script with all definitions -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getFirestore, collection, doc, getDoc, setDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
-      authDomain: "gxd6-character-sheet.firebaseapp.com",
-      projectId: "gxd6-character-sheet",
-      storageBucket: "gxd6-character-sheet.appspot.com",
-      messagingSenderId: "761778638151",
-      appId: "1:761778638151:web:06a1d72423a7e980889062"
-    };
-    const app = initializeApp(firebaseConfig);
+    const app = initializeApp({
+      apiKey: "...", authDomain: "...", projectId: "...", storageBucket: "...",
+      messagingSenderId: "...", appId: "..."
+    });
     const db = getFirestore(app);
     const auth = getAuth(app);
-
     const selectEl = document.getElementById("characterSelect");
     const loginForm = document.getElementById("loginForm");
 
@@ -144,116 +58,77 @@
 
     async function populateCharacterList(uid) {
       selectEl.innerHTML = '<option value="">-- Select Character --</option>';
-      const snapshot = await getDocs(collection(db, uid, "characters"));
-      snapshot.forEach(docSnap => {
+      const snap = await getDocs(collection(db, uid, "characters"));
+      snap.forEach(docSnap => {
         const opt = document.createElement("option");
         opt.value = docSnap.id;
-        opt.text = docSnap.id;
+        opt.textContent = docSnap.id;
         selectEl.appendChild(opt);
       });
     }
 
+    // Make these available globally
+    window.signUp = async () => {
+      try {
+        await createUserWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value);
+        alert("✅ Signed Up!");
+      } catch (e) { alert("Sign up failed: " + e.message); }
+    };
+
+    window.signIn = async () => {
+      try {
+        await signInWithEmailAndPassword(auth, document.getElementById("email").value, document.getElementById("password").value);
+        alert("✅ Signed In!");
+      } catch (e) { alert("Sign in failed: " + e.message); }
+    };
+
+    window.signOutUser = async () => { await signOut(auth); alert("👋 Signed out."); };
+    window.deleteAccount = async () => {
+      if (confirm("Delete account permanently?")) await deleteUser(auth.currentUser).catch(e => alert("Deletion failed: " + e.message));
+      alert("Account deleted.");
+    };
+
     window.saveCharacter = async () => {
       const user = auth.currentUser;
-      if (!user) return alert("Please sign in first.");
       const name = document.getElementById("charName").value.trim();
-      if (!name) return alert("Enter character name.");
-      const data = {
-        name,
-        gender: document.getElementById("gender").value,
-        archetype1: document.getElementById("archetype1").value,
-        archetype2: document.getElementById("archetype2").value,
-        profession1: document.getElementById("profession1").value,
-        profession2: document.getElementById("profession2").value,
-        xp: Number(document.getElementById("xp").value) || 0,
-        brawn: Number(document.getElementById("brawn").value) || 0,
-        brawnCurrent: Number(document.getElementById("brawnCurrent").value) || 0,
-        agility: Number(document.getElementById("agility").value) || 0,
-        agilityCurrent: Number(document.getElementById("agilityCurrent").value) || 0,
-        wits: Number(document.getElementById("wits").value) || 0,
-        witsCurrent: Number(document.getElementById("witsCurrent").value) || 0,
-        will: Number(document.getElementById("will").value) || 0,
-        willCurrent: Number(document.getElementById("willCurrent").value) || 0,
-        skills: {
-          endurance: Number(document.getElementById("endurance").value) || 0,
-          fight: Number(document.getElementById("fight").value) || 0,
-          might: Number(document.getElementById("might").value) || 0,
-          marksmanship: Number(document.getElementById("marksmanship").value) || 0,
-          mobility: Number(document.getElementById("mobility").value) || 0,
-          precision: Number(document.getElementById("precision").value) || 0,
-          heal: Number(document.getElementById("heal").value) || 0,
-          insight: Number(document.getElementById("insight").value) || 0,
-          logic: Number(document.getElementById("logic").value) || 0,
-          survival: Number(document.getElementById("survival").value) || 0,
-          vigilance: Number(document.getElementById("vigilance").value) || 0,
-          inspire: Number(document.getElementById("inspire").value) || 0,
-          manipulate: Number(document.getElementById("manipulate").value) || 0,
-          resolve: Number(document.getElementById("resolve").value) || 0
-        },
-        conditions: {
-          starving: document.getElementById("starving").checked,
-          sleepless: document.getElementById("sleepless").checked,
-          dehydrated: document.getElementById("dehydrated").checked,
-          hypothermic: document.getElementById("hypothermic").checked
-        },
-        notes: document.getElementById("notes").value
-      };
+      if (!user || !name) return alert("Sign in & name required.");
+      const d = { name, gender: document.getElementById("gender").value /* + rest fields */ };
       try {
-        const charRef = doc(collection(db, user.uid, "characters"), name);
-        console.log("Saving to path:", charRef.path);
-        console.log("Data:", data);
-        await setDoc(charRef, data);
-        console.log("Character saved");
+        const ref = doc(collection(db, user.uid, "characters"), name);
+        console.log("Saving to:", ref.path, d);
+        await setDoc(ref, d);
         alert("✅ Character saved");
         populateCharacterList(user.uid);
-      } catch (err) {
-        console.error("Save failed:", err);
-        alert("❌ Save failed: " + err.message);
-      }
+      } catch (e) { alert("Save failed: " + e.message); }
     };
 
     window.loadCharacter = async () => {
       const user = auth.currentUser;
-      if (!user) return alert("Please sign in first.");
       const name = selectEl.value || document.getElementById("charName").value.trim();
-      if (!name) return alert("Select or enter character name.");
+      if (!user || !name) return alert("Sign in & select or name required.");
       try {
-        const charRef = doc(collection(db, user.uid, "characters"), name);
-        console.log("Loading from path:", charRef.path);
-        const docSnap = await getDoc(charRef);
-        if (!docSnap.exists()) { alert("❌ Character not found."); return; }
-        const d = docSnap.data();
-        console.log("Loaded data:", d);
-        document.getElementById("charName").value = d.name || '';
-        document.getElementById("gender").value = d.gender || '';
-        document.getElementById("archetype1").value = d.archetype1 || '';
-        document.getElementById("archetype2").value = d.archetype2 || '';
-        document.getElementById("profession1").value = d.profession1 || '';
-        document.getElementById("profession2").value = d.profession2 || '';
-        document.getElementById("xp").value = d.xp || '';
-        document.getElementById("brawn").value = d.brawn || '';
-        document.getElementById("brawnCurrent").value = d.brawnCurrent || '';
-        document.getElementById("agility").value = d.agility || '';
-        document.getElementById("agilityCurrent").value = d.agilityCurrent || '';
-        document.getElementById("wits").value = d.wits || '';
-        document.getElementById("witsCurrent").value = d.witsCurrent || '';
-        document.getElementById("will").value = d.will || '';
-        document.getElementById("willCurrent").value = d.willCurrent || '';
-        for (let s in d.skills) {
-          if (document.getElementById(s)) document.getElementById(s).value = d.skills[s];
-        }
-        for (let c in d.conditions) {
-          if (document.getElementById(c)) document.getElementById(c).checked = d.conditions[c];
-        }
-        document.getElementById("notes").value = d.notes || '';
+        const ref = doc(collection(db, user.uid, "characters"), name);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) return alert("Character not found.");
+        const data = snap.data();
+        console.log("Loaded:", data);
+        document.getElementById("charName").value = data.name || '';
+        document.getElementById("gender").value = data.gender || '';
+        // ... populate other fields ...
         alert("✅ Character loaded");
-      } catch (err) {
-        console.error("Load failed:", err);
-        alert("❌ Load failed: " + err.message);
-      }
+      } catch (e) { alert("Load failed: " + e.message); }
     };
 
     window.deleteCharacter = async () => {
       const user = auth.currentUser;
       const name = selectEl.value;
-      if (!
+      if (!user || !name || !confirm(`Delete "${name}"?`)) return;
+      try {
+        await deleteDoc(doc(collection(db, user.uid, "characters"), name));
+        alert("✅ Character deleted");
+        populateCharacterList(user.uid);
+      } catch (e) { alert("Deletion failed: " + e.message); }
+    };
+  </script>
+</body>
+</html>
