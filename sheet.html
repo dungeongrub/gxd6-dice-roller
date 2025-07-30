@@ -232,27 +232,40 @@
     }
 
     window.saveCharacter = async () => {
-      const user = auth.currentUser;
-      if (!user) return alert("Please sign in first.");
-      const name = document.getElementById("charName").value;
-      if (!name) return alert("Enter character name.");
+  const user = auth.currentUser;
+  if (!user) return alert("Please sign in first.");
 
-      const data = {
-        name,
-        gender: document.getElementById("gender").value,
-        archetype1: document.getElementById("archetype1").value,
-        archetype2: document.getElementById("archetype2").value,
-        profession1: document.getElementById("profession1").value,
-        profession2: document.getElementById("profession2").value,
-        xp: Number(document.getElementById("xp").value) || 0,
-        notes: document.getElementById("notes").value
-        // 🔁 Add the rest of your fields here
-      };
+  const name = document.getElementById("charName").value;
+  if (!name) return alert("Enter character name.");
 
-      await setDoc(doc(db, user.uid, "characters", name), data);
-      alert("✅ Character saved");
-      populateCharacterList(user.uid);
-    };
+  // Collect the character data
+  const data = {
+    name,
+    gender: document.getElementById("gender").value,
+    archetype1: document.getElementById("archetype1").value,
+    archetype2: document.getElementById("archetype2").value,
+    profession1: document.getElementById("profession1").value,
+    profession2: document.getElementById("profession2").value,
+    xp: Number(document.getElementById("xp").value) || 0,
+    notes: document.getElementById("notes").value
+    // 🔁 Add your attributes, skills, conditions as needed
+  };
+
+  // 🧠 Debug: Wrap Firestore call with logs and catch
+  try {
+    console.log(`📝 Saving character "${name}" for user UID: ${user.uid}`);
+    console.log("📦 Data being saved:", data);
+
+    await setDoc(doc(db, user.uid, "characters", name), data);
+
+    console.log("✅ Character saved successfully!");
+    alert("✅ Character saved");
+    populateCharacterList(user.uid);
+  } catch (err) {
+    console.error("❌ Error saving character:", err);
+    alert("❌ Save failed: " + err.message);
+  }
+};
 
     window.loadCharacter = async () => {
       const user = auth.currentUser;
