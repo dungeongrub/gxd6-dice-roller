@@ -7,55 +7,99 @@
     @font-face { font-family: 'DominicanSmall'; src: url('fonts/DOMISC__.TTF') format('truetype'); }
     @font-face { font-family: 'Dominican'; src: url('fonts/DOMINICA.TTF') format('truetype'); }
     @font-face { font-family: 'DeutschGothic'; src: url('fonts/DeutschGothic.ttf') format('truetype'); }
-    
-/* ✅ Limit page to 800px wide, anchor left */
-    body { 
-    max-width: 800px;
-    margin: 0; /* no auto centering */
-    padding: 20px; 
 
-  font-family: 'DominicanSmall', Georgia, serif;
-  background-image: url('img/GXD6 Greyscale paper background.jpg');
-  background-size: cover;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
-  }   
+    body { font-family: 'DominicanSmall', Georgia, serif; background: url('img/GXD6 Greyscale paper background.jpg') center/cover fixed; padding: 20px; color: black; }
+    h3 { font-family: 'DominicanSmall', serif; font-variant: small-caps; }
+    label, input[type="text"], textarea { font-family: 'Dominican', serif; }
+    input[type="number"] { font-family: 'DeutschGothic', monospace; }
 
-    /* ✅ Prevent scaling when window resizes */
-* {
-  box-sizing: border-box;
+    .flex-row { display:flex; flex-wrap:wrap; gap:5px; align-items:flex-end; margin-bottom:10px; }
+    .field { display:flex; flex-direction:column; gap:2px; }
+    .button-row { display:flex; gap:10px; margin-left:auto; }
+    .attribute-box { width:260px; padding:10px; margin:0 10px 10px 0; background:rgba(255,255,255,0.8); border:1px solid #000; }
+    textarea { width:100%; height:100px; }
+    #loginForm { margin-bottom:20px; }
+/* ✅ ATTRIBUTES & SKILLS GRID */	
+	.attribute-box {
+  width: 260px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  border: 1px solid #000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-.flex-row,
 .attribute-skill-block {
-  flex-wrap: nowrap;
-  overflow-x: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* two fixed-width columns */
+  grid-template-rows: auto auto;
+  gap: 20px;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 800px;
 }
 
-/* ✅ Ensure consistent sizes regardless of window width */
-input[type="text"],
-select,
-textarea {
-  width: 180px;
-  max-width: 180px;
+/* Prevent the attribute boxes from resizing with screen */
+.attribute-box {
+  width: 100%;
+  min-width: 0;
+  max-width: 380px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  border: 1px solid #000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-/* ✅ Number fields: fixed size, font style */
-input[type="number"] {
+.attr-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.attr-header img {
+  width: 60px;
+  height: auto;
+}
+
+.pips {
+  display: flex;
+  gap: 5px;
+}
+
+.pip input {
   width: 30px;
   font-family: 'DeutschGothic', monospace;
+  text-align: center;
+  border: none;
+  background: transparent;
+  font-size: 16px;
 }
 
-/* ✅ Headings */
-h1, h2, h3 {
-  font-family: 'DominicanSmall', serif;
-  font-variant: small-caps;
+.skills {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-/* Optional for attribute-box width if you want exact sizing */
-.attribute-box {
-  width: 260px;
-  min-width: 260px;
+.skill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+
+.skill-row label {
+  font-family: 'Dominican', serif;
+  font-size: 14px;
+}
+
+.skill-row .level input {
+  width: 30px;
+  font-family: 'DeutschGothic', monospace;
+  text-align: center;
+}
+	
   </style>
 </head>
 <body>
