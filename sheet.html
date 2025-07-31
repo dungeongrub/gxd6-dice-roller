@@ -68,8 +68,6 @@
     }
 
     .attribute-skill-block-fixed {
-  width: 2 * 260px + 20px;
-  /* exactly twice attribute-box width + gap */
   width: 540px;
   display: flex;
   flex-wrap: nowrap;
@@ -78,18 +76,6 @@
 
 .attribute-skill-block-fixed .attribute-box {
   flex: 0 0 260px;
-}
-
-.attribute-box .attr-icon {
-  display: block;
-  width: 60px;
-  margin-bottom: 5px;
-}
-
-.attr-icon {
-  display: block;
-  width: 60px;
-  margin: 0 auto 5px;
 }
 
 .pips {
@@ -141,6 +127,52 @@
     .gear-notes {
       margin-top: 20px;
     }
+	
+/* ✅ Overlayed icon container for attributes */
+.attr-icon-container {
+  position: relative;
+  width: 100px;
+  height: 60px;
+  margin: 0 auto 10px;
+}
+
+.attr-icon-container img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Coin-shaped overlay inputs */
+.pips {
+  position: absolute;
+  top: 50%; /* Adjust this if needed */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 8px;
+}
+
+.pip-base, .pip-current {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #000;
+  background: rgba(255,255,255,0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pip-base input, .pip-current input {
+  border: none;
+  background: transparent;
+  width: 30px;
+  height: 30px;
+  font-family: 'DeutschGothic', monospace;
+  font-size: 16px;
+  text-align: center;
+}
+
   </style>
 </head>
 <body>
@@ -173,55 +205,70 @@
 
   <!-- Fixed 2x2 Attribute Grid -->
     <div class="attribute-skill-block-fixed">
-  <div class="attribute-box">
-    <img src="img/GXD6 BRAWN full.png" alt="Brawn" class="attr-icon">
-    <h3>Brawn</h3>
-	<div class="pips">
-    <span class="pip-base"><input type="number" id="brawn" min="1" max="5"></span>
-    <span class="pip-current"><input type="number" id="brawnCurrent" min="0" max="5"></span>
-    <div class="skills">
-      <div class="skill-row"><label><input type="checkbox"> Endurance</label><input type="number" id="endurance" min="0" max="6"></div>
-      <div class="skill-row"><label><input type="checkbox"> Fight</label><input type="number" id="fight" min="0" max="6"></div>
-      <div class="skill-row"><label><input type="checkbox"> Might</label><input type="number" id="might" min="0" max="6"></div>
-    </div>
-  </div>
-  <div class="attribute-box">
-    <img src="img/GXD6 AGILITY full.png" alt="Agility" class="attr-icon">
-    <h3>Agility</h3>
-	<div class="pips">
-    <span class="pip-base"><input type="number" id="agility" min="1" max="5"></span>
-    <span class="pip-current"><input type="number" id="agilityCurrent" min="0" max="5"></span>
-    <div class="skills">
-      <div class="skill-row"><label><input type="checkbox"> Marksmanship</label><input type="number" id="marksmanship" min="0" max="6"></div>
-      <div class="skill-row"><label><input type="checkbox"> Mobility</label><input type="number" id="mobility" min="0" max="6"></div>
-      <div class="skill-row"><label><input type="checkbox"> Precision</label><input type="number" id="precision" min="0" max="6"></div>
-    </div>
-  </div>
-  <div class="attribute-box">
-    <img src="img/GXD6 WITS full.png" alt="Wits" class="attr-icon">
-    <h3>Wits</h3>
+	
+<!-- Row 1: Brawn & Agility -->
+				<!-- BRAWN ATTR. BOX --> 	
+<div class="attribute-box">
+  <h3>Brawn</h3>
+  <div class="attr-icon-container">
+    <img src="img/GXD6 BRAWN full.png" alt="Brawn Icon">
     <div class="pips">
-    <span class="pip-base"><input type="number" id="wits" min="1" max="5"></span>
-    <span class="pip-current"><input type="number" id="witsCurrent" min="0" max="5"></span>
-    <div class="skills">
-      <div class="skill-row"><label><input type="checkbox"> Heal</label><input type="number" id="heal" min="0" max="6"></div>
-      <div class="skill-row"><label><input type="checkbox"> Insight</label><input type="number" id="insight" min="0" max="6"></div>
-      <div class="skill-row"><label><input type="checkbox"> Logic</label><input type="number" id="logic" min="0" max="6"></div>
-      <div class="skill-row"><label><input type="checkbox"> Survival</label><input type="number" id="survival" min="0" max="6"></div>
-      <div class="skill-row"><label><input type="checkbox"> Vigilance</label><input type="number" id="vigilance" min="0" max="6"></div>
+      <span class="pip-base"><input type="number" id="brawn" min="1" max="5" /></span>
+      <span class="pip-current"><input type="number" id="brawnCurrent" min="0" max="5" />
     </div>
   </div>
+  <label>Endurance<input id="endurance" type="number"></label>
+  <label>Fight<input id="fight" type="number"></label>
+  <label>Might<input id="might" type="number"></label>
+  </div>
+  
+				<!-- AGILITY ATTR. BOX --> 	  
   <div class="attribute-box">
-    <img src="img/GXD6 WILL full.png" alt="Will" class="attr-icon">
-    <h3>Will</h3>
+  <h3>Agility</h3>
+  <div class="attr-icon-container">
+    <img src="img/GXD6 AGILITY full.png" alt="Agility Icon">
     <div class="pips">
-    <span class="pip-base"><input type="number" id="will" min="1" max="5"></span>
-    <span class="pip-current"><input type="number" id="willCurrent" min="0" max="5"></span>
-    <div class="skills">
-      <div class="skill-row"><label><input type="checkbox"> Inspire</label><input type="number" id="inspire" min="0" max="6"></div>
-      <div class="skill-row"><label><input type="checkbox"> Manipulate</label><input type="number" id="manipulate" min="0" max="6"></div>
-      <div class="skill-row"><label><input type="checkbox"> Resolve</label><input type="number" id="resolve" min="0" max="6"></div>
+      <span class="pip-base"><input type="number" id="agility" min="1" max="5" /></span>
+      <span class="pip-current"><input type="number" id="agilityCurrent" min="0" max="5" 
     </div>
+  </div>
+  <label>Marksmanship<input id="marksmanship" type="number"></label>
+  <label>Mobility<input id="mobility" type="number"></label>
+  <label>Precision<input id="precision" type="number"></label>
+  </div>
+ </div>
+  
+<div class="attribute-skill-block-fixed">
+  <!-- Row 2: Wits & Will -->
+ 				<!-- WITS ATTR. BOX --> 	 
+  <h3>Wits</h3>
+  <div class="attr-icon-container">
+    <img src="img/GXD6 WITS full.png" alt="Wits Icon">
+    <div class="pips">
+      <span class="pip-base"><input type="number" id="wits" min="1" max="5" /></span>
+      <span class="pip-current"><input type="number" id="witsCurrent" min="0" max="5" />
+    </div>
+  </div>
+  <label>Heal<input id="heal" type="number"></label>
+  <label>Insight<input id="insight" type="number"></label>
+  <label>Logic<input id="logic" type="number"></label>
+  <label>Survival<input id="survival" type="number"></label>
+  <label>Vigilance<input id="vigilance" type="number"></label>
+</div>
+
+ 				<!-- WILL ATTR. BOX -->   
+<div class="attribute-box">
+  <h3>Will</h3>
+  <div class="attr-icon-container">
+    <img src="img/GXD6 WILL full.png" alt="Will Icon">
+    <div class="pips">
+      <span class="pip-base"><input type="number" id="will" min="1" max="5" /></span>
+      <span class="pip-current"><input type="number" id="willCurrent" min="0" max="5" />
+    </div>
+  </div>
+  <label>Inspire<input id="inspire" type="number"></label>
+  <label>Manipulate<input id="manipulate" type="number"></label>
+  <label>Resolve<input id="resolve" type="number"></label>
   </div>
 </div>
 
