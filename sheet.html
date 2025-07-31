@@ -86,6 +86,52 @@
   margin-bottom: 5px;
 }
 
+.attr-icon {
+  display: block;
+  width: 60px;
+  margin: 0 auto 5px;
+}
+
+.pips {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+/* Coin‑shaped pip styles */
+.pip-base, .pip-current {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #000;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+}
+
+/* Hide native arrows and center text input */
+.pip-base input,
+.pip-current input {
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  font-family: 'DeutschGothic', monospace;
+  font-size: 16px;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+
+.pip-base input::-webkit-inner-spin-button,
+.pip-base input::-webkit-outer-spin-button,
+.pip-current input::-webkit-inner-spin-button,
+.pip-current input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
     .conditions {
       margin-top: 20px;
       display: flex;
@@ -130,7 +176,9 @@
   <div class="attribute-box">
     <img src="img/GXD6 BRAWN full.png" alt="Brawn" class="attr-icon">
     <h3>Brawn</h3>
-    <div class="pips"><input type="number" id="brawn" min="1" max="5"><input type="number" id="brawnCurrent" min="0" max="5"></div>
+	<div class="pips">
+    <span class="pip-base"><input type="number" id="brawn" min="1" max="5"></span>
+    <span class="pip-current"><input type="number" id="brawnCurrent" min="0" max="5"></span>
     <div class="skills">
       <div class="skill-row"><label><input type="checkbox"> Endurance</label><input type="number" id="endurance" min="0" max="6"></div>
       <div class="skill-row"><label><input type="checkbox"> Fight</label><input type="number" id="fight" min="0" max="6"></div>
@@ -140,7 +188,9 @@
   <div class="attribute-box">
     <img src="img/GXD6 AGILITY full.png" alt="Agility" class="attr-icon">
     <h3>Agility</h3>
-    <div class="pips"><input type="number" id="agility" min="1" max="5"><input type="number" id="agilityCurrent" min="0" max="5"></div>
+	<div class="pips">
+    <span class="pip-base"><input type="number" id="agility" min="1" max="5"></span>
+    <span class="pip-current"><input type="number" id="agilityCurrent" min="0" max="5"></span>
     <div class="skills">
       <div class="skill-row"><label><input type="checkbox"> Marksmanship</label><input type="number" id="marksmanship" min="0" max="6"></div>
       <div class="skill-row"><label><input type="checkbox"> Mobility</label><input type="number" id="mobility" min="0" max="6"></div>
@@ -150,7 +200,9 @@
   <div class="attribute-box">
     <img src="img/GXD6 WITS full.png" alt="Wits" class="attr-icon">
     <h3>Wits</h3>
-    <div class="pips"><input type="number" id="wits" min="1" max="5"><input type="number" id="witsCurrent" min="0" max="5"></div>
+    <div class="pips">
+    <span class="pip-base"><input type="number" id="wits" min="1" max="5"></span>
+    <span class="pip-current"><input type="number" id="witsCurrent" min="0" max="5"></span>
     <div class="skills">
       <div class="skill-row"><label><input type="checkbox"> Heal</label><input type="number" id="heal" min="0" max="6"></div>
       <div class="skill-row"><label><input type="checkbox"> Insight</label><input type="number" id="insight" min="0" max="6"></div>
@@ -162,7 +214,9 @@
   <div class="attribute-box">
     <img src="img/GXD6 WILL full.png" alt="Will" class="attr-icon">
     <h3>Will</h3>
-    <div class="pips"><input type="number" id="will" min="1" max="5"><input type="number" id="willCurrent" min="0" max="5"></div>
+    <div class="pips">
+    <span class="pip-base"><input type="number" id="will" min="1" max="5"></span>
+    <span class="pip-current"><input type="number" id="willCurrent" min="0" max="5"></span>
     <div class="skills">
       <div class="skill-row"><label><input type="checkbox"> Inspire</label><input type="number" id="inspire" min="0" max="6"></div>
       <div class="skill-row"><label><input type="checkbox"> Manipulate</label><input type="number" id="manipulate" min="0" max="6"></div>
