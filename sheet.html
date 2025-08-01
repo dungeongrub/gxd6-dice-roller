@@ -77,6 +77,190 @@
     }
     .fixed-row {
       display:flex;
+      gap:10px;
+      align-items:center;
+      width:100%;
+      min-width:800px;
+    }
+    .fixed-row label {
+      display:flex;
+      flex-direction:column;
+      font-family:'DominicanSmall', serif;
+      font-size:14px;
+      width:180px;
+    }
+    .fixed-row input {
+      width:140px;
+      padding:3px 5px;
+      font-family:'Dominican', serif;
+      font-size:14px;
+      border:1px solid #999;
+      box-sizing:border-box;
+    }
+
+    /*ATTRIBUTE & SKILL GRID STYLES*/
+    .attribute-box {
+      width:250px;
+      background:rgba(255,255,255,0.85);
+      padding:10px;
+      margin-bottom:20px;
+      border:1px solid #000;
+    }
+    .attr-icon-container {
+      position:relative;
+      width:200px;
+      margin:0 auto 10px;
+    }
+    .attr-icon-container img {
+      width:100%; display:block;
+    }
+    .pips {
+      position:absolute;
+      top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      display:flex; gap:2px;
+    }
+    .pip-base, .pip-current {
+      width:28px; height:28px;
+      border-radius:50%; border:2px solid #000;
+      background:rgba(255,255,255,0.85);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .pip-base input, .pip-current input {
+      width:36px; height:36px;
+      border:none; background:transparent;
+      font-family:'DeutschGothic', monospace;
+      font-size:20px; text-align:center;
+    }
+    .skills-grid {
+      display:grid;
+      grid-template-columns:30px 1fr 40px 40px 50px;
+      gap:4px; align-items:center;
+      font-family:'Dominican', serif;
+      font-size:14px;
+    }
+    .skills-grid .lvl input {
+      font-weight:bold;
+    }
+    .notes-label {
+      font-family:'Dominican', serif;
+      font-size:14px;
+      margin-top:20px;
+      display:block;
+    }
+    textarea {
+      width:100%; height:100px;
+      font-family:'Dominican', serif;
+      font-size:14px;
+    }
+  </style>
+</head>
+<body>
+<div class="sheet-container">
+
+  <!-- LOGIN FORM -->
+  <div id="loginForm" class="top-row">
+    <div class="login-controls">
+      <input id="email" type="email" placeholder="Email">
+      <input id="password" type="password" placeholder="Password">
+      <button onclick="signIn()">Sign In</button>
+      <button onclick="signUp()">Sign Up</button>
+    </div>
+  </div>
+
+  <!-- ADMIN CONTROLS -->
+  <div id="accountControls" class="top-row" style="display:none;">
+    <div class="admin-controls">
+      <button onclick="signOutUser()">Sign Out</button>
+      <button onclick="deleteAccount()">Delete Account</button>
+      <button onclick="saveCharacter()">Save</button>
+      <button onclick="loadCharacter()">Load</button>
+      <label>Saved <select id="characterSelect"><option value="">--Select--</option></select></label>
+      <button onclick="deleteCharacter()">Delete Character</button>
+    </div>
+  </div>
+
+  <!-- CHARACTER INFO (fixed layout applied here) -->
+  <div class="char-block">
+    <div class="fixed-row"><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF‑8">
+  <title>GxD6 Character Sheet</title>
+  <style>
+    /* FONT SETUP */
+    @font-face { font-family:'DominicanSmall'; src:url('fonts/DOMISC__.TTF'); }
+    @font-face { font-family:'Dominican'; src:url('fonts/DOMINICA.TTF'); }
+    @font-face { font-family:'DeutschGothic'; src:url('fonts/DeutschGothic.ttf'); }
+
+    body {
+      font-family:'DominicanSmall',Georgia,serif;
+      background:url('img/GXD6 Greyscale paper background.jpg') center/cover fixed;
+      margin:0; padding:20px; color:black;
+    }
+
+    .sheet-container {
+      width:800px;
+      margin:0 auto;
+      min-width:800px;
+      max-width:800px;
+    }
+
+    h3 {
+      font-family:'DominicanSmall', serif;
+      font-variant:small-caps;
+      text-align:center;
+      margin:5px 0;
+    }
+
+    input[type="text"], input[type="number"], select {
+      font-family:'Dominican', serif;
+      font-size:14px;
+      padding:2px 6px;
+      border:1px solid #aaa;
+    }
+
+    input[type="number"] {
+      font-family:'DeutschGothic', monospace;
+      font-size:16px;
+      width:60px;
+      text-align:center;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance:none; margin:0;
+    }
+
+    button {
+      font-family:'DominicanSmall', serif;
+      padding:4px 10px;
+    }
+
+    .top-row {
+      display:flex;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .login-controls, .admin-controls {
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    /* CHARACTER INFO (Fixed Layout) */
+    .char-block {
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-bottom:20px;
+      width:800px;
+    }
+    .fixed-row {
+      display:flex;
       gap:20px;
       align-items:center;
       width:100%;
@@ -118,19 +302,19 @@
       position:absolute;
       top:50%; left:50%;
       transform:translate(-50%,-50%);
-      display:flex; gap:6px;
+      display:flex; gap:2px;
     }
     .pip-base, .pip-current {
-      width:36px; height:36px;
+      width:28px; height:28px;
       border-radius:50%; border:2px solid #000;
       background:rgba(255,255,255,0.85);
       display:flex; align-items:center; justify-content:center;
     }
     .pip-base input, .pip-current input {
-      width:28px; height:28px;
+      width:36px; height:36px;
       border:none; background:transparent;
       font-family:'DeutschGothic', monospace;
-      font-size:14px; text-align:center;
+      font-size:20px; text-align:center;
     }
     .skills-grid {
       display:grid;
@@ -183,6 +367,186 @@
   <!-- CHARACTER INFO (fixed layout applied here) -->
   <div class="char-block">
     <div class="fixed-row">
+      <label>Character Name<input id="charName" type="text" maxlength="30"></label>
+      <label>Age Group<input id="ageGroup" type="text" maxlength="10"></label>
+      <label>Gender<input id="gender" type="text" maxlength="15"></label>
+      <label>XP<input id="xp" type="number"></label>
+    </div>
+    <div class="fixed-row">
+      <label>Archetype 1<input id="archetype1" type="text" maxlength="20"></label>
+      <label>Archetype 2<input id="archetype2" type="text" maxlength="20"></label>
+    </div>
+    <div class="fixed-row">
+      <label>Profession 1<input id="profession1" type="text" maxlength="20"></label>
+      <label>Profession 2<input id="profession2" type="text" maxlength="20"></label>
+    </div>
+  </div>
+
+  <!-- ATTRIBUTE BOX: Brawn -->
+  <div class="attribute-box">
+    <h3>Brawn</h3>
+    <div class="attr-icon-container">
+      <img src="img/GXD6 BRAWN full.png" alt="Brawn">
+      <div class="pips">
+        <span class="pip-base"><input id="brawn" type="number" min="1" max="5"></span>
+        <span class="pip-current"><input id="brawnCurrent" type="number" min="0" max="5"></span>
+      </div>
+    </div>
+    <div class="skills-grid">
+      <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
+      <input type="checkbox"><div>Endurance</div><div class="lvl"><input id="endurance_lvl" type="number"></div><div><input id="endurance_mod" type="number"></div><div><input id="endurance_total" type="number" readonly></div>
+      <input type="checkbox"><div>Fight</div><div class="lvl"><input id="fight_lvl" type="number"></div><div><input id="fight_mod" type="number"></div><div><input id="fight_total" type="number" readonly></div>
+      <input type="checkbox"><div>Might</div><div class="lvl"><input id="might_lvl" type="number"></div><div><input id="might_mod" type="number"></div><div><input id="might_total" type="number" readonly></div>
+    </div>
+  </div>
+
+  <!-- ATTRIBUTE BOX: Agility -->
+  <div class="attribute-box">
+    <h3>Agility</h3>
+    <div class="attr-icon-container"><img src="img/GXD6 AGILITY full.png" alt="Agility"><div class="pips"><span class="pip-base"><input id="agility" type="number" min="1" max="5"></span><span class="pip-current"><input id="agilityCurrent" type="number" min="0" max="5"></span></div></div>
+    <div class="skills-grid"><div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div><input type="checkbox"><div>Marksmanship</div><div class="lvl"><input id="marksmanship_lvl" type="number"></div><div><input id="marksmanship_mod" type="number"></div><div><input id="marksmanship_total" type="number" readonly></div><input type="checkbox"><div>Mobility</div><div class="lvl"><input id="mobility_lvl" type="number"></div><div><input id="mobility_mod" type="number"></div><div><input id="mobility_total" type="number" readonly></div><input type="checkbox"><div>Precision</div><div class="lvl"><input id="precision_lvl" type="number"></div><div><input id="precision_mod" type="number"></div><div><input id="precision_total" type="number" readonly></div></div>
+  </div>
+
+  <!-- ATTRIBUTE BOX: Wits -->
+  <div class="attribute-box">
+    <h3>Wits</h3>
+    <div class="attr-icon-container"><img src="img/GXD6 WITS full.png" alt="Wits"><div class="pips"><span class="pip-base"><input id="wits" type="number" min="1" max="5"></span><span class="pip-current"><input id="witsCurrent" type="number" min="0" max="5"></span></div></div>
+    <div class="skills-grid"><div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div><input type="checkbox"><div>Heal</div><div class="lvl"><input id="heal_lvl" type="number"></div><div><input id="heal_mod" type="number"></div><div><input id="heal_total" type="number" readonly></div><input type="checkbox"><div>Insight</div><div class="lvl"><input id="insight_lvl" type="number"></div><div><input id="insight_mod" type="number"></div><div><input id="insight_total" type="number" readonly></div><input type="checkbox"><div>Logic</div><div class="lvl"><input id="logic_lvl" type="number"></div><div><input id="logic_mod" type="number"></div><div><input id="logic_total" type="number" readonly></div><input type="checkbox"><div>Survival</div><div class="lvl"><input id="survival_lvl" type="number"></div><div><input id="survival_mod" type="number"></div><div><input id="survival_total" type="number" readonly></div><input type="checkbox"><div>Vigilance</div><div class="lvl"><input id="vigilance_lvl" type="number"></div><div><input id="vigilance_mod" type="number"></div><div><input id="vigilance_total" type="number" readonly></div></div>
+  </div>
+
+  <!-- ATTRIBUTE BOX: Will -->
+  <div class="attribute-box">
+    <h3>Will</h3>
+    <div class="attr-icon-container"><img src="img/GXD6 WILL full.png" alt="Will"><div class="pips"><span class="pip-base"><input id="will" type="number" min="1" max="5"></span><span class="pip-current"><input id="willCurrent" type="number" min="0" max="5"></span></div></div>
+    <div class="skills-grid"><div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div><input type="checkbox"><div>Inspire</div><div class="lvl"><input id="inspire_lvl" type="number"></div><div><input id="inspire_mod" type="number"></div><div><input id="inspire_total" type="number" readonly></div><input type="checkbox"><div>Manipulate</div><div class="lvl"><input id="manipulate_lvl" type="number"></div><div><input id="manipulate_mod" type="number"></div><div><input id="manipulate_total" type="number" readonly></div><input type="checkbox"><div>Resolve</div><div class="lvl"><input id="resolve_lvl" type="number"></div><div><input id="resolve_mod" type="number"></div><div><input id="resolve_total" type="number" readonly></div></div>
+  </div>
+
+  <label class="notes-label">Notes</label>
+  <textarea id="notes"></textarea>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
+    authDomain: "gxd6-character-sheet.firebaseapp.com",
+    projectId: "gxd6-character-sheet",
+    storageBucket: "gxd6-character-sheet.firebasestorage.app",
+    messagingSenderId: "761778638151",
+    appId: "1:761778638151:web:06a1d72423a7e980889062"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const loginFormEl = document.getElementById('loginForm');
+  const accountControlsEl = document.getElementById('accountControls');
+  const characterSelectEl = document.getElementById('characterSelect');
+
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      loginFormEl.style.display = 'none';
+      accountControlsEl.style.display = 'flex';
+      populateCharacterList(user.uid);
+    } else {
+      loginFormEl.style.display = 'flex';
+      accountControlsEl.style.display = 'none';
+      characterSelectEl.innerHTML = '<option value="">--Select--</option>';
+    }
+  });
+
+  window.signUp = async () => {
+    const email = document.getElementById('email').value;
+    const pw = document.getElementById('password').value;
+    await createUserWithEmailAndPassword(auth, email, pw);
+    alert('Signed up!');
+  };
+
+  window.signIn = async () => {
+    const email = document.getElementById('email').value;
+    const pw = document.getElementById('password').value;
+    await signInWithEmailAndPassword(auth, email, pw);
+    alert('Signed in!');
+  };
+
+  window.signOutUser = async () => {
+    await signOut(auth);
+    alert('Signed out');
+  };
+
+  window.deleteAccount = async () => {
+    if (auth.currentUser && confirm('Delete account and characters?')) {
+      await deleteUser(auth.currentUser);
+      alert('Account deleted');
+    }
+  };
+
+  async function populateCharacterList(uid) {
+    const snap = await getDocs(collection(db, 'users', uid, 'characters'));
+    characterSelectEl.innerHTML = '<option value="">--Select--</option>';
+    snap.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d.id;
+      opt.text = d.id;
+      characterSelectEl.appendChild(opt);
+    });
+  }
+
+  window.saveCharacter = async () => {
+    const user = auth.currentUser;
+    const name = document.getElementById('charName').value.trim();
+    if (!user || !name) return alert('Sign in & enter a name');
+    const container = document.querySelector('.sheet-container');
+    const elements = container.querySelectorAll('input, select, textarea');
+    const data = { name };
+    elements.forEach(el => {
+      const id = el.id;
+      if (!id || id==='email'|| id==='password') return;
+      if (el.type==='checkbox') data[id] = el.checked;
+      else data[id] = el.value;
+    });
+    await setDoc(doc(db, 'users', user.uid, 'characters', name), data);
+    alert('✅ Saved');
+    populateCharacterList(user.uid);
+  };
+
+  window.loadCharacter = async () => {
+    const user = auth.currentUser;
+    if (!user) return alert('Sign in first');
+    const id = characterSelectEl.value || document.getElementById('charName').value.trim();
+    if (!id) return alert('Select or type name');
+    const snap = await getDoc(doc(db, 'users', user.uid, 'characters', id));
+    if (!snap.exists()) return alert('Not found');
+    const data = snap.data();
+    const container = document.querySelector('.sheet-container');
+    container.querySelectorAll('input, select, textarea').forEach(el => {
+      const id = el.id;
+      if (!id || id==='email'|| id==='password') return;
+      if (data[id] !== undefined) {
+        if (el.type==='checkbox') el.checked = data[id];
+        else el.value = data[id];
+      }
+    });
+    alert('✅ Loaded');
+  };
+
+  window.deleteCharacter = async () => {
+    const user = auth.currentUser;
+    const name = characterSelectEl.value;
+    if (!user || !name) return alert('Select a character');
+    if (confirm(`Delete "${name}"?`)) {
+      await deleteDoc(doc(db, 'users', user.uid, 'characters', name));
+      alert('Deleted');
+      populateCharacterList(user.uid);
+    }
+  };
+</script>
+</body>
+</html>
+
       <label>Character Name<input id="charName" type="text" maxlength="30"></label>
       <label>Age Group<input id="ageGroup" type="text" maxlength="10"></label>
       <label>Gender<input id="gender" type="text" maxlength="15"></label>
