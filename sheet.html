@@ -4,386 +4,284 @@
   <meta charset="UTF-8" />
   <title>GxD6 Character Sheet</title>
   <style>
-    @font-face { font-family:'DominicanSmall'; src:url('fonts/DOMISC__.TTF'); }
-    @font-face { font-family:'Dominican'; src:url('fonts/DOMINICA.TTF'); }
-    @font-face { font-family:'DeutschGothic'; src:url('fonts/DeutschGothic.ttf'); }
-
-    body { font-family:'DominicanSmall',Georgia,serif;
-      background:url('img/GXD6 Greyscale paper background.jpg') center/cover fixed;
-      margin:0; padding:20px; color:black;
+    body {
+      font-family: 'DominicanSmall', serif;
+      background-image: url('img/GXD6 Greyscale paper background.jpg');
+      background-size: cover;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      padding: 20px;
+      color: black;
+      max-width: 650px;
+      margin: 0;
     }
-    .sheet-container { width:800px; margin:0 auto; }
-    h3 { font-family:'DominicanSmall',serif; font-variant:small-caps; text-align:center; margin:5px 0; }
 
-    input[type="text"], input[type="number"], select {
-      font-family:'Dominican', serif; font-size:14px; padding:2px 6px; border:1px solid #aaa;
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      align-items: flex-end;
+      margin-bottom: 10px;
     }
-    input[type="number"] {
-      font-family:'DeutschGothic',monospace; font-size:16px; width:60px;
-      text-align:center; -moz-appearance:textfield;
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
 
-    button { font-family:'DominicanSmall',serif; padding:4px 10px; }
+    #charName { width: 250px; }
+    #gender { width: 100px; }
+    #xp { width: 50px; }
 
-    .top-row { display:flex; justify-content:space-between; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:10px; }
-    .login-controls, .admin-controls { display:flex; align-items:center; gap:10px; }
-    .char-row { display:flex; align-items:center; gap:15px; margin-bottom:10px; }
-    .char-row input { width:120px; }
-    #characterSelect { width:130px; }
-
-    .attribute-box { width:300px; background:rgba(255,255,255,0.85); padding:10px; margin-bottom:20px; border:1px solid #000; }
-    .attr-icon-container { position:relative; width:180px; margin:0 auto 10px; }
-    .attr-icon-container img { width:100%; display:block; }
-    .pips { position:absolute; top:45%; left:50%; transform:translate(-50%,-50%); display:flex; gap:6px; }
-    .pip-base, .pip-current { width:36px; height:36px; border-radius:50%; border:2px solid #000; background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center; }
-    .pip-base input, .pip-current input { width:28px; height:28px; border:none; background:transparent; font-family:'DeutschGothic',monospace; font-size:14px; text-align:center; }
-
-    .skills-grid {
-      display:grid;
-      grid-template-columns:30px 1fr 40px 40px 40px;
-      gap:4px; align-items:center;
-      font-family:'Dominican',serif; font-size:14px;
+    #archetype1, #archetype2,
+    #profession1, #profession2 {
+      width: 180px;
     }
-    .skills-grid .lvl input { font-weight:bold; }
 
-    .notes-label { font-family:'Dominican',serif; font-size:14px; margin-top:20px; display:block; }
-    textarea { width:100%; height:100px; font-family:'Dominican',serif; font-size:14px; }
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .attribute-skill-block {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .attribute-box {
+      width: 260px;
+      padding: 10px;
+      border: 1px solid #000;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .attribute-box h3 {
+      margin: 5px 0;
+    }
+
+    .attribute-box input {
+      width: 20px;
+    }
+
+    .conditions {
+      margin-top: 20px;
+      display: flex;
+      gap: 20px;
+    }
+
+    .gear-notes {
+      margin-top: 30px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+    }
   </style>
-</head>
-<body>
-<div class="sheet-container">
 
-  <!-- === Top lines === -->
-  <div class="top-row">
-    <div class="login-controls">
-      <input id="email" type="email" placeholder="Email">
-      <input id="password" type="password" placeholder="Password">
-      <button onclick="signIn()">Sign In</button>
-      <button onclick="signUp()">Sign Up</button>
+  <!-- ✅ Firebase SDKs FIRST -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
+      authDomain: "gxd6-character-sheet.firebaseapp.com",
+      projectId: "gxd6-character-sheet",
+      storageBucket: "gxd6-character-sheet.appspot.com",
+      messagingSenderId: "761778638151",
+      appId: "1:761778638151:web:06a1d72423a7e980889062"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+</head>
+
+<body>
+  <div class="flex-row">
+    <div class="field">
+      <label for="charName">Character Name</label>
+      <input type="text" id="charName" maxlength="30">
     </div>
-    <div class="admin-controls">
-      <button onclick="signOutUser()">Sign Out</button>
-      <button onclick="deleteAccount()">Delete Account</button>
+
+    <div class="field">
+      <label for="gender">Gender</label>
+      <input type="text" id="gender" maxlength="10">
+    </div>
+
+    <div class="button-row">
       <button onclick="saveCharacter()">Save</button>
       <button onclick="loadCharacter()">Load</button>
-      <label>Saved <select id="characterSelect"><option value="">--Select--</option></select></label>
-      <button onclick="deleteCharacter()">Delete Character</button>
     </div>
   </div>
 
-  <div class="char-row">
-    <label>Character Name <input type="text" id="charName"></label>
-    <label>Age Group <input type="text" id="ageGroup" maxlength="10" style="width:60px;"></label>
-    <label>Gender <input type="text" id="gender" maxlength="10"></label>
-    <label>XP <input type="number" id="xp"></label>
-  </div>
-  <div class="char-row">
-    <label>Archetypes
-      <span><input type="text" id="archetype1"><input type="text" id="archetype2"></span>
-    </label>
-  </div>
-  <div class="char-row">
-    <label>Professions
-      <span><input type="text" id="profession1"><input type="text" id="profession2"></span>
-    </label>
-  </div>
-
-  <!-- === Attribute boxes === -->
-  <!-- Brawn -->
-  <div class="attribute-box">
-    <h3>Brawn</h3>
-    <div class="attr-icon-container">
-      <img src="img/GXD6 BRAWN full.png" alt="Brawn">
-      <div class="pips">
-        <span class="pip-base"><input id="brawn" type="number" min="1" max="5"></span>
-        <span class="pip-current"><input id="brawnCurrent" type="number" min="0" max="5"></span>
-      </div>
+  <div class="flex-row">
+    <div class="field">
+      <label for="archetype1">Archetypes</label>
+      <input type="text" id="archetype1" maxlength="15">
+      <input type="text" id="archetype2" maxlength="15">
     </div>
-    <div class="skills-grid">
-      <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-      <input type="checkbox"><div>Endurance</div><div class="lvl"><input id="endurance_lvl" type="number"></div><div><input id="endurance_mod" type="number"></div><div><input id="endurance_total" type="number" readonly></div>
-      <input type="checkbox"><div>Fight</div><div class="lvl"><input id="fight_lvl" type="number"></div><div><input id="fight_mod" type="number"></div><div><input id="fight_total" type="number" readonly></div>
-      <input type="checkbox"><div>Might</div><div class="lvl"><input id="might_lvl" type="number"></div><div><input id="might_mod" type="number"></div><div><input id="might_total" type="number" readonly></div>
+
+    <div class="field">
+      <label for="profession1">Professions</label>
+      <input type="text" id="profession1" maxlength="20">
+      <input type="text" id="profession2" maxlength="20">
+    </div>
+
+    <div class="field">
+      <label for="xp">XP</label>
+      <input type="number" id="xp" maxlength="3">
     </div>
   </div>
 
-  <!-- Agility -->
-  <div class="attribute-box">
-    <h3>Agility</h3>
-    <div class="attr-icon-container">
-      <img src="img/GXD6 AGILITY full.png" alt="Agility">
-      <div class="pips">
-        <span class="pip-base"><input id="agility" type="number" min="1" max="5"></span>
-        <span class="pip-current"><input id="agilityCurrent" type="number" min="0" max="5"></span>
-      </div>
+  <div class="attribute-skill-block">
+    <div class="attribute-box">
+      <h3>Brawn</h3>
+      <label>Base <input type="number" id="brawn" min="1" max="5"></label>
+      <label>Current <input type="number" id="brawnCurrent" min="0" max="5"></label>
+      <hr>
+      <label>Endurance <input type="number" id="endurance" min="0" max="6"></label>
+      <label>Fight <input type="number" id="fight" min="0" max="6"></label>
+      <label>Might <input type="number" id="might" min="0" max="6"></label>
     </div>
-    <div class="skills-grid">
-      <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-      <input type="checkbox"><div>Marksmanship</div><div class="lvl"><input id="marksmanship_lvl" type="number"></div><div><input id="marksmanship_mod" type="number"></div><div><input id="marksmanship_total" type="number" readonly></div>
-      <input type="checkbox"><div>Mobility</div><div class="lvl"><input id="mobility_lvl" type="number"></div><div><input id="mobility_mod" type="number"></div><div><input id="mobility_total" type="number" readonly></div>
-      <input type="checkbox"><div>Precision</div><div class="lvl"><input id="precision_lvl" type="number"></div><div><input id="precision_mod" type="number"></div><div><input id="precision_total" type="number" readonly></div>
-    </div>
-  </div>
 
-  <!-- Wits -->
-  <div class="attribute-box">
-    <h3>Wits</h3>
-    <div class="attr-icon-container">
-      <img src="img/GXD6 WITS full.png" alt="Wits">
-      <div class="pips">
-        <span class="pip-base"><input id="wits" type="number" min="1" max="5"></span>
-        <span class="pip-current"><input id="witsCurrent" type="number" min="0" max="5"></span>
-      </div>
+    <div class="attribute-box">
+      <h3>Agility</h3>
+      <label>Base <input type="number" id="agility" min="1" max="5"></label>
+      <label>Current <input type="number" id="agilityCurrent" min="0" max="5"></label>
+      <hr>
+      <label>Marksmanship <input type="number" id="marksmanship" min="0" max="6"></label>
+      <label>Mobility <input type="number" id="mobility" min="0" max="6"></label>
+      <label>Precision <input type="number" id="precision" min="0" max="6"></label>
     </div>
-    <div class="skills-grid">
-      <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-      <input type="checkbox"><div>Heal</div><div class="lvl"><input id="heal_lvl" type="number"></div><div><input id="heal_mod" type="number"></div><div><input id="heal_total" type="number" readonly></div>
-      <input type="checkbox"><div>Insight</div><div class="lvl"><input id="insight_lvl" type="number"></div><div><input id="insight_mod" type="number"></div><div><input id="insight_total" type="number" readonly></div>
-      <input type="checkbox"><div>Logic</div><div class="lvl"><input id="logic_lvl" type="number"></div><div><input id="logic_mod" type="number"></div><div><input id="logic_total" type="number" readonly></div>
-      <input type="checkbox"><div>Survival</div><div class="lvl"><input id="survival_lvl" type="number"></div><div><input id="survival_mod" type="number"></div><div><input id="survival_total" type="number" readonly></div>
-      <input type="checkbox"><div>Vigilance</div><div class="lvl"><input id="vigilance_lvl" type="number"></div><div><input id="vigilance_mod" type="number"></div><div><input id="vigilance_total" type="number" readonly></div>
-    </div>
-  </div>
 
-  <!-- Will -->
-  <div class="attribute-box">
-    <h3>Will</h3>
-    <div class="attr-icon-container">
-      <img src="img/GXD6 WILL full.png" alt="Will">
-      <div class="pips">
-        <span class="pip-base"><input id="will" type="number" min="1" max="5"></span>
-        <span class="pip-current"><input id="willCurrent" type="number" min="0" max="5"></span>
-      </div>
+    <div class="attribute-box">
+      <h3>Wits</h3>
+      <label>Base <input type="number" id="wits" min="1" max="5"></label>
+      <label>Current <input type="number" id="witsCurrent" min="0" max="5"></label>
+      <hr>
+      <label>Heal <input type="number" id="heal" min="0" max="6"></label>
+      <label>Insight <input type="number" id="insight" min="0" max="6"></label>
+      <label>Logic <input type="number" id="logic" min="0" max="6"></label>
+      <label>Survival <input type="number" id="survival" min="0" max="6"></label>
+      <label>Vigilance <input type="number" id="vigilance" min="0" max="6"></label>
     </div>
-    <div class="skills-grid">
-      <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-      <input type="checkbox"><div>Inspire</div><div class="lvl"><input id="inspire_lvl" type="number"></div><div><input id="inspire_mod" type="number"></div><div><input id="inspire_total" type="number" readonly></div>
-      <input type="checkbox"><div>Manipulate</div><div class="lvl"><input id="manipulate_lvl" type="number"></div><div><input id="manipulate_mod" type="number"></div><div><input id="manipulate_total" type="number" readonly></div>
-      <input type="checkbox"><div>Resolve</div><div class="lvl"><input id="resolve_lvl" type="number"></div><div><input id="resolve_mod" type="number"></div><div><input id="resolve_total" type="number" readonly></div>
+
+    <div class="attribute-box">
+      <h3>Will</h3>
+      <label>Base <input type="number" id="will" min="1" max="5"></label>
+      <label>Current <input type="number" id="willCurrent" min="0" max="5"></label>
+      <hr>
+      <label>Inspire <input type="number" id="inspire" min="0" max="6"></label>
+      <label>Manipulate <input type="number" id="manipulate" min="0" max="6"></label>
+      <label>Resolve <input type="number" id="resolve" min="0" max="6"></label>
     </div>
   </div>
 
-  <label class="notes-label">Notes</label>
-  <textarea id="notes"></textarea>
+  <div class="conditions">
+    <label><input type="checkbox" id="starving"> Starving</label>
+    <label><input type="checkbox" id="sleepless"> Sleepless</label>
+    <label><input type="checkbox" id="dehydrated"> Dehydrated</label>
+    <label><input type="checkbox" id="hypothermic"> Hypothermic</label>
+  </div>
 
-</div>
+  <div class="gear-notes">
+    <label for="notes">Gear / Notes</label>
+    <textarea id="notes"></textarea>
+  </div>
 
-<!-- Firebase Logic -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, collection, doc, getDoc, setDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  <!-- ✅ Save/Load Script -->
+  <script>
+    function saveCharacter() {
+      const name = document.getElementById("charName").value;
+      if (!name) return alert("Enter character name to save.");
 
-// Initialize Firebase
-const config = {
-  apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
-  authDomain: "gxd6-character-sheet.firebaseapp.com",
-  projectId: "gxd6-character-sheet",
-  storageBucket: "gxd6-character-sheet.firebasestorage.app",
-  messagingSenderId: "761778638151",
-  appId: "1:761778638151:web:06a1d72423a7e980889062"
-};
+      const data = {
+        name: name,
+        gender: document.getElementById("gender").value,
+        archetype1: document.getElementById("archetype1").value,
+        archetype2: document.getElementById("archetype2").value,
+        profession1: document.getElementById("profession1").value,
+        profession2: document.getElementById("profession2").value,
+        xp: document.getElementById("xp").value,
+        brawn: document.getElementById("brawn").value,
+        brawnCurrent: document.getElementById("brawnCurrent").value,
+        agility: document.getElementById("agility").value,
+        agilityCurrent: document.getElementById("agilityCurrent").value,
+        wits: document.getElementById("wits").value,
+        witsCurrent: document.getElementById("witsCurrent").value,
+        will: document.getElementById("will").value,
+        willCurrent: document.getElementById("willCurrent").value,
+        skills: {
+          endurance: document.getElementById("endurance").value,
+          fight: document.getElementById("fight").value,
+          might: document.getElementById("might").value,
+          marksmanship: document.getElementById("marksmanship").value,
+          mobility: document.getElementById("mobility").value,
+          precision: document.getElementById("precision").value,
+          heal: document.getElementById("heal").value,
+          insight: document.getElementById("insight").value,
+          logic: document.getElementById("logic").value,
+          survival: document.getElementById("survival").value,
+          vigilance: document.getElementById("vigilance").value,
+          inspire: document.getElementById("inspire").value,
+          manipulate: document.getElementById("manipulate").value,
+          resolve: document.getElementById("resolve").value
+        },
+        conditions: {
+          starving: document.getElementById("starving").checked,
+          sleepless: document.getElementById("sleepless").checked,
+          dehydrated: document.getElementById("dehydrated").checked,
+          hypothermic: document.getElementById("hypothermic").checked
+        },
+        notes: document.getElementById("notes").value
+      };
 
-const app = initializeApp(config);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const selectEl = document.getElementById("characterSelect");
-const loginForm = document.getElementById("loginForm");
-
-onAuthStateChanged(auth, user => {
-  if (user) {
-    loginForm.style.display = "none";
-    populateCharacterList(user.uid);
-  } else {
-    loginForm.style.display = "block";
-    selectEl.innerHTML = '<option value="">--Select--</option>';
-  }
-});
-
-// AUTH HELPERS
-window.signUp = async () => {
-  const email = document.getElementById("email").value;
-  const pw = document.getElementById("password").value;
-  try {
-    await createUserWithEmailAndPassword(auth, email, pw);
-    alert("✅ Signed up!");
-  } catch (err) {
-    console.error("Sign up error:", err);
-    alert("❌ Sign up failed: " + err.message);
-  }
-};
-
-window.signIn = async () => {
-  const email = document.getElementById("email").value;
-  const pw = document.getElementById("password").value;
-  try {
-    await signInWithEmailAndPassword(auth, email, pw);
-    alert("✅ Signed in!");
-  } catch (err) {
-    console.error("Sign in error:", err);
-    alert("❌ Sign in failed: " + err.message);
-  }
-};
-
-window.signOutUser = async () => {
-  try {
-    await signOut(auth);
-    alert("✅ Signed out");
-  } catch (err) {
-    console.error("Sign out error:", err);
-    alert("❌ Sign out failed: " + err.message);
-  }
-};
-
-window.deleteAccount = async () => {
-  const user = auth.currentUser;
-  if (!user) return alert("Not signed in");
-  if (!confirm("Delete your account and all characters?")) return;
-  try {
-    await deleteUser(user);
-    alert("✅ Account deleted");
-  } catch (err) {
-    console.error("Account delete error:", err);
-    alert("❌ Delete failed: " + err.message);
-  }
-};
-
-// FIRESTORE
-async function populateCharacterList(uid) {
-  const selectEl = document.getElementById("characterSelect");
-  selectEl.innerHTML = '<option value="">-- Select Character --</option>';
-  try {
-    const snap = await getDocs(collection(db, "users", uid, "characters"));
-    snap.forEach(docSnap => {
-      const opt = document.createElement("option");
-      opt.value = docSnap.id;
-      opt.text = docSnap.id;
-      selectEl.appendChild(opt);
-    });
-  } catch (err) {
-    console.error("List error:", err);
-  }
-}
-
-window.saveCharacter = async () => {
-  const user = auth.currentUser;
-  if (!user) return alert("Sign in first");
-  const name = document.getElementById("charName").value.trim();
-  if (!name) return alert("Enter character name");
-
-  const data = {
-    name,
-    gender: document.getElementById("gender").value,
-    archetype1: document.getElementById("archetype1").value,
-    archetype2: document.getElementById("archetype2").value,
-    profession1: document.getElementById("profession1").value,
-    profession2: document.getElementById("profession2").value,
-    xp: +document.getElementById("xp").value || 0,
-    brawn: +document.getElementById("brawn").value || 0,
-    brawnCurrent: +document.getElementById("brawnCurrent").value || 0,
-    agility: +document.getElementById("agility").value || 0,
-    agilityCurrent: +document.getElementById("agilityCurrent").value || 0,
-    wits: +document.getElementById("wits").value || 0,
-    witsCurrent: +document.getElementById("witsCurrent").value || 0,
-    will: +document.getElementById("will").value || 0,
-    willCurrent: +document.getElementById("willCurrent").value || 0,
-    skills: {
-      endurance: +document.getElementById("endurance").value || 0,
-      fight: +document.getElementById("fight").value || 0,
-      might: +document.getElementById("might").value || 0,
-      marksmanship: +document.getElementById("marksmanship").value || 0,
-      mobility: +document.getElementById("mobility").value || 0,
-      precision: +document.getElementById("precision").value || 0,
-      heal: +document.getElementById("heal").value || 0,
-      insight: +document.getElementById("insight").value || 0,
-      logic: +document.getElementById("logic").value || 0,
-      survival: +document.getElementById("survival").value || 0,
-      vigilance: +document.getElementById("vigilance").value || 0,
-      inspire: +document.getElementById("inspire").value || 0,
-      manipulate: +document.getElementById("manipulate").value || 0,
-      resolve: +document.getElementById("resolve").value || 0
-    },
-    conditions: {
-      starving: document.getElementById("starving").checked,
-      sleepless: document.getElementById("sleepless").checked,
-      dehydrated: document.getElementById("dehydrated").checked,
-      hypothermic: document.getElementById("hypothermic").checked
-    },
-    notes: document.getElementById("notes").value
-  };
-
-  try {
-    const ref = doc(db, "users", user.uid, "characters", name);
-    await setDoc(ref, data);
-    alert("✅ Character saved");
-    populateCharacterList(user.uid);
-  } catch (err) {
-    console.error("Save failed:", err);
-    alert("❌ Save failed: " + err.message);
-  }
-};
-
-window.loadCharacter = async () => {
-  const user = auth.currentUser;
-  if (!user) return alert("Sign in first");
-  const name = document.getElementById("characterSelect").value || document.getElementById("charName").value.trim();
-  if (!name) return alert("Enter/select name");
-
-  try {
-    const ref = doc(db, "users", user.uid, "characters", name);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) return alert("❌ Character not found");
-    const d = snap.data();
-
-    document.getElementById("charName").value = d.name || '';
-    document.getElementById("gender").value = d.gender || '';
-    document.getElementById("archetype1").value = d.archetype1 || '';
-    document.getElementById("archetype2").value = d.archetype2 || '';
-    document.getElementById("profession1").value = d.profession1 || '';
-    document.getElementById("profession2").value = d.profession2 || '';
-    document.getElementById("xp").value = d.xp || '';
-    document.getElementById("brawn").value = d.brawn || '';
-    document.getElementById("brawnCurrent").value = d.brawnCurrent || '';
-    document.getElementById("agility").value = d.agility || '';
-    document.getElementById("agilityCurrent").value = d.agilityCurrent || '';
-    document.getElementById("wits").value = d.wits || '';
-    document.getElementById("witsCurrent").value = d.witsCurrent || '';
-    document.getElementById("will").value = d.will || '';
-    document.getElementById("willCurrent").value = d.willCurrent || '';
-
-    for (let s in d.skills) {
-      if (document.getElementById(s)) document.getElementById(s).value = d.skills[s];
+      db.collection("characters").doc(name).set(data)
+        .then(() => alert("✅ Character saved"))
+        .catch(err => alert("❌ Error saving: " + err));
     }
-    for (let c in d.conditions) {
-      if (document.getElementById(c)) document.getElementById(c).checked = d.conditions[c];
+
+    function loadCharacter() {
+      const name = document.getElementById("charName").value;
+      if (!name) return alert("Enter character name to load.");
+
+      db.collection("characters").doc(name).get()
+        .then(doc => {
+          if (!doc.exists) return alert("❌ Character not found.");
+
+          const d = doc.data();
+          document.getElementById("gender").value = d.gender || '';
+          document.getElementById("archetype1").value = d.archetype1 || '';
+          document.getElementById("archetype2").value = d.archetype2 || '';
+          document.getElementById("profession1").value = d.profession1 || '';
+          document.getElementById("profession2").value = d.profession2 || '';
+          document.getElementById("xp").value = d.xp || '';
+          document.getElementById("brawn").value = d.brawn || '';
+          document.getElementById("brawnCurrent").value = d.brawnCurrent || '';
+          document.getElementById("agility").value = d.agility || '';
+          document.getElementById("agilityCurrent").value = d.agilityCurrent || '';
+          document.getElementById("wits").value = d.wits || '';
+          document.getElementById("witsCurrent").value = d.witsCurrent || '';
+          document.getElementById("will").value = d.will || '';
+          document.getElementById("willCurrent").value = d.willCurrent || '';
+
+          for (let s in d.skills) {
+            if (document.getElementById(s)) document.getElementById(s).value = d.skills[s];
+          }
+          for (let c in d.conditions) {
+            if (document.getElementById(c)) document.getElementById(c).checked = d.conditions[c];
+          }
+          document.getElementById("notes").value = d.notes || '';
+
+          alert("✅ Character loaded");
+        })
+        .catch(err => alert("❌ Error loading: " + err));
     }
-    document.getElementById("notes").value = d.notes || '';
-    alert("✅ Loaded!");
-  } catch (err) {
-    console.error("Load error:", err);
-    alert("❌ Load failed: " + err.message);
-  }
-};
-
-window.deleteCharacter = async () => {
-  const user = auth.currentUser;
-  const name = document.getElementById("characterSelect").value;
-  if (!user || !name) return alert("Select a character");
-  if (!confirm(`Delete "${name}"?`)) return;
-  try {
-    const ref = doc(db, "users", user.uid, "characters", name);
-    await deleteDoc(ref);
-    alert("🗑️ Deleted");
-    populateCharacterList(user.uid);
-  } catch (err) {
-    console.error("Delete error:", err);
-    alert("❌ Delete failed: " + err.message);
-  }
-};
-
-
-</script>
+  </script>
 </body>
 </html>
