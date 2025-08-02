@@ -185,6 +185,77 @@
       font-family:'Dominican', serif;
       font-size:14px;
     }
+
+    /* Brawn Attribute Box Customization */
+.attribute-box h3 {
+  font-family: 'DominicanSmall', serif;
+  font-size: 16px;
+  margin: 0 0 5px 0;
+  text-align: center;
+}
+
+.attribute-box .attr-icon-container {
+  position: relative;
+  width: 100%;
+  margin: 0 auto 5px auto;
+  text-align: left;
+}
+
+.attribute-box .attr-icon-container img {
+  width: 40%;
+  display: inline-block;
+  vertical-align: top;
+  margin: 0;
+}
+
+.attribute-box .pips {
+  position: absolute;
+  top: 45%;
+  left: 45%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 2px;
+}
+
+.attribute-box .pip-base,
+.attribute-box .pip-current {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 2px solid #000;
+  background: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.attribute-box .pip-base input,
+.attribute-box .pip-current input {
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  font-family: 'DeutschGothic', monospace;
+  border: none;
+  background: transparent;
+  text-align: center;
+}
+
+/* Brawn Skill Grid Customization */
+.brawn-skills-grid {
+  display: grid;
+  grid-template-columns: 28px 1fr 36px 36px 36px;
+  gap: 3px;
+  align-items: end;
+  font-family: 'Dominican', serif;
+  font-size: 13px;
+}
+
+.brawn-skills-grid > div:nth-child(-n+5) {
+  font-size: 12px;
+  padding-bottom: 2px;
+  text-align: center;
+}
+
   </style>
 </head>
 <body>
@@ -259,39 +330,39 @@
   </div>
 </div>
 
-  <!-- ATTRIBUTE BOX: Brawn -->
-  <div class="attribute-box">
-    <h3>Brawn</h3>
-    <div class="attr-icon-container">
-      <img src="img/GXD6 BRAWN LOGO.png" alt="Brawn">
-      <div class="pips">
-        <span class="pip-base"><input id="brawn" type="number" min="1" max="5"></span>
-        <span class="pip-current"><input id="brawnCurrent" type="number" min="0" max="5"></span>
-      </div>
+<!-- ATTRIBUTE BOX: Brawn -->
+<div class="attribute-box">
+  <h3>Brawn</h3>
+  <div class="attr-icon-container">
+    <img src="img/GXD6 BRAWN LOGO.png" alt="Brawn">
+    <div class="pips">
+      <span class="pip-base"><input id="brawn" type="number" min="1" max="5"></span>
+      <span class="pip-current"><input id="brawnCurrent" type="number" min="0" max="5"></span>
     </div>
-
-<div class="skills-grid">
-  <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-
-  <div><input type="checkbox" id="endurance_key"></div>
-  <div>Endurance</div>
-  <div class="lvl"><input id="endurance_lvl" type="number"></div>
-  <div><input id="endurance_mod" type="number"></div>
-  <div><input id="endurance_total" type="number" readonly></div>
-
-  <div><input type="checkbox" id="fight_key"></div>
-  <div>Fight</div>
-  <div class="lvl"><input id="fight_lvl" type="number"></div>
-  <div><input id="fight_mod" type="number"></div>
-  <div><input id="fight_total" type="number" readonly></div>
-
-  <div><input type="checkbox" id="might_key"></div>
-  <div>Might</div>
-  <div class="lvl"><input id="might_lvl" type="number"></div>
-  <div><input id="might_mod" type="number"></div>
-  <div><input id="might_total" type="number" readonly></div>
-</div>
   </div>
+
+  <div class="skills-grid brawn-skills-grid">
+    <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
+
+    <div><input type="checkbox" id="endurance_key"></div>
+    <div>Endurance</div>
+    <div class="lvl"><input id="endurance_lvl" type="number"></div>
+    <div><input id="endurance_mod" type="number"></div>
+    <div><input id="endurance_total" type="number" readonly></div>
+
+    <div><input type="checkbox" id="fight_key"></div>
+    <div>Fight</div>
+    <div class="lvl"><input id="fight_lvl" type="number"></div>
+    <div><input id="fight_mod" type="number"></div>
+    <div><input id="fight_total" type="number" readonly></div>
+
+    <div><input type="checkbox" id="might_key"></div>
+    <div>Might</div>
+    <div class="lvl"><input id="might_lvl" type="number"></div>
+    <div><input id="might_mod" type="number"></div>
+    <div><input id="might_total" type="number" readonly></div>
+  </div>
+</div>
 
   <!-- ATTRIBUTE BOX: Agility -->
 <div class="attribute-box">
