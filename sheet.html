@@ -316,15 +316,22 @@
       font-family:'DeutschGothic', monospace;
       font-size:20px; text-align:center;
     }
-    .skills-grid {
-      display:grid;
-      grid-template-columns:30px 1fr 40px 40px 50px;
-      gap:4px; align-items:center;
-      font-family:'Dominican', serif;
-      font-size:14px;
-    }
-    .skills-grid .lvl input {
-      font-weight:bold;
+   .skills-grid input[type="checkbox"] {
+  transform: scale(1.2);
+  margin: auto;
+  display: block;
+}
+.skills-grid div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+}
+.skills-grid .lvl input,
+.skills-grid input[type="number"] {
+  width: 36px;
+  padding: 2px;
+  font-weight:bold;
     }
     .notes-label {
       font-family:'Dominican', serif;
@@ -392,7 +399,8 @@
         <span class="pip-current"><input id="brawnCurrent" type="number" min="0" max="5"></span>
       </div>
     </div>
-    <div class="skills-grid">
+
+<div class="skills-grid">
   <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
 
   <div><input type="checkbox" id="endurance_key"></div>
