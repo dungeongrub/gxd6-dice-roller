@@ -82,13 +82,19 @@
       width:100%;
       min-width:800px;
     }
+    
     .fixed-row label {
       display:flex;
       flex-direction:column;
       font-family:'DominicanSmall', serif;
       font-size:14px;
-      width:180px;
+      width: auto;
+      margin-right: 10px; /* default spacing */
     }
+
+    .fixed-row label:last-child {
+      margin-right: 0; /* prevents extra gap at end of row */
+}
     .fixed-row input {
       width:140px;
       padding:3px 5px;
