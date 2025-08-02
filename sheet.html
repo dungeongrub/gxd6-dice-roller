@@ -108,9 +108,10 @@
     .attribute-box {
       width:250px;
       background:rgba(255,255,255,0.85);
-      padding:10px;
-      margin-bottom:20px;
+      padding:5px;
+      margin-bottom:10px;
       border:1px solid #000;
+      box-sizing: border-box;
     }
     .attr-icon-container {
       position:relative;
@@ -138,16 +139,39 @@
       font-family:'DeutschGothic', monospace;
       font-size:20px; text-align:center;
     }
+    
     .skills-grid {
-      display:grid;
-      grid-template-columns:30px 1fr 40px 40px 50px;
-      gap:4px; align-items:center;
-      font-family:'Dominican', serif;
-      font-size:14px;
+      display: grid;
+      grid-template-columns: 30px 90px 30px 30px 30px; /* All fixed widths */
+      gap: 4px;
+      align-items: center;
+      font-family: 'Dominican', serif;
+      font-size: 14px;
+      box-sizing: border-box;
     }
-    .skills-grid .lvl input {
-      font-weight:bold;
+    
+    .skills-grid .lvl input,
+    .skills-grid input[type="number"] {
+    width: 100%;
+    padding: 2px;
+    font-weight: bold;
+    box-sizing: border-box;
     }
+
+    .skills-grid input[type="checkbox"] {
+    transform: scale(1.2);
+    margin: auto;
+    display: block;
+    }
+
+    .skills-grid > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    box-sizing: border-box;
+  }
+    
     .notes-label {
       font-family:'Dominican', serif;
       font-size:14px;
