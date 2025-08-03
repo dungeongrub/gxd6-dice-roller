@@ -4,242 +4,47 @@
   <meta charset="UTF-8">
   <title>GxD6 Character Sheet</title>
   <style>
-    /* FONT SETUP */
+    /* FONT & BODY STYLES */
     @font-face { font-family:'DominicanSmall'; src:url('fonts/DOMISC__.TTF'); }
     @font-face { font-family:'Dominican'; src:url('fonts/DOMINICA.TTF'); }
     @font-face { font-family:'DeutschGothic'; src:url('fonts/DeutschGothic.ttf'); }
+    body { font-family:'DominicanSmall',Georgia,serif; background:url('img/GXD6 Greyscale paper background.jpg') center/cover fixed; margin:0; padding:20px; color:black; }
+    .sheet-container { width:800px; margin:0 auto; min-width:800px; max-width:800px; }
+    input[type="text"], input[type="number"], select { font-family:'Dominican', serif; font-size:14px; padding:2px 6px; border:1px solid #aaa; }
+    button { font-family:'DominicanSmall', serif; padding:4px 10px; }
+    input[type="number"] { font-family:'DeutschGothic', monospace; font-size:16px; text-align:center; -moz-appearance:textfield; }
+    input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+    .top-row { display:flex; justify-content:space-between; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:10px; }
+    .login-controls, .admin-controls { display:flex; align-items:center; gap:10px; }
+    .char-block { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; width:800px; }
+    .fixed-row { display:flex; gap:0; align-items:center; width:100%; min-width:800px; }
+    .fixed-row label { display:flex; flex-direction:column; font-family:'DominicanSmall',serif; font-size:14px; width:auto; margin-right:10px; }
+    .fixed-row label:last-child { margin-right:0; }
+    .fixed-row input { width:140px; padding:3px 5px; font-family:'Dominican', serif; font-size:14px; border:1px solid #999; box-sizing:border-box; }
+    .notes-label { font-family:'Dominican', serif; font-size:14px; margin-top:20px; display:block; }
+    textarea { width:100%; height:100px; font-family:'Dominican', serif; font-size:14px; }
 
-    body {
-      font-family:'DominicanSmall',Georgia,serif;
-      background:url('img/GXD6 Greyscale paper background.jpg') center/cover fixed;
-      margin:0; padding:20px; color:black;
-    }
+    /* ATTRIBUTE BOX & PIP STYLES */
+    .attribute-box { width:270px; background:rgba(255,255,255,0.85); padding:5px 8px; margin-bottom:20px; border:1px solid #000; box-sizing:border-box; position:relative; }
+    .attribute-box h3 { margin:0 0 5px; text-align:left; font-size:16px; }
+    .attr-icon-container { position:relative; width:100%; margin:0 0 5px; text-align:left; }
+    .attr-icon-container img { width:40%; display:inline-block; vertical-align:top; margin:0; }
+    .pip-labels { position:absolute; top:10px; left:calc(10% + 50px); display:flex; justify-content:space-between; font-size:12px; font-family:'DominicanSmall',serif; width:calc(2*35px + 10px); }
+    .pips { position:absolute; top:45%; left:calc(10% + 50px); display:flex; gap:10px; }
+    .pip-base, .pip-current { width:35px; height:35px; border-radius:50%; border:2px solid #000; background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center; position:relative; }
+    .pip-base input, .pip-current input { width:40px; height:40px; font-size:22px; font-family:'DeutschGothic',monospace; border:none; background:transparent; text-align:center; }
+    .pip-base .lock-icon { position:absolute; bottom:-10px; left:50%; transform:translateX(-50%); width:14px; height:14px; }
+    .pip-current .trauma-controls { position:absolute; right:-22px; top:4px; display:flex; flex-direction:column; }
+    .pip-current .trauma-controls button { width:14px; height:14px; font-size:10px; padding:0; margin:1px 0; background:none; border:none; cursor:pointer; line-height:10px; }
 
-    .sheet-container {
-      width:800px;
-      margin:0 auto;
-      min-width:800px;
-      max-width:800px;
-    }
-
-    h3 {
-      font-family:'DominicanSmall', serif;
-      font-variant:small-caps;
-      text-align: left;
-      margin:5px 0;
-      font-size:16px;
-    }
-
-    input[type="text"], input[type="number"], select {
-      font-family:'Dominican', serif;
-      font-size:14px;
-      padding:2px 6px;
-      border:1px solid #aaa;
-    }
-
-    input[type="number"] {
-      font-family:'DeutschGothic', monospace;
-      font-size:16px;
-      width:60px;
-      text-align:center;
-      -moz-appearance:textfield;
-    }
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-      -webkit-appearance:none; margin:0;
-    }
-
-    button {
-      font-family:'DominicanSmall', serif;
-      padding:4px 10px;
-    }
-
-    .top-row {
-      display:flex;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      align-items:center;
-      gap:10px;
-      margin-bottom:10px;
-    }
-    .login-controls, .admin-controls {
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-
-    /* CHARACTER INFO (Fixed Layout) */
-    .char-block {
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      margin-bottom:20px;
-      width:800px;
-    }
-    .fixed-row {
-      display:flex;
-      gap:0px;
-      align-items:center;
-      width:100%;
-      min-width:800px;
-    }
-    .fixed-row label {
-      display:flex;
-      flex-direction:column;
-      font-family:'DominicanSmall', serif;
-      font-size:14px;
-      width:auto;
-      margin-right:10px;
-    }
-    .fixed-row label:last-child {
-      margin-right:0;
-    }
-    .fixed-row input {
-      width:140px;
-      padding:3px 5px;
-      font-family:'Dominican', serif;
-      font-size:14px;
-      border:1px solid #999;
-      box-sizing:border-box;
-    }
-
-    /* Unified styling for all attribute boxes */
-    .attribute-box {
-      width:270px;
-      background:rgba(255,255,255,0.85);
-      padding:5px 8px;
-      margin-bottom:20px;
-      border:1px solid #000;
-      box-sizing:border-box;
-      position:relative;
-    }
-
-    .attribute-box h3 {
-      margin:0 0 5px;
-      text-align:left;
-      font-size:16px;
-    }
-
-    .attr-icon-container {
-      position:relative;
-      width:100%;
-      margin:0 0 5px;
-      text-align:left;
-    }
-    .attr-icon-container img {
-      width:40%;
-      display:inline-block;
-      vertical-align:top;
-      margin:0;
-    }
-
-    .pips {
-      position:absolute;
-      top:45%;
-      left:calc(10% + 50px);
-      display:flex;
-      gap:10px;
-    }
-    .pip-base, .pip-current {
-      width:35px;
-      height:35px;
-      border-radius:50%;
-      border:2px solid #000;
-      background:rgba(255,255,255,0.85);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      position:relative;
-    }
-    .pip-base input, .pip-current input {
-      width:40px;
-      height:40px;
-      font-size:22px;
-      font-family:'DeutschGothic', monospace;
-      border:none;
-      background:transparent;
-      text-align:center;
-    }
-
-    .pip-labels {
-      position:absolute;
-      top:10px;
-      left:calc(10% + 50px);
-      width:calc(2*35px + 10px);
-      display:flex;
-      justify-content:space-between;
-      font-size:12px;
-      font-family:'DominicanSmall', serif;
-    }
-
-    .skills-grid {
-      display:grid;
-      grid-template-columns:28px 1fr 36px 36px 36px;
-      gap:3px;
-      align-items:end;
-      font-family:'Dominican', serif;
-      font-size:13px;
-    }
-    .skills-grid > div:nth-child(-n+5) {
-      font-size:12px;
-      padding-bottom:0;
-      line-height:1;
-    }
-    .skills-grid input[type="number"] {
-      padding:0;
-      margin:0;
-      height:28px;
-      box-sizing:border-box;
-    }
-    .pants-grid div {
-      align-self:flex-end;
-    }
-
-    .pip-base .lock-icon {
-      position:absolute;
-      bottom:-10px;
-      left:50%;
-      transform:translateX(-50%);
-      width:14px;
-      height:14px;
-    }
-    .pip-current .trauma-controls {
-      position:absolute;
-      right:-22px;
-      top:4px;
-      display:flex;
-      flex-direction:column;
-    }
-    .pip-current .trauma-controls button {
-      width:14px;
-      height:14px;
-      font-size:10px;
-      padding:0;
-      margin:1px 0;
-      background:none;
-      border:none;
-      cursor:pointer;
-      line-height:10px;
-    }
-
-    /* Notes field styling */
-    .notes-label {
-      font-family:'Dominican', serif;
-      font-size:14px;
-      margin-top:20px;
-      display:block;
-    }
-    textarea {
-      width:100%;
-      height:100px;
-      font-family:'Dominican', serif;
-      font-size:14px;
-    }
+    .skills-grid { display:grid; grid-template-columns:28px 1fr 36px 36px 36px; gap:3px; align-items:end; font-family:'Dominican',serif; font-size:13px; }
+    .skills-grid > div:nth-child(-n+5) { font-size:12px; padding-bottom:0; line-height:1; }
+    .skills-grid input[type="number"] { padding:0; margin:0; height:28px; box-sizing:border-box; }
+    .skills-grid div { align-self:flex-end; }
   </style>
 </head>
 <body>
   <div class="sheet-container">
-
     <!-- LOGIN FORM -->
     <div id="loginForm" class="top-row">
       <div class="login-controls">
@@ -249,7 +54,6 @@
         <button onclick="signUp()">Sign Up</button>
       </div>
     </div>
-
     <!-- ADMIN CONTROLS -->
     <div id="accountControls" class="top-row" style="display:none;">
       <div class="admin-controls">
@@ -265,48 +69,126 @@
     <!-- CHARACTER INFO -->
     <div class="char-block">
       <div class="fixed-row">
-        <label style="margin-right:10px;">Character Name
-          <input id="charName" type="text" maxlength="30" style="width:250px;">
-        </label>
-        <label style="margin-right:10px;">Age Group
-          <input id="ageGroup" type="text" maxlength="10" style="width:100px;">
-        </label>
-        <label style="margin-right:10px;">Gender
-          <input id="gender" type="text" maxlength="15" style="width:100px;">
-        </label>
-        <label>XP
-          <input id="xp" type="number" style="width:50px;">
-        </label>
+        <label style="margin-right:10px;">Character Name <input id="charName" type="text" maxlength="30" style="width:250px;"></label>
+        <label style="margin-right:10px;">Age Group <input id="ageGroup" type="text" maxlength="10" style="width:100px;"></label>
+        <label style="margin-right:10px;">Gender <input id="gender" type="text" maxlength="15" style="width:100px;"></label>
+        <label>XP <input id="xp" type="number" style="width:50px;"></label>
       </div>
       <div class="fixed-row">
-        <label style="margin-right:5px;">Archetype 1
-          <input id="archetype1" type="text" maxlength="20" style="width:150px;">
-        </label>
-        <label>Archetype 2
-          <input id="archetype2" type="text" maxlength="20" style="width:150px;">
-        </label>
+        <label style="margin-right:5px;">Archetype 1 <input id="archetype1" type="text" maxlength="20" style="width:150px;"></label>
+        <label>Archetype 2 <input id="archetype2" type="text" maxlength="20" style="width:150px;"></label>
       </div>
       <div class="fixed-row">
-        <label style="margin-right:5px;">Profession 1
-          <input id="profession1" type="text" maxlength="20" style="width:150px;">
-        </label>
-        <label>Profession 2
-          <input id="profession2" type="text" maxlength="20" style="width:150px;">
-        </label>
+        <label style="margin-right:5px;">Profession 1 <input id="profession1" type="text" maxlength="20" style="width:150px;"></label>
+        <label>Profession 2 <input id="profession2" type="text" maxlength="20" style="width:150px;"></label>
       </div>
     </div>
 
-    <!-- ATTRIBUTE BOXES (Brawn, Agility, Wits, Will) -->
-    <!-- Insert the combined HTML from your template here -->
+    <!-- ATTRIBUTE BOXES -->
 
-  </div>
-  <script>
+    <!-- Brawn -->
+    <div class="attribute-box" id="box-brawn">
+      <h3>Brawn</h3>
+      <div class="attr-icon-container">
+        <img src="img/GXD6 BRAWN LOGO.png" alt="Brawn">
+        <div class="pip-labels"><div>Base</div><div>Current</div></div>
+        <div class="pips">
+          <span class="pip-base">
+            <input id="brawn" type="number" min="1" max="5">
+            <img src="img/lock.png" alt="Lock" class="lock-icon">
+          </span>
+          <span class="pip-current">
+            <input id="brawnCurrent" type="number" min="0" max="5">
+            <div class="trauma-controls">
+              <button onclick="stepUpField('brawnCurrent')">▴</button>
+              <button onclick="stepDownField('brawnCurrent')">▾</button>
+            </div>
+          </span>
+        </div>
+      </div>
+      <div class="skills-grid" data-attr="brawn">
+        <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
+        <div><input type="checkbox" id="endurance_key"></div><div>Endurance</div>
+        <div><input id="endurance_lvl" type="number" value="0"></div><div><input id="endurance_mod" type="number" value="0"></div><div><input id="endurance_total" type="number" readonly></div>
+        <div><input type="checkbox" id="fight_key"></div><div>Fight</div>
+        <div><input id="fight_lvl" type="number" value="0"></div><div><input id="fight_mod" type="number" value="0"></div><div><input id="fight_total" type="number" readonly></div>
+        <div><input type="checkbox" id="might_key"></div><div>Might</div>
+        <div><input id="might_lvl" type="number" value="0"></div><div><input id="might_mod" type="number" value="0"></div><div><input id="might_total" type="number" readonly></div>
+      </div>
+    </div>
+
+    <!-- Agility -->
+    <div class="attribute-box" id="box-agility">
+      <h3>Agility</h3>
+      <div class="attr-icon-container">
+        <img src="img/GXD6 AGILITY full.png" alt="Agility">
+        <div class="pip-labels"><div>Base</div><div>Current</div></div>
+        <div class="pips">
+          <span class="pip-base"><input id="agility" type="number" min="1" max="5"><img src="img/lock.png" alt="Lock" class="lock-icon"></span>
+          <span class="pip-current"><input id="agilityCurrent" type="number" min="0" max="5"><div class="trauma-controls"><button onclick="stepUpField('agilityCurrent')">▴</button><button onclick="stepDownField('agilityCurrent')">▾</button></div></span>
+        </div>
+      </div>
+      <div class="skills-grid" data-attr="agility">
+        <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
+        <div><input type="checkbox" id="marksmanship_key"></div><div>Marksmanship</div>
+        <div><input id="marksmanship_lvl" type="number" value="0"></div><div><input id="marksmanship_mod" type="number" value="0"></div><div><input id="marksmanship_total" type="number" readonly></div>
+        <div><input type="checkbox" id="mobility_key"></div><div>Mobility</div>
+        <div><input id="mobility_lvl" type="number" value="0"></div><div><input id="mobility_mod" type="number" value="0"></div><div><input id="mobility_total" type="number" readonly></div>
+        <div><input type="checkbox" id="precision_key"></div><div>Precision</div>
+        <div><input id="precision_lvl" type="number" value="0"></div><div><input id="precision_mod" type="number" value="0"></div><div><input id="precision_total" type="number" readonly></div>
+      </div>
+    </div>
+
+    <!-- Wits -->
+    <div class="attribute-box" id="box-wits">
+      <h3>Wits</h3>
+      <div class="attr-icon-container">
+        <img src="img/GXD6 WITS full.png" alt="Wits">
+        <div class="pip-labels"><div>Base</div><div>Current</div></div>
+        <div class="pips">
+          <span class="pip-base"><input id="wits" type="number" min="1" max="5"><img src="img/lock.png" alt="Lock" class="lock-icon"></span>
+          <span class="pip-current"><input id="witsCurrent" type="number" min="0" max="5"><div class="trauma-controls"><button onclick="stepUpField('witsCurrent')">▴</button><button onclick="stepDownField('witsCurrent')">▾</button></div></span>
+        </div>
+      </div>
+      <div class="skills-grid" data-attr="wits">
+        <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
+        <div><input type="checkbox" id="heal_key"></div><div>Heal</div><div><input id="heal_lvl" type="number" value="0"></div><div><input id="heal_mod" type="number" value="0"></div><div><input id="heal_total" type="number" readonly></div>
+        <div><input type="checkbox" id="insight_key"></div><div>Insight</div><div><input id="insight_lvl" type="number" value="0"></div><div><input id="insight_mod" type="number" value="0"></div><div><input id="insight_total" type="number" readonly></div>
+        <div><input type="checkbox" id="logic_key"></div><div>Logic</div><div><input id="logic_lvl" type="number" value="0"></div><div><input id="logic_mod" type="number" value="0"></div><div><input id="logic_total" type="number" readonly></div>
+        <div><input type="checkbox" id="survival_key"></div><div>Survival</div><div><input id="survival_lvl" type="number" value="0"></div><div><input id="survival_mod" type="number" value="0"></div><div><input id="survival_total" type="number" readonly></div>
+        <div><input type="checkbox" id="vigilance_key"></div><div>Vigilance</div><div><input id="vigilance_lvl" type="number" value="0"></div><div><input id="vigilance_mod" type="number" value="0"></div><div><input id="vigilance_total" type="number" readonly></div>
+      </div>
+    </div>
+
+    <!-- Will -->
+    <div class="attribute-box" id="box-will">
+      <h3>Will</h3>
+      <div class="attr-icon-container">
+        <img src="img/GXD6 WILL full.png" alt="Will">
+        <div class="pip-labels"><div>Base</div><div>Current</div></div>
+        <div class="pips">
+          <span class="pip-base"><input id="will" type="number" min="1" max="5"><img src="img/lock.png" alt="Lock" class="lock-icon"></span>
+          <span class="pip-current"><input id="willCurrent" type="number" min="0" max="5"><div class="trauma-controls"><button onclick="stepUpField('willCurrent')">▴</button><button onclick="stepDownField('willCurrent')">▾</button></div></span>
+        </div>
+      </div>
+      <div class="skills-grid" data-attr="will">
+        <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
+        <div><input type="checkbox" id="inspire_key"></div><div>Inspire</div><div><input id="inspire_lvl" type="number" value="0"></div><div><input id="inspire_mod" type="number" value="0"></div><div><input id="inspire_total" type="number" readonly></div>
+        <div><input type="checkbox" id="manipulate_key"></div><div>Manipulate</div><div><input id="manipulate_lvl" type="number" value="0"></div><div><input id="manipulate_mod" type="number" value="0"></div><div><input id="manipulate_total" type="number" readonly></div>
+        <div><input type="checkbox" id="resolve_key"></div><div>Resolve</div><div><input id="resolve_lvl" type="number" value="0"></div><div><input id="resolve_mod" type="number" value="0"></div><div><input id="resolve_total" type="number" readonly></div>
+      </div>
+    </div>
+  </div> <!-- end sheet-container -->
+
   <script type="module">
-    /* ...signIn, saveCharacter, loadCharacter, etc. */
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-  import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+    const firebaseConfig = { /* your config fields */ };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
   const firebaseConfig = {
     apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
     authDomain: "gxd6-character-sheet.firebaseapp.com",
@@ -420,15 +302,14 @@
       populateCharacterList(user.uid);
     }
   };
+    
     // Pip controls and skill-total logic:
     function stepUpField(id) {
-      const el = document.getElementById(id);
-      el.stepUp();
+      document.getElementById(id)?.stepUp();
       computeAllTotals();
     }
     function stepDownField(id) {
-      const el = document.getElementById(id);
-      el.stepDown();
+      document.getElementById(id)?.stepDown();
       computeAllTotals();
     }
 
