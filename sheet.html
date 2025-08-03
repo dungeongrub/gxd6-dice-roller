@@ -49,6 +49,19 @@
     .skills-grid > div:nth-child(-n+5){font-size:12px;line-height:1;}
     .skills-grid input[type=number]{padding:0;margin:0;height:28px;box-sizing:border-box;width:100%;}
     .skills-grid div{align-self:flex-end;}
+
+window.stepUpField = function(id) {
+  const el = document.getElementById(id);
+  el.stepUp();
+  computeAllTotals();
+};
+
+window.stepDownField = function(id) {
+  const el = document.getElementById(id);
+  el.stepDown();
+  computeAllTotals();
+};
+
   </style>
 </head>
 <body>
@@ -102,7 +115,9 @@
   <img src="img/lock_open.png" id="lock-brawn" class="lock-icon"
        title="Toggle lock" onclick="toggleLock('brawn')" />
 	</span>
-        <span class="pip-current"><input id="brawnCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('brawnCurrent')">+</button><button onclick="stepDownField('brawnCurrent')">-</button></div></span>
+        <span class="pip-current"><input id="brawnCurrent" type="number" min="0" max="5" value="0">
+	<div class="trauma-controls"><button onclick="stepUpField('brawnCurrent')">+</button><button onclick="stepDownField('brawnCurrent')">-</button></div>
+	</span>
       </div>
     </div>
     <div class="skills-grid" data-attr="brawn">
