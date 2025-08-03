@@ -1,46 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>GxD6 Character Sheet</title>
   <style>
-    /* FONT & BODY STYLES */
+    /* FONT & BASE STYLES */
     @font-face { font-family:'DominicanSmall'; src:url('fonts/DOMISC__.TTF'); }
     @font-face { font-family:'Dominican'; src:url('fonts/DOMINICA.TTF'); }
     @font-face { font-family:'DeutschGothic'; src:url('fonts/DeutschGothic.ttf'); }
     body { font-family:'DominicanSmall',Georgia,serif; background:url('img/GXD6 Greyscale paper background.jpg') center/cover fixed; margin:0; padding:20px; color:black; }
     .sheet-container { width:800px; margin:0 auto; min-width:800px; max-width:800px; }
     input[type="text"], input[type="number"], select { font-family:'Dominican', serif; font-size:14px; padding:2px 6px; border:1px solid #aaa; }
-    button { font-family:'DominicanSmall', serif; padding:4px 10px; }
-    input[type="number"] { font-family:'DeutschGothic', monospace; font-size:16px; text-align:center; -moz-appearance:textfield; }
+    input[type="number"] { font-family:'DeutschGothic', monospace; font-size:16px; text-align:center; -moz-appearance:textfield; width:auto; }
     input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+    button { font-family:'DominicanSmall', serif; padding:4px 10px; }
+
     .top-row { display:flex; justify-content:space-between; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:10px; }
     .login-controls, .admin-controls { display:flex; align-items:center; gap:10px; }
-    .char-block { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; width:800px; }
-    .fixed-row { display:flex; gap:0; align-items:center; width:100%; min-width:800px; }
-    .fixed-row label { display:flex; flex-direction:column; font-family:'DominicanSmall',serif; font-size:14px; width:auto; margin-right:10px; }
+
+    .char-block { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+    .fixed-row { display:flex; gap:0; align-items:center; width:100%; }
+    .fixed-row label { display:flex; flex-direction:column; margin-right:10px; font-family:'DominicanSmall',serif; font-size:14px; width:auto; }
     .fixed-row label:last-child { margin-right:0; }
-    .fixed-row input { width:140px; padding:3px 5px; font-family:'Dominican', serif; font-size:14px; border:1px solid #999; box-sizing:border-box; }
+    .fixed-row input { width:140px; padding:3px 5px; font-family:'Dominican',serif; font-size:14px; border:1px solid #999; box-sizing:border-box; }
+
     .notes-label { font-family:'Dominican', serif; font-size:14px; margin-top:20px; display:block; }
     textarea { width:100%; height:100px; font-family:'Dominican', serif; font-size:14px; }
 
-    /* ATTRIBUTE BOX & PIP STYLES */
+    /* ATTRIBUTE BOX & PIPS */
     .attribute-box { width:270px; background:rgba(255,255,255,0.85); padding:5px 8px; margin-bottom:20px; border:1px solid #000; box-sizing:border-box; position:relative; }
     .attribute-box h3 { margin:0 0 5px; text-align:left; font-size:16px; }
     .attr-icon-container { position:relative; width:100%; margin:0 0 5px; text-align:left; }
-    .attr-icon-container img { width:40%; display:inline-block; vertical-align:top; margin:0; }
+    .attr-icon-container img { width:40%; vertical-align:top; margin:0; }
     .pip-labels { position:absolute; top:10px; left:calc(10% + 50px); display:flex; justify-content:space-between; font-size:12px; font-family:'DominicanSmall',serif; width:calc(2*35px + 10px); }
     .pips { position:absolute; top:45%; left:calc(10% + 50px); display:flex; gap:10px; }
-    .pip-base, .pip-current { width:35px; height:35px; border-radius:50%; border:2px solid #000; background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center; position:relative; }
-    .pip-base input, .pip-current input { width:40px; height:40px; font-size:22px; font-family:'DeutschGothic',monospace; border:none; background:transparent; text-align:center; }
-    .pip-base .lock-icon { position:absolute; bottom:-10px; left:50%; transform:translateX(-50%); width:14px; height:14px; }
+    .pip-base, .pip-current { width:35px; height:35px; border:2px solid #000; border-radius:50%; background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center; position:relative; }
+    .pip-base input, .pip-current input { width:40px; height:40px; font-family:'DeutschGothic',monospace; font-size:22px; border:none; background:transparent; text-align:center; }
+    .pip-base .lock-icon { position:absolute; width:14px; height:14px; left:50%; bottom:-10px; transform:translateX(-50%); }
     .pip-current .trauma-controls { position:absolute; right:-22px; top:4px; display:flex; flex-direction:column; }
-    .pip-current .trauma-controls button { width:14px; height:14px; font-size:10px; padding:0; margin:1px 0; background:none; border:none; cursor:pointer; line-height:10px; }
+    .pip-current .trauma-controls button { width:14px; height:14px; font-size:10px; border:none; background:none; padding:0; margin:1px 0; cursor:pointer; line-height:10px; }
 
     .skills-grid { display:grid; grid-template-columns:28px 1fr 36px 36px 36px; gap:3px; align-items:end; font-family:'Dominican',serif; font-size:13px; }
-    .skills-grid > div:nth-child(-n+5) { font-size:12px; padding-bottom:0; line-height:1; }
+    .skills-grid > div:nth-child(-n+5) { font-size:12px; line-height:1; }
     .skills-grid input[type="number"] { padding:0; margin:0; height:28px; box-sizing:border-box; }
     .skills-grid div { align-self:flex-end; }
+
   </style>
 </head>
 <body>
@@ -69,18 +73,18 @@
     <!-- CHARACTER INFO -->
     <div class="char-block">
       <div class="fixed-row">
-        <label style="margin-right:10px;">Character Name <input id="charName" type="text" maxlength="30" style="width:250px;"></label>
-        <label style="margin-right:10px;">Age Group <input id="ageGroup" type="text" maxlength="10" style="width:100px;"></label>
-        <label style="margin-right:10px;">Gender <input id="gender" type="text" maxlength="15" style="width:100px;"></label>
-        <label>XP <input id="xp" type="number" style="width:50px;"></label>
+        <label>Character Name<input id="charName" type="text" maxlength="30" style="width:250px;"></label>
+        <label>Age Group<input id="ageGroup" type="text" maxlength="10" style="width:100px;"></label>
+        <label>Gender<input id="gender" type="text" maxlength="15" style="width:100px;"></label>
+        <label>XP<input id="xp" type="number" style="width:50px;"></label>
       </div>
       <div class="fixed-row">
-        <label style="margin-right:5px;">Archetype 1 <input id="archetype1" type="text" maxlength="20" style="width:150px;"></label>
-        <label>Archetype 2 <input id="archetype2" type="text" maxlength="20" style="width:150px;"></label>
+        <label style="margin-right:5px;">Archetype 1<input id="archetype1" type="text" maxlength="20" style="width:150px;"></label>
+        <label>Archetype 2<input id="archetype2" type="text" maxlength="20" style="width:150px;"></label>
       </div>
       <div class="fixed-row">
-        <label style="margin-right:5px;">Profession 1 <input id="profession1" type="text" maxlength="20" style="width:150px;"></label>
-        <label>Profession 2 <input id="profession2" type="text" maxlength="20" style="width:150px;"></label>
+        <label style="margin-right:5px;">Profession 1<input id="profession1" type="text" maxlength="20" style="width:150px;"></label>
+        <label>Profession 2<input id="profession2" type="text" maxlength="20" style="width:150px;"></label>
       </div>
     </div>
 
@@ -93,27 +97,15 @@
         <img src="img/GXD6 BRAWN LOGO.png" alt="Brawn">
         <div class="pip-labels"><div>Base</div><div>Current</div></div>
         <div class="pips">
-          <span class="pip-base">
-            <input id="brawn" type="number" min="1" max="5">
-            <img src="img/lock.png" alt="Lock" class="lock-icon">
-          </span>
-          <span class="pip-current">
-            <input id="brawnCurrent" type="number" min="0" max="5">
-            <div class="trauma-controls">
-              <button onclick="stepUpField('brawnCurrent')">▴</button>
-              <button onclick="stepDownField('brawnCurrent')">▾</button>
-            </div>
-          </span>
+          <span class="pip-base"><input id="brawn" type="number" min="1" max="5"><img src="img/lock.png" class="lock-icon"></span>
+          <span class="pip-current"><input id="brawnCurrent" type="number" min="0" max="5"><div class="trauma-controls"><button onclick="stepUpField('brawnCurrent')">▴</button><button onclick="stepDownField('brawnCurrent')">▾</button></div></span>
         </div>
       </div>
       <div class="skills-grid" data-attr="brawn">
         <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-        <div><input type="checkbox" id="endurance_key"></div><div>Endurance</div>
-        <div><input id="endurance_lvl" type="number" value="0"></div><div><input id="endurance_mod" type="number" value="0"></div><div><input id="endurance_total" type="number" readonly></div>
-        <div><input type="checkbox" id="fight_key"></div><div>Fight</div>
-        <div><input id="fight_lvl" type="number" value="0"></div><div><input id="fight_mod" type="number" value="0"></div><div><input id="fight_total" type="number" readonly></div>
-        <div><input type="checkbox" id="might_key"></div><div>Might</div>
-        <div><input id="might_lvl" type="number" value="0"></div><div><input id="might_mod" type="number" value="0"></div><div><input id="might_total" type="number" readonly></div>
+        <div><input type="checkbox" id="endurance_key"></div><div>Endurance</div><div><input id="endurance_lvl" type="number" value="0"></div><div><input id="endurance_mod" type="number" value="0"></div><div><input id="endurance_total" type="number" readonly></div>
+        <div><input type="checkbox" id="fight_key"></div><div>Fight</div><div><input id="fight_lvl" type="number" value="0"></div><div><input id="fight_mod" type="number" value="0"></div><div><input id="fight_total" type="number" readonly></div>
+        <div><input type="checkbox" id="might_key"></div><div>Might</div><div><input id="might_lvl" type="number" value="0"></div><div><input id="might_mod" type="number" value="0"></div><div><input id="might_total" type="number" readonly></div>
       </div>
     </div>
 
@@ -123,19 +115,15 @@
       <div class="attr-icon-container">
         <img src="img/GXD6 AGILITY full.png" alt="Agility">
         <div class="pip-labels"><div>Base</div><div>Current</div></div>
-        <div class="pips">
-          <span class="pip-base"><input id="agility" type="number" min="1" max="5"><img src="img/lock.png" alt="Lock" class="lock-icon"></span>
+        <div class="pips"><span class="pip-base"><input id="agility" type="number" min="1" max="5"><img src="img/lock.png" class="lock-icon"></span>
           <span class="pip-current"><input id="agilityCurrent" type="number" min="0" max="5"><div class="trauma-controls"><button onclick="stepUpField('agilityCurrent')">▴</button><button onclick="stepDownField('agilityCurrent')">▾</button></div></span>
         </div>
       </div>
       <div class="skills-grid" data-attr="agility">
         <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-        <div><input type="checkbox" id="marksmanship_key"></div><div>Marksmanship</div>
-        <div><input id="marksmanship_lvl" type="number" value="0"></div><div><input id="marksmanship_mod" type="number" value="0"></div><div><input id="marksmanship_total" type="number" readonly></div>
-        <div><input type="checkbox" id="mobility_key"></div><div>Mobility</div>
-        <div><input id="mobility_lvl" type="number" value="0"></div><div><input id="mobility_mod" type="number" value="0"></div><div><input id="mobility_total" type="number" readonly></div>
-        <div><input type="checkbox" id="precision_key"></div><div>Precision</div>
-        <div><input id="precision_lvl" type="number" value="0"></div><div><input id="precision_mod" type="number" value="0"></div><div><input id="precision_total" type="number" readonly></div>
+        <div><input type="checkbox" id="marksmanship_key"></div><div>Marksmanship</div><div><input id="marksmanship_lvl" type="number" value="0"></div><div><input id="marksmanship_mod" type="number" value="0"></div><div><input id="marksmanship_total" type="number" readonly></div>
+        <div><input type="checkbox" id="mobility_key"></div><div>Mobility</div><div><input id="mobility_lvl" type="number" value="0"></div><div><input id="mobility_mod" type="number" value="0"></div><div><input id="mobility_total" type="number" readonly></div>
+        <div><input type="checkbox" id="precision_key"></div><div>Precision</div><div><input id="precision_lvl" type="number" value="0"></div><div><input id="precision_mod" type="number" value="0"></div><div><input id="precision_total" type="number" readonly></div>
       </div>
     </div>
 
@@ -145,8 +133,7 @@
       <div class="attr-icon-container">
         <img src="img/GXD6 WITS full.png" alt="Wits">
         <div class="pip-labels"><div>Base</div><div>Current</div></div>
-        <div class="pips">
-          <span class="pip-base"><input id="wits" type="number" min="1" max="5"><img src="img/lock.png" alt="Lock" class="lock-icon"></span>
+        <div class="pips"><span class="pip-base"><input id="wits" type="number" min="1" max="5"><img src="img/lock.png" class="lock-icon"></span>
           <span class="pip-current"><input id="witsCurrent" type="number" min="0" max="5"><div class="trauma-controls"><button onclick="stepUpField('witsCurrent')">▴</button><button onclick="stepDownField('witsCurrent')">▾</button></div></span>
         </div>
       </div>
@@ -166,8 +153,7 @@
       <div class="attr-icon-container">
         <img src="img/GXD6 WILL full.png" alt="Will">
         <div class="pip-labels"><div>Base</div><div>Current</div></div>
-        <div class="pips">
-          <span class="pip-base"><input id="will" type="number" min="1" max="5"><img src="img/lock.png" alt="Lock" class="lock-icon"></span>
+        <div class="pips"><span class="pip-base"><input id="will" type="number" min="1" max="5"><img src="img/lock.png" class="lock-icon"></span>
           <span class="pip-current"><input id="willCurrent" type="number" min="0" max="5"><div class="trauma-controls"><button onclick="stepUpField('willCurrent')">▴</button><button onclick="stepDownField('willCurrent')">▾</button></div></span>
         </div>
       </div>
@@ -178,132 +164,122 @@
         <div><input type="checkbox" id="resolve_key"></div><div>Resolve</div><div><input id="resolve_lvl" type="number" value="0"></div><div><input id="resolve_mod" type="number" value="0"></div><div><input id="resolve_total" type="number" readonly></div>
       </div>
     </div>
-  </div> <!-- end sheet-container -->
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-    const firebaseConfig = { /* your config fields */ };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-  const firebaseConfig = {
-    apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
-    authDomain: "gxd6-character-sheet.firebaseapp.com",
-    projectId: "gxd6-character-sheet",
-    storageBucket: "gxd6-character-sheet.firebasestorage.app",
-    messagingSenderId: "761778638151",
-    appId: "1:761778638151:web:06a1d72423a7e980889062"
-  };
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
+      authDomain: "gxd6-character-sheet.firebaseapp.com",
+      projectId: "gxd6-character-sheet",
+      storageBucket: "gxd6-character-sheet.firebasestorage.app",
+      messagingSenderId: "761778638151",
+      appId: "1:761778638151:web:06a1d72423a7e980889062"
+    };
+    initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getFirestore();
 
-  const loginFormEl = document.getElementById('loginForm');
-  const accountControlsEl = document.getElementById('accountControls');
-  const characterSelectEl = document.getElementById('characterSelect');
+    const loginFormEl = document.getElementById('loginForm');
+    const accountControlsEl = document.getElementById('accountControls');
+    const characterSelectEl = document.getElementById('characterSelect');
 
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      loginFormEl.style.display = 'none';
-      accountControlsEl.style.display = 'flex';
-      populateCharacterList(user.uid);
-    } else {
-      loginFormEl.style.display = 'flex';
-      accountControlsEl.style.display = 'none';
-      characterSelectEl.innerHTML = '<option value="">--Select--</option>';
-    }
-  });
-
-  window.signUp = async () => {
-    const email = document.getElementById('email').value;
-    const pw = document.getElementById('password').value;
-    await createUserWithEmailAndPassword(auth, email, pw);
-    alert('Signed up!');
-  };
-
-  window.signIn = async () => {
-    const email = document.getElementById('email').value;
-    const pw = document.getElementById('password').value;
-    await signInWithEmailAndPassword(auth, email, pw);
-    alert('Signed in!');
-  };
-
-  window.signOutUser = async () => {
-    await signOut(auth);
-    alert('Signed out');
-  };
-
-  window.deleteAccount = async () => {
-    if (auth.currentUser && confirm('Delete account and characters?')) {
-      await deleteUser(auth.currentUser);
-      alert('Account deleted');
-    }
-  };
-
-  async function populateCharacterList(uid) {
-    const snap = await getDocs(collection(db, 'users', uid, 'characters'));
-    characterSelectEl.innerHTML = '<option value="">--Select--</option>';
-    snap.forEach(d => {
-      const opt = document.createElement('option');
-      opt.value = d.id;
-      opt.text = d.id;
-      characterSelectEl.appendChild(opt);
-    });
-  }
-
-  window.saveCharacter = async () => {
-    const user = auth.currentUser;
-    const name = document.getElementById('charName').value.trim();
-    if (!user || !name) return alert('Sign in & enter a name');
-    const container = document.querySelector('.sheet-container');
-    const elements = container.querySelectorAll('input, select, textarea');
-    const data = { name };
-    elements.forEach(el => {
-      const id = el.id;
-      if (!id || id==='email'|| id==='password') return;
-      if (el.type==='checkbox') data[id] = el.checked;
-      else data[id] = el.value;
-    });
-    await setDoc(doc(db, 'users', user.uid, 'characters', name), data);
-    alert('✅ Saved');
-    populateCharacterList(user.uid);
-  };
-
-  window.loadCharacter = async () => {
-    const user = auth.currentUser;
-    if (!user) return alert('Sign in first');
-    const id = characterSelectEl.value || document.getElementById('charName').value.trim();
-    if (!id) return alert('Select or type name');
-    const snap = await getDoc(doc(db, 'users', user.uid, 'characters', id));
-    if (!snap.exists()) return alert('Not found');
-    const data = snap.data();
-    const container = document.querySelector('.sheet-container');
-    container.querySelectorAll('input, select, textarea').forEach(el => {
-      const id = el.id;
-      if (!id || id==='email'|| id==='password') return;
-      if (data[id] !== undefined) {
-        if (el.type==='checkbox') el.checked = data[id];
-        else el.value = data[id];
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        loginFormEl.style.display = 'none';
+        accountControlsEl.style.display = 'flex';
+        populateCharacterList(user.uid);
+      } else {
+        loginFormEl.style.display = 'flex';
+        accountControlsEl.style.display = 'none';
+        characterSelectEl.innerHTML = '<option value="">--Select--</option>';
       }
     });
-    alert('✅ Loaded');
-  };
 
-  window.deleteCharacter = async () => {
-    const user = auth.currentUser;
-    const name = characterSelectEl.value;
-    if (!user || !name) return alert('Select a character');
-    if (confirm(`Delete "${name}"?`)) {
-      await deleteDoc(doc(db, 'users', user.uid, 'characters', name));
-      alert('Deleted');
-      populateCharacterList(user.uid);
+    async function populateCharacterList(uid) {
+      const snap = await getDocs(collection(db, 'users', uid, 'characters'));
+      characterSelectEl.innerHTML = '<option value="">--Select--</option>';
+      snap.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.id; opt.text = d.id;
+        characterSelectEl.appendChild(opt);
+      });
     }
-  };
-    
-    // Pip controls and skill-total logic:
+
+    window.signUp = async () => {
+      const email = document.getElementById('email').value;
+      const pw = document.getElementById('password').value;
+      await createUserWithEmailAndPassword(auth, email, pw);
+      alert('Signed up!');
+    };
+
+    window.signIn = async () => {
+      const email = document.getElementById('email').value;
+      const pw = document.getElementById('password').value;
+      await signInWithEmailAndPassword(auth, email, pw);
+      alert('Signed in!');
+    };
+
+    window.signOutUser = async () => {
+      await signOut(auth);
+      alert('Signed out');
+    };
+
+    window.deleteAccount = async () => {
+      if (auth.currentUser && confirm('Delete account and characters?')) {
+        await deleteUser(auth.currentUser);
+        alert('Account deleted');
+      }
+    };
+
+    window.saveCharacter = async () => {
+      const user = auth.currentUser;
+      const name = document.getElementById('charName').value.trim();
+      if (!user || !name) return alert('Sign in & enter a name');
+      const container = document.querySelector('.sheet-container');
+      const data = { name };
+      container.querySelectorAll('input, select, textarea').forEach(el => {
+        if (!el.id || el.id==='email' || el.id==='password') return;
+        data[el.id] = el.type==='checkbox' ? el.checked : el.value;
+      });
+      await setDoc(doc(db, 'users', user.uid, 'characters', name), data);
+      alert('Saved');
+      populateCharacterList(user.uid);
+    };
+
+    window.loadCharacter = async () => {
+      const user = auth.currentUser;
+      if (!user) return alert('Sign in first');
+      const id = characterSelectEl.value || document.getElementById('charName').value.trim();
+      if (!id) return alert('Select or type a name');
+      const snap = await getDoc(doc(db, 'users', user.uid, 'characters', id));
+      if (!snap.exists()) return alert('Not found');
+      const data = snap.data();
+      const container = document.querySelector('.sheet-container');
+      container.querySelectorAll('input, select, textarea').forEach(el => {
+        if (!el.id || el.id==='email' || el.id==='password') return;
+        if (data[el.id] !== undefined) {
+          if (el.type==='checkbox') el.checked = data[el.id];
+          else el.value = data[el.id];
+        }
+      });
+      alert('Loaded');
+    };
+
+    window.deleteCharacter = async () => {
+      const user = auth.currentUser;
+      const name = characterSelectEl.value;
+      if (!user || !name) return alert('Select a character');
+      if (confirm(`Delete "${name}"?`)) {
+        await deleteDoc(doc(db, 'users', user.uid, 'characters', name));
+        alert('Deleted');
+        populateCharacterList(user.uid);
+      }
+    };
+
     function stepUpField(id) {
       document.getElementById(id)?.stepUp();
       computeAllTotals();
@@ -316,15 +292,15 @@
     function computeAllTotals() {
       document.querySelectorAll('.skills-grid').forEach(grid => {
         const attr = grid.getAttribute('data-attr');
-        const attrVal = +document.getElementById(attr)?.value || 0;
+        const base = +document.getElementById(attr)?.value || 0;
         grid.querySelectorAll('input[type="number"]').forEach(inp => {
           const id = inp.id;
           if (id.endsWith('_lvl') || id.endsWith('_mod')) {
             const skill = id.slice(0, id.lastIndexOf('_'));
             const lvl = +document.getElementById(`${skill}_lvl`).value || 0;
             const mod = +document.getElementById(`${skill}_mod`).value || 0;
-            const tot = document.getElementById(`${skill}_total`);
-            if (tot) tot.value = attrVal + lvl + mod;
+            const totalEl = document.getElementById(`${skill}_total`);
+            if (totalEl) totalEl.value = base + lvl + mod;
           }
         });
       });
