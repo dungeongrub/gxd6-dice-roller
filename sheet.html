@@ -26,14 +26,16 @@
     .attribute-box{width:270px;background:rgba(255,255,255,0.9);padding:5px 8px;margin-bottom:20px;border:1px solid #000;position:relative;box-sizing:border-box;}
     .attribute-box h3{text-align:left;font-size:16px;margin:0 0 5px;}
     .attr-icon-container{position:relative;margin-bottom:5px;text-align:left;}
-    .attr-icon-container img{width:40%;vertical-align:top;}
-    .pip-labels{position:absolute;top:10px;left:calc(10% + 50px);width:calc(2*35px + 10px);display:flex;justify-content:space-between;font-size:12px;}
-    .pips{position:absolute;top:45%;left:calc(10% + 50px);display:flex;gap:10px;}
+    .attr-icon-container img{width:32%;vertical-align:top;}
+    <!--- PIP LABEL POSITIONING --->
+    .pip-labels {top: 0;display:flex;justify-content: space-between;width: 80px;transform: translateX(-10%);}
+<!--- PIP POSITIONING --->
+	.pips{position:absolute;top:45%;left:calc(10% + 70px);display:flex;gap:10px;}
     .pip-base,.pip-current{width:35px;height:35px;border:2px solid #000;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;position:relative;}
     .pip-base input,.pip-current input{width:40px;height:40px;font-size:22px;border:none;background:transparent;text-align:center;font-family:'DeutschGothic',monospace;}
     .pip-base .lock-icon{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:14px;height:14px;}
     .pip-current .trauma-controls{position:absolute;right:-22px;top:4px;display:flex;flex-direction:column;}
-    .pip-current .trauma-controls button{width:14px;height:14px;font-size:10px;border:none;background:none;margin:1px 0;padding:0;cursor:pointer;line-height:10px;}
+    .pip-current .trauma-controls button{width:14px;height:14px;font-size:10px;font-weight: bold;border:none;background:none;margin:1px 0;padding:0;cursor:pointer;line-height:10px;}
     .skills-grid{display:grid;grid-template-columns:28px 1fr 36px 36px 36px;gap:3px;align-items:end;font-size:13px;}
     .skills-grid > div:nth-child(-n+5){font-size:12px;line-height:1;}
     .skills-grid input[type=number]{padding:0;margin:0;height:28px;box-sizing:border-box;width:100%;}
@@ -87,7 +89,7 @@
       <div class="pip-labels"><div>Base</div><div>Current</div></div>
       <div class="pips">
         <span class="pip-base"><input id="brawn" type="number" min="1" max="5" value="0"><img src="img/lock.png" class="lock-icon"/></span>
-        <span class="pip-current"><input id="brawnCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('brawnCurrent')">▴</button><button onclick="stepDownField('brawnCurrent')">▾</button></div></span>
+        <span class="pip-current"><input id="brawnCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('brawnCurrent')">+</button><button onclick="stepDownField('brawnCurrent')">-</button></div></span>
       </div>
     </div>
     <div class="skills-grid" data-attr="brawn">
@@ -110,7 +112,7 @@
       <div class="pip-labels"><div>Base</div><div>Current</div></div>
       <div class="pips">
         <span class="pip-base"><input id="agility" type="number" min="1" max="5" value="0"><img src="img/lock.png" class="lock-icon"/></span>
-        <span class="pip-current"><input id="agilityCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('agilityCurrent')">▴</button><button onclick="stepDownField('agilityCurrent')">▾</button></div></span>
+        <span class="pip-current"><input id="agilityCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('agilityCurrent')">+</button><button onclick="stepDownField('agilityCurrent')">-</button></div></span>
       </div>
     </div>
     <div class="skills-grid" data-attr="agility">
@@ -132,7 +134,7 @@
       <div class="pip-labels"><div>Base</div><div>Current</div></div>
       <div class="pips">
         <span class="pip-base"><input id="wits" type="number" min="1" max="5" value="0"><img src="img/lock.png" class="lock-icon"/></span>
-        <span class="pip-current"><input id="witsCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('witsCurrent')">▴</button><button onclick="stepDownField('witsCurrent')">▾</button></div></span>
+        <span class="pip-current"><input id="witsCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('witsCurrent')">+</button><button onclick="stepDownField('witsCurrent')">-</button></div></span>
       </div>
     </div>
     <div class="skills-grid" data-attr="wits">
@@ -153,7 +155,7 @@
       <div class="pip-labels"><div>Base</div><div>Current</div></div>
       <div class="pips">
         <span class="pip-base"><input id="will" type="number" min="1" max="5" value="0"><img src="img/lock.png" class="lock-icon"/></span>
-        <span class="pip-current"><input id="willCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('willCurrent')">▴</button><button onclick="stepDownField('willCurrent')">▾</button></div></span>
+        <span class="pip-current"><input id="willCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('willCurrent')">+</button><button onclick="stepDownField('willCurrent')">-</button></div></span>
       </div>
     </div>
     <div class="skills-grid" data-attr="will">
@@ -277,20 +279,24 @@
   window.stepDownField = id => document.getElementById(id)?.stepDown() && computeAllTotals();
 
   function computeAllTotals() {
-    document.querySelectorAll('.skills-grid').forEach(grid => {
-      const attrCurr = +document.getElementById(grid.dataset.attr + 'Current').value || 0;
-      grid.querySelectorAll('input[type="number"]').forEach(inp => {
-        const id = inp.id;
-        if (id.endsWith('_lvl') || id.endsWith('_mod')) {
-          const skill = id.slice(0, id.lastIndexOf('_'));
-          const lvl = +document.getElementById(`${skill}_lvl`).value || 0;
-          const mod = +document.getElementById(`${skill}_mod`).value || 0;
-          const totalEl = document.getElementById(`${skill}_total`);
-          if (totalEl) totalEl.value = attrCurr + lvl + mod;
+  document.querySelectorAll('.skills-grid').forEach(grid => {
+    const attr = grid.getAttribute('data-attr');
+    // Use 'Current' pip value—not Base—for calculations
+    const currentVal = +document.getElementById(`${attr}Current`)?.value || 0;
+    grid.querySelectorAll('input[type="number"]').forEach(inp => {
+      const id = inp.id;
+      if (id.endsWith('_lvl') || id.endsWith('_mod')) {
+        const skill = id.slice(0, id.lastIndexOf('_'));
+        const lvl = +document.getElementById(`${skill}_lvl`).value || 0;
+        const mod = +document.getElementById(`${skill}_mod`).value || 0;
+        const totalEl = document.getElementById(`${skill}_total`);
+        if (totalEl) {
+          totalEl.value = currentVal + lvl + mod;
         }
-      });
+      }
     });
-  }
+  });
+}
 
   ['brawn','agility','wits','will'].forEach(attr => {
     document.getElementById(attr)?.addEventListener('input', computeAllTotals);
