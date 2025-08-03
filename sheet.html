@@ -97,7 +97,10 @@
       <img src="img/GXD6 BRAWN LOGO.png" alt="Brawn">
       <div class="pip-labels"><div>Base</div><div>Current</div></div>
       <div class="pips">
-        <span class="pip-base"><input id="brawn" type="number" min="1" max="5" value="0"><img src="img/lock.png" class="lock-icon"/></span>
+	<span class="pip-base">
+  	<input id="brawn" type="number" min="1" max="5" value="0">
+  	<img src="img/lock.png" class="lock-icon" onclick="toggleLock('brawn')">
+	</span>
         <span class="pip-current"><input id="brawnCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('brawnCurrent')">+</button><button onclick="stepDownField('brawnCurrent')">-</button></div></span>
       </div>
     </div>
@@ -120,7 +123,10 @@
       <img src="img/GXD6 AGILITY LOGO.png" alt="Agility">
       <div class="pip-labels"><div>Base</div><div>Current</div></div>
       <div class="pips">
-        <span class="pip-base"><input id="agility" type="number" min="1" max="5" value="0"><img src="img/lock.png" class="lock-icon"/></span>
+        <span class="pip-base">
+  <input id="agility" type="number" min="1" max="5" value="0">
+  <img src="img/lock.png" class="lock-icon" onclick="toggleLock('agility')">
+</span>
         <span class="pip-current"><input id="agilityCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('agilityCurrent')">+</button><button onclick="stepDownField('agilityCurrent')">-</button></div></span>
       </div>
     </div>
@@ -142,7 +148,11 @@
       <img src="img/GXD6 WITS LOGO.png" alt="Wits">
       <div class="pip-labels"><div>Base</div><div>Current</div></div>
       <div class="pips">
-        <span class="pip-base"><input id="wits" type="number" min="1" max="5" value="0"><img src="img/lock.png" class="lock-icon"/></span>
+       <span class="pip-base">
+  <input id="wits" type="number" min="1" max="5" value="0">
+  <img src="img/lock.png" class="lock-icon" onclick="toggleLock('wits')">
+</span>
+
         <span class="pip-current"><input id="witsCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('witsCurrent')">+</button><button onclick="stepDownField('witsCurrent')">-</button></div></span>
       </div>
     </div>
@@ -163,7 +173,11 @@
       <img src="img/GXD6 WILL LOGO.png" alt="Will">
       <div class="pip-labels"><div>Base</div><div>Current</div></div>
       <div class="pips">
-        <span class="pip-base"><input id="will" type="number" min="1" max="5" value="0"><img src="img/lock.png" class="lock-icon"/></span>
+       <span class="pip-base">
+  <input id="will" type="number" min="1" max="5" value="0">
+  <img src="img/lock.png" class="lock-icon" onclick="toggleLock('will')">
+</span>
+
         <span class="pip-current"><input id="willCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('willCurrent')">+</button><button onclick="stepDownField('willCurrent')">-</button></div></span>
       </div>
     </div>
@@ -284,51 +298,66 @@
     }
   };
 
-  window.stepUpField = id => {
+ function toggleLock(id) {
   const el = document.getElementById(id);
-  if (el) el.stepUp();
-  computeAllTotals();
-};
-window.stepDownField = id => {
-  const el = document.getElementById(id);
-  if (el) el.stepDown();
-  computeAllTotals();
-};
+  if (!el) return;
+  el.disabled = !el.disabled;
+  el.style.opacity = el.disabled ? 0.6 : 1;
+}
 
-  function computeAllTotals() {
+function stepUpField(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.stepUp();
+    computeAllTotals();
+  }
+}
+
+function stepDownField(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.stepDown();
+    computeAllTotals();
+  }
+}
+
+function computeAllTotals() {
   document.querySelectorAll('.skills-grid').forEach(grid => {
     const attr = grid.dataset.attr;
-    const currentVal = +document.getElementById(`${attr}Current`).value || 0;
+    const currentAttr = +document.getElementById(`${attr}Current`)?.value || 0;
 
-    ['lvl', 'mod'].forEach(suff => {
-      grid.querySelectorAll(`input[id$='_${suff}']`).forEach(inp => {
-        const skill = inp.id.replace(`_${suff}`, '');
-        const lvl = +document.getElementById(`${skill}_lvl`).value || 0;
-        const mod = +document.getElementById(`${skill}_mod`).value || 0;
-        const totalEl = document.getElementById(`${skill}_total`);
-        if (totalEl) {
-          totalEl.value = currentVal + lvl + mod;
-        }
-      });
+    grid.querySelectorAll('input[type="number"]').forEach(inp => {
+      const id = inp.id;
+      if (id.endsWith('_lvl') || id.endsWith('_mod')) {
+        const skill = id.slice(0, id.lastIndexOf('_'));
+        const lvl = +document.getElementById(`${skill}_lvl`)?.value || 0;
+        const mod = +document.getElementById(`${skill}_mod`)?.value || 0;
+        const total = document.getElementById(`${skill}_total`);
+        if (total) total.value = currentAttr + lvl + mod;
+      }
     });
   });
 }
 
-['brawn', 'agility', 'wits', 'will'].forEach(attr => {
-  document.getElementById(`${attr}Current`)?.addEventListener('input', computeAllTotals);
-  // for each skill input field in each grid
-  document.querySelectorAll(`[id^="${attr}_"][id$="_lvl"],[id^="${attr}_"][id$="_mod"]`).forEach(inp => {
-    inp.addEventListener('input', computeAllTotals);
-  });
+
+// Setup event listeners:
+['brawn','agility','wits','will'].forEach(attr => {
+  const currentInput = document.getElementById(`${attr}Current`);
+  if (currentInput) currentInput.addEventListener('input', computeAllTotals);
+
+  document.querySelectorAll(`#${attr}_lvl, #${attr}_mod`).forEach(el =>
+    el.addEventListener('input', computeAllTotals)
+  );
+
+  const grid = document.querySelector(`.skills-grid[data-attr="${attr}"]`);
+  if (grid) {
+    grid.querySelectorAll('input[id$="_lvl"], input[id$="_mod"]').forEach(input => {
+      input.addEventListener('input', computeAllTotals);
+    });
+  }
 });
+
 computeAllTotals();
-
-
-  ['brawn','agility','wits','will'].forEach(attr => {
-    document.getElementById(attr)?.addEventListener('input', computeAllTotals);
-    document.getElementById(`${attr}Current`)?.addEventListener('input', computeAllTotals);
-  });
-  computeAllTotals();
 
 </script>
 </body>
