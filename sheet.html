@@ -28,7 +28,16 @@
     .attr-icon-container{position:relative;margin-bottom:5px;text-align:left;}
     .attr-icon-container img{width:32%;vertical-align:top;}
 /* PIP LABEL POSITIONING */
-    .pip-labels {top: 0;display:flex;justify-content: space-between;width: 80px;transform: translateX(-10%);}
+    .pip-labels {position: absolute;
+  top: -14px; /* lifts above the pips */
+  left: calc(10% + 70px); /* aligns with the pips */
+  width: calc(2 * 35px + 10px); /* same width as the two pips + gap */
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-family: 'DominicanSmall', serif;
+  text-align: center;
+}
 /*PIP POSITIONING */
 	.pips{position:absolute;top:45%;left:calc(10% + 70px);display:flex;gap:10px;}
     .pip-base,.pip-current{width:35px;height:35px;border:2px solid #000;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;position:relative;}
