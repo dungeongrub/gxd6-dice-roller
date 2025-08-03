@@ -284,28 +284,45 @@
     }
   };
 
-  window.stepUpField = id => document.getElementById(id)?.stepUp() && computeAllTotals();
-  window.stepDownField = id => document.getElementById(id)?.stepDown() && computeAllTotals();
+  window.stepUpField = id => {
+  const el = document.getElementById(id);
+  if (el) el.stepUp();
+  computeAllTotals();
+};
+window.stepDownField = id => {
+  const el = document.getElementById(id);
+  if (el) el.stepDown();
+  computeAllTotals();
+};
 
   function computeAllTotals() {
   document.querySelectorAll('.skills-grid').forEach(grid => {
-    const attr = grid.getAttribute('data-attr');
-    // Use 'Current' pip value—not Base—for calculations
-    const currentVal = +document.getElementById(`${attr}Current`)?.value || 0;
-    grid.querySelectorAll('input[type="number"]').forEach(inp => {
-      const id = inp.id;
-      if (id.endsWith('_lvl') || id.endsWith('_mod')) {
-        const skill = id.slice(0, id.lastIndexOf('_'));
+    const attr = grid.dataset.attr;
+    const currentVal = +document.getElementById(`${attr}Current`).value || 0;
+
+    ['lvl', 'mod'].forEach(suff => {
+      grid.querySelectorAll(`input[id$='_${suff}']`).forEach(inp => {
+        const skill = inp.id.replace(`_${suff}`, '');
         const lvl = +document.getElementById(`${skill}_lvl`).value || 0;
         const mod = +document.getElementById(`${skill}_mod`).value || 0;
         const totalEl = document.getElementById(`${skill}_total`);
         if (totalEl) {
           totalEl.value = currentVal + lvl + mod;
         }
-      }
+      });
     });
   });
 }
+
+['brawn', 'agility', 'wits', 'will'].forEach(attr => {
+  document.getElementById(`${attr}Current`)?.addEventListener('input', computeAllTotals);
+  // for each skill input field in each grid
+  document.querySelectorAll(`[id^="${attr}_"][id$="_lvl"],[id^="${attr}_"][id$="_mod"]`).forEach(inp => {
+    inp.addEventListener('input', computeAllTotals);
+  });
+});
+computeAllTotals();
+
 
   ['brawn','agility','wits','will'].forEach(attr => {
     document.getElementById(attr)?.addEventListener('input', computeAllTotals);
