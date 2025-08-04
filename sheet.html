@@ -50,8 +50,12 @@
 	}
 	
     .pip-base .lock-icon{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:14px;height:14px;cursor:pointer;}
-    .trauma-controls{display:flex;flex-direction:column;}
-    .trauma-controls button{width:18px;height:18px;font-size:14px;font-weight:bold;background:#e0e0e0;border:1px solid #888;border-radius:3px;margin:2px 0;cursor:pointer;line-height:16px;padding:0;}
+    .trauma-controls{
+	      position: absolute; top: 0; right: -20px; /* enough to get out of the pip circle */
+  		display: flex; flex-direction: column; gap: 2px;}
+    .trauma-controls button{
+	    width:18px;height:18px;font-size:12px;font-weight:bold;background:#e0e0e0;
+	    border:none;cursor:pointer;line-height:1px;padding:0;}
     .skills-grid{display:grid;grid-template-columns:28px 1fr 36px 36px 36px;gap:3px;align-items:end;font-size:13px;}
     .skills-grid>div:nth-child(-n+5){font-size:12px;line-height:1;}
     .skills-grid input[type=number]{padding:0;margin:0;height:28px;box-sizing:border-box;width:100%;}
@@ -72,17 +76,26 @@
   <div class="attribute-box" id="box-brawn">
     <h3>Brawn</h3>
     <div class="attr-icon-container"><img src="img/GXD6 BRAWN LOGO.png" alt="Brawn">
-	<div class="pip-labels"><div style="margin-right: 5px;">Base</div>
+	<div class="pip-labels"><div style="margin-right: 8px;">Base</div>
 	<div>Current</div>
 	</div>
-	<div class="pips"><span class="pip-base"><input id="brawn"type="number"min="1"max="5"value="1"><img id="lock-brawn" class="lock-icon"src="img/lock_open.png"title="Toggle lock"onclick="toggleLock('brawn')"></span><span class="pip-current"><input id="brawnCurrent"type="number"min="0"max="5"value="0"><div class="trauma-controls"><button onclick="stepUpField('brawnCurrent')">+</button><button onclick="stepDownField('brawnCurrent')">−</button></div></span></div></div>
+	<div class="pips"><span class="pip-base"><input id="brawn"type="number"min="1"max="5"value="1">
+	<img id="lock-brawn" class="lock-icon"src="img/lock_open.png"title="Toggle lock"onclick="toggleLock('brawn')">
+	</span>
+	<span class="pip-current">
+	<input id="brawnCurrent"type="number"min="0"max="5"value="0">
+	<div class="trauma-controls">
+	<button onclick="stepUpField('brawnCurrent')">+</button>
+	<button onclick="stepDownField('brawnCurrent')">−</button>
+	</div>
+	</span></div></div>
     <div class="skills-grid" data-attr="brawn"><div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div><div><input type="checkbox"id="endurance_key"></div><div>Endurance</div><div><input id="endurance_lvl"type="number"value="0"></div><div><input id="endurance_mod"type="number"value="0"></div><div><input id="endurance_total"type="number"readonly value="0"></div><div><input type="checkbox"id="fight_key"></div><div>Fight</div><div><input id="fight_lvl"type="number"value="0"></div><div><input id="fight_mod"type="number"value="0"></div><div><input id="fight_total"type="number"readonly value="0"></div><div><input type="checkbox"id="might_key"></div><div>Might</div><div><input id="might_lvl"type="number"value="0"></div><div><input id="might_mod"type="number"value="0"></div><div><input id="might_total"type="number"readonly value="0"></div></div>
   </div>
   <!-- Agility -->
   <div class="attribute-box" id="box-agility">
     <h3>Agility</h3>
     <div class="attr-icon-container"><img src="img/GXD6 AGILITY LOGO.png" alt="Agility">
-	<div class="pip-labels"><div style="margin-right: 5px;">Base</div>
+	<div class="pip-labels"><div style="margin-right: 8px;">Base</div>
 	<div>Current</div>
 	</div>
 	<div class="pips"><span class="pip-base"><input id="agility"type="number"min="1"max="5"value="1"><img id="lock-agility"class="lock-icon"src="img/lock_open.png"title="Toggle lock"onclick="toggleLock('agility')"></span><span class="pip-current"><input id="agilityCurrent"type="number"min="0"max="5"value="0"><div class="trauma-controls"><button onclick="stepUpField('agilityCurrent')">+</button><button onclick="stepDownField('agilityCurrent')">−</button></div></span></div></div>
@@ -102,7 +115,7 @@
   <div class="attribute-box" id="box-will">
     <h3>Will</h3>
     <div class="attr-icon-container"><img src="img/GXD6 WILL LOGO.png" alt="Will">
-	<div class="pip-labels"><div style="margin-right: 5px;">Base</div>
+	<div class="pip-labels"><div style="margin-right: 8px;">Base</div>
 	<div>Current</div>
 	</div>
 	<div class="pips"><span class="pip-base"><input id="will"type="number"min="1"max="5"value="1"><img id="lock-will"class="lock-icon"src="img/lock_open.png"title="Toggle lock"onclick="toggleLock('will')"></span><span class="pip-current"><input id="willCurrent"type="number"min="0"max="5"value="0"><div class="trauma-controls"><button onclick="stepUpField('willCurrent')">+</button><button onclick="stepDownField('willCurrent')">−</button></div></span></div></div>
