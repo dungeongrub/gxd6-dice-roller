@@ -164,19 +164,20 @@ window.stepDownField = function(id) {
   </div>
 
   <!-- Wits -->
-  <div class="attribute-box" id="box-wits">
+<div class="attribute-box" id="box-wits">
     <h3>Wits</h3>
     <div class="attr-icon-container">
-      <img src="img/GXD6 WITS LOGO.png" alt="Wits">
+      <img src="img/GXD6 WITS LOGO.png" alt="wits">
       <div class="pip-labels"><div>Base</div><div>Current</div></div>
       <div class="pips">
-      <span class="pip-base">
+	<span class="pip-base">
   <input id="wits" type="number" min="1" max="5" value="1">
   <img src="img/lock_open.png" id="lock-wits" class="lock-icon"
        title="Toggle lock" onclick="toggleLock('wits')" />
-<span>
-        <span class="pip-current"><input id="witsCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('witsCurrent')">+</button><button onclick="stepDownField('witsCurrent')">-</button></div>
-</span>
+	</span>
+        <span class="pip-current"><input id="witsCurrent" type="number" min="0" max="5" value="0">
+	<div class="trauma-controls"><button onclick="stepUpField('witsCurrent')">+</button><button onclick="stepDownField('witsCurrent')">-</button></div>
+	</span>
       </div>
     </div>
     <div class="skills-grid" data-attr="wits">
