@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>GxD6 Character Sheet</title>
   <style>
-    /* Base styles */
     @font-face{font-family:'DominicanSmall';src:url('fonts/DOMISC__.TTF');}
     @font-face{font-family:'Dominican';src:url('fonts/DOMINICA.TTF');}
     @font-face{font-family:'DeutschGothic';src:url('fonts/DeutschGothic.ttf');}
@@ -20,198 +19,55 @@
     .fixed-row{display:flex;align-items:center;gap:0;}
     .fixed-row label{display:flex;flex-direction:column;margin-right:10px;}
     .fixed-row input{width:140px;padding:3px 5px;border:1px solid #999;box-sizing:border-box;}
-    .notes-label{margin-top:20px;display:block;}
-    textarea{width:100%;height:100px;font-size:14px;font-family:'Dominican',serif;}
-    /* Attribute styles */
-    .attribute-box{width:270px;background:rgba(255,255,255,0.9);padding:5px 8px;margin-bottom:20px;border:1px solid #000;position:relative;box-sizing:border-box;}
+    .attribute-box{width:270px;background:rgba(255,255,255,0.9);padding:5px; margin-bottom:20px;border:1px solid #000;position:relative;box-sizing:border-box;}
     .attribute-box h3{text-align:left;font-size:16px;margin:0 0 5px;}
     .attr-icon-container{position:relative;margin-bottom:5px;text-align:left;}
     .attr-icon-container img{width:32%;vertical-align:top;}
-	
-/* PIP LABEL POSITIONING */
-.pip-labels {
-  position: absolute;
-  top: 20px; /* vertically aligned with pip top */
-  left: calc(10% + 70px);
-  width: calc(2 * 35px + 10px);
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  font-family: 'DominicanSmall', serif;
-  text-align: center;}
-  
-/*PIP POSITIONING */
-	.pips{position:absolute;top:45%;left:calc(10% + 60px);display:flex;gap:10px;}
+    .pip-labels{position:absolute;top:20px;left:calc(10% + 60px);width:calc(2*35px+10px);display:flex;justify-content:space-between;font-size:11px;font-family:'DominicanSmall',serif;text-align:center;}
+    .pips{position:absolute;top:45%;left:calc(10% + 60px);display:flex;gap:10px;}
     .pip-base,.pip-current{width:35px;height:35px;border:2px solid #000;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;position:relative;}
     .pip-base input,.pip-current input{width:40px;height:40px;font-size:22px;border:none;background:transparent;text-align:center;font-family:'DeutschGothic',monospace;}
-    .pip-base .lock-icon{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:14px;height:14px;}
-    .pip-current .trauma-controls{position:absolute;right:-22px;top:4px;display:flex;flex-direction:column;}
-    .pip-current .trauma-controls button{width:14px;height:14px;font-size:10px;font-weight: bold;border:none;background:none;margin:1px 0;padding:0;cursor:pointer;line-height:10px;}
+    .pip-base .lock-icon{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:14px;height:14px;cursor:pointer;}
+    .trauma-controls{display:flex;flex-direction:column;}
+    .trauma-controls button{width:18px;height:18px;font-size:14px;font-weight:bold;background:#e0e0e0;border:1px solid #888;border-radius:3px;margin:2px 0;cursor:pointer;line-height:16px;padding:0;}
     .skills-grid{display:grid;grid-template-columns:28px 1fr 36px 36px 36px;gap:3px;align-items:end;font-size:13px;}
-    .skills-grid > div:nth-child(-n+5){font-size:12px;line-height:1;}
+    .skills-grid>div:nth-child(-n+5){font-size:12px;line-height:1;}
     .skills-grid input[type=number]{padding:0;margin:0;height:28px;box-sizing:border-box;width:100%;}
     .skills-grid div{align-self:flex-end;}
-
-window.stepUpField = function(id) {
-  const el = document.getElementById(id);
-  el.stepUp();
-  computeAllTotals();
-};
-
-window.stepDownField = function(id) {
-  const el = document.getElementById(id);
-  el.stepDown();
-  computeAllTotals();
-};
-
   </style>
 </head>
 <body>
 <div class="sheet-container">
-  <div id="loginForm" class="top-row">
-    <div class="login-controls">
-      <input id="email" type="email" placeholder="Email">
-      <input id="password" type="password" placeholder="Password">
-      <button onclick="signIn()">Sign In</button>
-      <button onclick="signUp()">Sign Up</button>
-    </div>
-  </div>
-  <div id="accountControls" class="top-row" style="display:none;">
-    <div class="admin-controls">
-      <button onclick="signOutUser()">Sign Out</button>
-      <button onclick="deleteAccount()">Delete Account</button>
-      <button onclick="saveCharacter()">Save</button>
-      <button onclick="loadCharacter()">Load</button>
-      <label>Saved <select id="characterSelect"><option value="">--Select--</option></select></label>
-      <button onclick="deleteCharacter()">Delete Character</button>
-    </div>
-  </div>
-  
-  <div class="char-block">
-    <div class="fixed-row">
-      <label>Character Name<input id="charName" type="text" maxlength="30"></label>
-      <label>Age Group<input id="ageGroup" type="text" maxlength="10" style="width:100px;"></label>
-      <label>Gender<input id="gender" type="text" maxlength="15" style="width:100px;"></label>
+  <!-- LOGIN FORM and Admin Controls -->
+  <div id="loginForm" class="top-row"><div class="login-controls"><input id="email"type="email"placeholder="Email"><input id="password"type="password"placeholder="Password"><button onclick="signIn()">Sign In</button><button onclick="signUp()">Sign Up</button></div></div>
+  <div id="accountControls" class="top-row" style="display:none;"><div class="admin-controls"><button onclick="signOutUser()">Sign Out</button><button onclick="deleteAccount()">Delete Account</button><button onclick="saveCharacter()">Save</button><button onclick="loadCharacter()">Load</button><label>Saved <select id="characterSelect"><option value="">--Select--</option></select></label><button onclick="deleteCharacter()">Delete Character</button></div></div>
+  <!-- Character Info -->
+  <div class="char-block"><div class="fixed-row"><label>Character Name<input id="charName"type="text"maxlength="30"></label><label>Age Group<input id="ageGroup"type="text"maxlength="10"style="width:100px;"></label><label>Gender<input id="gender"type="text"maxlength="15"style="width:100px;"></label><label>XP<input id="xp"type="number"value="0"style="width:50px;"></label></div><div class="fixed-row"><label>Archetype 1<input id="archetype1"type="text"maxlength="20"style="width:150px;"></label><label>Archetype 2<input id="archetype2"type="text"maxlength="20"style="width:150px;"></label></div><div class="fixed-row"><label>Profession 1<input id="profession1"type="text"maxlength="20"style="width:150px;"></label><label>Profession 2<input id="profession2"type="text"maxlength="20"style="width:150px;"></label></div></div>
 
-    </div>
-    <div class="fixed-row">
-      <label>Archetype 1<input id="archetype1" type="text" maxlength="20" style="width:150px;"></label>
-      <label>Archetype 2<input id="archetype2" type="text" maxlength="20" style="width:150px;"></label>
-    </div>
-    <div class="fixed-row">
-      <label>Profession 1<input id="profession1" type="text" maxlength="20" style="width:150px;"></label>
-      <label>Profession 2<input id="profession2" type="text" maxlength="20" style="width:150px;"></label>
-	  <label>XP<input id="xp" type="number" value="0" style="width:50px;"></label>
-    </div>
-  </div>
-  
-  <!-- Four attribute boxes -->
-  <!-- Brawn (current attribute drives totals) -->
+  <!-- ATTRIBUTE BOXES -->
+  <!-- Brawn -->
   <div class="attribute-box" id="box-brawn">
     <h3>Brawn</h3>
-    <div class="attr-icon-container">
-      <img src="img/GXD6 BRAWN LOGO.png" alt="Brawn">
-      <div class="pip-labels"><div>Base</div><div>Current</div></div>
-      <div class="pips">
-	<span class="pip-base">
-  <input id="brawn" type="number" min="1" max="5" value="1">
-  <img src="img/lock_open.png" id="lock-brawn" class="lock-icon"
-       title="Toggle lock" onclick="toggleLock('brawn')" />
-	</span>
-        <span class="pip-current"><input id="brawnCurrent" type="number" min="0" max="5" value="0">
-	<div class="trauma-controls"><button onclick="stepUpField('brawnCurrent')">+</button><button onclick="stepDownField('brawnCurrent')">-</button></div>
-	</span>
-      </div>
-    </div>
-    <div class="skills-grid" data-attr="brawn">
-      <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-      <div><input type="checkbox" id="endurance_key"></div><div>Endurance</div>
-      <div><input id="endurance_lvl" type="number" value="0" min="0"></div>
-      <div><input id="endurance_mod" type="number" value="0"></div>
-      <div><input id="endurance_total" type="number" readonly value="0"></div>
-      <div><input type="checkbox" id="fight_key"></div><div>Fight</div>
-      <div><input id="fight_lvl" type="number" value="0"></div><div><input id="fight_mod" type="number" value="0"></div><div><input id="fight_total" type="number" readonly value="0"></div>
-      <div><input type="checkbox" id="might_key"></div><div>Might</div>
-      <div><input id="might_lvl" type="number" value="0"></div><div><input id="might_mod" type="number" value="0"></div><div><input id="might_total" type="number" readonly value="0"></div>
-    </div>
+    <div class="attr-icon-container"><img src="img/GXD6 BRAWN LOGO.png" alt="Brawn"><div class="pip-labels"><div>Base</div><div>Current</div></div><div class="pips"><span class="pip-base"><input id="brawn"type="number"min="1"max="5"value="1"><img id="lock-brawn" class="lock-icon"src="img/lock_open.png"title="Toggle lock"onclick="toggleLock('brawn')"></span><span class="pip-current"><input id="brawnCurrent"type="number"min="0"max="5"value="0"><div class="trauma-controls"><button onclick="stepUpField('brawnCurrent')">+</button><button onclick="stepDownField('brawnCurrent')">−</button></div></span></div></div>
+    <div class="skills-grid" data-attr="brawn"><div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div><div><input type="checkbox"id="endurance_key"></div><div>Endurance</div><div><input id="endurance_lvl"type="number"value="0"></div><div><input id="endurance_mod"type="number"value="0"></div><div><input id="endurance_total"type="number"readonly value="0"></div><div><input type="checkbox"id="fight_key"></div><div>Fight</div><div><input id="fight_lvl"type="number"value="0"></div><div><input id="fight_mod"type="number"value="0"></div><div><input id="fight_total"type="number"readonly value="0"></div><div><input type="checkbox"id="might_key"></div><div>Might</div><div><input id="might_lvl"type="number"value="0"></div><div><input id="might_mod"type="number"value="0"></div><div><input id="might_total"type="number"readonly value="0"></div></div>
   </div>
   <!-- Agility -->
-   <div class="attribute-box" id="box-agility">
+  <div class="attribute-box" id="box-agility">
     <h3>Agility</h3>
-    <div class="attr-icon-container">
-      <img src="img/GXD6 AGILITY LOGO.png" alt="agility">
-      <div class="pip-labels"><div>Base</div><div>Current</div></div>
-      <div class="pips">
-	<span class="pip-base">
-  <input id="agility" type="number" min="1" max="5" value="1">
-  <img src="img/lock_open.png" id="lock-agility" class="lock-icon"
-       title="Toggle lock" onclick="toggleLock('agility')" />
-	</span>
-        <span class="pip-current"><input id="agilityCurrent" type="number" min="0" max="5" value="0">
-	<div class="trauma-controls"><button onclick="stepUpField('agilityCurrent')">+</button><button onclick="stepDownField('agilityCurrent')">-</button></div>
-	</span>
-      </div>
-    </div>
-    <div class="skills-grid" data-attr="agility">
-      <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-      <div><input type="checkbox" id="marksmanship_key"/></div><div>Marksmanship</div>
-      <div><input id="marksmanship_lvl" type="number" value="0"></div><div><input id="marksmanship_mod" type="number" value="0"></div><div><input id="marksmanship_total" type="number" readonly value="0"/></div>
-      <div><input type="checkbox" id="mobility_key"/></div><div>Mobility</div>
-      <div><input id="mobility_lvl" type="number" value="0"></div><div><input id="mobility_mod" type="number" value="0"></div><div><input id="mobility_total" type="number" readonly value="0"/></div>
-      <div><input type="checkbox" id="precision_key"/></div><div>Precision</div>
-      <div><input id="precision_lvl" type="number" value="0"></div><div><input id="precision_mod" type="number" value="0"></div><div><input id="precision_total" type="number" readonly value="0"/></div>
-    </div>
+    <div class="attr-icon-container"><img src="img/GXD6 AGILITY LOGO.png" alt="Agility"><div class="pip-labels"><div>Base</div><div>Current</div></div><div class="pips"><span class="pip-base"><input id="agility"type="number"min="1"max="5"value="1"><img id="lock-agility"class="lock-icon"src="img/lock_open.png"title="Toggle lock"onclick="toggleLock('agility')"></span><span class="pip-current"><input id="agilityCurrent"type="number"min="0"max="5"value="0"><div class="trauma-controls"><button onclick="stepUpField('agilityCurrent')">+</button><button onclick="stepDownField('agilityCurrent')">−</button></div></span></div></div>
+    <div class="skills-grid" data-attr="agility"><div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div><div><input type="checkbox"id="marksmanship_key"></div><div>Marksmanship</div><div><input id="marksmanship_lvl"type="number"value="0"></div><div><input id="marksmanship_mod"type="number"value="0"></div><div><input id="marksmanship_total"type="number"readonly value="0"></div><div><input type="checkbox"id="mobility_key"></div><div>Mobility</div><div><input id="mobility_lvl"type="number"value="0"></div><div><input id="mobility_mod"type="number"value="0"></div><div><input id="mobility_total"type="number"readonly value="0"></div><div><input type="checkbox"id="precision_key"></div><div>Precision</div><div><input id="precision_lvl"type="number"value="0"></div><div><input id="precision_mod"type="number"value="0"></div><div><input id="precision_total"type="number"readonly value="0"></div></div>
   </div>
-
   <!-- Wits -->
-<div class="attribute-box" id="box-wits">
+  <div class="attribute-box" id="box-wits">
     <h3>Wits</h3>
-    <div class="attr-icon-container">
-      <img src="img/GXD6 WITS LOGO.png" alt="wits">
-      <div class="pip-labels"><div>Base</div><div>Current</div></div>
-      <div class="pips">
-	<span class="pip-base">
-  <input id="wits" type="number" min="1" max="5" value="1">
-  <img src="img/lock_open.png" id="lock-wits" class="lock-icon"
-       title="Toggle lock" onclick="toggleLock('wits')" />
-	</span>
-        <span class="pip-current"><input id="witsCurrent" type="number" min="0" max="5" value="0">
-	<div class="trauma-controls"><button onclick="stepUpField('witsCurrent')">+</button><button onclick="stepDownField('witsCurrent')">-</button></div>
-	</span>
-      </div>
-    </div>
-    <div class="skills-grid" data-attr="wits">
-      <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-      <div><input type="checkbox" id="heal_key"/></div><div>Heal</div><div><input id="heal_lvl" type="number" value="0"></div><div><input id="heal_mod" type="number" value="0"></div><div><input id="heal_total" type="number" readonly value="0"/></div>
-      <div><input type="checkbox" id="insight_key"/></div><div>Insight</div><div><input id="insight_lvl" type="number" value="0"></div><div><input id="insight_mod" type="number" value="0"></div><div><input id="insight_total" type="number" readonly value="0"/></div>
-      <div><input type="checkbox" id="logic_key"/></div><div>Logic</div><div><input id="logic_lvl" type="number" value="0"></div><div><input id="logic_mod" type="number" value="0"></div><div><input id="logic_total" type="number" readonly value="0"/></div>
-      <div><input type="checkbox" id="survival_key"/></div><div>Survival</div><div><input id="survival_lvl" type="number" value="0"></div><div><input id="survival_mod" type="number" value="0"></div><div><input id="survival_total" type="number" readonly value="0"/></div>
-      <div><input type="checkbox" id="vigilance_key"/></div><div>Vigilance</div><div><input id="vigilance_lvl" type="number" value="0"></div><div><input id="vigilance_mod" type="number" value="0"></div><div><input id="vigilance_total" type="number" readonly value="0"/></div>
-    </div>
+    <div class="attr-icon-container"><img src="img/GXD6 WITS LOGO.png" alt="Wits"><div class="pip-labels"><div>Base</div><div>Current</div></div><div class="pips"><span class="pip-base"><input id="wits"type="number"min="1"max="5"value="1"><img id="lock-wits"class="lock-icon"src="img/lock_open.png"title="Toggle lock"onclick="toggleLock('wits')"></span><span class="pip-current"><input id="witsCurrent"type="number"min="0"max="5"value="0"><div class="trauma-controls"><button onclick="stepUpField('witsCurrent')">+</button><button onclick="stepDownField('witsCurrent')">−</button></div></span></div></div>
+    <div class="skills-grid" data-attr="wits"><div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div><div><input type="checkbox"id="heal_key"></div><div>Heal</div><div><input id="heal_lvl"type="number"value="0"></div><div><input id="heal_mod"type="number"value="0"></div><div><input id="heal_total"type="number"readonly value="0"></div><div><input type="checkbox"id="insight_key"></div><div>Insight</div><div><input id="insight_lvl"type="number"value="0"></div><div><input id="insight_mod"type="number"value="0"></div><div><input id="insight_total"type="number"readonly value="0"></div><div><input type="checkbox"id="logic_key"></div><div>Logic</div><div><input id="logic_lvl"type="number"value="0"></div><div><input id="logic_mod"type="number"value="0"></div><div><input id="logic_total"type="number"readonly value="0"></div><div><input type="checkbox"id="survival_key"></div><div>Survival</div><div><input id="survival_lvl"type="number"value="0"></div><div><input id="survival_mod"type="number"value="0"></div><div><input id="survival_total"type="number"readonly value="0"></div><div><input type="checkbox"id="vigilance_key"></div><div>Vigilance</div><div><input id="vigilance_lvl"type="number"value="0"></div><div><input id="vigilance_mod"type="number"value="0"></div><div><input id="vigilance_total"type="number"readonly value="0"></div></div>
   </div>
-
   <!-- Will -->
   <div class="attribute-box" id="box-will">
     <h3>Will</h3>
-    <div class="attr-icon-container">
-      <img src="img/GXD6 WILL LOGO.png" alt="Will">
-      <div class="pip-labels"><div>Base</div><div>Current</div></div>
-      <div class="pips">
-      <span class="pip-base">
-  <input id="will" type="number" min="1" max="5" value="1">
-  <img src="img/lock_open.png" id="lock-will" class="lock-icon"
-       title="Toggle lock" onclick="toggleLock('will')" />
-</span>
-
-        <span class="pip-current"><input id="willCurrent" type="number" min="0" max="5" value="0"><div class="trauma-controls"><button onclick="stepUpField('willCurrent')">+</button><button onclick="stepDownField('willCurrent')">-</button></div></span>
-      </div>
-    </div>
-    <div class="skills-grid" data-attr="will">
-      <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-      <div><input type="checkbox" id="inspire_key"/></div><div>Inspire</div><div><input id="inspire_lvl" type="number" value="0"></div><div><input id="inspire_mod" type="number" value="0"></div><div><input id="inspire_total" type="number" readonly value="0"/></div>
-      <div><input type="checkbox" id="manipulate_key"/></div><div>Manipulate</div><div><input id="manipulate_lvl" type="number" value="0"></div><div><input id="manipulate_mod" type="number" value="0"></div><div><input id="manipulate_total" type="number" readonly value="0"/></div>
-      <div><input type="checkbox" id="resolve_key"/></div><div>Resolve</div><div><input id="resolve_lvl" type="number" value="0"></div><div><input id="resolve_mod" type="number" value="0"></div><div><input id="resolve_total" type="number" readonly value="0"/></div>
-    </div>
+    <div class="attr-icon-container"><img src="img/GXD6 WILL LOGO.png" alt="Will"><div class="pip-labels"><div>Base</div><div>Current</div></div><div class="pips"><span class="pip-base"><input id="will"type="number"min="1"max="5"value="1"><img id="lock-will"class="lock-icon"src="img/lock_open.png"title="Toggle lock"onclick="toggleLock('will')"></span><span class="pip-current"><input id="willCurrent"type="number"min="0"max="5"value="0"><div class="trauma-controls"><button onclick="stepUpField('willCurrent')">+</button><button onclick="stepDownField('willCurrent')">−</button></div></span></div></div>
+    <div class="skills-grid" data-attr="will"><div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div><div><input type="checkbox"id="inspire_key"></div><div>Inspire</div><div><input id="inspire_lvl"type="number"value="0"></div><div><input id="inspire_mod"type="number"value="0"></div><div><input id="inspire_total"type="number"readonly value="0"></div><div><input type="checkbox"id="manipulate_key"></div><div>Manipulate</div><div><input id="manipulate_lvl"type="number"value="0"></div><div><input id="manipulate_mod"type="number"value="0"></div><div><input id="manipulate_total"type="number"readonly value="0"></div><div><input type="checkbox"id="resolve_key"></div><div>Resolve</div><div><input id="resolve_lvl"type="number"value="0"></div><div><input id="resolve_mod"type="number"value="0"></div><div><input id="resolve_total"type="number"readonly value="0"></div></div>
   </div>
 </div>
 
@@ -252,51 +108,45 @@ window.stepDownField = function(id) {
     const snap = await getDocs(collection(db, 'users', uid, 'characters'));
     characterSelectEl.innerHTML = '<option value="">--Select--</option>';
     snap.forEach(d => {
-      const opt = document.createElement('option'); opt.value = d.id; opt.text = d.id;
+      const opt = document.createElement('option');
+      opt.value = d.id;
+      opt.text = d.id;
       characterSelectEl.appendChild(opt);
     });
   }
 
+  // Firebase sign-in / sign-up / save / load handlers
   window.signUp = async () => {
     const email = document.getElementById('email').value;
     const pw = document.getElementById('password').value;
     await createUserWithEmailAndPassword(auth, email, pw);
     alert('Signed up!');
   };
-
   window.signIn = async () => {
     const email = document.getElementById('email').value;
     const pw = document.getElementById('password').value;
     await signInWithEmailAndPassword(auth, email, pw);
     alert('Signed in!');
   };
-
-  window.signOutUser = async () => {
-    await signOut(auth);
-    alert('Signed out');
-  };
-
+  window.signOutUser = async () => { await signOut(auth); alert('Signed out'); };
   window.deleteAccount = async () => {
     if (auth.currentUser && confirm('Delete account and characters?')) {
       await deleteUser(auth.currentUser);
       alert('Account deleted');
     }
   };
-
   window.saveCharacter = async () => {
     const user = auth.currentUser;
     const name = document.getElementById('charName').value.trim();
     if (!user || !name) return alert('Sign in & name required');
-    const data = { name };
-    document.querySelectorAll('.sheet-container input, .sheet-container textarea, .sheet-container select').forEach(el => {
-      if (!el.id || el.id==='email'||el.id==='password') return;
+    const data = {};
+    document.querySelectorAll('.sheet-container input, .sheet-container select').forEach(el => {
+      if (!el.id || el.id.startsWith('lock')) return;
       data[el.id] = el.type==='checkbox' ? el.checked : el.value;
     });
     await setDoc(doc(db, 'users', user.uid, 'characters', name), data);
-    alert('Saved');
-    populateCharacterList(user.uid);
+    alert('Saved'); populateCharacterList(user.uid);
   };
-
   window.loadCharacter = async () => {
     const user = auth.currentUser;
     if (!user) return alert('Sign in first');
@@ -305,13 +155,12 @@ window.stepDownField = function(id) {
     const snap = await getDoc(doc(db, 'users', user.uid, 'characters', id));
     if (!snap.exists()) return alert('Not found');
     const data = snap.data();
-    document.querySelectorAll('.sheet-container input, .sheet-container textarea, .sheet-container select').forEach(el => {
-      if (!el.id || el.id==='email'||el.id==='password') return;
-      if (data[el.id] !== undefined) el.type==='checkbox' ? el.checked = data[el.id] : el.value = data[el.id];
+    Object.keys(data).forEach(k => {
+      const el = document.getElementById(k);
+      if (el && !k.startsWith('lock')) el.type==='checkbox' ? el.checked = data[k] : el.value = data[k];
     });
     alert('Loaded');
   };
-
   window.deleteCharacter = async () => {
     const user = auth.currentUser;
     const name = characterSelectEl.value;
@@ -323,76 +172,48 @@ window.stepDownField = function(id) {
     }
   };
 
-window.toggleLock = id => {
-  const field = document.getElementById(id);
-  const icon = document.getElementById(`lock-${id}`);
-  if (!field || !icon) return;
-
-  const nowLocked = !field.disabled;
-  field.disabled = nowLocked;
-
-  // Swap the icon
-  icon.src = nowLocked ? 'img/lock.png' : 'img/lock_open.png';
-
-  // Optional visual feedback
-  field.style.opacity = nowLocked ? 0.6 : 1;
-};
-
-
-function stepUpField(id) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.stepUp();
+  window.toggleLock = id => {
+    const field = document.getElementById(id);
+    const icon = document.getElementById(`lock-${id}`);
+    if (!field || !icon) return;
+    const locked = !field.disabled;
+    field.disabled = locked;
+    icon.src = locked ? 'img/lock.png' : 'img/lock_open.png';
+    field.style.opacity = locked ? 0.6 : 1;
+  };
+  window.stepUpField = id => {
+    document.getElementById(id)?.stepUp();
     computeAllTotals();
-  }
-}
-
-function stepDownField(id) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.stepDown();
+  };
+  window.stepDownField = id => {
+    document.getElementById(id)?.stepDown();
     computeAllTotals();
-  }
-}
+  };
 
-function computeAllTotals() {
-  document.querySelectorAll('.skills-grid').forEach(grid => {
-    const attr = grid.dataset.attr;
-    const currentAttr = +document.getElementById(`${attr}Current`)?.value || 0;
-
-    grid.querySelectorAll('input[type="number"]').forEach(inp => {
-      const id = inp.id;
-      if (id.endsWith('_lvl') || id.endsWith('_mod')) {
-        const skill = id.slice(0, id.lastIndexOf('_'));
-        const lvl = +document.getElementById(`${skill}_lvl`)?.value || 0;
-        const mod = +document.getElementById(`${skill}_mod`)?.value || 0;
-        const total = document.getElementById(`${skill}_total`);
-        if (total) total.value = currentAttr + lvl + mod;
-      }
+  function computeAllTotals() {
+    document.querySelectorAll('.skills-grid').forEach(grid => {
+      const attr = grid.dataset.attr;
+      const curr = +document.getElementById(`${attr}Current`)?.value || 0;
+      grid.querySelectorAll('input[type="number"]').forEach(inp => {
+        const id = inp.id;
+        if (id.endsWith('_lvl') || id.endsWith('_mod')) {
+          const skill = id.replace(/(_lvl|_mod)$/, '');
+          const lvl = +document.getElementById(`${skill}_lvl`)?.value || 0;
+          const mod = +document.getElementById(`${skill}_mod`)?.value || 0;
+          const totEl = document.getElementById(`${skill}_total`);
+          if (totEl) totEl.value = curr + lvl + mod;
+        }
+      });
     });
+  }
+
+  ['brawn','agility','wits','will'].forEach(attr => {
+    document.getElementById(`${attr}Current`)?.addEventListener('input', computeAllTotals);
+    document.querySelectorAll(`.skills-grid[data-attr="${attr}"] input[id$="_lvl"], .skills-grid[data-attr="${attr}"] input[id$="_mod"]`)
+      .forEach(i => i.addEventListener('input', computeAllTotals));
   });
-}
 
-
-// Setup event listeners:
-['brawn','agility','wits','will'].forEach(attr => {
-  const currentInput = document.getElementById(`${attr}Current`);
-  if (currentInput) currentInput.addEventListener('input', computeAllTotals);
-
-  document.querySelectorAll(`#${attr}_lvl, #${attr}_mod`).forEach(el =>
-    el.addEventListener('input', computeAllTotals)
-  );
-
-  const grid = document.querySelector(`.skills-grid[data-attr="${attr}"]`);
-  if (grid) {
-    grid.querySelectorAll('input[id$="_lvl"], input[id$="_mod"]').forEach(input => {
-      input.addEventListener('input', computeAllTotals);
-    });
-  }
-});
-
-computeAllTotals();
-
+  computeAllTotals();
 </script>
 </body>
 </html>
