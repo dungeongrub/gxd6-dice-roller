@@ -92,63 +92,53 @@ button {
 
 /*NEW Character Info CSS*/
 
-.char-info-left {
+.char-info-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.char-box {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.char-row {
+.inline-row {
   display: flex;
-  gap: 20px;
+  gap: 10px;
 }
 
-.char-row label {
-  display: flex;
-  flex-direction: column;
-  font-family: 'Dominican', serif;
-}
-
-.char-row input[type="text"] {
-  width: 180px;
-}
-
-.attribute-profession-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
-.archetype-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px 10px; /* row-gap 2px, column-gap 10px */
-}
-
-.archetype-grid label {
+.inline-row label {
+  font-family: 'DominicanSmall', serif;
   display: flex;
   flex-direction: column;
-  font-family: 'Dominican', serif;
 }
 
-.archetype-grid input[type="text"] {
-  width: 150px;
+.inline-row input {
+  font-family: 'Dominican', serif;
+  font-size: 14px;
+  padding: 3px 6px;
+  width: 140px;
+  box-sizing: border-box;
+}
+
+#charName {
+  width: 220px;
+}
+#origin {
+  width: 220px;
+}
+#xp {
+  width: 60px;
+  text-align: center;
 }
 
 .xp-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Dominican', serif;
-  margin-left: 20px;
-}
-
-.xp-box input {
-  width: 50px;
-  text-align: center;
-  font-family: 'DeutschGothic', monospace;
+  margin-top: 32px; /* centers XP between Box 1 and Box 2 */
+  font-family: 'DominicanSmall', serif;
 }
 
 
@@ -219,47 +209,34 @@ button {
 </div>
   
   <!-- Character Info -->
-<div class="char-block">
-  <!-- Top Left Section -->
-  <div class="char-info-left">
-    <div class="char-row">
-      <label>Character Name
-        <input id="charName" type="text" maxlength="30">
-      </label>
-      <label>Age Group
-        <input id="ageGroup" type="text" maxlength="10">
-      </label>
+<div class="char-info-container">
+  <!-- Box 1: Left -->
+  <div class="char-box char-box-1">
+    <div class="inline-row">
+      <label>Character Name<input id="charName" type="text" maxlength="30"></label>
+      <label>Age Group<input id="ageGroup" type="text" maxlength="10"></label>
     </div>
-    <div class="char-row">
-      <label>Gender
-        <input id="gender" type="text" maxlength="15">
-      </label>
-      <label>Country/Region
-        <input id="origin" type="text" maxlength="40">
-      </label>
+    <div class="inline-row">
+      <label>Country/Region of Origin<input id="origin" type="text" maxlength="40"></label>
+      <label>Gender<input id="gender" type="text" maxlength="15"></label>
     </div>
   </div>
-  
-  <!-- Archetypes + Professions + XP Row -->
-  <div class="attribute-profession-row">
-    <div class="archetype-grid">
-      <label>Archetype 1
-        <input id="archetype1" type="text" maxlength="20">
-      </label>
-      <label>Archetype 2
-        <input id="archetype2" type="text" maxlength="20">
-      </label>
-      <label>Profession 1
-        <input id="profession1" type="text" maxlength="20">
-      </label>
-      <label>Profession 2
-        <input id="profession2" type="text" maxlength="20">
-      </label>
+
+  <!-- Box 2: Center -->
+  <div class="char-box char-box-2">
+    <div class="inline-row">
+      <label>Archetype 1<input id="archetype1" type="text" maxlength="20"></label>
+      <label>Profession 1<input id="profession1" type="text" maxlength="20"></label>
     </div>
-    <div class="xp-box">
-      <label for="xp">XP</label>
-      <input id="xp" type="number" value="0">
+    <div class="inline-row">
+      <label>Archetype 2<input id="archetype2" type="text" maxlength="20"></label>
+      <label>Profession 2<input id="profession2" type="text" maxlength="20"></label>
     </div>
+  </div>
+
+  <!-- Box 3: Right, Centered Vertically -->
+  <div class="xp-box">
+    <label>XP<input id="xp" type="number" value="0"></label>
   </div>
 </div>
 
