@@ -75,11 +75,10 @@ button {
 
 /* === Attribute pip styles === */
 .pip-base, .pip-current {
-  width: 35px;
-  height: 35px;
-  border: 2px solid #000;
-  border-radius: 50%;
-  background: #fff;
+  width: 20px;
+  height: 22px;
+  border: none
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,9 +87,9 @@ button {
 
 .pip-base input,
 .pip-current input {
-  width: 35px;
-  height: 35px;
-  font-size: 22px;
+  width: 20px;
+  height: 22px;
+  font-size: 20px;
   border: none;
   background: transparent;
   text-align: center;
@@ -173,6 +172,26 @@ button {
 
 /* Debug: outlines overlays */
 .canvas-debug .abs { outline: 1px dashed rgba(0,0,0,.25); }
+
+/* live coordinate badge */
+.coord-badge{
+  position:absolute;
+  z-index:9999;
+  background:rgba(0,0,0,.75);
+  color:#fff;
+  font:12px/1.2 'DominicanSmall',serif;
+  padding:2px 6px;
+  border-radius:3px;
+  pointer-events:none;
+  white-space:nowrap;
+  transform:translate(-2px, -18px); /* above the element */
+}
+
+/* highlight the selected overlay while debugging */
+.canvas-debug .abs.selected{
+  outline:2px solid #4caf50;
+}
+
 
 /* Tabs */
 .tabBtn.active { background:#333; color:#fff; }
@@ -380,6 +399,138 @@ window.deleteCharacter=async()=>{
   if(!user||!name)return alert('Select a character');
   if(confirm(`Delete "${name}"?`)){await deleteDoc(doc(db,'users',user.uid,'characters',name));alert('Deleted');populateCharacterList(user.uid);}
 };
+</script>
+
+<script>
+(() => {
+  let debug = false;
+  let dragTarget = null;
+  let selected = null; // last clicked/dragged .abs
+  let offsetX = 0, offsetY = 0;
+  const canvas = document.getElementById('mainCanvas');
+  if (!canvas) return;
+
+  // ——— Helpers ———
+  const px = n => (typeof n === 'number' ? `${n}px` : n);
+  const getPx = (el, varName) => {
+    const v = el.style.getPropertyValue(varName).trim();
+    return v.endsWith('px') ? parseFloat(v) : (v ? parseFloat(v) : 0);
+  };
+  const setXY = (el, x, y) => {
+    el.style.setProperty('--x', px(x));
+    el.style.setProperty('--y', px(y));
+    updateBadge(el);
+  };
+
+  function ensureBadge(el){
+    let b = el._badge;
+    if (!b){
+      b = document.createElement('div');
+      b.className = 'coord-badge';
+      el._badge = b;
+      canvas.appendChild(b);
+    }
+    updateBadge(el);
+  }
+  function updateBadge(el){
+    const b = el._badge;
+    if (!b) return;
+    const x = getPx(el,'--x'), y = getPx(el,'--y');
+    b.textContent = `${el.id || el.tagName}  (${x}, ${y})`;
+    b.style.left = el.offsetLeft + 'px';
+    b.style.top  = el.offsetTop  + 'px';
+  }
+  function attachBadges(){
+    canvas.querySelectorAll('.abs').forEach(el => ensureBadge(el));
+    alert('DEBUG ON: click to select, drag or use arrow keys (1px). Shift=5px, Ctrl=10px. Press D to exit.');
+  }
+  function removeBadges(){
+    canvas.querySelectorAll('.abs').forEach(el => {
+      if (el._badge){ el._badge.remove(); el._badge = null; }
+      el.classList.remove('selected');
+    });
+  }
+  function clampToCanvas(el, x, y){
+    const maxX = canvas.clientWidth  - el.offsetWidth;
+    const maxY = canvas.clientHeight - el.offsetHeight;
+    return [ Math.max(0, Math.min(x, maxX)), Math.max(0, Math.min(y, maxY)) ];
+  }
+  function selectEl(el){
+    if (selected) selected.classList.remove('selected');
+    selected = el;
+    if (debug && selected) selected.classList.add('selected');
+  }
+
+  // ——— Toggle debug ———
+  document.addEventListener('keydown', e => {
+    if (e.key.toLowerCase() !== 'd') return;
+    debug = !debug;
+    canvas.classList.toggle('canvas-debug', debug);
+    if (debug) attachBadges();
+    else removeBadges();
+  });
+
+  // ——— Click to select ———
+  canvas.addEventListener('mousedown', e => {
+    if (!debug) return;
+    const target = e.target.closest('.abs');
+    if (!target) return;
+    selectEl(target);
+    // start drag if mouse down on element (but ignore inputs’ text selection)
+    if (e.button === 0) {
+      dragTarget = target;
+      offsetX = e.clientX - target.offsetLeft;
+      offsetY = e.clientY - target.offsetTop;
+      // prevent input focus while dragging
+      if (e.target.tagName !== 'INPUT') e.preventDefault();
+    }
+  });
+
+  // ——— Drag ———
+  document.addEventListener('mousemove', e => {
+    if (!debug || !dragTarget) return;
+    const rect = canvas.getBoundingClientRect();
+    let newX = e.clientX - rect.left - offsetX;
+    let newY = e.clientY - rect.top  - offsetY;
+    [newX, newY] = clampToCanvas(dragTarget, newX, newY);
+    setXY(dragTarget, newX, newY);
+  });
+
+  // ——— End drag ———
+  document.addEventListener('mouseup', () => {
+    if (dragTarget){
+      const x = getPx(dragTarget,'--x'), y = getPx(dragTarget,'--y');
+      console.log(`${dragTarget.id || dragTarget.tagName} -> ${x}px, ${y}px`);
+    }
+    dragTarget = null;
+  });
+
+  // ——— Arrow-key nudging ———
+  document.addEventListener('keydown', e => {
+    if (!debug || !selected) return;
+
+    // Only handle arrow keys
+    const ARROWS = ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'];
+    if (!ARROWS.includes(e.key)) return;
+
+    // Don’t scroll page with arrows
+    e.preventDefault();
+
+    const base = 1;
+    const step = e.ctrlKey ? 10 : (e.shiftKey ? 5 : base);
+    let x = getPx(selected,'--x');
+    let y = getPx(selected,'--y');
+
+    if (e.key === 'ArrowLeft')  x -= step;
+    if (e.key === 'ArrowRight') x += step;
+    if (e.key === 'ArrowUp')    y -= step;
+    if (e.key === 'ArrowDown')  y += step;
+
+    [x, y] = clampToCanvas(selected, x, y);
+    setXY(selected, x, y);
+  });
+
+})();
 </script>
 </body>
 </html>
