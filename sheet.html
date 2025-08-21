@@ -228,12 +228,13 @@ button {
   <div class="sheet-canvas" id="mainCanvas">
 
     <!-- Character Info -->
-    <input id="charName" class="abs" type="text" maxlength="40" style="--x:28px; --y:121px; --w:230px;" />
-    <input id="ageGroup" class="abs" type="text" maxlength="20" style="--x:265px; --y:121px; --w:100px;" />
-    <input id="gender" class="abs" type="text" maxlength="20" style="--x:382px; --y:121px; --w:100px;" />
-    <input id="origin" class="abs" type="text" maxlength="60" style="--x:482px; --y:121px; --w:240px;" />
+    <input id="charName" class="abs" type="text" maxlength="40" style="--x:28px; --y:121px; --w:210px;" />
+    <input id="ageGroup" class="abs" type="text" maxlength="20" style="--x:262px; --y:121px; --w:90px;" />
+    <input id="gender" class="abs" type="text" maxlength="20" style="--x:382px; --y:121px; --w:90px;" />
+    <input id="origin" class="abs" type="text" maxlength="60" style="--x:482px; --y:121px; --w:250px;" />
 
     <!-- Attributes -->
+<!-- BRAWN -->
     <span class="pip-base abs" style="--x:127px; --y:210px;">
       <input id="brawn" type="number" min="1" max="5" value="1">
       <img id="lock-brawn" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('brawn')">
@@ -245,7 +246,7 @@ button {
         <button onclick="stepDownField('brawnCurrent')">−</button>
       </div>
     </span>
-
+<!-- AGILITY -->
     <span class="pip-base abs" style="--x:127px; --y:345px;">
       <input id="agility" type="number" min="1" max="5" value="1">
       <img id="lock-agility" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('agility')">
@@ -257,7 +258,7 @@ button {
         <button onclick="stepDownField('agilityCurrent')">−</button>
       </div>
     </span>
-
+<!-- WITS -->
     <span class="pip-base abs" style="--x:127px; --y:480px;">
       <input id="wits" type="number" min="1" max="5" value="1">
       <img id="lock-wits" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('wits')">
@@ -269,12 +270,12 @@ button {
         <button onclick="stepDownField('witsCurrent')">−</button>
       </div>
     </span>
-
-    <span class="pip-base abs" style="--x:130px; --y:615px;">
+<!-- WILL -->
+    <span class="pip-base abs" style="--x:127px; --y:665px;">
       <input id="will" type="number" min="1" max="5" value="1">
       <img id="lock-will" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('will')">
     </span>
-    <span class="pip-current abs" style="--x:195px; --y:615px;">
+    <span class="pip-current abs" style="--x:191px; --y:665px;">
       <input id="willCurrent" type="number" min="0" max="5" value="0">
       <div class="trauma-controls">
         <button onclick="stepUpField('willCurrent')">+</button>
@@ -284,7 +285,7 @@ button {
 
     <!-- Tabs box -->
     <div id="tabBox" class="abs"
-      style="--x:270px; --y:365Dpx; --w:440px; --h:410px;
+      style="--x:278px; --y:331px; --w:440px; --h:430px;
              background:transparent; border:none; padding:5px;">
       <div style="display:flex; gap:8px; margin-bottom:8px;">
         <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
