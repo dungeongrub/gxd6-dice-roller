@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,7 +40,6 @@ input, select {
 
 input[type="text"] {
   font-family: 'Dominican', serif;
-  font-size: 14px;
 }
 
 input[type=number] {
@@ -50,11 +48,9 @@ input[type=number] {
   text-align: center;
   -moz-appearance: textfield;
 }
-
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
-  margin: 0;
 }
 
 button {
@@ -77,55 +73,7 @@ button {
   gap: 10px;
 }
 
-/* ===== Attribute box styles ===== */
-.attribute-box {
-  width: 270px;
-  background: rgba(255,255,255,0.9);
-  padding: 5px;
-  margin-bottom: 20px;
-  border: 1px solid #000;
-  position: relative;
-  box-sizing: border-box;
-}
-
-.attribute-box h3 {
-  text-align: left;
-  font-size: 16px;
-  margin: 0 0 5px;
-}
-
-.attr-icon-container {
-  position: relative;
-  margin-bottom: 5px;
-  text-align: left;
-}
-
-.attr-icon-container img {
-  width: 32%;
-  vertical-align: top;
-}
-
-.pip-labels {
-  position: absolute;
-  top: 20px;
-  left: calc(10% + 60px);
-  width: 80px; /* 35px pip + 10px gap + 35px pip */
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  font-family: 'DominicanSmall', serif;
-  text-align: center;
-  pointer-events: none;
-}
-
-.pips {
-  position: absolute;
-  top: 38px;
-  left: calc(10% + 60px);
-  display: flex;
-  gap: 10px;
-}
-
+/* === Attribute pip styles === */
 .pip-base, .pip-current {
   width: 35px;
   height: 35px;
@@ -182,42 +130,16 @@ button {
   padding: 0;
 }
 
-.skills-grid {
-  display: grid;
-  grid-template-columns: 28px 1fr 36px 36px 36px;
-  gap: 3px;
-  align-items: end;
-  font-size: 13px;
-}
-
-.skills-grid > div:nth-child(-n+5) {
-  font-size: 12px;
-  line-height: 1;
-}
-
-.skills-grid input[type=number] {
-  padding: 0;
-  margin: 0;
-  height: 28px;
-  box-sizing: border-box;
-  width: 100%;
-}
-
-.skills-grid div {
-  align-self: flex-end;
-}
-
-/* ===== Fixed canvas with 1600x1600 background scaled to 800x800 ===== */
+/* === Canvas === */
 .sheet-canvas {
   position: relative;
   width: 800px;
   height: 800px;
   background: url("img/CharSheet_Block_1600x1600.jpg") no-repeat 0 0 / 100% 100%;
-  border: 1px solid #000;   /* optional outline while placing */
-  margin-top: 20px;         /* keeps gap under top controls */
+  border: 1px solid #000;
+  margin-top: 20px;
 }
 
-/* Overlay fields */
 .abs {
   position: absolute;
   left: var(--x, 0);
@@ -227,11 +149,10 @@ button {
   z-index: 10;
 }
 
-/* Overlay field typography */
-.abs input[type="text"],
-.abs select {
+/* Overlay text fields */
+.abs input[type="text"], .abs select {
   font-family: 'Dominican', serif;
-  font-size: 12px; /* matches sheet style */
+  font-size: 12px;
   padding: 2px 6px;
   border: 1px solid #999;
   box-sizing: border-box;
@@ -242,452 +163,223 @@ button {
   font-family: 'DeutschGothic', monospace;
   font-size: 16px;
   text-align: center;
-  -moz-appearance: textfield;
   height: 20px;
   padding: 0 4px;
 }
-
 .abs input[type="number"]::-webkit-outer-spin-button,
 .abs input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
 }
 
-/* Debug helper: outline overlays */
-.canvas-debug .abs {
-  outline: 1px dashed rgba(0,0,0,.25);
-}
+/* Debug: outlines overlays */
+.canvas-debug .abs { outline: 1px dashed rgba(0,0,0,.25); }
 
-/* ===== Tabs styling ===== */
-.tabBtn.active {
-  background: #333;
-  color: #fff;
-}
-
-	
+/* Tabs */
+.tabBtn.active { background:#333; color:#fff; }
   </style>
 </head>
 <body>
-  <div class="sheet-container">
-    <!-- LOGIN FORM -->
-    <div id="loginForm" class="top-row">
-      <div class="login-controls">
-        <input id="email" type="email" placeholder="Email">
-        <input id="password" type="password" placeholder="Password">
-        <button onclick="signIn()">Sign In</button>
-        <button onclick="signUp()">Sign Up</button>
-      </div>
+<div class="sheet-container">
+
+  <!-- LOGIN FORM -->
+  <div id="loginForm" class="top-row">
+    <div class="login-controls">
+      <input id="email" type="email" placeholder="Email">
+      <input id="password" type="password" placeholder="Password">
+      <button onclick="signIn()">Sign In</button>
+      <button onclick="signUp()">Sign Up</button>
     </div>
-
-    <!-- ADMIN CONTROLS -->
-    <div id="accountControls" class="top-row" style="display:none;">
-      <div class="admin-controls">
-        <button onclick="signOutUser()">Sign Out</button>
-        <button onclick="deleteAccount()">Delete Account</button>
-        <button onclick="saveCharacter()">Save</button>
-        <button onclick="loadCharacter()">Load</button>
-        <label>Saved
-          <select id="characterSelect"><option value="">--Select--</option></select>
-        </label>
-        <button onclick="deleteCharacter()">Delete Character</button>
-      </div>
-    </div>
-
-    <!-- ===== Fixed 800x800 canvas using your 1600x1600 background ===== -->
-    <div class="sheet-canvas" id="mainCanvas">
-      <!-- Top-of-sheet fields OVER the artwork (adjust coords as you like) -->
-      <input id="charName" class="abs" type="text" maxlength="40"
-             style="--x:26px;  --y:116px; --w:318px; --h:20px;" />
-
-      <input id="ageGroup" class="abs" type="text" maxlength="20"
-             style="--x:362px; --y:116px; --w:168px; --h:20px;" />
-
-      <input id="gender" class="abs" type="text" maxlength="20"
-             style="--x:548px; --y:116px; --w:168px; --h:20px;" />
-
-      <input id="origin" class="abs" type="text" maxlength="60"
-             style="--x:548px; --y:156px; --w:228px; --h:20px;" />
-
-      <!-- ===== Right-side tab box (inside the canvas) ===== -->
-      <!-- Position this box to match your mock; width/height = the working area -->
-      <div id="tabBox" class="abs"
-           style="--x:320px; --y:260px; --w:450px; --h:400px;
-                  background:#fff; border:1px solid #000; box-sizing:border-box; padding:8px;">
-        <!-- Tabs row -->
-        <div style="display:flex; gap:8px; margin-bottom:8px;">
-          <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')"   style="padding:4px 10px;">Main</button>
-          <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')" style="padding:4px 10px;">Combat</button>
-          <button type="button" class="tabBtn" data-tab="gear"   onclick="showTab('gear')"   style="padding:4px 10px;">Gear</button>
-          <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')" style="padding:4px 10px;">Powers</button>
-        </div>
-
-        <!-- Panels (only one visible at a time) -->
-        <div id="panel-main"   class="tabPanel" style="display:block;">
-          <!-- Put XP + Archetypes + Professions here -->
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; align-items:end;">
-            <label style="display:flex; flex-direction:column; font-family:'DominicanSmall',serif;">
-              Archetype 1
-              <input id="archetype1" type="text" maxlength="20" style="font-family:'Dominican',serif;">
-            </label>
-            <label style="display:flex; flex-direction:column; font-family:'DominicanSmall',serif;">
-              Profession 1
-              <input id="profession1" type="text" maxlength="20" style="font-family:'Dominican',serif;">
-            </label>
-
-            <label style="display:flex; flex-direction:column; font-family:'DominicanSmall',serif;">
-              Archetype 2
-              <input id="archetype2" type="text" maxlength="20" style="font-family:'Dominican',serif;">
-            </label>
-            <label style="display:flex; flex-direction:column; font-family:'DominicanSmall',serif;">
-              Profession 2
-              <input id="profession2" type="text" maxlength="20" style="font-family:'Dominican',serif;">
-            </label>
-          </div>
-
-          <!-- XP, vertically stacked, visually pulled to the right edge -->
-          <div style="margin-top:14px; display:flex; justify-content:flex-end;">
-            <label style="display:flex; flex-direction:column; align-items:center; font-family:'DominicanSmall',serif;">
-              XP
-              <input id="xp" type="number" value="0" style="width:40px; text-align:center; font-family:'DeutschGothic',monospace;">
-            </label>
-          </div>
-        </div>
-
-        <div id="panel-combat" class="tabPanel" style="display:none;">
-          <!-- your future Combat UI -->
-          <div style="color:#555; font-family:'DominicanSmall',serif;">Combat page (coming next)</div>
-        </div>
-
-        <div id="panel-gear" class="tabPanel" style="display:none;">
-          <!-- your future Gear UI -->
-          <div style="color:#555; font-family:'DominicanSmall',serif;">Gear page (coming next)</div>
-        </div>
-
-        <div id="panel-powers" class="tabPanel" style="display:none;">
-          <!-- your future Powers UI -->
-          <div style="color:#555; font-family:'DominicanSmall',serif;">Powers page (coming next)</div>
-        </div>
-      </div>
-      <!-- /tabBox -->
-    </div>
-    <!-- /sheet-canvas -->
-
-    <!-- ===== ATTRIBUTE BOXES (unchanged from your working version) ===== -->
-    <!-- Brawn -->
-    <div class="attribute-box" id="box-brawn">
-      <h3>Brawn</h3>
-      <div class="attr-icon-container">
-        <img src="img/GXD6 BRAWN LOGO.png" alt="Brawn">
-        <div class="pip-labels"><div style="margin-right:8px;">Base</div><div>Current</div></div>
-        <div class="pips">
-          <span class="pip-base">
-            <input id="brawn" type="number" min="1" max="5" value="1">
-            <img id="lock-brawn" class="lock-icon" src="img/lock_open.png" title="Toggle lock" onclick="toggleLock('brawn')">
-          </span>
-          <span class="pip-current">
-            <input id="brawnCurrent" type="number" min="0" max="5" value="0">
-            <div class="trauma-controls">
-              <button onclick="stepUpField('brawnCurrent')">+</button>
-              <button onclick="stepDownField('brawnCurrent')">−</button>
-            </div>
-          </span>
-        </div>
-      </div>
-      <div class="skills-grid" data-attr="brawn">
-        <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-        <div><input type="checkbox" id="endurance_key"></div><div>Endurance</div>
-        <div><input id="endurance_lvl" type="number" value="0" min="0"></div>
-        <div><input id="endurance_mod" type="number" value="0"></div>
-        <div><input id="endurance_total" type="number" readonly value="0"></div>
-        <div><input type="checkbox" id="fight_key"></div><div>Fight</div>
-        <div><input id="fight_lvl" type="number" value="0"></div>
-        <div><input id="fight_mod" type="number" value="0"></div>
-        <div><input id="fight_total" type="number" readonly value="0"></div>
-        <div><input type="checkbox" id="might_key"></div><div>Might</div>
-        <div><input id="might_lvl" type="number" value="0"></div>
-        <div><input id="might_mod" type="number" value="0"></div>
-        <div><input id="might_total" type="number" readonly value="0"></div>
-      </div>
-    </div>
-
-    <!-- Agility -->
-    <div class="attribute-box" id="box-agility">
-      <h3>Agility</h3>
-      <div class="attr-icon-container">
-        <img src="img/GXD6 AGILITY LOGO.png" alt="Agility">
-        <div class="pip-labels"><div style="margin-right:8px;">Base</div><div>Current</div></div>
-        <div class="pips">
-          <span class="pip-base">
-            <input id="agility" type="number" min="1" max="5" value="1">
-            <img id="lock-agility" class="lock-icon" src="img/lock_open.png" title="Toggle lock" onclick="toggleLock('agility')">
-          </span>
-          <span class="pip-current">
-            <input id="agilityCurrent" type="number" min="0" max="5" value="0">
-            <div class="trauma-controls">
-              <button onclick="stepUpField('agilityCurrent')">+</button>
-              <button onclick="stepDownField('agilityCurrent')">−</button>
-            </div>
-          </span>
-        </div>
-      </div>
-      <div class="skills-grid" data-attr="agility">
-        <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-        <div><input type="checkbox" id="marksmanship_key"></div><div>Marksmanship</div>
-        <div><input id="marksmanship_lvl" type="number" value="0"></div>
-        <div><input id="marksmanship_mod" type="number" value="0"></div>
-        <div><input id="marksmanship_total" type="number" readonly value="0"></div>
-        <div><input type="checkbox" id="mobility_key"></div><div>Mobility</div>
-        <div><input id="mobility_lvl" type="number" value="0"></div>
-        <div><input id="mobility_mod" type="number" value="0"></div>
-        <div><input id="mobility_total" type="number" readonly value="0"></div>
-        <div><input type="checkbox" id="precision_key"></div><div>Precision</div>
-        <div><input id="precision_lvl" type="number" value="0"></div>
-        <div><input id="precision_mod" type="number" value="0"></div>
-        <div><input id="precision_total" type="number" readonly value="0"></div>
-      </div>
-    </div>
-
-    <!-- Wits -->
-    <div class="attribute-box" id="box-wits">
-      <h3>Wits</h3>
-      <div class="attr-icon-container">
-        <img src="img/GXD6 WITS LOGO.png" alt="Wits">
-        <div class="pip-labels"><div style="margin-right:5px;">Base</div><div>Current</div></div>
-        <div class="pips">
-          <span class="pip-base">
-            <input id="wits" type="number" min="1" max="5" value="1">
-            <img id="lock-wits" class="lock-icon" src="img/lock_open.png" title="Toggle lock" onclick="toggleLock('wits')">
-          </span>
-          <span class="pip-current">
-            <input id="witsCurrent" type="number" min="0" max="5" value="0">
-            <div class="trauma-controls">
-              <button onclick="stepUpField('witsCurrent')">+</button>
-              <button onclick="stepDownField('witsCurrent')">−</button>
-            </div>
-          </span>
-        </div>
-      </div>
-      <div class="skills-grid" data-attr="wits">
-        <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-        <div><input type="checkbox" id="heal_key"></div><div>Heal</div>
-        <div><input id="heal_lvl" type="number" value="0"></div>
-        <div><input id="heal_mod" type="number" value="0"></div>
-        <div><input id="heal_total" type="number" readonly value="0"></div>
-        <div><input type="checkbox" id="insight_key"></div><div>Insight</div>
-        <div><input id="insight_lvl" type="number" value="0"></div>
-        <div><input id="insight_mod" type="number" value="0"></div>
-        <div><input id="insight_total" type="number" readonly value="0"></div>
-        <div><input type="checkbox" id="logic_key"></div><div>Logic</div>
-        <div><input id="logic_lvl" type="number" value="0"></div>
-        <div><input id="logic_mod" type="number" value="0"></div>
-        <div><input id="logic_total" type="number" readonly value="0"></div>
-        <div><input type="checkbox" id="survival_key"></div><div>Survival</div>
-        <div><input id="survival_lvl" type="number" value="0"></div>
-        <div><input id="survival_mod" type="number" value="0"></div>
-        <div><input id="survival_total" type="number" readonly value="0"></div>
-        <div><input type="checkbox" id="vigilance_key"></div><div>Vigilance</div>
-        <div><input id="vigilance_lvl" type="number" value="0"></div>
-        <div><input id="vigilance_mod" type="number" value="0"></div>
-        <div><input id="vigilance_total" type="number" readonly value="0"></div>
-      </div>
-    </div>
-
-    <!-- Will -->
-    <div class="attribute-box" id="box-will">
-      <h3>Will</h3>
-      <div class="attr-icon-container">
-        <img src="img/GXD6 WILL LOGO.png" alt="Will">
-        <div class="pip-labels"><div style="margin-right:8px;">Base</div><div>Current</div></div>
-        <div class="pips">
-          <span class="pip-base">
-            <input id="will" type="number" min="1" max="5" value="1">
-            <img id="lock-will" class="lock-icon" src="img/lock_open.png" title="Toggle lock" onclick="toggleLock('will')">
-          </span>
-          <span class="pip-current">
-            <input id="willCurrent" type="number" min="0" max="5" value="0">
-            <div class="trauma-controls">
-              <button onclick="stepUpField('willCurrent')">+</button>
-              <button onclick="stepDownField('willCurrent')">−</button>
-            </div>
-          </span>
-        </div>
-      </div>
-      <div class="skills-grid" data-attr="will">
-        <div>Key</div><div>Skill</div><div>Lvl</div><div>+/-</div><div>Total</div>
-        <div><input type="checkbox" id="inspire_key"></div><div>Inspire</div>
-        <div><input id="inspire_lvl" type="number" value="0"></div>
-        <div><input id="inspire_mod" type="number" value="0"></div>
-        <div><input id="inspire_total" type="number" readonly value="0"></div>
-        <div><input type="checkbox" id="manipulate_key"></div><div>Manipulate</div>
-        <div><input id="manipulate_lvl" type="number" value="0"></div>
-        <div><input id="manipulate_mod" type="number" value="0"></div>
-        <div><input id="manipulate_total" type="number" readonly value="0"></div>
-        <div><input type="checkbox" id="resolve_key"></div><div>Resolve</div>
-        <div><input id="resolve_lvl" type="number" value="0"></div>
-        <div><input id="resolve_mod" type="number" value="0"></div>
-        <div><input id="resolve_total" type="number" readonly value="0"></div>
-      </div>
-    </div>
-    <!-- /ATTRIBUTE BOXES -->
   </div>
 
-  <!-- Tiny tab switcher: safe to keep outside your module script -->
-  <script>
-    window.showTab = function (which) {
-      document.querySelectorAll('.tabPanel').forEach(p => p.style.display = 'none');
-      const active = document.getElementById('panel-' + which);
-      if (active) active.style.display = 'block';
-      // optional button state
-      document.querySelectorAll('.tabBtn').forEach(b => {
-        b.classList.toggle('active', b.dataset.tab === which);
-      });
-    };
-  </script>
-</body>
+  <!-- ADMIN CONTROLS -->
+  <div id="accountControls" class="top-row" style="display:none;">
+    <div class="admin-controls">
+      <button onclick="signOutUser()">Sign Out</button>
+      <button onclick="deleteAccount()">Delete Account</button>
+      <button onclick="saveCharacter()">Save</button>
+      <button onclick="loadCharacter()">Load</button>
+      <label>Saved
+        <select id="characterSelect"><option value="">--Select--</option></select>
+      </label>
+      <button onclick="deleteCharacter()">Delete Character</button>
+    </div>
+  </div>
 
+  <!-- === Main canvas === -->
+  <div class="sheet-canvas" id="mainCanvas">
+
+    <!-- Character Info -->
+    <input id="charName" class="abs" type="text" maxlength="40" style="--x:26px; --y:116px; --w:318px;" />
+    <input id="ageGroup" class="abs" type="text" maxlength="20" style="--x:362px; --y:116px; --w:168px;" />
+    <input id="gender" class="abs" type="text" maxlength="20" style="--x:548px; --y:116px; --w:168px;" />
+    <input id="origin" class="abs" type="text" maxlength="60" style="--x:548px; --y:156px; --w:228px;" />
+
+    <!-- Attributes -->
+    <span class="pip-base abs" style="--x:130px; --y:210px;">
+      <input id="brawn" type="number" min="1" max="5" value="1">
+      <img id="lock-brawn" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('brawn')">
+    </span>
+    <span class="pip-current abs" style="--x:195px; --y:210px;">
+      <input id="brawnCurrent" type="number" min="0" max="5" value="0">
+      <div class="trauma-controls">
+        <button onclick="stepUpField('brawnCurrent')">+</button>
+        <button onclick="stepDownField('brawnCurrent')">−</button>
+      </div>
+    </span>
+
+    <span class="pip-base abs" style="--x:130px; --y:345px;">
+      <input id="agility" type="number" min="1" max="5" value="1">
+      <img id="lock-agility" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('agility')">
+    </span>
+    <span class="pip-current abs" style="--x:195px; --y:345px;">
+      <input id="agilityCurrent" type="number" min="0" max="5" value="0">
+      <div class="trauma-controls">
+        <button onclick="stepUpField('agilityCurrent')">+</button>
+        <button onclick="stepDownField('agilityCurrent')">−</button>
+      </div>
+    </span>
+
+    <span class="pip-base abs" style="--x:130px; --y:480px;">
+      <input id="wits" type="number" min="1" max="5" value="1">
+      <img id="lock-wits" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('wits')">
+    </span>
+    <span class="pip-current abs" style="--x:195px; --y:480px;">
+      <input id="witsCurrent" type="number" min="0" max="5" value="0">
+      <div class="trauma-controls">
+        <button onclick="stepUpField('witsCurrent')">+</button>
+        <button onclick="stepDownField('witsCurrent')">−</button>
+      </div>
+    </span>
+
+    <span class="pip-base abs" style="--x:130px; --y:615px;">
+      <input id="will" type="number" min="1" max="5" value="1">
+      <img id="lock-will" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('will')">
+    </span>
+    <span class="pip-current abs" style="--x:195px; --y:615px;">
+      <input id="willCurrent" type="number" min="0" max="5" value="0">
+      <div class="trauma-controls">
+        <button onclick="stepUpField('willCurrent')">+</button>
+        <button onclick="stepDownField('willCurrent')">−</button>
+      </div>
+    </span>
+
+    <!-- Tabs box -->
+    <div id="tabBox" class="abs"
+      style="--x:320px; --y:260px; --w:450px; --h:400px;
+             background:#fff; border:1px solid #000; padding:8px;">
+      <div style="display:flex; gap:8px; margin-bottom:8px;">
+        <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
+        <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
+        <button type="button" class="tabBtn" data-tab="gear"   onclick="showTab('gear')">Gear</button>
+        <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
+      </div>
+
+      <div id="panel-main" class="tabPanel" style="display:block;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <label>Archetype 1<input id="archetype1" type="text"></label>
+          <label>Profession 1<input id="profession1" type="text"></label>
+          <label>Archetype 2<input id="archetype2" type="text"></label>
+          <label>Profession 2<input id="profession2" type="text"></label>
+        </div>
+        <div style="margin-top:14px; display:flex; justify-content:flex-end;">
+          <label>XP <input id="xp" type="number" value="0" style="width:40px;"></label>
+        </div>
+      </div>
+      <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
+      <div id="panel-gear" class="tabPanel" style="display:none;">Gear coming soon</div>
+      <div id="panel-powers" class="tabPanel" style="display:none;">Powers coming soon</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Scripts -->
+<script>
+window.showTab = function(which){
+  document.querySelectorAll('.tabPanel').forEach(p=>p.style.display='none');
+  const active = document.getElementById('panel-'+which);
+  if(active) active.style.display='block';
+  document.querySelectorAll('.tabBtn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.tab===which);
+  });
+};
+
+window.toggleLock = id => {
+  const field = document.getElementById(id);
+  const icon = document.getElementById(`lock-${id}`);
+  if (!field || !icon) return;
+  const locked = !field.disabled;
+  field.disabled = locked;
+  icon.src = locked ? 'img/lock.png' : 'img/lock_open.png';
+  field.style.opacity = locked ? 0.6 : 1;
+};
+window.stepUpField = id => { document.getElementById(id)?.stepUp(); };
+window.stepDownField = id => { document.getElementById(id)?.stepDown(); };
+
+/* Debug drag toggle with D key */
+let debug=false;document.addEventListener('keydown',e=>{
+  if(e.key.toLowerCase()==='d'){debug=!debug;document.getElementById('mainCanvas').classList.toggle('canvas-debug',debug);}
+});
+</script>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-  import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
-    authDomain: "gxd6-character-sheet.firebaseapp.com",
-    projectId: "gxd6-character-sheet",
-    storageBucket: "gxd6-character-sheet.firebasestorage.app",
-    messagingSenderId: "761778638151",
-    appId: "1:761778638151:web:06a1d72423a7e980889062"
-  };
-  initializeApp(firebaseConfig);
-  const auth = getAuth();
-  const db = getFirestore();
+const firebaseConfig = {
+  apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
+  authDomain: "gxd6-character-sheet.firebaseapp.com",
+  projectId: "gxd6-character-sheet",
+  storageBucket: "gxd6-character-sheet.firebasestorage.app",
+  messagingSenderId: "761778638151",
+  appId: "1:761778638151:web:06a1d72423a7e980889062"
+};
+initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore();
 
-  const loginFormEl = document.getElementById('loginForm');
-  const accountControlsEl = document.getElementById('accountControls');
-  const characterSelectEl = document.getElementById('characterSelect');
+const loginFormEl=document.getElementById('loginForm');
+const accountControlsEl=document.getElementById('accountControls');
+const characterSelectEl=document.getElementById('characterSelect');
 
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      loginFormEl.style.display = 'none';
-      accountControlsEl.style.display = 'flex';
-      populateCharacterList(user.uid);
-    } else {
-      loginFormEl.style.display = 'flex';
-      accountControlsEl.style.display = 'none';
-      characterSelectEl.innerHTML = '<option value="">--Select--</option>';
-    }
+onAuthStateChanged(auth,user=>{
+  if(user){loginFormEl.style.display='none';accountControlsEl.style.display='flex';populateCharacterList(user.uid);}
+  else{loginFormEl.style.display='flex';accountControlsEl.style.display='none';characterSelectEl.innerHTML='<option value="">--Select--</option>';}
+});
+
+async function populateCharacterList(uid){
+  const snap=await getDocs(collection(db,'users',uid,'characters'));
+  characterSelectEl.innerHTML='<option value="">--Select--</option>';
+  snap.forEach(d=>{
+    const opt=document.createElement('option');opt.value=d.id;opt.text=d.id;characterSelectEl.appendChild(opt);
   });
+}
 
-  async function populateCharacterList(uid) {
-    const snap = await getDocs(collection(db, 'users', uid, 'characters'));
-    characterSelectEl.innerHTML = '<option value="">--Select--</option>';
-    snap.forEach(d => {
-      const opt = document.createElement('option');
-      opt.value = d.id;
-      opt.text = d.id;
-      characterSelectEl.appendChild(opt);
-    });
-  }
-
-  // Firebase sign-in / sign-up / save / load handlers
-  window.signUp = async () => {
-    const email = document.getElementById('email').value;
-    const pw = document.getElementById('password').value;
-    await createUserWithEmailAndPassword(auth, email, pw);
-    alert('Signed up!');
-  };
-  window.signIn = async () => {
-    const email = document.getElementById('email').value;
-    const pw = document.getElementById('password').value;
-    await signInWithEmailAndPassword(auth, email, pw);
-    alert('Signed in!');
-  };
-  window.signOutUser = async () => { await signOut(auth); alert('Signed out'); };
-  window.deleteAccount = async () => {
-    if (auth.currentUser && confirm('Delete account and characters?')) {
-      await deleteUser(auth.currentUser);
-      alert('Account deleted');
-    }
-  };
-  window.saveCharacter = async () => {
-    const user = auth.currentUser;
-    const name = document.getElementById('charName').value.trim();
-    if (!user || !name) return alert('Sign in & name required');
-    const data = {};
-    document.querySelectorAll('.sheet-container input, .sheet-container select').forEach(el => {
-      if (!el.id || el.id.startsWith('lock')) return;
-      data[el.id] = el.type==='checkbox' ? el.checked : el.value;
-    });
-    await setDoc(doc(db, 'users', user.uid, 'characters', name), data);
-    alert('Saved'); populateCharacterList(user.uid);
-  };
-  window.loadCharacter = async () => {
-    const user = auth.currentUser;
-    if (!user) return alert('Sign in first');
-    const id = characterSelectEl.value || document.getElementById('charName').value.trim();
-    if (!id) return alert('Choose or type name');
-    const snap = await getDoc(doc(db, 'users', user.uid, 'characters', id));
-    if (!snap.exists()) return alert('Not found');
-    const data = snap.data();
-    Object.keys(data).forEach(k => {
-      const el = document.getElementById(k);
-      if (el && !k.startsWith('lock')) el.type==='checkbox' ? el.checked = data[k] : el.value = data[k];
-    });
-    alert('Loaded');
-  };
-  window.deleteCharacter = async () => {
-    const user = auth.currentUser;
-    const name = characterSelectEl.value;
-    if (!user || !name) return alert('Select a character');
-    if (confirm(`Delete "${name}"?`)) {
-      await deleteDoc(doc(db, 'users', user.uid, 'characters', name));
-      alert('Deleted');
-      populateCharacterList(user.uid);
-    }
-  };
-
-  window.toggleLock = id => {
-    const field = document.getElementById(id);
-    const icon = document.getElementById(`lock-${id}`);
-    if (!field || !icon) return;
-    const locked = !field.disabled;
-    field.disabled = locked;
-    icon.src = locked ? 'img/lock.png' : 'img/lock_open.png';
-    field.style.opacity = locked ? 0.6 : 1;
-  };
-  window.stepUpField = id => {
-    document.getElementById(id)?.stepUp();
-    computeAllTotals();
-  };
-  window.stepDownField = id => {
-    document.getElementById(id)?.stepDown();
-    computeAllTotals();
-  };
-
-  function computeAllTotals() {
-    document.querySelectorAll('.skills-grid').forEach(grid => {
-      const attr = grid.dataset.attr;
-      const curr = +document.getElementById(`${attr}Current`)?.value || 0;
-      grid.querySelectorAll('input[type="number"]').forEach(inp => {
-        const id = inp.id;
-        if (id.endsWith('_lvl') || id.endsWith('_mod')) {
-          const skill = id.replace(/(_lvl|_mod)$/, '');
-          const lvl = +document.getElementById(`${skill}_lvl`)?.value || 0;
-          const mod = +document.getElementById(`${skill}_mod`)?.value || 0;
-          const totEl = document.getElementById(`${skill}_total`);
-          if (totEl) totEl.value = curr + lvl + mod;
-        }
-      });
-    });
-  }
-
-  ['brawn','agility','wits','will'].forEach(attr => {
-    document.getElementById(`${attr}Current`)?.addEventListener('input', computeAllTotals);
-    document.querySelectorAll(`.skills-grid[data-attr="${attr}"] input[id$="_lvl"], .skills-grid[data-attr="${attr}"] input[id$="_mod"]`)
-      .forEach(i => i.addEventListener('input', computeAllTotals));
+window.signUp=async()=>{await createUserWithEmailAndPassword(auth,email.value,password.value);alert('Signed up!');};
+window.signIn=async()=>{await signInWithEmailAndPassword(auth,email.value,password.value);alert('Signed in!');};
+window.signOutUser=async()=>{await signOut(auth);alert('Signed out');};
+window.deleteAccount=async()=>{if(auth.currentUser&&confirm('Delete account?')){await deleteUser(auth.currentUser);alert('Account deleted');}};
+window.saveCharacter=async()=>{
+  const user=auth.currentUser;const name=document.getElementById('charName').value.trim();
+  if(!user||!name)return alert('Sign in & name required');
+  const data={};document.querySelectorAll('.sheet-container input, .sheet-container select').forEach(el=>{
+    if(!el.id||el.id.startsWith('lock'))return;data[el.id]=el.type==='checkbox'?el.checked:el.value;
   });
-
-  computeAllTotals();
+  await setDoc(doc(db,'users',user.uid,'characters',name),data);alert('Saved');populateCharacterList(user.uid);
+};
+window.loadCharacter=async()=>{
+  const user=auth.currentUser;if(!user)return alert('Sign in first');
+  const id=characterSelectEl.value||document.getElementById('charName').value.trim();if(!id)return alert('Choose or type name');
+  const snap=await getDoc(doc(db,'users',user.uid,'characters',id));if(!snap.exists())return alert('Not found');
+  const data=snap.data();Object.keys(data).forEach(k=>{const el=document.getElementById(k);if(el&&!k.startsWith('lock'))el.type==='checkbox'?el.checked=data[k]:el.value=data[k];});
+  alert('Loaded');
+};
+window.deleteCharacter=async()=>{
+  const user=auth.currentUser;const name=characterSelectEl.value;
+  if(!user||!name)return alert('Select a character');
+  if(confirm(`Delete "${name}"?`)){await deleteDoc(doc(db,'users',user.uid,'characters',name));alert('Deleted');populateCharacterList(user.uid);}
+};
 </script>
 </body>
 </html>
