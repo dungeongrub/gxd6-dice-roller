@@ -228,17 +228,17 @@ button {
   <div class="sheet-canvas" id="mainCanvas">
 
     <!-- Character Info -->
-    <input id="charName" class="abs" type="text" maxlength="40" style="--x:26px; --y:116px; --w:318px;" />
-    <input id="ageGroup" class="abs" type="text" maxlength="20" style="--x:362px; --y:116px; --w:168px;" />
-    <input id="gender" class="abs" type="text" maxlength="20" style="--x:548px; --y:116px; --w:168px;" />
-    <input id="origin" class="abs" type="text" maxlength="60" style="--x:548px; --y:156px; --w:228px;" />
+    <input id="charName" class="abs" type="text" maxlength="40" style="--x:28px; --y:121px; --w:230px;" />
+    <input id="ageGroup" class="abs" type="text" maxlength="20" style="--x:265px; --y:121px; --w:100px;" />
+    <input id="gender" class="abs" type="text" maxlength="20" style="--x:382px; --y:121px; --w:100px;" />
+    <input id="origin" class="abs" type="text" maxlength="60" style="--x:482px; --y:121px; --w:240px;" />
 
     <!-- Attributes -->
-    <span class="pip-base abs" style="--x:130px; --y:210px;">
+    <span class="pip-base abs" style="--x:127px; --y:210px;">
       <input id="brawn" type="number" min="1" max="5" value="1">
       <img id="lock-brawn" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('brawn')">
     </span>
-    <span class="pip-current abs" style="--x:195px; --y:210px;">
+    <span class="pip-current abs" style="--x:191px; --y:210px;">
       <input id="brawnCurrent" type="number" min="0" max="5" value="0">
       <div class="trauma-controls">
         <button onclick="stepUpField('brawnCurrent')">+</button>
@@ -246,11 +246,11 @@ button {
       </div>
     </span>
 
-    <span class="pip-base abs" style="--x:130px; --y:345px;">
+    <span class="pip-base abs" style="--x:127px; --y:345px;">
       <input id="agility" type="number" min="1" max="5" value="1">
       <img id="lock-agility" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('agility')">
     </span>
-    <span class="pip-current abs" style="--x:195px; --y:345px;">
+    <span class="pip-current abs" style="--x:191px; --y:345px;">
       <input id="agilityCurrent" type="number" min="0" max="5" value="0">
       <div class="trauma-controls">
         <button onclick="stepUpField('agilityCurrent')">+</button>
@@ -258,11 +258,11 @@ button {
       </div>
     </span>
 
-    <span class="pip-base abs" style="--x:130px; --y:480px;">
+    <span class="pip-base abs" style="--x:127px; --y:480px;">
       <input id="wits" type="number" min="1" max="5" value="1">
       <img id="lock-wits" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('wits')">
     </span>
-    <span class="pip-current abs" style="--x:195px; --y:480px;">
+    <span class="pip-current abs" style="--x:191px; --y:480px;">
       <input id="witsCurrent" type="number" min="0" max="5" value="0">
       <div class="trauma-controls">
         <button onclick="stepUpField('witsCurrent')">+</button>
@@ -284,8 +284,8 @@ button {
 
     <!-- Tabs box -->
     <div id="tabBox" class="abs"
-      style="--x:320px; --y:260px; --w:450px; --h:400px;
-             background:#fff; border:1px solid #000; padding:8px;">
+      style="--x:270px; --y:365Dpx; --w:440px; --h:410px;
+             background:transparent; border:none; padding:5px;">
       <div style="display:flex; gap:8px; margin-bottom:8px;">
         <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
         <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
