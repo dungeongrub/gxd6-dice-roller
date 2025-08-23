@@ -144,13 +144,14 @@ button{
 .pip-check {
   appearance: none;
   -webkit-appearance: none;
-  width: 10px;         /* 🔄 make this a little bigger than 5px so it’s actually clickable */
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border: 1px solid #ccc; /* ✅ keeps it visible when unchecked */
   border-radius: 50%;     /* round “pip” */
   background: transparent;
   cursor: pointer;
   display: inline-block;
+  vertical-align: middle;   /* avoids inline distortion */  
 }
 .pip-check:checked {
   background: white;      /* ✅ shows up on dark BG */
