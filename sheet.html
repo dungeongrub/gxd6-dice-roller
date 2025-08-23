@@ -144,16 +144,20 @@ button{
 .pip-check {
   appearance: none;
   -webkit-appearance: none;
-  width: 7px;           /* same width and height */
+  width: 7px;
   height: 7px;
-  border-radius: 50%;    /* ensures it’s circular */
+  border-radius: 50%;   /* circle */
   background: transparent;
   cursor: pointer;
   display: inline-block;
+  padding: 0;           /* prevents extra height */
+  margin: 0;
+  line-height: 0;       /* stops vertical stretching */
+  vertical-align: middle;
 }
 
 .pip-check:checked {
-  background: white;     /* shows white dot on dark BG */
+  background: white;
 }
 .pip-check:focus {
   outline: none;
