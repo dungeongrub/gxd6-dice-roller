@@ -77,7 +77,7 @@ button{
 }
 .trauma-controls button{
   width:18px; height:18px; font-size:12px; font-weight:bold;
-  background:#e0e0e0; border:none; cursor:pointer; line-height:1px; padding:0;
+  background:#e0e0e0; border:none; cursor:pointer; line-height:1; padding:0;
 }
 
 /* === Canvas === */
@@ -109,7 +109,7 @@ button{
   height:20px; padding:0 4px;
 }
 .abs input[type="number"]::-webkit-outer-spin-button,
-.abs input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; }
+.abs input[type="number"]::-webkit-inner-spin_button{ -webkit-appearance:none; }
 
 /* Debug: outlines overlays */
 .canvas-debug .abs{ outline:1px dashed rgba(0,0,0,.25); }
@@ -125,7 +125,39 @@ button{
 .canvas-debug .abs.selected{ outline:2px solid #4caf50; }
 
 /* Tabs */
+.tabBtn{ background:#eee; border:1px solid #333; }
 .tabBtn.active{ background:#333; color:#fff; }
+
+/* === Skill UI bits === */
+.skill-num{
+  font-family:'DeutschGothic', monospace;
+  font-size:12px;
+  height:18px;
+  width:28px;
+  text-align:center;
+  padding:0;
+  background:transparent;
+  border:none;
+}
+.pip-check{
+  appearance:none; -webkit-appearance:none;
+  width:16px; height:16px;
+  border:2px solid #000; border-radius:50%;
+  background:transparent; cursor:pointer; display:inline-block;
+}
+.pip-check:checked{ background:#000; }
+.pip-check:focus{ outline:none; }
+
+/* Roll button overlay (uses roll_icon.png, shows '+') */
+.roll-btn{
+  width:20px; height:20px;
+  background:url("img/roll_icon.png") no-repeat center/contain;
+  border:none; cursor:pointer;
+  font-family:'DeutschGothic';
+  font-size:14px; font-weight:bold; color:black;
+  text-align:center; line-height:18px; padding:0;
+}
+.roll-btn:active{ transform:scale(0.9); }
   </style>
 </head>
 <body>
@@ -161,7 +193,7 @@ button{
     <!-- Character Info -->
     <input id="charName" class="abs" type="text" maxlength="40" style="--x:28px; --y:123px; --w:210px;" />
     <input id="ageGroup" class="abs" type="text" maxlength="20" style="--x:262px; --y:123px; --w:90px;" />
-    <input id="gender" class="abs" type="text" maxlength="20" style="--x:382px; --y:123px; --w:80px;" />
+    <input id="gender"  class="abs" type="text" maxlength="20" style="--x:382px; --y:123px; --w:80px;" />
     <input id="origin"  class="abs" type="text" maxlength="60" style="--x:482px; --y:123px; --w:250px;" />
 
     <!-- Attributes -->
@@ -214,14 +246,106 @@ button{
       </div>
     </span>
 
-  <!-- POWER POINTS -->
-	<span class="pip-current abs" style="--x:280px; --y:240px;">
-  <input id="powerCurrent" type="number" min="0" max="99" value="0">
-  <div class="trauma-controls">
-    <button onclick="stepUpField('powerCurrent')">+</button>
-    <button onclick="stepDownField('powerCurrent')">−</button>
-  </div>
-</span>
+    <!-- POWER POINTS (current) -->
+    <span class="pip-current abs" style="--x:284px; --y:244px;">
+      <input id="powerCurrent" type="number" min="0" max="99" value="0">
+      <div class="trauma-controls">
+        <button onclick="stepUpField('powerCurrent')">+</button>
+        <button onclick="stepDownField('powerCurrent')">−</button>
+      </div>
+    </span>
+
+    <!-- ===== BRAWN SKILLS (Endurance / Fight / Might) ===== -->
+    <!-- Row 1 -->
+    <input id="endurance_key"   type="checkbox" class="abs pip-check" style="--x:222px; --y:236px;">
+    <input id="endurance_lvl"   type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:236px;">
+    <input id="endurance_mod"   type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:236px;">
+    <input id="endurance_total" type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:236px;">
+    <button id="endurance_roll" class="abs roll-btn" style="--x:340px; --y:236px;" onclick="addToDicePool('endurance_total')">+</button>
+    <!-- Row 2 -->
+    <input id="fight_key"       type="checkbox" class="abs pip-check" style="--x:222px; --y:258px;">
+    <input id="fight_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:258px;">
+    <input id="fight_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:258px;">
+    <input id="fight_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:258px;">
+    <button id="fight_roll"     class="abs roll-btn" style="--x:340px; --y:258px;" onclick="addToDicePool('fight_total')">+</button>
+    <!-- Row 3 -->
+    <input id="might_key"       type="checkbox" class="abs pip-check" style="--x:222px; --y:280px;">
+    <input id="might_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:280px;">
+    <input id="might_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:280px;">
+    <input id="might_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:280px;">
+    <button id="might_roll"     class="abs roll-btn" style="--x:340px; --y:280px;" onclick="addToDicePool('might_total')">+</button>
+
+    <!-- ===== AGILITY SKILLS (Marksmanship / Mobility / Precision) ===== -->
+    <!-- Row 1 -->
+    <input id="marksmanship_key"   type="checkbox" class="abs pip-check" style="--x:222px; --y:371px;">
+    <input id="marksmanship_lvl"   type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:371px;">
+    <input id="marksmanship_mod"   type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:371px;">
+    <input id="marksmanship_total" type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:371px;">
+    <button id="marksmanship_roll" class="abs roll-btn" style="--x:340px; --y:371px;" onclick="addToDicePool('marksmanship_total')">+</button>
+    <!-- Row 2 -->
+    <input id="mobility_key"       type="checkbox" class="abs pip-check" style="--x:222px; --y:393px;">
+    <input id="mobility_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:393px;">
+    <input id="mobility_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:393px;">
+    <input id="mobility_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:393px;">
+    <button id="mobility_roll"     class="abs roll-btn" style="--x:340px; --y:393px;" onclick="addToDicePool('mobility_total')">+</button>
+    <!-- Row 3 -->
+    <input id="precision_key"      type="checkbox" class="abs pip-check" style="--x:222px; --y:415px;">
+    <input id="precision_lvl"      type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:415px;">
+    <input id="precision_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:415px;">
+    <input id="precision_total"    type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:415px;">
+    <button id="precision_roll"    class="abs roll-btn" style="--x:340px; --y:415px;" onclick="addToDicePool('precision_total')">+</button>
+
+    <!-- ===== WITS SKILLS (Heal / Insight / Logic / Survival / Vigilance) ===== -->
+    <!-- Row 1 -->
+    <input id="heal_key"           type="checkbox" class="abs pip-check" style="--x:222px; --y:506px;">
+    <input id="heal_lvl"           type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:506px;">
+    <input id="heal_mod"           type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:506px;">
+    <input id="heal_total"         type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:506px;">
+    <button id="heal_roll"         class="abs roll-btn" style="--x:340px; --y:506px;" onclick="addToDicePool('heal_total')">+</button>
+    <!-- Row 2 -->
+    <input id="insight_key"        type="checkbox" class="abs pip-check" style="--x:222px; --y:528px;">
+    <input id="insight_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:528px;">
+    <input id="insight_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:528px;">
+    <input id="insight_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:528px;">
+    <button id="insight_roll"      class="abs roll-btn" style="--x:340px; --y:528px;" onclick="addToDicePool('insight_total')">+</button>
+    <!-- Row 3 -->
+    <input id="logic_key"          type="checkbox" class="abs pip-check" style="--x:222px; --y:550px;">
+    <input id="logic_lvl"          type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:550px;">
+    <input id="logic_mod"          type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:550px;">
+    <input id="logic_total"        type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:550px;">
+    <button id="logic_roll"        class="abs roll-btn" style="--x:340px; --y:550px;" onclick="addToDicePool('logic_total')">+</button>
+    <!-- Row 4 -->
+    <input id="survival_key"       type="checkbox" class="abs pip-check" style="--x:222px; --y:572px;">
+    <input id="survival_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:572px;">
+    <input id="survival_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:572px;">
+    <input id="survival_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:572px;">
+    <button id="survival_roll"     class="abs roll-btn" style="--x:340px; --y:572px;" onclick="addToDicePool('survival_total')">+</button>
+    <!-- Row 5 -->
+    <input id="vigilance_key"      type="checkbox" class="abs pip-check" style="--x:222px; --y:594px;">
+    <input id="vigilance_lvl"      type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:594px;">
+    <input id="vigilance_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:594px;">
+    <input id="vigilance_total"    type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:594px;">
+    <button id="vigilance_roll"    class="abs roll-btn" style="--x:340px; --y:594px;" onclick="addToDicePool('vigilance_total')">+</button>
+
+    <!-- ===== WILL SKILLS (Inspire / Manipulate / Resolve) ===== -->
+    <!-- Row 1 -->
+    <input id="inspire_key"        type="checkbox" class="abs pip-check" style="--x:222px; --y:691px;">
+    <input id="inspire_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:691px;">
+    <input id="inspire_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:691px;">
+    <input id="inspire_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:691px;">
+    <button id="inspire_roll"      class="abs roll-btn" style="--x:340px; --y:691px;" onclick="addToDicePool('inspire_total')">+</button>
+    <!-- Row 2 -->
+    <input id="manipulate_key"     type="checkbox" class="abs pip-check" style="--x:222px; --y:713px;">
+    <input id="manipulate_lvl"     type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:713px;">
+    <input id="manipulate_mod"     type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:713px;">
+    <input id="manipulate_total"   type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:713px;">
+    <button id="manipulate_roll"   class="abs roll-btn" style="--x:340px; --y:713px;" onclick="addToDicePool('manipulate_total')">+</button>
+    <!-- Row 3 -->
+    <input id="resolve_key"        type="checkbox" class="abs pip-check" style="--x:222px; --y:735px;">
+    <input id="resolve_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:735px;">
+    <input id="resolve_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:735px;">
+    <input id="resolve_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:735px;">
+    <button id="resolve_roll"      class="abs roll-btn" style="--x:340px; --y:735px;" onclick="addToDicePool('resolve_total')">+</button>
 
     <!-- Tabs box -->
     <div id="tabBox" class="abs"
@@ -233,7 +357,7 @@ button{
         <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
       </div>
 
-      <!-- panel-main: labels removed, inputs only (IDs unchanged) -->
+      <!-- panel-main: inputs only (labels removed) -->
       <div id="panel-main" class="tabPanel" style="display:block;">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <input id="archetype1" type="text" placeholder="" />
@@ -277,14 +401,13 @@ window.toggleLock = id => {
 window.stepUpField = id => { document.getElementById(id)?.stepUp(); };
 window.stepDownField = id => { document.getElementById(id)?.stepDown(); };
 
-/* Debug drag toggle with D key */
-let debug=false;
-document.addEventListener('keydown',e=>{
-  if(e.key.toLowerCase()==='d'){
-    debug=!debug;
-    document.getElementById('mainCanvas').classList.toggle('canvas-debug',debug);
-  }
-});
+/* Dice integration stub: replace with your real pool logic */
+function addToDicePool(totalId){
+  const totalEl = document.getElementById(totalId);
+  const val = parseInt(totalEl?.value,10) || 0;
+  // Replace this with your Dice Roller integration (e.g., changePool(val))
+  alert(`Would add ${val} dice from ${totalId} to the Dice Pool`);
+}
 </script>
 
 <script type="module">
@@ -328,23 +451,36 @@ async function populateCharacterList(uid){
   });
 }
 
-window.signUp=async()=>{await createUserWithEmailAndPassword(auth,email.value,password.value);alert('Signed up!');};
-window.signIn=async()=>{await signInWithEmailAndPassword(auth,email.value,password.value);alert('Signed in!');};
-window.signOutUser=async()=>{await signOut(auth);alert('Signed out');};
+window.signUp=async()=>{
+  const em = document.getElementById('email').value.trim();
+  const pw = document.getElementById('password').value;
+  await createUserWithEmailAndPassword(auth,em,pw);
+  alert('Signed up!');
+};
+window.signIn=async()=>{
+  const em = document.getElementById('email').value.trim();
+  const pw = document.getElementById('password').value;
+  await signInWithEmailAndPassword(auth,em,pw);
+  alert('Signed in!');
+};
+window.signOutUser=async()=>{ await signOut(auth); alert('Signed out'); };
 window.deleteAccount=async()=>{
-  if(auth.currentUser&&confirm('Delete account?')){
+  if(auth.currentUser && confirm('Delete account?')){
     await deleteUser(auth.currentUser);
     alert('Account deleted');
   }
 };
 
 window.saveCharacter=async()=>{
-  const user=auth.currentUser;const name=document.getElementById('charName').value.trim();
-  if(!user||!name)return alert('Sign in & name required');
+  const user=auth.currentUser;
+  const name=document.getElementById('charName').value.trim();
+  if(!user||!name) return alert('Sign in & name required');
+
   const data={};
-  document.querySelectorAll('.sheet-container input, .sheet-container select').forEach(el=>{
-    if(!el.id||el.id.startsWith('lock'))return;
-    data[el.id]=el.type==='checkbox'?el.checked:el.value;
+  // only save sheet + tabs (not login/admin)
+  document.querySelectorAll('#mainCanvas input, #mainCanvas select, #tabBox input, #tabBox select').forEach(el=>{
+    if(!el.id || el.id.startsWith('lock')) return;
+    data[el.id] = (el.type==='checkbox') ? el.checked : el.value;
   });
   await setDoc(doc(db,'users',user.uid,'characters',name),data);
   alert('Saved');
@@ -352,20 +488,36 @@ window.saveCharacter=async()=>{
 };
 
 window.loadCharacter=async()=>{
-  const user=auth.currentUser;if(!user)return alert('Sign in first');
-  const id=characterSelectEl.value||document.getElementById('charName').value.trim();if(!id)return alert('Choose or type name');
-  const snap=await getDoc(doc(db,'users',user.uid,'characters',id));if(!snap.exists())return alert('Not found');
+  const user=auth.currentUser;
+  if(!user) return alert('Sign in first');
+
+  const id=characterSelectEl.value || document.getElementById('charName').value.trim();
+  if(!id) return alert('Choose or type name');
+
+  const snap=await getDoc(doc(db,'users',user.uid,'characters',id));
+  if(!snap.exists()) return alert('Not found');
+
   const data=snap.data();
   Object.keys(data).forEach(k=>{
     const el=document.getElementById(k);
-    if(el&&!k.startsWith('lock')) el.type==='checkbox' ? el.checked=data[k] : el.value=data[k];
+    if(el && !k.startsWith('lock')){
+      (el.type==='checkbox') ? el.checked=!!data[k] : el.value=(data[k] ?? '');
+    }
   });
+
+  // Keep the dropdown and name in sync
+  document.getElementById('charName').value = id;
+  characterSelectEl.value = id;
+
+  // Recompute totals after loading
+  initAllSkillTotals();
+
   alert('Loaded');
 };
 
 window.deleteCharacter=async()=>{
-  const user=auth.currentUser;const name=characterSelectEl.value;
-  if(!user||!name)return alert('Select a character');
+  const user=auth.currentUser; const name=characterSelectEl.value;
+  if(!user||!name) return alert('Select a character');
   if(confirm(`Delete "${name}"?`)){
     await deleteDoc(doc(db,'users',user.uid,'characters',name));
     alert('Deleted');
@@ -375,7 +527,58 @@ window.deleteCharacter=async()=>{
 </script>
 
 <script>
-/* Canvas debug mover with badges (unchanged mechanics) */
+/* ===== Skill totals wiring ===== */
+function toNum(v){ const n = parseInt(v,10); return isNaN(n) ? 0 : n; }
+
+function setupSkillRow(attrCurrentId, baseId){
+  const attrEl  = document.getElementById(attrCurrentId);
+  const lvlEl   = document.getElementById(`${baseId}_lvl`);
+  const modEl   = document.getElementById(`${baseId}_mod`);
+  const totalEl = document.getElementById(`${baseId}_total`);
+  if(!attrEl || !lvlEl || !modEl || !totalEl) return;
+
+  const recalc = () => { totalEl.value = toNum(attrEl.value) + toNum(lvlEl.value) + toNum(modEl.value); };
+
+  ['input','change'].forEach(ev=>{
+    attrEl.addEventListener(ev,recalc);
+    lvlEl.addEventListener(ev,recalc);
+    modEl.addEventListener(ev,recalc);
+  });
+  recalc();
+}
+
+function initBrawnSkillTotals(){
+  setupSkillRow('brawnCurrent','endurance');
+  setupSkillRow('brawnCurrent','fight');
+  setupSkillRow('brawnCurrent','might');
+}
+function initAgilitySkillTotals(){
+  setupSkillRow('agilityCurrent','marksmanship');
+  setupSkillRow('agilityCurrent','mobility');
+  setupSkillRow('agilityCurrent','precision');
+}
+function initWitsSkillTotals(){
+  setupSkillRow('witsCurrent','heal');
+  setupSkillRow('witsCurrent','insight');
+  setupSkillRow('witsCurrent','logic');
+  setupSkillRow('witsCurrent','survival');
+  setupSkillRow('witsCurrent','vigilance');
+}
+function initWillSkillTotals(){
+  setupSkillRow('willCurrent','inspire');
+  setupSkillRow('willCurrent','manipulate');
+  setupSkillRow('willCurrent','resolve');
+}
+function initAllSkillTotals(){
+  initBrawnSkillTotals();
+  initAgilitySkillTotals();
+  initWitsSkillTotals();
+  initWillSkillTotals();
+}
+
+document.addEventListener('DOMContentLoaded', initAllSkillTotals);
+
+/* ===== Unified canvas debug mover (press D) ===== */
 (() => {
   let debug = false;
   let dragTarget = null;
@@ -487,7 +690,6 @@ window.deleteCharacter=async()=>{
     [x, y] = clampToCanvas(selected, x, y);
     setXY(selected, x, y);
   });
-
 })();
 </script>
 </body>
