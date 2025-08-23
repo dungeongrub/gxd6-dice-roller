@@ -4,199 +4,128 @@
   <meta charset="UTF-8">
   <title>GxD6 Character Sheet</title>
   <style>
-@font-face {
-  font-family: 'DominicanSmall';
-  src: url('fonts/DOMISC__.TTF');
-}
-@font-face {
-  font-family: 'Dominican';
-  src: url('fonts/DOMINICA.TTF');
-}
-@font-face {
-  font-family: 'DeutschGothic';
-  src: url('fonts/DeutschGothic.ttf');
+/* === Fonts === */
+@font-face { font-family: 'DominicanSmall'; src: url('fonts/DOMISC__.TTF'); }
+@font-face { font-family: 'Dominican';      src: url('fonts/DOMINICA.TTF'); }
+@font-face { font-family: 'DeutschGothic';  src: url('fonts/DeutschGothic.ttf'); }
+
+body{
+  font-family:'DominicanSmall', Georgia, serif;
+  background:#f5f5f5;
+  margin:0;
+  padding:20px;
+  color:black;
 }
 
-body {
-  font-family: 'DominicanSmall', Georgia, serif;
-  background: #f5f5f5;
-  margin: 0;
-  padding: 20px;
-  color: black;
-}
+.sheet-container{ width:800px; margin:0 auto; min-width:800px; }
 
-.sheet-container {
-  width: 800px;
-  margin: 0 auto;
-  min-width: 800px;
-}
-
-input, select {
-  font-family: 'Dominican', serif;
-  font-size: 14px;
-  padding: 2px 6px;
-  background: transparent;
+input,select{
+  font-family:'Dominican', serif;
+  font-size:14px;
+  padding:2px 6px;
+  background:transparent;
   border:none;
 }
 
-input[type="text"] {
-  font-family: 'Dominican', serif;
-}
+input[type="text"]{ font-family:'Dominican', serif; }
 
-input[type=number] {
-  font-family: 'DeutschGothic', monospace;
-  font-size: 16px;
-  text-align: center;
-  -moz-appearance: textfield;
+input[type=number]{
+  font-family:'DeutschGothic', monospace;
+  font-size:16px;
+  text-align:center;
+  -moz-appearance:textfield;
 }
 input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
+input[type=number]::-webkit-outer-spin-button{ -webkit-appearance:none; }
+
+button{
+  font-family:'DominicanSmall', serif;
+  padding:4px 4px;
+  cursor:pointer;
 }
 
-button {
-  font-family: 'DominicanSmall', serif;
-  padding: 4px 4px;
-  cursor: pointer;
+.top-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:20px;
 }
-
-.top-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.login-controls, .admin-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+.login-controls,.admin-controls{ display:flex; align-items:center; gap:10px; }
 
 /* === Attribute pip styles === */
-.pip-base, .pip-current {
-  width: 20px;
-  height: 22px;
-  border: none
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
+.pip-base,.pip-current{
+  width:20px; height:22px;
+  border:none;
+  background:transparent;
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
 }
-
-.pip-base input,
-.pip-current input {
-  width: 20px;
-  height: 22px;
-  font-size: 20px;
-  border: none;
-  background: transparent;
-  text-align: center;
-  font-family: 'DeutschGothic', monospace;
-  padding: 0;
-  margin: 0;
+.pip-base input,.pip-current input{
+  width:20px; height:22px; font-size:20px;
+  border:none; background:transparent; text-align:center;
+  font-family:'DeutschGothic', monospace;
+  padding:0; margin:0;
 }
-
-.pip-base .lock-icon {
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 14px;
-  height: 14px;
-  cursor: pointer;
+.pip-base .lock-icon{
+  position:absolute; bottom:-10px; left:50%; transform:translateX(-50%);
+  width:14px; height:14px; cursor:pointer;
 }
-
-.trauma-controls {
-  position: absolute;
-  top: 0;
-  right: -20px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.trauma-controls{
+  position:absolute; top:0; right:-20px;
+  display:flex; flex-direction:column; gap:2px;
 }
-
-.trauma-controls button {
-  width: 18px;
-  height: 18px;
-  font-size: 12px;
-  font-weight: bold;
-  background: #e0e0e0;
-  border: none;
-  cursor: pointer;
-  line-height: 1px;
-  padding: 0;
+.trauma-controls button{
+  width:18px; height:18px; font-size:12px; font-weight:bold;
+  background:#e0e0e0; border:none; cursor:pointer; line-height:1px; padding:0;
 }
 
 /* === Canvas === */
-.sheet-canvas {
-  position: relative;
-  width: 800px;
-  height: 800px;
-  background: url("img/CharSheet_Block_1600x1600.jpg") no-repeat 0 0 / 100% 100%;
-  border: 1px solid #000;
-  margin-top: 20px;
+.sheet-canvas{
+  position:relative;
+  width:800px; height:800px;
+  background:url("img/CharSheet_Block_1600x1600.jpg") no-repeat 0 0 / 100% 100%;
+  border:1px solid #000; margin-top:20px;
 }
-
-.abs {
-  position: absolute;
-  left: var(--x, 0);
-  top: var(--y, 0);
-  width: var(--w, auto);
-  height: var(--h, auto);
-  z-index: 10;
+.abs{
+  position:absolute;
+  left:var(--x,0); top:var(--y,0);
+  width:var(--w,auto); height:var(--h,auto);
+  z-index:10;
 }
-
 /* Overlay text fields */
-.abs input[type="text"], .abs select {
-  font-family: 'Dominican', serif;
-  font-size: 12px;
-  background: transparent
-  padding: 2px 6px;
-  border: none;
-  box-sizing: border-box;
-  height: 20px;
+.abs input[type="text"], .abs select{
+  font-family:'Dominican', serif;
+  font-size:12px;
+  background:transparent;
+  padding:2px 6px;
+  border:none;
+  box-sizing:border-box;
+  height:20px;
 }
-
-.abs input[type="number"] {
-  font-family: 'DeutschGothic', monospace;
-  font-size: 16px;
-  text-align: center;
-  height: 20px;
-  padding: 0 4px;
+.abs input[type="number"]{
+  font-family:'DeutschGothic', monospace;
+  font-size:16px; text-align:center;
+  height:20px; padding:0 4px;
 }
 .abs input[type="number"]::-webkit-outer-spin-button,
-.abs input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-}
+.abs input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; }
 
 /* Debug: outlines overlays */
-.canvas-debug .abs { outline: 1px dashed rgba(0,0,0,.25); }
+.canvas-debug .abs{ outline:1px dashed rgba(0,0,0,.25); }
 
 /* live coordinate badge */
 .coord-badge{
-  position:absolute;
-  z-index:9999;
-  background:rgba(0,0,0,.75);
-  color:#fff;
-  font:12px/1.2 'DominicanSmall',serif;
-  padding:2px 6px;
-  border-radius:3px;
-  pointer-events:none;
-  white-space:nowrap;
-  transform:translate(-2px, -18px); /* above the element */
+  position:absolute; z-index:9999; background:rgba(0,0,0,.75); color:#fff;
+  font:12px/1.2 'DominicanSmall',serif; padding:2px 6px; border-radius:3px;
+  pointer-events:none; white-space:nowrap; transform:translate(-2px,-18px);
 }
 
 /* highlight the selected overlay while debugging */
-.canvas-debug .abs.selected{
-  outline:2px solid #4caf50;
-}
-
+.canvas-debug .abs.selected{ outline:2px solid #4caf50; }
 
 /* Tabs */
-.tabBtn.active { background:#333; color:#fff; }
+.tabBtn.active{ background:#333; color:#fff; }
   </style>
 </head>
 <body>
@@ -233,10 +162,10 @@ button {
     <input id="charName" class="abs" type="text" maxlength="40" style="--x:28px; --y:123px; --w:210px;" />
     <input id="ageGroup" class="abs" type="text" maxlength="20" style="--x:262px; --y:123px; --w:90px;" />
     <input id="gender" class="abs" type="text" maxlength="20" style="--x:382px; --y:123px; --w:80px;" />
-    <input id="origin" class="abs" type="text" maxlength="60" style="--x:482px; --y:123px; --w:250px;" />
+    <input id="origin"  class="abs" type="text" maxlength="60" style="--x:482px; --y:123px; --w:250px;" />
 
     <!-- Attributes -->
-<!-- BRAWN -->
+    <!-- BRAWN -->
     <span class="pip-base abs" style="--x:127px; --y:210px;">
       <input id="brawn" type="number" min="1" max="5" value="1">
       <img id="lock-brawn" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('brawn')">
@@ -248,7 +177,7 @@ button {
         <button onclick="stepDownField('brawnCurrent')">−</button>
       </div>
     </span>
-<!-- AGILITY -->
+    <!-- AGILITY -->
     <span class="pip-base abs" style="--x:127px; --y:345px;">
       <input id="agility" type="number" min="1" max="5" value="1">
       <img id="lock-agility" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('agility')">
@@ -260,7 +189,7 @@ button {
         <button onclick="stepDownField('agilityCurrent')">−</button>
       </div>
     </span>
-<!-- WITS -->
+    <!-- WITS -->
     <span class="pip-base abs" style="--x:127px; --y:480px;">
       <input id="wits" type="number" min="1" max="5" value="1">
       <img id="lock-wits" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('wits')">
@@ -272,7 +201,7 @@ button {
         <button onclick="stepDownField('witsCurrent')">−</button>
       </div>
     </span>
-<!-- WILL -->
+    <!-- WILL -->
     <span class="pip-base abs" style="--x:127px; --y:665px;">
       <input id="will" type="number" min="1" max="5" value="1">
       <img id="lock-will" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('will')">
@@ -287,8 +216,7 @@ button {
 
     <!-- Tabs box -->
     <div id="tabBox" class="abs"
-      style="--x:278px; --y:331px; --w:440px; --h:430px;
-             background:transparent; border:none; padding:5px;">
+      style="--x:278px; --y:331px; --w:440px; --h:430px; background:transparent; border:none; padding:5px;">
       <div style="display:flex; gap:8px; margin-bottom:8px;">
         <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
         <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
@@ -296,19 +224,21 @@ button {
         <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
       </div>
 
+      <!-- panel-main: labels removed, inputs only (IDs unchanged) -->
       <div id="panel-main" class="tabPanel" style="display:block;">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <label>Archetype 1<input id="archetype1" type="text"></label>
-          <label>Profession 1<input id="profession1" type="text"></label>
-          <label>Archetype 2<input id="archetype2" type="text"></label>
-          <label>Profession 2<input id="profession2" type="text"></label>
+          <input id="archetype1" type="text" placeholder="" />
+          <input id="profession1" type="text" placeholder="" />
+          <input id="archetype2" type="text" placeholder="" />
+          <input id="profession2" type="text" placeholder="" />
         </div>
         <div style="margin-top:14px; display:flex; justify-content:flex-end;">
-          <label>XP <input id="xp" type="number" value="0" style="width:40px;"></label>
+          <input id="xp" type="number" value="0" style="width:40px;" />
         </div>
       </div>
+
       <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
-      <div id="panel-gear" class="tabPanel" style="display:none;">Gear coming soon</div>
+      <div id="panel-gear"   class="tabPanel" style="display:none;">Gear coming soon</div>
       <div id="panel-powers" class="tabPanel" style="display:none;">Powers coming soon</div>
     </div>
 
@@ -339,8 +269,12 @@ window.stepUpField = id => { document.getElementById(id)?.stepUp(); };
 window.stepDownField = id => { document.getElementById(id)?.stepDown(); };
 
 /* Debug drag toggle with D key */
-let debug=false;document.addEventListener('keydown',e=>{
-  if(e.key.toLowerCase()==='d'){debug=!debug;document.getElementById('mainCanvas').classList.toggle('canvas-debug',debug);}
+let debug=false;
+document.addEventListener('keydown',e=>{
+  if(e.key.toLowerCase()==='d'){
+    debug=!debug;
+    document.getElementById('mainCanvas').classList.toggle('canvas-debug',debug);
+  }
 });
 </script>
 
@@ -366,8 +300,15 @@ const accountControlsEl=document.getElementById('accountControls');
 const characterSelectEl=document.getElementById('characterSelect');
 
 onAuthStateChanged(auth,user=>{
-  if(user){loginFormEl.style.display='none';accountControlsEl.style.display='flex';populateCharacterList(user.uid);}
-  else{loginFormEl.style.display='flex';accountControlsEl.style.display='none';characterSelectEl.innerHTML='<option value="">--Select--</option>';}
+  if(user){
+    loginFormEl.style.display='none';
+    accountControlsEl.style.display='flex';
+    populateCharacterList(user.uid);
+  }else{
+    loginFormEl.style.display='flex';
+    accountControlsEl.style.display='none';
+    characterSelectEl.innerHTML='<option value="">--Select--</option>';
+  }
 });
 
 async function populateCharacterList(uid){
@@ -381,39 +322,59 @@ async function populateCharacterList(uid){
 window.signUp=async()=>{await createUserWithEmailAndPassword(auth,email.value,password.value);alert('Signed up!');};
 window.signIn=async()=>{await signInWithEmailAndPassword(auth,email.value,password.value);alert('Signed in!');};
 window.signOutUser=async()=>{await signOut(auth);alert('Signed out');};
-window.deleteAccount=async()=>{if(auth.currentUser&&confirm('Delete account?')){await deleteUser(auth.currentUser);alert('Account deleted');}};
+window.deleteAccount=async()=>{
+  if(auth.currentUser&&confirm('Delete account?')){
+    await deleteUser(auth.currentUser);
+    alert('Account deleted');
+  }
+};
+
 window.saveCharacter=async()=>{
   const user=auth.currentUser;const name=document.getElementById('charName').value.trim();
   if(!user||!name)return alert('Sign in & name required');
-  const data={};document.querySelectorAll('.sheet-container input, .sheet-container select').forEach(el=>{
-    if(!el.id||el.id.startsWith('lock'))return;data[el.id]=el.type==='checkbox'?el.checked:el.value;
+  const data={};
+  document.querySelectorAll('.sheet-container input, .sheet-container select').forEach(el=>{
+    if(!el.id||el.id.startsWith('lock'))return;
+    data[el.id]=el.type==='checkbox'?el.checked:el.value;
   });
-  await setDoc(doc(db,'users',user.uid,'characters',name),data);alert('Saved');populateCharacterList(user.uid);
+  await setDoc(doc(db,'users',user.uid,'characters',name),data);
+  alert('Saved');
+  populateCharacterList(user.uid);
 };
+
 window.loadCharacter=async()=>{
   const user=auth.currentUser;if(!user)return alert('Sign in first');
   const id=characterSelectEl.value||document.getElementById('charName').value.trim();if(!id)return alert('Choose or type name');
   const snap=await getDoc(doc(db,'users',user.uid,'characters',id));if(!snap.exists())return alert('Not found');
-  const data=snap.data();Object.keys(data).forEach(k=>{const el=document.getElementById(k);if(el&&!k.startsWith('lock'))el.type==='checkbox'?el.checked=data[k]:el.value=data[k];});
+  const data=snap.data();
+  Object.keys(data).forEach(k=>{
+    const el=document.getElementById(k);
+    if(el&&!k.startsWith('lock')) el.type==='checkbox' ? el.checked=data[k] : el.value=data[k];
+  });
   alert('Loaded');
 };
+
 window.deleteCharacter=async()=>{
   const user=auth.currentUser;const name=characterSelectEl.value;
   if(!user||!name)return alert('Select a character');
-  if(confirm(`Delete "${name}"?`)){await deleteDoc(doc(db,'users',user.uid,'characters',name));alert('Deleted');populateCharacterList(user.uid);}
+  if(confirm(`Delete "${name}"?`)){
+    await deleteDoc(doc(db,'users',user.uid,'characters',name));
+    alert('Deleted');
+    populateCharacterList(user.uid);
+  }
 };
 </script>
 
 <script>
+/* Canvas debug mover with badges (unchanged mechanics) */
 (() => {
   let debug = false;
   let dragTarget = null;
-  let selected = null; // last clicked/dragged .abs
+  let selected = null;
   let offsetX = 0, offsetY = 0;
   const canvas = document.getElementById('mainCanvas');
   if (!canvas) return;
 
-  // ——— Helpers ———
   const px = n => (typeof n === 'number' ? `${n}px` : n);
   const getPx = (el, varName) => {
     const v = el.style.getPropertyValue(varName).trim();
@@ -464,32 +425,26 @@ window.deleteCharacter=async()=>{
     if (debug && selected) selected.classList.add('selected');
   }
 
-  // ——— Toggle debug ———
   document.addEventListener('keydown', e => {
     if (e.key.toLowerCase() !== 'd') return;
     debug = !debug;
     canvas.classList.toggle('canvas-debug', debug);
-    if (debug) attachBadges();
-    else removeBadges();
+    if (debug) attachBadges(); else removeBadges();
   });
 
-  // ——— Click to select ———
   canvas.addEventListener('mousedown', e => {
     if (!debug) return;
     const target = e.target.closest('.abs');
     if (!target) return;
     selectEl(target);
-    // start drag if mouse down on element (but ignore inputs’ text selection)
     if (e.button === 0) {
       dragTarget = target;
       offsetX = e.clientX - target.offsetLeft;
       offsetY = e.clientY - target.offsetTop;
-      // prevent input focus while dragging
       if (e.target.tagName !== 'INPUT') e.preventDefault();
     }
   });
 
-  // ——— Drag ———
   document.addEventListener('mousemove', e => {
     if (!debug || !dragTarget) return;
     const rect = canvas.getBoundingClientRect();
@@ -499,7 +454,6 @@ window.deleteCharacter=async()=>{
     setXY(dragTarget, newX, newY);
   });
 
-  // ——— End drag ———
   document.addEventListener('mouseup', () => {
     if (dragTarget){
       const x = getPx(dragTarget,'--x'), y = getPx(dragTarget,'--y');
@@ -508,27 +462,19 @@ window.deleteCharacter=async()=>{
     dragTarget = null;
   });
 
-  // ——— Arrow-key nudging ———
   document.addEventListener('keydown', e => {
     if (!debug || !selected) return;
-
-    // Only handle arrow keys
     const ARROWS = ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'];
     if (!ARROWS.includes(e.key)) return;
-
-    // Don’t scroll page with arrows
     e.preventDefault();
-
     const base = 1;
     const step = e.ctrlKey ? 10 : (e.shiftKey ? 5 : base);
     let x = getPx(selected,'--x');
     let y = getPx(selected,'--y');
-
     if (e.key === 'ArrowLeft')  x -= step;
     if (e.key === 'ArrowRight') x += step;
     if (e.key === 'ArrowUp')    y -= step;
     if (e.key === 'ArrowDown')  y += step;
-
     [x, y] = clampToCanvas(selected, x, y);
     setXY(selected, x, y);
   });
