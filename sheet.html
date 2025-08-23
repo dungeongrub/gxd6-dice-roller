@@ -129,24 +129,36 @@ button{
 .tabBtn.active{ background:#333; color:#fff; }
 
 /* === Skill UI bits === */
-.skill-num{
-  font-family:'DeutschGothic', monospace;
-  font-size:12px;
-  height:18px;
-  width:28px;
-  text-align:center;
-  padding:0;
-  background:transparent;
-  border:none;
+.skill-num {
+  font-family: 'DeutschGothic', monospace;
+  font-size: 10px;     /* ✅ smaller font */
+  height: 15px;
+  width: 15px;
+  text-align: center;
+  padding: 0;
+  background: transparent;
+  border: none;
 }
-.pip-check{
-  appearance:none; -webkit-appearance:none;
-  width:16px; height:16px;
-  border:2px solid #000; border-radius:50%;
-  background:transparent; cursor:pointer; display:inline-block;
+
+/* Pip checkbox */
+.pip-check {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 10px;         /* 🔄 make this a little bigger than 5px so it’s actually clickable */
+  height: 10px;
+  border: 1px solid #ccc; /* ✅ keeps it visible when unchecked */
+  border-radius: 50%;     /* round “pip” */
+  background: transparent;
+  cursor: pointer;
+  display: inline-block;
 }
-.pip-check:checked{ background:#000; }
-.pip-check:focus{ outline:none; }
+.pip-check:checked {
+  background: white;      /* ✅ shows up on dark BG */
+}
+.pip-check:focus {
+  outline: none;
+}
+
 
 /* Roll button overlay (uses roll_icon.png, shows '+') */
 .roll-btn{
@@ -257,19 +269,19 @@ button{
 
     <!-- ===== BRAWN SKILLS (Endurance / Fight / Might) ===== -->
     <!-- Row 1 -->
-    <input id="endurance_key"   type="checkbox" class="abs pip-check" style="--x:222px; --y:236px;">
+    <input id="endurance_key"   type="checkbox" class="abs pip-check" style="--x:33px; --y:247px;">
     <input id="endurance_lvl"   type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:236px;">
     <input id="endurance_mod"   type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:236px;">
     <input id="endurance_total" type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:236px;">
     <button id="endurance_roll" class="abs roll-btn" style="--x:340px; --y:236px;" onclick="addToDicePool('endurance_total')">+</button>
     <!-- Row 2 -->
-    <input id="fight_key"       type="checkbox" class="abs pip-check" style="--x:222px; --y:258px;">
+    <input id="fight_key"       type="checkbox" class="abs pip-check" style="--x:33px; --y:267px;">
     <input id="fight_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:258px;">
     <input id="fight_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:258px;">
     <input id="fight_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:258px;">
     <button id="fight_roll"     class="abs roll-btn" style="--x:340px; --y:258px;" onclick="addToDicePool('fight_total')">+</button>
     <!-- Row 3 -->
-    <input id="might_key"       type="checkbox" class="abs pip-check" style="--x:222px; --y:280px;">
+    <input id="might_key"       type="checkbox" class="abs pip-check" style="--x:33px; --y:297px;">
     <input id="might_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:280px;">
     <input id="might_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:280px;">
     <input id="might_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:280px;">
@@ -277,19 +289,19 @@ button{
 
     <!-- ===== AGILITY SKILLS (Marksmanship / Mobility / Precision) ===== -->
     <!-- Row 1 -->
-    <input id="marksmanship_key"   type="checkbox" class="abs pip-check" style="--x:222px; --y:371px;">
+    <input id="marksmanship_key"   type="checkbox" class="abs pip-check" style="--x:33px; --y:371px;">
     <input id="marksmanship_lvl"   type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:371px;">
     <input id="marksmanship_mod"   type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:371px;">
     <input id="marksmanship_total" type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:371px;">
     <button id="marksmanship_roll" class="abs roll-btn" style="--x:340px; --y:371px;" onclick="addToDicePool('marksmanship_total')">+</button>
     <!-- Row 2 -->
-    <input id="mobility_key"       type="checkbox" class="abs pip-check" style="--x:222px; --y:393px;">
+    <input id="mobility_key"       type="checkbox" class="abs pip-check" style="--x:33px; --y:393px;">
     <input id="mobility_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:393px;">
     <input id="mobility_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:393px;">
     <input id="mobility_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:393px;">
     <button id="mobility_roll"     class="abs roll-btn" style="--x:340px; --y:393px;" onclick="addToDicePool('mobility_total')">+</button>
     <!-- Row 3 -->
-    <input id="precision_key"      type="checkbox" class="abs pip-check" style="--x:222px; --y:415px;">
+    <input id="precision_key"      type="checkbox" class="abs pip-check" style="--x:33px; --y:415px;">
     <input id="precision_lvl"      type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:415px;">
     <input id="precision_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:415px;">
     <input id="precision_total"    type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:415px;">
@@ -297,31 +309,31 @@ button{
 
     <!-- ===== WITS SKILLS (Heal / Insight / Logic / Survival / Vigilance) ===== -->
     <!-- Row 1 -->
-    <input id="heal_key"           type="checkbox" class="abs pip-check" style="--x:222px; --y:506px;">
+    <input id="heal_key"           type="checkbox" class="abs pip-check" style="--x:33px; --y:506px;">
     <input id="heal_lvl"           type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:506px;">
     <input id="heal_mod"           type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:506px;">
     <input id="heal_total"         type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:506px;">
     <button id="heal_roll"         class="abs roll-btn" style="--x:340px; --y:506px;" onclick="addToDicePool('heal_total')">+</button>
     <!-- Row 2 -->
-    <input id="insight_key"        type="checkbox" class="abs pip-check" style="--x:222px; --y:528px;">
+    <input id="insight_key"        type="checkbox" class="abs pip-check" style="--x:33px; --y:528px;">
     <input id="insight_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:528px;">
     <input id="insight_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:528px;">
     <input id="insight_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:528px;">
     <button id="insight_roll"      class="abs roll-btn" style="--x:340px; --y:528px;" onclick="addToDicePool('insight_total')">+</button>
     <!-- Row 3 -->
-    <input id="logic_key"          type="checkbox" class="abs pip-check" style="--x:222px; --y:550px;">
+    <input id="logic_key"          type="checkbox" class="abs pip-check" style="--x:33px; --y:550px;">
     <input id="logic_lvl"          type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:550px;">
     <input id="logic_mod"          type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:550px;">
     <input id="logic_total"        type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:550px;">
     <button id="logic_roll"        class="abs roll-btn" style="--x:340px; --y:550px;" onclick="addToDicePool('logic_total')">+</button>
     <!-- Row 4 -->
-    <input id="survival_key"       type="checkbox" class="abs pip-check" style="--x:222px; --y:572px;">
+    <input id="survival_key"       type="checkbox" class="abs pip-check" style="--x:33px; --y:572px;">
     <input id="survival_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:572px;">
     <input id="survival_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:572px;">
     <input id="survival_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:572px;">
     <button id="survival_roll"     class="abs roll-btn" style="--x:340px; --y:572px;" onclick="addToDicePool('survival_total')">+</button>
     <!-- Row 5 -->
-    <input id="vigilance_key"      type="checkbox" class="abs pip-check" style="--x:222px; --y:594px;">
+    <input id="vigilance_key"      type="checkbox" class="abs pip-check" style="--x:33px; --y:594px;">
     <input id="vigilance_lvl"      type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:594px;">
     <input id="vigilance_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:594px;">
     <input id="vigilance_total"    type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:594px;">
@@ -329,7 +341,7 @@ button{
 
     <!-- ===== WILL SKILLS (Inspire / Manipulate / Resolve) ===== -->
     <!-- Row 1 -->
-    <input id="inspire_key"        type="checkbox" class="abs pip-check" style="--x:222px; --y:691px;">
+    <input id="inspire_key"        type="checkbox" class="abs pip-check" style="--x:33px; --y:691px;">
     <input id="inspire_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:691px;">
     <input id="inspire_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:691px;">
     <input id="inspire_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:691px;">
@@ -341,7 +353,7 @@ button{
     <input id="manipulate_total"   type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:713px;">
     <button id="manipulate_roll"   class="abs roll-btn" style="--x:340px; --y:713px;" onclick="addToDicePool('manipulate_total')">+</button>
     <!-- Row 3 -->
-    <input id="resolve_key"        type="checkbox" class="abs pip-check" style="--x:222px; --y:735px;">
+    <input id="resolve_key"        type="checkbox" class="abs pip-check" style="--x:33px; --y:735px;">
     <input id="resolve_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:248px; --y:735px;">
     <input id="resolve_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:735px;">
     <input id="resolve_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:735px;">
