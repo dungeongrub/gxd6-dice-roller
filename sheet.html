@@ -144,16 +144,16 @@ button{
 .pip-check {
   appearance: none;
   -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
-  border: none
+  width: 7px;           /* same width and height */
+  height: 7px;
+  border-radius: 50%;    /* ensures it’s circular */
   background: transparent;
   cursor: pointer;
   display: inline-block;
-  vertical-align: middle;   /* avoids inline distortion */  
 }
+
 .pip-check:checked {
-  background: white;      /* ✅ shows up on dark BG */
+  background: white;     /* shows white dot on dark BG */
 }
 .pip-check:focus {
   outline: none;
