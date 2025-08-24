@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>GxD6 Character Sheet</title>
   <style>
-/* === Fonts === */
+/* === Fonts (for the sheet—not used by debugger) === */
 @font-face { font-family: 'DominicanSmall'; src: url('fonts/DOMISC__.TTF'); }
 @font-face { font-family: 'Dominican';      src: url('fonts/DOMINICA.TTF'); }
 @font-face { font-family: 'DeutschGothic';  src: url('fonts/DeutschGothic.ttf'); }
@@ -113,7 +113,7 @@ button{
 /* Debug: outlines overlays */
 .canvas-debug .abs{ outline:1px dashed rgba(0,0,0,.25); }
 
-/* live coordinate badge */
+/* live coordinate badge (legacy mover) */
 .coord-badge{
   position:absolute; z-index:9999; background:rgba(0,0,0,.75); color:#fff;
   font:12px/1.2 'DominicanSmall',serif; padding:2px 6px; border-radius:3px;
@@ -130,7 +130,7 @@ button{
 /* === Skill UI bits === */
 .skill-num {
   font-family: 'DeutschGothic', monospace;
-  font-size: 10px;     /* smaller font */
+  font-size: 10px;
   height: 15px;
   width: 15px;
   text-align: center;
@@ -166,22 +166,31 @@ button{
    ============================= */
 .debugger-panel {
   position: fixed; right: 14px; bottom: 14px; z-index: 1000000;
-  background: rgba(20,20,20,.92); color: #fff; font: 12px/1.2 system-ui, sans-serif;
-  padding: 10px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.35);
-  user-select: none; min-width: 260px;
+  background: rgba(20,20,20,.92);
+  /* PLAIN system font for debugger ONLY */
+  font: 11px/1.4 system-ui, sans-serif;
+  padding: 6px; border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  user-select: none; min-width: 180px;
 }
 .debugger-panel input[type="text"],
-.debugger-panel input[type="number"] { width: 100%; margin-top: 6px; font-size: 12px; }
-.debugger-panel .row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
-.debugger-panel .muted { opacity: .8; font-size: 11px; }
+.debugger-panel input[type="number"],
+.debugger-panel button {
+  font: 11px/1.4 system-ui, sans-serif;
+  padding: 2px 4px;
+}
+.debugger-panel .row { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+.debugger-panel .muted { opacity: .7; font-size: 10px; }
 .debugger-panel .row > .grow { flex: 1; }
 
-.debug-tooltip {
+/* Tooltip + coord HUD in small, plain font */
+.debug-tooltip,
+.debug-coord-hud {
   position: fixed; z-index: 999998; display: none;
-  background: #222; color: #fff; border-radius: 6px; padding: 6px 8px;
-  box-shadow: 0 4px 14px rgba(0,0,0,.35); pointer-events: none; white-space: nowrap;
-  transform: translate(8px,8px);
+  background: rgba(0,0,0,.85); color: #fff; border-radius: 4px; padding: 3px 5px;
+  font: 11px/1.3 system-ui, sans-serif;
+  pointer-events: none; white-space: nowrap;
 }
+.debug-tooltip { transform: translate(8px,8px); }
 .debug-outline { outline: 2px dashed #8a2be2; outline-offset: 2px; }
 
 .debug-marquee {
@@ -196,10 +205,10 @@ button{
 }
 .debug-crosshair-x { height: 1px; left: 0; right: 0; }
 .debug-crosshair-y { width: 1px; top: 0; bottom: 0; }
-.debug-coord-hud {
-  position: fixed; z-index: 999996; left: 10px; bottom: 10px;
-  background: rgba(0,0,0,.75); color: #fff; padding: 4px 6px; border-radius: 6px;
-  font: 12px/1.2 system-ui, sans-serif; display: none; pointer-events: none;
+
+/* Compact state: only show header row */
+.debugger-panel.compact > :not(:first-child){
+  display: none;
 }
   </style>
 </head>
@@ -298,7 +307,7 @@ button{
       </div>
     </span>
 
-    <!-- ===== BRAWN SKILLS (Endurance / Fight / Might) ===== -->
+    <!-- ===== BRAWN SKILLS ===== -->
     <input id="endurance_key"   type="checkbox" class="abs pip-check" style="--x:41px; --y:252px;">
     <input id="endurance_lvl"   type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:240px;">
     <input id="endurance_mod"   type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:150px; --y:236px;">
@@ -317,16 +326,16 @@ button{
     <input id="might_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:280px;">
     <button id="might_roll"     class="abs roll-btn" style="--x:340px; --y:280px;" onclick="addToDicePool('might_total')">+</button>
 
-    <!-- ===== AGILITY SKILLS (Marksmanship / Mobility / Precision) ===== -->
+    <!-- ===== AGILITY SKILLS ===== -->
     <input id="marksmanship_key"   type="checkbox" class="abs pip-check" style="--x:41px; --y:387px;">
     <input id="marksmanship_lvl"   type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:385px;">
     <input id="marksmanship_mod"   type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:385px;">
     <input id="marksmanship_total" type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:385px;">
     <button id="marksmanship_roll" class="abs roll-btn" style="--x:212px; --y:431px;" onclick="addToDicePool('marksmanship_total')">+</button>
 
-    <input id="mobility_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:412px;">
+    <input id="mobility_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:412px%;">
     <input id="mobility_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:408px;">
-    <input id="mobility_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:408px;">
+    <input id="mobility_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:408px%;">
     <input id="mobility_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:408px;">
     <button id="mobility_roll"     class="abs roll-btn" style="--x:212px; --y:404px;" onclick="addToDicePool('mobility_total')">+</button>
 
@@ -336,7 +345,7 @@ button{
     <input id="precision_total"    type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:316px;">
     <button id="precision_roll"    class="abs roll-btn" style="--x:340px; --y:415px;" onclick="addToDicePool('precision_total')">+</button>
 
-    <!-- ===== WITS SKILLS (Heal / Insight / Logic / Survival / Vigilance) ===== -->
+    <!-- ===== WITS SKILLS ===== -->
     <input id="heal_key"           type="checkbox" class="abs pip-check" style="--x:41px; --y:521px;">
     <input id="heal_lvl"           type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:506px;">
     <input id="heal_mod"           type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:506px;">
@@ -346,7 +355,7 @@ button{
     <input id="insight_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:546px;">
     <input id="insight_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:528px;">
     <input id="insight_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:528px;">
-    <input id="insight_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:528px;">
+    <input id="insight_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:528px%;">
     <button id="insight_roll"      class="abs roll-btn" style="--x:340px; --y:528px;" onclick="addToDicePool('insight_total')">+</button>
 
     <input id="logic_key"          type="checkbox" class="abs pip-check" style="--x:41px; --y:570px;">
@@ -363,27 +372,27 @@ button{
 
     <input id="vigilance_key"      type="checkbox" class="abs pip-check" style="--x:41px; --y:621px;">
     <input id="vigilance_lvl"      type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:594px;">
-    <input id="vigilance_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:594px%;">
+    <input id="vigilance_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:594px;">
     <input id="vigilance_total"    type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:594px;">
     <button id="vigilance_roll"    class="abs roll-btn" style="--x:340px; --y:594px;" onclick="addToDicePool('vigilance_total')">+</button>
 
-    <!-- ===== WILL SKILLS (Inspire / Manipulate / Resolve) ===== -->
+    <!-- ===== WILL SKILLS ===== -->
     <input id="inspire_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:691px;">
     <input id="inspire_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:691px;">
-    <input id="inspire_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:691px%;">
+    <input id="inspire_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:691px;">
     <input id="inspire_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:691px;">
     <button id="inspire_roll"      class="abs roll-btn" style="--x:340px; --y:691px;" onclick="addToDicePool('inspire_total')">+</button>
 
-    <input id="manipulate_key"     type="checkbox" class="abs pip-check" style="--x:41px; --y:713px%;">
+    <input id="manipulate_key"     type="checkbox" class="abs pip-check" style="--x:41px; --y:713px;">
     <input id="manipulate_lvl"     type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:713px;">
     <input id="manipulate_mod"     type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:713px;">
     <input id="manipulate_total"   type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:713px;">
     <button id="manipulate_roll"   class="abs roll-btn" style="--x:340px; --y:713px;" onclick="addToDicePool('manipulate_total')">+</button>
 
-    <input id="resolve_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:735px;">
+    <input id="resolve_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:735px%;">
     <input id="resolve_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:735px;">
-    <input id="resolve_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:735px%;">
-    <input id="resolve_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:735px%;">
+    <input id="resolve_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:735px;">
+    <input id="resolve_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:735px;">
     <button id="resolve_roll"      class="abs roll-btn" style="--x:340px; --y:735px;" onclick="addToDicePool('resolve_total')">+</button>
 
     <!-- Tabs box -->
@@ -396,7 +405,7 @@ button{
         <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
       </div>
 
-      <!-- panel-main: inputs only (labels removed) -->
+      <!-- panel-main: inputs only -->
       <div id="panel-main" class="tabPanel" style="display:block;">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <input id="archetype1" type="text" placeholder="" />
@@ -440,7 +449,7 @@ window.toggleLock = id => {
 window.stepUpField = id => { document.getElementById(id)?.stepUp(); };
 window.stepDownField = id => { document.getElementById(id)?.stepDown(); };
 
-/* Dice integration stub: replace with your real pool logic */
+/* Dice integration stub */
 function addToDicePool(totalId){
   const totalEl = document.getElementById(totalId);
   const val = parseInt(totalEl?.value,10) || 0;
@@ -590,7 +599,7 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
    Unified Debugger (script)
    ============================= */
 (() => {
-  // Targets: all your positioned overlays
+  // Targets: all positioned overlays
   let TARGET_SELECTOR = '.abs';
 
   // State
@@ -671,6 +680,29 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
   `;
   document.body.appendChild(panel);
 
+  // --- Compact behavior (auto-collapse when Off; click header to toggle) ---
+  (function(){
+    const headerRow = panel.querySelector('.row');
+    if (headerRow) headerRow.style.cursor = 'pointer';
+    function setCompact(on){ panel.classList.toggle('compact', !!on); }
+    // Start compact by default
+    setCompact(true);
+    // Click header to expand/collapse unless clicking the checkbox itself
+    headerRow && headerRow.addEventListener('click', function(e){
+      const tgt = e.target;
+      if (tgt && (tgt.id === 'dbg-toggle' || (tgt.closest && tgt.closest('#dbg-toggle')))) return;
+      setCompact(!panel.classList.contains('compact'));
+    });
+    const toggle = document.getElementById('dbg-toggle');
+    if (toggle){
+      toggle.addEventListener('change', function(){
+        setCompact(!toggle.checked);
+      });
+      // sync initial
+      setCompact(!toggle.checked);
+    }
+  })();
+
   // Panel refs
   const $ = sel => document.querySelector(sel);
   const toggleEl   = $('#dbg-toggle');
@@ -711,7 +743,6 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
   function centerOnX(el, cx){
     const r = el.getBoundingClientRect();
     const parent = canvas.getBoundingClientRect();
-    const relLeft = r.left - parent.left;
     const newLeft = Math.round(cx - (r.width/2));
     const clamped = clampToCanvas(el, newLeft, getXY(el)[1])[0];
     setXY(el, clamped, getXY(el)[1]);
@@ -719,7 +750,6 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
   function centerOnY(el, cy){
     const r = el.getBoundingClientRect();
     const parent = canvas.getBoundingClientRect();
-    const relTop = r.top - parent.top;
     const newTop = Math.round(cy - (r.height/2));
     const clamped = clampToCanvas(el, getXY(el)[0], newTop)[1];
     setXY(el, getXY(el)[0], clamped);
@@ -812,45 +842,48 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
   }
 
   // Panel wiring
-  $('#dbg-toggle').addEventListener('change', () => {
-    debugOn = $('#dbg-toggle').checked;
+  toggleEl.addEventListener('change', () => {
+    debugOn = toggleEl.checked;
     canvas.classList.toggle('canvas-debug', debugOn);
     if (!debugOn) { hideTooltip(); clearSelection(); setCursorMode(false); }
   });
-  $('#dbg-selector').addEventListener('change', () => {
-    TARGET_SELECTOR = $('#dbg-selector').value.trim() || TARGET_SELECTOR;
+  selectorEl.addEventListener('change', () => {
+    TARGET_SELECTOR = selectorEl.value.trim() || TARGET_SELECTOR;
     clearSelection();
   });
-  $('#dbg-cursor').addEventListener('change', () => setCursorMode($('#dbg-cursor').checked));
-  $('#dbg-clear').addEventListener('click', clearSelection);
-  $('#dbg-log').addEventListener('click', () => { if (selected.size) console.table([...selected].map(el => ({key:keyFor(el), ...Object.fromEntries([['x',getXY(el)[0]],['y',getXY(el)[1]]])}))); });
-  $('#dbg-align-left').addEventListener('click', () => {
-    const x = parseFloat($('#dbg-left-x').value); if (Number.isNaN(x)) return;
+  cursorEl.addEventListener('change', () => setCursorMode(cursorEl.checked));
+  clearBtn.addEventListener('click', clearSelection);
+  logBtn.addEventListener('click', () => {
+    if (!selected.size) return;
+    console.table([...selected].map(el => ({ key:keyFor(el), x:getXY(el)[0], y:getXY(el)[1] })));
+  });
+  alignLeft.addEventListener('click', () => {
+    const x = parseFloat(leftInput.value); if (Number.isNaN(x)) return;
     selected.forEach(el => setXY(el, clampToCanvas(el, x, getXY(el)[1])[0], getXY(el)[1]));
   });
-  $('#dbg-align-top').addEventListener('click', () => {
-    const y = parseFloat($('#dbg-top-y').value); if (Number.isNaN(y)) return;
+  alignTop.addEventListener('click', () => {
+    const y = parseFloat(topInput.value); if (Number.isNaN(y)) return;
     selected.forEach(el => setXY(el, getXY(el)[0], clampToCanvas(el, getXY(el)[0], y)[1]));
   });
-  $('#dbg-center-x-btn').addEventListener('click', () => {
+  centerXBtn.addEventListener('click', () => {
     if (!selected.size) return;
-    let cx = parseFloat($('#dbg-center-x').value);
+    let cx = parseFloat(centerXInp.value);
     if (Number.isNaN(cx)) {
       const first = [...selected][0].getBoundingClientRect();
       cx = Math.round(first.left + first.width/2);
     }
     selected.forEach(el => centerOnX(el, cx));
   });
-  $('#dbg-center-y-btn').addEventListener('click', () => {
+  centerYBtn.addEventListener('click', () => {
     if (!selected.size) return;
-    let cy = parseFloat($('#dbg-center-y').value);
+    let cy = parseFloat(centerYInp.value);
     if (Number.isNaN(cy)) {
       const first = [...selected][0].getBoundingClientRect();
       cy = Math.round(first.top + first.height/2);
     }
     selected.forEach(el => centerOnY(el, cy));
   });
-  $('#dbg-export').addEventListener('click', () => {
+  exportBtn.addEventListener('click', () => {
     const data = exportSelection(); if (!data.items.length) return;
     const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
     const a = document.createElement('a');
@@ -858,9 +891,9 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
     a.download = `debug-positions-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
     a.click(); URL.revokeObjectURL(a.href);
   });
-  $('#dbg-import').addEventListener('click', () => $('#dbg-file').click());
-  $('#dbg-file').addEventListener('change', () => {
-    const file = $('#dbg-file').files?.[0]; if (!file) return;
+  importBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files?.[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       try {
@@ -868,7 +901,7 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
         const res = importPositions(json);
         console.log(`Imported ${res.applied} / ${res.total} items. Unmatched:`, res.unmatched);
       } catch (e) { console.error('Invalid JSON:', e); }
-      $('#dbg-file').value = '';
+      fileInput.value = '';
     };
     reader.readAsText(file);
   });
