@@ -130,7 +130,7 @@ button{
 /* Smaller number text but same 15x15 frame */
 .skill-num {
   font-family: 'DeutschGothic', monospace;
-  font-size: 8px;   /* ↓ from 10px */
+  font-size: 8px;   /* actually smaller now */
   height: 15px;
   width: 15px;
   text-align: center;
@@ -138,6 +138,8 @@ button{
   background: transparent;
   border: none;
 }
+/* Force override the generic 16px number rule */
+.abs input.skill-num[type="number"] { font-size: 8px !important; }
 
 /* Pip checkbox */
 .pip-check {
@@ -169,13 +171,14 @@ button{
   background: #ffffff; color: #111; border: 1px solid #bbb;
   font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   padding: 6px; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.15);
-  user-select: none; min-width: 170px;
+  user-select: none; min-width: 190px;
 }
 .debugger-panel .row { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
 .debugger-panel .row > .grow { flex: 1; }
 .debugger-panel input[type="text"],
 .debugger-panel input[type="number"],
-.debugger-panel button {
+.debugger-panel button,
+.debugger-panel label {
   font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   padding: 2px 4px;
 }
@@ -195,7 +198,7 @@ button{
 
 /* Crosshairs */
 .debug-crosshair-x, .debug-crosshair-y {
-  position: fixed; z-index: 999996; background: rgba(255,0,0,.8); display: none; pointer-events: none;
+  position: fixed; z-index: 999996; background: rgba(255,0,0,.85); display: none; pointer-events: none;
 }
 .debug-crosshair-x { height: 1px; left: 0; right: 0; }
 .debug-crosshair-y { width: 1px; top: 0; bottom: 0; }
@@ -222,6 +225,18 @@ button{
   padding: 2px 4px;
   font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   pointer-events: none; white-space: nowrap;
+}
+
+/* Measure mode box + label */
+.debug-measure {
+  position: fixed; z-index: 999997; display: none;
+  border: 1px dashed #00aa55; background: rgba(0,170,85,.10); pointer-events: none;
+}
+.debug-measure-hud {
+  position: fixed; z-index: 999998; display: none;
+  background:#111; color:#fff; border:1px solid #444; border-radius:4px; padding:2px 4px;
+  font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  pointer-events:none; white-space:nowrap;
 }
 
 /* Compact state: only show the header row */
@@ -329,7 +344,7 @@ button{
     <button id="endurance_roll" class="abs roll-btn" style="--x:212px; --y:250px;" onclick="addToDicePool('endurance_total')">+</button>
 
     <input id="fight_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:277px;">
-    <input id="fight_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:272px;">
+    <input id="fight_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:272px%;">
     <input id="fight_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:272px;">
     <input id="fight_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:272px;">
     <button id="fight_roll"     class="abs roll-btn" style="--x:212px; --y:301px;" onclick="addToDicePool('fight_total')">+</button>
@@ -353,7 +368,7 @@ button{
     <input id="mobility_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:407px;">
     <button id="mobility_roll"     class="abs roll-btn" style="--x:212px; --y:410px;" onclick="addToDicePool('mobility_total')">+</button>
 
-    <input id="precision_key"      type="checkbox" class="abs pip-check" style="--x:41px; --y:437px;">
+    <input id="precision_key"      type="checkbox" class="abs pip-check" style="--x:41px; --y:437px%;">
     <input id="precision_lvl"      type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:432px;">
     <input id="precision_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:432px;">
     <input id="precision_total"    type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:432px;">
@@ -367,12 +382,12 @@ button{
     <button id="heal_roll"         class="abs roll-btn" style="--x:212px; --y:519px;" onclick="addToDicePool('heal_total')">+</button>
 
     <input id="insight_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:546px;">
-    <input id="insight_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:542px;">
+    <input id="insight_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:542px%;">
     <input id="insight_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:542px;">
     <input id="insight_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:542px;">
     <button id="insight_roll"      class="abs roll-btn" style="--x:212px; --y:544px;" onclick="addToDicePool('insight_total')">+</button>
 
-    <input id="logic_key"          type="checkbox" class="abs pip-check" style="--x:41px; --y:570px%;">
+    <input id="logic_key"          type="checkbox" class="abs pip-check" style="--x:41px; --y:570px;">
     <input id="logic_lvl"          type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:567px;">
     <input id="logic_mod"          type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:567px;">
     <input id="logic_total"        type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:567px;">
@@ -387,7 +402,7 @@ button{
     <input id="vigilance_key"      type="checkbox" class="abs pip-check" style="--x:41px; --y:621px;">
     <input id="vigilance_lvl"      type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:617px;">
     <input id="vigilance_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:617px;">
-    <input id="vigilance_total"    type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:617px;">
+    <input id="vigilance_total"    type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:617px%;">
     <button id="vigilance_roll"    class="abs roll-btn" style="--x:212px; --y:619px;" onclick="addToDicePool('vigilance_total')">+</button>
 
     <!-- ===== WILL SKILLS ===== -->
@@ -621,6 +636,7 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
   let hoverEnabled = false;   // Alt for tooltip
   let marqueeActive = false;  // Shift+drag
   let cursorMode = false;
+  let measureMode = false;    // NEW: measure drag
   let selected = new Set();
   let startX = 0, startY = 0;
 
@@ -646,7 +662,20 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
   coordHUD.className = 'debug-coord-hud'; coordHUD.textContent = 'X: 0  Y: 0';
   document.body.appendChild(coordHUD);
 
+  // Measure mode elements
+  const measureBox = document.createElement('div');
+  measureBox.className = 'debug-measure'; document.body.appendChild(measureBox);
+  const measureHUD = document.createElement('div');
+  measureHUD.className = 'debug-measure-hud'; measureHUD.textContent = '0 × 0';
+  document.body.appendChild(measureHUD);
+  let measureActive = false;
+
   // Per-selected-element HUDs (created dynamically)
+  function getXY(el){
+    const x = parseFloat(el.style.getPropertyValue('--x')) || 0;
+    const y = parseFloat(el.style.getPropertyValue('--y')) || 0;
+    return [x,y];
+  }
   function refreshSelectedHUD(){
     document.querySelectorAll('.debug-selected-hud').forEach(n => n.remove());
     if (!debugOn || !selected.size) return;
@@ -678,10 +707,13 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
 
     <div class="row" style="justify-content:space-between; margin-top:6px">
       <label class="row" title="Show crosshair + cursor coordinates">
-        <input id="dbg-cursor" type="checkbox"><span>Cursor mode</span>
+        <input id="dbg-cursor" type="checkbox" checked><span>Cursor mode</span>
       </label>
-      <span class="muted">D=toggle • Alt=tooltip • Shift+drag=marquee • Arrows=nudge • Ctrl=5px</span>
+      <label class="row" title="Drag on canvas to measure W×H in px">
+        <input id="dbg-measure" type="checkbox"><span>Measure mode</span>
+      </label>
     </div>
+    <div class="row"><span class="muted">D=toggle • C=cursor • Alt=tooltip • Shift+drag=marquee • Arrows=nudge • Ctrl=5px</span></div>
 
     <hr style="border:none;border-top:1px solid #ddd;margin:8px 0" />
 
@@ -719,7 +751,7 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
   `;
   document.body.appendChild(panel);
 
-  // Compact behavior (auto-collapse when Off; click header to toggle)
+  // Compact behavior (click header to expand/collapse)
   (function(){
     const headerRow = panel.querySelector('.row');
     if (headerRow) headerRow.style.cursor = 'pointer';
@@ -732,16 +764,24 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
     });
     const toggle = document.getElementById('dbg-toggle');
     if (toggle){
-      toggle.addEventListener('change', function(){ setCompact(!toggle.checked); });
+      toggle.addEventListener('change', function(){
+        setCompact(!toggle.checked);
+        debugOn = toggle.checked;
+        document.getElementById('dbg-cursor').checked = true; // auto-enable cursor mode
+        setCursorMode(debugOn); // show/hide crosshairs+HUD
+        canvas.classList.toggle('canvas-debug', debugOn);
+        if (!debugOn) { hideTooltip(); clearSelection(); setMeasureMode(false); }
+        else { refreshSelectedHUD(); }
+      });
       setCompact(!toggle.checked);
     }
   })();
 
   // Panel refs
   const $ = sel => document.querySelector(sel);
-  const toggleEl   = $('#dbg-toggle');
   const selectorEl = $('#dbg-selector');
   const cursorEl   = $('#dbg-cursor');
+  const measureEl  = $('#dbg-measure');
   const clearBtn   = $('#dbg-clear');
   const logBtn     = $('#dbg-log');
   const leftInput  = $('#dbg-left-x');
@@ -761,11 +801,6 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
   const inCanvas = el => canvas && canvas.contains(el);
   const isTarget = el => !!(el && el.matches && el.matches(TARGET_SELECTOR) && inCanvas(el));
 
-  function getXY(el){
-    const x = parseFloat(el.style.getPropertyValue('--x')) || 0;
-    const y = parseFloat(el.style.getPropertyValue('--y')) || 0;
-    return [x,y];
-  }
   function setXY(el, x, y){
     el.style.setProperty('--x', x + 'px');
     el.style.setProperty('--y', y + 'px');
@@ -879,14 +914,9 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
   }
 
   // Panel wiring
-  toggleEl.addEventListener('change', () => {
-    debugOn = toggleEl.checked;
-    canvas.classList.toggle('canvas-debug', debugOn);
-    if (!debugOn) { hideTooltip(); clearSelection(); setCursorMode(false); }
-    else { refreshSelectedHUD(); }
-  });
   selectorEl.addEventListener('change', () => { TARGET_SELECTOR = selectorEl.value.trim() || TARGET_SELECTOR; clearSelection(); });
   cursorEl.addEventListener('change', () => setCursorMode(cursorEl.checked));
+  measureEl.addEventListener('change', () => setMeasureMode(measureEl.checked));
   clearBtn.addEventListener('click', clearSelection);
   logBtn.addEventListener('click', () => {
     if (!selected.size) return;
@@ -919,11 +949,11 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
     selected.forEach(el => centerOnY(el, cy));
   });
 
-  // Robust Export JSON (adds to DOM; filename includes character name)
+  // Robust Export JSON
   function currentCharName() {
     const n = document.getElementById('charName')?.value?.trim();
     return n ? n.replace(/[^\w\-]+/g, '_') : 'positions';
-  }
+    }
 
   exportBtn.addEventListener('click', () => {
     const data = exportSelection();
@@ -964,7 +994,6 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
   // Export HTML: creates a small HTML file with a <style> block of --x/--y rules
   function selectorFor(el) {
     if (el.id) return `#${el.id}`;
-    // Build :scope path from canvas
     const parts = [];
     let node = el;
     while (node && node.nodeType === 1 && node !== canvas) {
@@ -1012,8 +1041,15 @@ ${css}
     // Toggle debugger with "D"
     if (e.key === 'd' || e.key === 'D') {
       if (document.activeElement && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
-      toggleEl.checked = !toggleEl.checked;
-      toggleEl.dispatchEvent(new Event('change'));
+      const t = document.getElementById('dbg-toggle');
+      t.checked = !t.checked;
+      t.dispatchEvent(new Event('change'));
+    }
+    // Toggle cursor mode with "C"
+    if (e.key === 'c' || e.key === 'C') {
+      const c = document.getElementById('dbg-cursor');
+      c.checked = !c.checked;
+      setCursorMode(c.checked);
     }
     // ALT = tooltip while pressed
     if (debugOn && e.altKey) hoverEnabled = true;
@@ -1041,7 +1077,7 @@ ${css}
 
   // ===== Marquee selection: Shift+drag on canvas =====
   canvas.addEventListener('mousedown', e => {
-    if (!debugOn || !e.shiftKey) return;
+    if (!debugOn || !e.shiftKey || measureMode) return; // measure mode has priority if on
     marqueeActive = true;
     startX = e.clientX; startY = e.clientY;
     Object.assign(marquee.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' });
@@ -1062,18 +1098,53 @@ ${css}
     marqueeActive = false; marquee.style.display = 'none';
   });
 
-  // ===== Mouse drag to move selected (click without Shift) =====
+  // ===== Measure mode: click+drag on canvas to see W×H =====
+  function setMeasureMode(on){
+    measureMode = !!on;
+    if (!measureMode){ measureActive=false; measureBox.style.display='none'; measureHUD.style.display='none'; }
+  }
   canvas.addEventListener('mousedown', e => {
-    if (!debugOn || e.shiftKey) return; // marquee handles shift already
+    if (!debugOn || !measureMode) return;
+    // only start measure if clicked empty canvas area or not a target element
+    const t = e.target.closest(TARGET_SELECTOR);
+    if (t) return; // don’t hijack when clicking elements
+    measureActive = true;
+    startX = e.clientX; startY = e.clientY;
+    Object.assign(measureBox.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' });
+    measureHUD.style.display = 'block';
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!debugOn || !measureMode || !measureActive) return;
+    let x2 = e.clientX, y2 = e.clientY;
+    // snapping with Ctrl (5px)
+    if (e.ctrlKey){
+      const snap = v => Math.round(v / 5) * 5;
+      x2 = snap(x2); y2 = snap(y2);
+    }
+    const box = rectFromPoints(startX, startY, x2, y2);
+    Object.assign(measureBox.style, { left:box.left+'px', top:box.top+'px', width:box.width+'px', height:box.height+'px' });
+    measureHUD.textContent = `${box.width} × ${box.height}px`;
+    measureHUD.style.left = (box.left + box.width + 8) + 'px';
+    measureHUD.style.top  = (box.top - 2) + 'px';
+  });
+  window.addEventListener('mouseup', () => {
+    if (!debugOn || !measureMode || !measureActive) return;
+    measureActive = false;
+    // keep the numbers visible briefly? For now, hide immediately:
+    measureBox.style.display = 'none';
+    measureHUD.style.display = 'none';
+  });
+
+  // ===== Mouse drag to move selected (click without Shift, and not in measure mode) =====
+  canvas.addEventListener('mousedown', e => {
+    if (!debugOn || e.shiftKey || measureMode) return; // marquee or measure take priority
     const t = e.target.closest(TARGET_SELECTOR);
     if (!isTarget(t)) return;
-    // don't steal focus if clicking directly into a text/number input
-    if (e.target && e.target.tagName === 'INPUT') return;
+    if (e.target && e.target.tagName === 'INPUT') return; // allow editing inputs
 
-    // select it (if not already)
     if (!selected.has(t)) { clearSelection(); addToSelection(t); }
 
-    // start drag
     draggingEl = t;
     const [x,y] = getXY(t);
     const crect = canvas.getBoundingClientRect();
@@ -1089,9 +1160,7 @@ ${css}
     [nx, ny] = clampToCanvas(draggingEl, nx, ny);
     setXY(draggingEl, nx, ny);
   });
-  window.addEventListener('mouseup', () => {
-    draggingEl = null;
-  });
+  window.addEventListener('mouseup', () => { draggingEl = null; });
 
   // Arrow key nudging (Ctrl = 5px)
   window.addEventListener('keydown', e => {
@@ -1105,15 +1174,15 @@ ${css}
     selected.forEach(el => nudge(el, dx, dy));
   });
 
-  // Click selects one (outside marquee)
+  // Click selects one (outside marquee/measure)
   document.addEventListener('click', e => {
-    if (!debugOn || e.shiftKey) return;
+    if (!debugOn || e.shiftKey || measureMode) return;
     const t = e.target.closest(TARGET_SELECTOR);
     if (!isTarget(t)) return;
     clearSelection(); addToSelection(t);
   }, true);
 
-  // ===== Cursor mode (HUD always updates when on) =====
+  // ===== Cursor mode (crosshairs + HUD) =====
   function setCursorMode(on) {
     cursorMode = !!on;
     const disp = on && debugOn ? 'block' : 'none';
@@ -1131,6 +1200,7 @@ ${css}
     coordHUD.textContent = `X: ${x}   Y: ${y}`;
   });
 
+  // Start with debugger OFF but cursor checkbox ON; when you toggle ON it shows crosshairs immediately.
 })();
 </script>
 
