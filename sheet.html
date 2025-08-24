@@ -26,7 +26,6 @@ input,select{
   background:transparent;
   border:none;
 }
-
 input[type="text"]{ font-family:'Dominican', serif; }
 
 input[type=number]{
@@ -131,7 +130,7 @@ button{
 /* === Skill UI bits === */
 .skill-num {
   font-family: 'DeutschGothic', monospace;
-  font-size: 10px;     /* ✅ smaller font */
+  font-size: 10px;     /* smaller font */
   height: 15px;
   width: 15px;
   text-align: center;
@@ -144,25 +143,12 @@ button{
 .pip-check {
   appearance: none;
   -webkit-appearance: none;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;   /* circle */
-  background: transparent;
-  cursor: pointer;
-  display: inline-block;
-  padding: 0;           /* prevents extra height */
-  margin: 0;
-  line-height: 0;       /* stops vertical stretching */
-  vertical-align: middle;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: transparent; cursor: pointer; display: inline-block;
+  padding: 0; margin: 0; line-height: 0; vertical-align: middle;
 }
-
-.pip-check:checked {
-  background: white;
-}
-.pip-check:focus {
-  outline: none;
-}
-
+.pip-check:checked { background: white; }
+.pip-check:focus { outline: none; }
 
 /* Roll button overlay (uses roll_icon.png, shows '+') */
 .roll-btn{
@@ -174,6 +160,47 @@ button{
   text-align:center; line-height:18px; padding:0;
 }
 .roll-btn:active{ transform:scale(0.9); }
+
+/* =============================
+   Unified Debugger (styles)
+   ============================= */
+.debugger-panel {
+  position: fixed; right: 14px; bottom: 14px; z-index: 1000000;
+  background: rgba(20,20,20,.92); color: #fff; font: 12px/1.2 system-ui, sans-serif;
+  padding: 10px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  user-select: none; min-width: 260px;
+}
+.debugger-panel input[type="text"],
+.debugger-panel input[type="number"] { width: 100%; margin-top: 6px; font-size: 12px; }
+.debugger-panel .row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+.debugger-panel .muted { opacity: .8; font-size: 11px; }
+.debugger-panel .row > .grow { flex: 1; }
+
+.debug-tooltip {
+  position: fixed; z-index: 999998; display: none;
+  background: #222; color: #fff; border-radius: 6px; padding: 6px 8px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.35); pointer-events: none; white-space: nowrap;
+  transform: translate(8px,8px);
+}
+.debug-outline { outline: 2px dashed #8a2be2; outline-offset: 2px; }
+
+.debug-marquee {
+  position: fixed; z-index: 999997; display: none;
+  border: 1px dashed #00aaff; background: rgba(0,170,255,.15); pointer-events: none;
+}
+.debug-selected { outline: 2px solid #00aaff; outline-offset: 1px; }
+
+/* Cursor mode (crosshair & HUD) */
+.debug-crosshair-x, .debug-crosshair-y {
+  position: fixed; z-index: 999996; background: rgba(255,255,255,.65); display: none; pointer-events: none;
+}
+.debug-crosshair-x { height: 1px; left: 0; right: 0; }
+.debug-crosshair-y { width: 1px; top: 0; bottom: 0; }
+.debug-coord-hud {
+  position: fixed; z-index: 999996; left: 10px; bottom: 10px;
+  background: rgba(0,0,0,.75); color: #fff; padding: 4px 6px; border-radius: 6px;
+  font: 12px/1.2 system-ui, sans-serif; display: none; pointer-events: none;
+}
   </style>
 </head>
 <body>
@@ -272,19 +299,18 @@ button{
     </span>
 
     <!-- ===== BRAWN SKILLS (Endurance / Fight / Might) ===== -->
-    <!-- Row 1 -->
     <input id="endurance_key"   type="checkbox" class="abs pip-check" style="--x:41px; --y:252px;">
     <input id="endurance_lvl"   type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:240px;">
     <input id="endurance_mod"   type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:150px; --y:236px;">
     <input id="endurance_total" type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:236px;">
     <button id="endurance_roll" class="abs roll-btn" style="--x:340px; --y:245px;" onclick="addToDicePool('endurance_total')">+</button>
-    <!-- Row 2 -->
+
     <input id="fight_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:277px;">
     <input id="fight_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:258px;">
     <input id="fight_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:258px;">
     <input id="fight_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:258px;">
     <button id="fight_roll"     class="abs roll-btn" style="--x:340px; --y:258px;" onclick="addToDicePool('fight_total')">+</button>
-    <!-- Row 3 -->
+
     <input id="might_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:301px;">
     <input id="might_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:280px;">
     <input id="might_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:280px;">
@@ -292,19 +318,18 @@ button{
     <button id="might_roll"     class="abs roll-btn" style="--x:340px; --y:280px;" onclick="addToDicePool('might_total')">+</button>
 
     <!-- ===== AGILITY SKILLS (Marksmanship / Mobility / Precision) ===== -->
-    <!-- Row 1 -->
     <input id="marksmanship_key"   type="checkbox" class="abs pip-check" style="--x:41px; --y:387px;">
     <input id="marksmanship_lvl"   type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:385px;">
     <input id="marksmanship_mod"   type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:385px;">
     <input id="marksmanship_total" type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:385px;">
     <button id="marksmanship_roll" class="abs roll-btn" style="--x:212px; --y:431px;" onclick="addToDicePool('marksmanship_total')">+</button>
-    <!-- Row 2 -->
+
     <input id="mobility_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:412px;">
     <input id="mobility_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:408px;">
     <input id="mobility_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:408px;">
     <input id="mobility_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:408px;">
     <button id="mobility_roll"     class="abs roll-btn" style="--x:212px; --y:404px;" onclick="addToDicePool('mobility_total')">+</button>
-    <!-- Row 3 -->
+
     <input id="precision_key"      type="checkbox" class="abs pip-check" style="--x:41px; --y:437px;">
     <input id="precision_lvl"      type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:433px;">
     <input id="precision_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:433px;">
@@ -312,55 +337,53 @@ button{
     <button id="precision_roll"    class="abs roll-btn" style="--x:340px; --y:415px;" onclick="addToDicePool('precision_total')">+</button>
 
     <!-- ===== WITS SKILLS (Heal / Insight / Logic / Survival / Vigilance) ===== -->
-    <!-- Row 1 -->
     <input id="heal_key"           type="checkbox" class="abs pip-check" style="--x:41px; --y:521px;">
     <input id="heal_lvl"           type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:506px;">
     <input id="heal_mod"           type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:506px;">
     <input id="heal_total"         type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:506px;">
     <button id="heal_roll"         class="abs roll-btn" style="--x:340px; --y:506px;" onclick="addToDicePool('heal_total')">+</button>
-    <!-- Row 2 -->
+
     <input id="insight_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:546px;">
     <input id="insight_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:528px;">
     <input id="insight_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:528px;">
     <input id="insight_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:528px;">
     <button id="insight_roll"      class="abs roll-btn" style="--x:340px; --y:528px;" onclick="addToDicePool('insight_total')">+</button>
-    <!-- Row 3 -->
+
     <input id="logic_key"          type="checkbox" class="abs pip-check" style="--x:41px; --y:570px;">
     <input id="logic_lvl"          type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:550px;">
     <input id="logic_mod"          type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:550px;">
     <input id="logic_total"        type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:550px;">
     <button id="logic_roll"        class="abs roll-btn" style="--x:340px; --y:550px;" onclick="addToDicePool('logic_total')">+</button>
-    <!-- Row 4 -->
+
     <input id="survival_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:596px;">
     <input id="survival_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:572px;">
     <input id="survival_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:572px;">
     <input id="survival_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:572px;">
     <button id="survival_roll"     class="abs roll-btn" style="--x:340px; --y:572px;" onclick="addToDicePool('survival_total')">+</button>
-    <!-- Row 5 -->
+
     <input id="vigilance_key"      type="checkbox" class="abs pip-check" style="--x:41px; --y:621px;">
     <input id="vigilance_lvl"      type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:594px;">
-    <input id="vigilance_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:594px;">
+    <input id="vigilance_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:594px%;">
     <input id="vigilance_total"    type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:594px;">
     <button id="vigilance_roll"    class="abs roll-btn" style="--x:340px; --y:594px;" onclick="addToDicePool('vigilance_total')">+</button>
 
     <!-- ===== WILL SKILLS (Inspire / Manipulate / Resolve) ===== -->
-    <!-- Row 1 -->
     <input id="inspire_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:691px;">
     <input id="inspire_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:691px;">
-    <input id="inspire_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:691px;">
+    <input id="inspire_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:691px%;">
     <input id="inspire_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:691px;">
     <button id="inspire_roll"      class="abs roll-btn" style="--x:340px; --y:691px;" onclick="addToDicePool('inspire_total')">+</button>
-    <!-- Row 2 -->
-    <input id="manipulate_key"     type="checkbox" class="abs pip-check" style="--x:41px; --y:713px;">
+
+    <input id="manipulate_key"     type="checkbox" class="abs pip-check" style="--x:41px; --y:713px%;">
     <input id="manipulate_lvl"     type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:713px;">
     <input id="manipulate_mod"     type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:713px;">
     <input id="manipulate_total"   type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:713px;">
     <button id="manipulate_roll"   class="abs roll-btn" style="--x:340px; --y:713px;" onclick="addToDicePool('manipulate_total')">+</button>
-    <!-- Row 3 -->
+
     <input id="resolve_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:735px;">
     <input id="resolve_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:735px;">
-    <input id="resolve_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:735px;">
-    <input id="resolve_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:735px;">
+    <input id="resolve_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:282px; --y:735px%;">
+    <input id="resolve_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:316px; --y:735px%;">
     <button id="resolve_roll"      class="abs roll-btn" style="--x:340px; --y:735px;" onclick="addToDicePool('resolve_total')">+</button>
 
     <!-- Tabs box -->
@@ -394,7 +417,7 @@ button{
   </div>
 </div>
 
-<!-- Scripts -->
+<!-- Scripts (tabs + small helpers) -->
 <script>
 window.showTab = function(which){
   document.querySelectorAll('.tabPanel').forEach(p=>p.style.display='none');
@@ -421,11 +444,11 @@ window.stepDownField = id => { document.getElementById(id)?.stepDown(); };
 function addToDicePool(totalId){
   const totalEl = document.getElementById(totalId);
   const val = parseInt(totalEl?.value,10) || 0;
-  // Replace this with your Dice Roller integration (e.g., changePool(val))
   alert(`Would add ${val} dice from ${totalId} to the Dice Pool`);
 }
 </script>
 
+<!-- Firebase / Firestore -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
@@ -493,7 +516,6 @@ window.saveCharacter=async()=>{
   if(!user||!name) return alert('Sign in & name required');
 
   const data={};
-  // only save sheet + tabs (not login/admin)
   document.querySelectorAll('#mainCanvas input, #mainCanvas select, #tabBox input, #tabBox select').forEach(el=>{
     if(!el.id || el.id.startsWith('lock')) return;
     data[el.id] = (el.type==='checkbox') ? el.checked : el.value;
@@ -521,13 +543,10 @@ window.loadCharacter=async()=>{
     }
   });
 
-  // Keep the dropdown and name in sync
   document.getElementById('charName').value = id;
   characterSelectEl.value = id;
 
-  // Recompute totals after loading
   initAllSkillTotals();
-
   alert('Loaded');
 };
 
@@ -542,19 +561,17 @@ window.deleteCharacter=async()=>{
 };
 </script>
 
+<!-- Skill totals + Unified Debugger -->
 <script>
 /* ===== Skill totals wiring ===== */
 function toNum(v){ const n = parseInt(v,10); return isNaN(n) ? 0 : n; }
-
 function setupSkillRow(attrCurrentId, baseId){
   const attrEl  = document.getElementById(attrCurrentId);
   const lvlEl   = document.getElementById(`${baseId}_lvl`);
   const modEl   = document.getElementById(`${baseId}_mod`);
   const totalEl = document.getElementById(`${baseId}_total`);
   if(!attrEl || !lvlEl || !modEl || !totalEl) return;
-
   const recalc = () => { totalEl.value = toNum(attrEl.value) + toNum(lvlEl.value) + toNum(modEl.value); };
-
   ['input','change'].forEach(ev=>{
     attrEl.addEventListener(ev,recalc);
     lvlEl.addEventListener(ev,recalc);
@@ -562,150 +579,385 @@ function setupSkillRow(attrCurrentId, baseId){
   });
   recalc();
 }
-
-function initBrawnSkillTotals(){
-  setupSkillRow('brawnCurrent','endurance');
-  setupSkillRow('brawnCurrent','fight');
-  setupSkillRow('brawnCurrent','might');
-}
-function initAgilitySkillTotals(){
-  setupSkillRow('agilityCurrent','marksmanship');
-  setupSkillRow('agilityCurrent','mobility');
-  setupSkillRow('agilityCurrent','precision');
-}
-function initWitsSkillTotals(){
-  setupSkillRow('witsCurrent','heal');
-  setupSkillRow('witsCurrent','insight');
-  setupSkillRow('witsCurrent','logic');
-  setupSkillRow('witsCurrent','survival');
-  setupSkillRow('witsCurrent','vigilance');
-}
-function initWillSkillTotals(){
-  setupSkillRow('willCurrent','inspire');
-  setupSkillRow('willCurrent','manipulate');
-  setupSkillRow('willCurrent','resolve');
-}
-function initAllSkillTotals(){
-  initBrawnSkillTotals();
-  initAgilitySkillTotals();
-  initWitsSkillTotals();
-  initWillSkillTotals();
-}
-
+function initBrawnSkillTotals(){ setupSkillRow('brawnCurrent','endurance'); setupSkillRow('brawnCurrent','fight'); setupSkillRow('brawnCurrent','might'); }
+function initAgilitySkillTotals(){ setupSkillRow('agilityCurrent','marksmanship'); setupSkillRow('agilityCurrent','mobility'); setupSkillRow('agilityCurrent','precision'); }
+function initWitsSkillTotals(){ setupSkillRow('witsCurrent','heal'); setupSkillRow('witsCurrent','insight'); setupSkillRow('witsCurrent','logic'); setupSkillRow('witsCurrent','survival'); setupSkillRow('witsCurrent','vigilance'); }
+function initWillSkillTotals(){ setupSkillRow('willCurrent','inspire'); setupSkillRow('willCurrent','manipulate'); setupSkillRow('willCurrent','resolve'); }
+function initAllSkillTotals(){ initBrawnSkillTotals(); initAgilitySkillTotals(); initWitsSkillTotals(); initWillSkillTotals(); }
 document.addEventListener('DOMContentLoaded', initAllSkillTotals);
 
-/* ===== Unified canvas debug mover (press D) ===== */
+/* =============================
+   Unified Debugger (script)
+   ============================= */
 (() => {
-  let debug = false;
-  let dragTarget = null;
-  let selected = null;
-  let offsetX = 0, offsetY = 0;
+  // Targets: all your positioned overlays
+  let TARGET_SELECTOR = '.abs';
+
+  // State
+  let debugOn = false;
+  let hoverEnabled = false;   // ALT
+  let marqueeActive = false;  // Shift+drag
+  let cursorMode = false;
+  let selected = new Set();
+  let startX = 0, startY = 0;
+
   const canvas = document.getElementById('mainCanvas');
-  if (!canvas) return;
 
-  const px = n => (typeof n === 'number' ? `${n}px` : n);
-  const getPx = (el, varName) => {
-    const v = el.style.getPropertyValue(varName).trim();
-    return v.endsWith('px') ? parseFloat(v) : (v ? parseFloat(v) : 0);
-  };
-  const setXY = (el, x, y) => {
-    el.style.setProperty('--x', px(x));
-    el.style.setProperty('--y', px(y));
-    updateBadge(el);
-  };
+  // Elements
+  const tooltip = document.createElement('div');
+  tooltip.className = 'debug-tooltip';
+  document.body.appendChild(tooltip);
 
-  function ensureBadge(el){
-    let b = el._badge;
-    if (!b){
-      b = document.createElement('div');
-      b.className = 'coord-badge';
-      el._badge = b;
-      canvas.appendChild(b);
-    }
-    updateBadge(el);
+  const marquee = document.createElement('div');
+  marquee.className = 'debug-marquee';
+  document.body.appendChild(marquee);
+
+  const crossX = document.createElement('div'); crossX.className = 'debug-crosshair-x'; document.body.appendChild(crossX);
+  const crossY = document.createElement('div'); crossY.className = 'debug-crosshair-y'; document.body.appendChild(crossY);
+  const coordHUD = document.createElement('div'); coordHUD.className = 'debug-coord-hud'; coordHUD.textContent = 'X: 0  Y: 0'; document.body.appendChild(coordHUD);
+
+  const panel = document.createElement('div');
+  panel.className = 'debugger-panel';
+  panel.innerHTML = `
+    <div class="row" style="justify-content:space-between">
+      <strong>Debugger</strong>
+      <label class="row" title="Enable/disable debugger">
+        <input id="dbg-toggle" type="checkbox"><span>On</span>
+      </label>
+    </div>
+
+    <div class="row"><span class="muted">Selector</span></div>
+    <input id="dbg-selector" type="text" value="${TARGET_SELECTOR}" title="CSS selector for debug targets">
+
+    <div class="row" style="justify-content:space-between; margin-top:6px">
+      <label class="row" title="Show crosshair + cursor coordinates">
+        <input id="dbg-cursor" type="checkbox"><span>Cursor mode</span>
+      </label>
+      <span class="muted">Alt=tooltip • Shift+drag=marquee • Arrows=nudge • Ctrl=5px</span>
+    </div>
+
+    <hr style="border:none;border-top:1px solid #444;margin:10px 0" />
+
+    <div class="row">
+      <input id="dbg-left-x" class="grow" type="number" placeholder="Left X (px)">
+      <button id="dbg-align-left" type="button" title="Set all selected left to X">Align Left</button>
+    </div>
+    <div class="row">
+      <input id="dbg-top-y" class="grow" type="number" placeholder="Top Y (px)">
+      <button id="dbg-align-top" type="button" title="Set all selected top to Y">Align Top</button>
+    </div>
+
+    <div class="row">
+      <input id="dbg-center-x" class="grow" type="number" placeholder="Center X (px) — empty = use first">
+      <button id="dbg-center-x-btn" type="button" title="Center each selected at this X">Align Center X</button>
+    </div>
+    <div class="row">
+      <input id="dbg-center-y" class="grow" type="number" placeholder="Center Y (px) — empty = use first">
+      <button id="dbg-center-y-btn" type="button" title="Center each selected at this Y">Align Center Y</button>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <button id="dbg-clear" type="button" title="Clear selection">Clear selection</button>
+      <button id="dbg-log" type="button" title="Log selected coords to console">Log coords</button>
+    </div>
+
+    <hr style="border:none;border-top:1px solid #444;margin:10px 0" />
+
+    <div class="row" style="justify-content:space-between">
+      <button id="dbg-export" type="button" title="Download selected positions as JSON">Export JSON</button>
+      <button id="dbg-import" type="button" title="Import positions from JSON">Import JSON</button>
+      <input id="dbg-file" type="file" accept="application/json" style="display:none">
+    </div>
+  `;
+  document.body.appendChild(panel);
+
+  // Panel refs
+  const $ = sel => document.querySelector(sel);
+  const toggleEl   = $('#dbg-toggle');
+  const selectorEl = $('#dbg-selector');
+  const cursorEl   = $('#dbg-cursor');
+  const clearBtn   = $('#dbg-clear');
+  const logBtn     = $('#dbg-log');
+  const leftInput  = $('#dbg-left-x');
+  const topInput   = $('#dbg-top-y');
+  const centerXInp = $('#dbg-center-x');
+  const centerYInp = $('#dbg-center-y');
+  const alignLeft  = $('#dbg-align-left');
+  const alignTop   = $('#dbg-align-top');
+  const centerXBtn = $('#dbg-center-x-btn');
+  const centerYBtn = $('#dbg-center-y-btn');
+  const exportBtn  = $('#dbg-export');
+  const importBtn  = $('#dbg-import');
+  const fileInput  = $('#dbg-file');
+
+  // Helpers
+  const inCanvas = el => canvas.contains(el);
+  const isTarget = el => !!(el && el.matches && el.matches(TARGET_SELECTOR) && inCanvas(el));
+
+  function getXY(el){
+    const x = parseFloat(el.style.getPropertyValue('--x')) || 0;
+    const y = parseFloat(el.style.getPropertyValue('--y')) || 0;
+    return [x,y];
   }
-  function updateBadge(el){
-    const b = el._badge;
-    if (!b) return;
-    const x = getPx(el,'--x'), y = getPx(el,'--y');
-    b.textContent = `${el.id || el.tagName}  (${x}, ${y})`;
-    b.style.left = el.offsetLeft + 'px';
-    b.style.top  = el.offsetTop  + 'px';
-  }
-  function attachBadges(){
-    canvas.querySelectorAll('.abs').forEach(el => ensureBadge(el));
-    alert('DEBUG ON: click to select, drag or use arrow keys (1px). Shift=5px, Ctrl=10px. Press D to exit.');
-  }
-  function removeBadges(){
-    canvas.querySelectorAll('.abs').forEach(el => {
-      if (el._badge){ el._badge.remove(); el._badge = null; }
-      el.classList.remove('selected');
-    });
+  function setXY(el, x, y){
+    el.style.setProperty('--x', x + 'px');
+    el.style.setProperty('--y', y + 'px');
   }
   function clampToCanvas(el, x, y){
     const maxX = canvas.clientWidth  - el.offsetWidth;
     const maxY = canvas.clientHeight - el.offsetHeight;
     return [ Math.max(0, Math.min(x, maxX)), Math.max(0, Math.min(y, maxY)) ];
   }
-  function selectEl(el){
-    if (selected) selected.classList.remove('selected');
-    selected = el;
-    if (debug && selected) selected.classList.add('selected');
+  function centerOnX(el, cx){
+    const r = el.getBoundingClientRect();
+    const parent = canvas.getBoundingClientRect();
+    const relLeft = r.left - parent.left;
+    const newLeft = Math.round(cx - (r.width/2));
+    const clamped = clampToCanvas(el, newLeft, getXY(el)[1])[0];
+    setXY(el, clamped, getXY(el)[1]);
+  }
+  function centerOnY(el, cy){
+    const r = el.getBoundingClientRect();
+    const parent = canvas.getBoundingClientRect();
+    const relTop = r.top - parent.top;
+    const newTop = Math.round(cy - (r.height/2));
+    const clamped = clampToCanvas(el, getXY(el)[0], newTop)[1];
+    setXY(el, getXY(el)[0], clamped);
   }
 
-  document.addEventListener('keydown', e => {
-    if (e.key.toLowerCase() !== 'd') return;
-    debug = !debug;
-    canvas.classList.toggle('canvas-debug', debug);
-    if (debug) attachBadges(); else removeBadges();
-  });
+  function labelFor(el) {
+    const id = el.id ? `#${el.id}` : '';
+    const rect = el.getBoundingClientRect();
+    const coords = `(${Math.round(rect.left)}, ${Math.round(rect.top)})`;
+    return `${el.tagName.toLowerCase()}${id} ${coords}`;
+  }
+  function showTooltip(el, x, y) {
+    el.classList.add('debug-outline');
+    tooltip.textContent = labelFor(el);
+    const tx = Math.min(window.innerWidth - 8, (x ?? el.getBoundingClientRect().left) + 8);
+    const ty = Math.min(window.innerHeight - 8, (y ?? el.getBoundingClientRect().top) + 8);
+    tooltip.style.left = tx + 'px';
+    tooltip.style.top  = ty + 'px';
+    tooltip.style.display = 'block';
+  }
+  function hideTooltip() {
+    tooltip.style.display = 'none';
+    document.querySelectorAll('.debug-outline').forEach(n => n.classList.remove('debug-outline'));
+  }
 
-  canvas.addEventListener('mousedown', e => {
-    if (!debug) return;
-    const target = e.target.closest('.abs');
-    if (!target) return;
-    selectEl(target);
-    if (e.button === 0) {
-      dragTarget = target;
-      offsetX = e.clientX - target.offsetLeft;
-      offsetY = e.clientY - target.offsetTop;
-      if (e.target.tagName !== 'INPUT') e.preventDefault();
+  function rectFromPoints(x1,y1,x2,y2){
+    const left = Math.min(x1,x2), top = Math.min(y1,y2);
+    const width = Math.abs(x2-x1), height = Math.abs(y2-y1);
+    return {left, top, width, height, right:left+width, bottom:top+height};
+  }
+  function intersects(a, b){
+    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+  }
+  function pageRect(el){
+    const r = el.getBoundingClientRect();
+    return {left:r.left, top:r.top, right:r.right, bottom:r.bottom};
+  }
+
+  function clearSelection() {
+    selected.forEach(el => el.classList.remove('debug-selected'));
+    selected.clear();
+  }
+  function addToSelection(el) {
+    if (!selected.has(el)) { selected.add(el); el.classList.add('debug-selected'); }
+  }
+
+  function nudge(el, dx, dy) {
+    const [x,y] = getXY(el);
+    const [nx, ny] = clampToCanvas(el, x + dx, y + dy);
+    setXY(el, nx, ny);
+  }
+
+  // Keying for import/export
+  function cssPath(el) {
+    const parts = [];
+    for (let node = el; node && node.nodeType === 1 && node !== canvas; node = node.parentElement) {
+      let sel = node.tagName.toLowerCase();
+      if (node.id) { sel += `#${node.id}`; parts.unshift(sel); break; }
+      let sibIndex = 1, sib = node;
+      while ((sib = sib.previousElementSibling) && sib.tagName === node.tagName) sibIndex++;
+      sel += `:nth-of-type(${sibIndex})`; parts.unshift(sel);
     }
+    return parts.join(' > ');
+  }
+  function keyFor(el){ return el.id ? `#${el.id}` : cssPath(el); }
+  function findByKey(key){
+    if (!key) return null;
+    if (key.startsWith('#')) return canvas.querySelector(key);
+    return canvas.querySelector(key);
+  }
+
+  function exportSelection() {
+    const items = [...selected].map(el => {
+      const [left, top] = getXY(el);
+      return { key: keyFor(el), left, top };
+    });
+    return { version: 1, items };
+  }
+  function importPositions(json) {
+    const items = Array.isArray(json) ? json : (json?.items || []);
+    const result = { applied: 0, total: items.length, unmatched: [] };
+    items.forEach(item => {
+      const el = findByKey(item.key);
+      if (!el) { result.unmatched.push(item.key || '(no key)'); return; }
+      const [x,y] = clampToCanvas(el, item.left ?? 0, item.top ?? 0);
+      setXY(el, x, y);
+      result.applied++;
+    });
+    return result;
+  }
+
+  // Panel wiring
+  $('#dbg-toggle').addEventListener('change', () => {
+    debugOn = $('#dbg-toggle').checked;
+    canvas.classList.toggle('canvas-debug', debugOn);
+    if (!debugOn) { hideTooltip(); clearSelection(); setCursorMode(false); }
+  });
+  $('#dbg-selector').addEventListener('change', () => {
+    TARGET_SELECTOR = $('#dbg-selector').value.trim() || TARGET_SELECTOR;
+    clearSelection();
+  });
+  $('#dbg-cursor').addEventListener('change', () => setCursorMode($('#dbg-cursor').checked));
+  $('#dbg-clear').addEventListener('click', clearSelection);
+  $('#dbg-log').addEventListener('click', () => { if (selected.size) console.table([...selected].map(el => ({key:keyFor(el), ...Object.fromEntries([['x',getXY(el)[0]],['y',getXY(el)[1]]])}))); });
+  $('#dbg-align-left').addEventListener('click', () => {
+    const x = parseFloat($('#dbg-left-x').value); if (Number.isNaN(x)) return;
+    selected.forEach(el => setXY(el, clampToCanvas(el, x, getXY(el)[1])[0], getXY(el)[1]));
+  });
+  $('#dbg-align-top').addEventListener('click', () => {
+    const y = parseFloat($('#dbg-top-y').value); if (Number.isNaN(y)) return;
+    selected.forEach(el => setXY(el, getXY(el)[0], clampToCanvas(el, getXY(el)[0], y)[1]));
+  });
+  $('#dbg-center-x-btn').addEventListener('click', () => {
+    if (!selected.size) return;
+    let cx = parseFloat($('#dbg-center-x').value);
+    if (Number.isNaN(cx)) {
+      const first = [...selected][0].getBoundingClientRect();
+      cx = Math.round(first.left + first.width/2);
+    }
+    selected.forEach(el => centerOnX(el, cx));
+  });
+  $('#dbg-center-y-btn').addEventListener('click', () => {
+    if (!selected.size) return;
+    let cy = parseFloat($('#dbg-center-y').value);
+    if (Number.isNaN(cy)) {
+      const first = [...selected][0].getBoundingClientRect();
+      cy = Math.round(first.top + first.height/2);
+    }
+    selected.forEach(el => centerOnY(el, cy));
+  });
+  $('#dbg-export').addEventListener('click', () => {
+    const data = exportSelection(); if (!data.items.length) return;
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `debug-positions-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
+    a.click(); URL.revokeObjectURL(a.href);
+  });
+  $('#dbg-import').addEventListener('click', () => $('#dbg-file').click());
+  $('#dbg-file').addEventListener('change', () => {
+    const file = $('#dbg-file').files?.[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const json = JSON.parse(String(reader.result));
+        const res = importPositions(json);
+        console.log(`Imported ${res.applied} / ${res.total} items. Unmatched:`, res.unmatched);
+      } catch (e) { console.error('Invalid JSON:', e); }
+      $('#dbg-file').value = '';
+    };
+    reader.readAsText(file);
   });
 
+  // ALT = tooltip while pressed
+  window.addEventListener('keydown', e => { if (debugOn && e.altKey) hoverEnabled = true; });
+  window.addEventListener('keyup',   e => { if (debugOn && !e.altKey) { hoverEnabled = false; hideTooltip(); } });
+
+  // Hover tooltip
+  document.addEventListener('mouseover', e => {
+    if (!debugOn || !hoverEnabled) return;
+    const t = e.target.closest(TARGET_SELECTOR);
+    if (isTarget(t)) showTooltip(t, e.clientX, e.clientY);
+  }, {capture:true});
   document.addEventListener('mousemove', e => {
-    if (!debug || !dragTarget) return;
-    const rect = canvas.getBoundingClientRect();
-    let newX = e.clientX - rect.left - offsetX;
-    let newY = e.clientY - rect.top  - offsetY;
-    [newX, newY] = clampToCanvas(dragTarget, newX, newY);
-    setXY(dragTarget, newX, newY);
+    if (!debugOn || !hoverEnabled || tooltip.style.display !== 'block') return;
+    tooltip.style.left = Math.min(window.innerWidth - 8, e.clientX + 8) + 'px';
+    tooltip.style.top  = Math.min(window.innerHeight - 8, e.clientY + 8) + 'px';
   });
-
-  document.addEventListener('mouseup', () => {
-    if (dragTarget){
-      const x = getPx(dragTarget,'--x'), y = getPx(dragTarget,'--y');
-      console.log(`${dragTarget.id || dragTarget.tagName} -> ${x}px, ${y}px`);
-    }
-    dragTarget = null;
+  document.addEventListener('mouseout', e => {
+    if (!debugOn || !hoverEnabled) return;
+    const t = e.target.closest(TARGET_SELECTOR);
+    if (isTarget(t)) hideTooltip();
+  }, {capture:true});
+  document.addEventListener('focusin', e => {
+    if (!debugOn) return;
+    const t = e.target.closest(TARGET_SELECTOR);
+    if (isTarget(t) && hoverEnabled) showTooltip(t);
   });
+  document.addEventListener('focusout', () => { if (debugOn) hideTooltip(); });
 
-  document.addEventListener('keydown', e => {
-    if (!debug || !selected) return;
-    const ARROWS = ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'];
-    if (!ARROWS.includes(e.key)) return;
+  // Shift + drag marquee
+  window.addEventListener('mousedown', e => {
+    if (!debugOn || !e.shiftKey) return;
+    marqueeActive = true;
+    startX = e.clientX; startY = e.clientY;
+    Object.assign(marquee.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' });
     e.preventDefault();
-    const base = 1;
-    const step = e.ctrlKey ? 10 : (e.shiftKey ? 5 : base);
-    let x = getPx(selected,'--x');
-    let y = getPx(selected,'--y');
-    if (e.key === 'ArrowLeft')  x -= step;
-    if (e.key === 'ArrowRight') x += step;
-    if (e.key === 'ArrowUp')    y -= step;
-    if (e.key === 'ArrowDown')  y += step;
-    [x, y] = clampToCanvas(selected, x, y);
-    setXY(selected, x, y);
+  }, true);
+  window.addEventListener('mousemove', e => {
+    if (!debugOn || !marqueeActive) return;
+    const box = rectFromPoints(startX, startY, e.clientX, e.clientY);
+    Object.assign(marquee.style, { left:box.left+'px', top:box.top+'px', width:box.width+'px', height:box.height+'px' });
+    clearSelection();
+    canvas.querySelectorAll(TARGET_SELECTOR).forEach(el => {
+      const r = pageRect(el);
+      if (intersects(box, r)) addToSelection(el);
+    });
+  }, true);
+  window.addEventListener('mouseup', () => {
+    if (!debugOn || !marqueeActive) return;
+    marqueeActive = false; marquee.style.display = 'none';
+  }, true);
+
+  // Arrow key nudging (Ctrl = 5px)
+  window.addEventListener('keydown', e => {
+    if (!debugOn || !selected.size) return;
+    const key = e.key;
+    if (!/^Arrow(Up|Down|Left|Right)$/.test(key)) return;
+    const step = e.ctrlKey ? 5 : 1;
+    const dx = (key === 'ArrowRight') ? step : (key === 'ArrowLeft') ? -step : 0;
+    const dy = (key === 'ArrowDown')  ? step : (key === 'ArrowUp')   ? -step : 0;
+    e.preventDefault();
+    selected.forEach(el => nudge(el, dx, dy));
   });
+
+  // Click selects one (no marquee)
+  document.addEventListener('click', e => {
+    if (!debugOn || e.shiftKey) return;
+    const t = e.target.closest(TARGET_SELECTOR);
+    if (!isTarget(t)) return;
+    clearSelection(); addToSelection(t);
+  }, true);
+
+  // Cursor mode
+  function setCursorMode(on) {
+    cursorMode = !!on;
+    crossX.style.display = on ? 'block' : 'none';
+    crossY.style.display = on ? 'block' : 'none';
+    coordHUD.style.display = on ? 'block' : 'none';
+  }
+  window.addEventListener('mousemove', e => {
+    if (!debugOn || !cursorMode) return;
+    const x = e.clientX, y = e.clientY;
+    crossX.style.top = y + 'px';
+    crossY.style.left = x + 'px';
+    coordHUD.textContent = `X: ${x}   Y: ${y}`;
+  });
+
 })();
 </script>
 </body>
