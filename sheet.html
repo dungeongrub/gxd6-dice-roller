@@ -167,6 +167,62 @@ button{
   text-align: center;
   padding: 0;
 }
+
+/* === Dice Roller mini UI (integrated) === */
+.pool-mini {
+  width: 22px; height: 22px;
+  border: none; border-radius: 50%;
+  background: transparent; color: black;
+  font-family: 'DeutschGothic', monospace;
+  font-size: 12px; line-height: 22px; text-align: center;
+  cursor: pointer; padding: 0; margin: 0;
+}
+.pool-mini:active { transform: scale(0.95); }
+
+/* Dice pool field */
+#dicePool {
+  width: 40px; height: 20px;
+  font-family: 'DeutschGothic', monospace;
+  font-size: 14px; text-align: center;
+  background: transparent; border: none;
+}
+
+/* Compact dice grid: 4 rows × 5, fits 145×125 */
+#diceGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 26px);
+  grid-auto-rows: 26px;
+  gap: 3px;
+  width: 145px; height: 125px;
+}
+.die {
+  width: 26px; height: 26px; opacity: 0;
+  animation: dieFade .25s ease forwards;
+}
+@keyframes dieFade { to { opacity: 1; } }
+
+/* Tallies */
+.tally-num {
+  font-family: 'DeutschGothic', monospace;
+  font-size: 16px; width: 28px; text-align: center;
+  background: transparent; border: none;
+}
+#successCount { color: #0a8615; } /* green */
+#baneCount    { color: #b00020; } /* red */
+
+/* Icon buttons under results */
+.icon-btn-sm {
+  width: 24px; height: 24px; cursor: pointer;
+  transition: transform .15s ease;
+}
+.icon-btn-sm:active { transform: scale(0.9); }
+
+/* Tiny select for pushes */
+#pushesAllowed {
+  font-family: 'DominicanSmall';
+  font-size: 10px; height: 18px;
+  background: transparent; border: 1px solid transparent;
+}
   </style>
 
   <!-- ===== Unified Debugger (styles) — compact, high-contrast, 9px system font ===== -->
@@ -429,33 +485,54 @@ button{
     <input id="resolve_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:751px;">
     <button id="resolve_roll"      class="abs roll-btn" style="--x:212px; --y:755px;" onclick="addToDicePool('resolve_total')">+</button>
 
-    <!-- Tabs box -->
-    <div id="tabBox" class="abs"
-      style="--x:278px; --y:331px; --w:440px; --h:430px; background:transparent; border:none; padding:5px;">
-      <div style="display:flex; gap:8px; margin-bottom:8px;">
-        <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
-        <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
-        <button type="button" class="tabBtn" data-tab="gear"   onclick="showTab('gear')">Gear</button>
-        <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
-      </div>
+    <!-- ===== Dice Roller UI (fits your panel constraints/coords) ===== -->
+    <!-- Pool number (editable, 0–20) -->
+    <input id="dicePool" class="abs" type="number" min="0" max="20" value="0" style="--x:225px; --y:260px;">
 
-      <!-- panel-main: inputs only -->
-      <div id="panel-main" class="tabPanel" style="display:block;">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <input id="archetype1" type="text" placeholder="" />
-          <input id="profession1" type="text" placeholder="" />
-          <input id="archetype2" type="text" placeholder="" />
-          <input id="profession2" type="text" placeholder="" />
-        </div>
-        <div style="margin-top:14px; display:flex; justify-content:flex-end;">
-          <input id="xp" type="number" value="0" style="width:40px;" />
-        </div>
+    <!-- Pool adjust buttons 3×5 in 125×75 @ (225,290) -->
+    <div id="poolBtns" class="abs" style="--x:225px; --y:290px; --w:125px; --h:75px;">
+      <div style="display:grid; grid-template-columns: repeat(5, 22px); grid-auto-rows:22px; gap:3px;">
+        <!-- Row 1: +1..+5 -->
+        <button class="pool-mini" onclick="changePool(+1)">+1</button>
+        <button class="pool-mini" onclick="changePool(+2)">+2</button>
+        <button class="pool-mini" onclick="changePool(+3)">+3</button>
+        <button class="pool-mini" onclick="changePool(+4)">+4</button>
+        <button class="pool-mini" onclick="changePool(+5)">+5</button>
+        <!-- Row 2: +6..+10 -->
+        <button class="pool-mini" onclick="changePool(+6)">+6</button>
+        <button class="pool-mini" onclick="changePool(+7)">+7</button>
+        <button class="pool-mini" onclick="changePool(+8)">+8</button>
+        <button class="pool-mini" onclick="changePool(+9)">+9</button>
+        <button class="pool-mini" onclick="changePool(+10)">+10</button>
+        <!-- Row 3: -1..-5 -->
+        <button class="pool-mini" onclick="changePool(-1)">-1</button>
+        <button class="pool-mini" onclick="changePool(-2)">-2</button>
+        <button class="pool-mini" onclick="changePool(-3)">-3</button>
+        <button class="pool-mini" onclick="changePool(-4)">-4</button>
+        <button class="pool-mini" onclick="changePool(-5)">-5</button>
       </div>
-
-      <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
-      <div id="panel-gear"   class="tabPanel" style="display:none;">Gear coming soon</div>
-      <div id="panel-powers" class="tabPanel" style="display:none;">Powers coming soon</div>
     </div>
+
+    <!-- Dice grid (4×5, up to 20 dice) 145×125 @ (425,260) -->
+    <div id="diceGrid" class="abs" style="--x:425px; --y:260px;"></div>
+
+    <!-- Success / Bane tallies (side-by-side, mid area) -->
+    <div class="abs" style="--x:470px; --y:390px;">
+      <input id="successCount" class="tally-num" type="text" value="0" readonly>
+      <input id="baneCount"    class="tally-num" type="text" value="0" readonly>
+    </div>
+
+    <!-- Roll / Push under results; pushes-allowed under Push -->
+    <img src="img/roll_icon.png"  class="abs icon-btn-sm" style="--x:465px; --y:420px;" alt="Roll" onclick="rollDice()">
+    <img src="img/push_icon.png"  class="abs icon-btn-sm" style="--x:465px; --y:450px;" alt="Push" onclick="pushRoll()">
+    <select id="pushesAllowed"    class="abs"            style="--x:458px; --y:480px; width:38px;" title="Pushes allowed">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="∞">∞</option>
+    </select>
+
+    <!-- Clear All (bottom-left of dice-roller space) -->
+    <img src="img/clear_icon.png" class="abs icon-btn-sm" style="--x:225px; --y:620px;" alt="Clear" onclick="clearAllDice()">
 
   </div>
 </div>
@@ -483,11 +560,12 @@ window.toggleLock = id => {
 window.stepUpField = id => { document.getElementById(id)?.stepUp(); };
 window.stepDownField = id => { document.getElementById(id)?.stepDown(); };
 
-/* Dice integration stub */
+/* === Dice Roller hooks (pool from skill totals) === */
 function addToDicePool(totalId){
   const totalEl = document.getElementById(totalId);
-  const val = parseInt(totalEl?.value,10) || 0;
-  alert(`Would add ${val} dice from ${totalId} to the Dice Pool`);
+  const add = parseInt(totalEl?.value,10) || 0;
+  if (add <= 0) return;
+  setPool(Math.min(20, getPool() + add));
 }
 </script>
 
@@ -630,6 +708,97 @@ function initAllSkillTotals(){ initBrawnSkillTotals(); initAgilitySkillTotals();
 document.addEventListener('DOMContentLoaded', initAllSkillTotals);
 </script>
 
+<!-- ===== Dice Roller Logic (integrated) ===== -->
+<script>
+/* Roller state */
+let diceValues = [];   // current die faces
+let pushCount  = 0;
+
+/* Pool helpers (0..20) */
+function getPool(){
+  return Math.max(0, Math.min(20, parseInt(document.getElementById('dicePool').value,10) || 0));
+}
+function setPool(n){
+  const v = Math.max(0, Math.min(20, n|0));
+  const el = document.getElementById('dicePool');
+  el.value = v;
+  return v;
+}
+function changePool(delta){ setPool(getPool() + delta); }
+
+/* Clear all: dice, tallies, push state, AND pool */
+function clearAllDice(){
+  diceValues.length = 0;
+  pushCount = 0;
+  document.getElementById('diceGrid').innerHTML = '';
+  document.getElementById('successCount').value = '0';
+  document.getElementById('baneCount').value    = '0';
+  setPool(0); // zero the pool too
+}
+
+/* Roll fresh (replaces all dice) */
+function rollDice(){
+  const pool = getPool();
+  if (pool <= 0) return;
+  pushCount = 0;
+  diceValues = Array.from({length: pool}, () => randD6());
+  animateDiceRoll();
+}
+
+/* Push: reroll only 2–5; 1s and 6s stick */
+function pushRoll(){
+  if (!diceValues.length) return;
+  const maxPush = document.getElementById('pushesAllowed').value;
+  if (maxPush !== '∞' && pushCount >= parseInt(maxPush,10)) return;
+
+  for (let i=0;i<diceValues.length;i++){
+    const d = diceValues[i];
+    if (d > 1 && d < 6) diceValues[i] = randD6();
+  }
+  pushCount++;
+  animateDiceRoll();
+}
+
+/* Flashing animation pass */
+function animateDiceRoll(){
+  const grid = document.getElementById('diceGrid');
+  const flashes = 4;
+  let frame = 0;
+
+  const iv = setInterval(() => {
+    grid.innerHTML = '';
+    for (let i=0;i<diceValues.length && i<20;i++){
+      const show = (frame < flashes - 1) ? randD6() : diceValues[i];
+      grid.appendChild(renderDie(show));
+    }
+    frame++;
+    if (frame >= flashes){
+      clearInterval(iv);
+      updateTallies();
+    }
+  }, 110);
+}
+
+/* Helpers */
+function randD6(){ return (Math.random()*6|0)+1; }
+function renderDie(v){
+  const img = document.createElement('img');
+  img.className = 'die';
+  // asset names: Success_d6.png, Baned6.png, 2_d6.png..5_d6.png
+  if (v === 1)      img.src = 'img/Baned6.png';
+  else if (v === 6) img.src = 'img/Success_d6.png';
+  else              img.src = `img/${v}_d6.png`;
+  img.alt = String(v);
+  return img;
+}
+function updateTallies(){
+  const succ = diceValues.filter(d=>d===6).length;
+  const bane = diceValues.filter(d=>d===1).length;
+  document.getElementById('successCount').value = succ;
+  document.getElementById('baneCount').value    = bane;
+}
+</script>
+
 <!-- ===== Unified Debugger ===== -->
 <script>
 (() => {
@@ -708,7 +877,7 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
     </div>
 
     <div class="row"><span class="muted">Selector</span></div>
-    <input id="dbg-selector" type="text" value="${TARGET_SELECTOR}" title="CSS selector for debug targets">
+    <input id="dbg-selector" type="text" value="${'.abs'}" title="CSS selector for debug targets">
 
     <div class="row" style="justify-content:space-between; margin-top:6px">
       <label class="row" title="Show crosshair + cursor coordinates">
@@ -958,7 +1127,7 @@ document.addEventListener('DOMContentLoaded', initAllSkillTotals);
   function currentCharName() {
     const n = document.getElementById('charName')?.value?.trim();
     return n ? n.replace(/[^\w\-]+/g, '_') : 'positions';
-  }
+    }
 
   exportBtn.addEventListener('click', () => {
     const data = exportSelection();
