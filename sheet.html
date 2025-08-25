@@ -138,9 +138,14 @@ button{
   background: transparent;
   border: none;
 }
-/* Force override the generic 16px number rule */
-.abs input.skill-num[type="number"] { font-size: 8px !important; }
 
+/* Force the tiny font inside the 15x15 skill boxes */
+#mainCanvas .abs input.skill-num[type="number"] {
+  font-size: 8px !important;
+  line-height: 1;           /* keeps the numeral vertically tidy */
+  padding: 0;               /* no extra space */
+}
+    
 /* Pip checkbox */
 .pip-check {
   appearance: none;
