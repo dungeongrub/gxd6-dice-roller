@@ -129,7 +129,7 @@ button{
 /* === Skill UI bits === */
 .skill-num {
   font-family: 'DeutschGothic', monospace;
-  font-size: 8px;   /* desired tiny numerals */
+  font-size: 10px;   /* desired tiny numerals */
   height: 15px;
   width: 15px;
   text-align: center;
@@ -160,9 +160,9 @@ button{
 }
 .roll-btn:active{ transform:scale(0.9); }
 
-/* ===== FINAL OVERRIDE: force 8px inside tiny skill boxes ===== */
+/* ===== FINAL OVERRIDE: force 10px inside tiny skill boxes ===== */
 #mainCanvas .abs input.skill-num[type="number"]{
-  font-size: 8px !important;
+  font-size: 10px !important;
   line-height: 1;
   padding: 0;
 }
@@ -247,14 +247,6 @@ button{
 .debugger-panel.compact > :not(:first-child){
   display: none;
 }
-
-/* Force smaller font size for skill number boxes */
-#mainCanvas .skill-num {
-  font-size: 10px !important;
-  line-height: 1;
-  text-align: center;
-  padding: 0;
-}    
   </style>
 </head>
 <body>
