@@ -174,7 +174,7 @@ button{
   border: none; border-radius: 50%;
   background: transparent; color: black;
   font-family: 'DeutschGothic', monospace;
-  font-size: 12px; line-height: 22px; text-align: center;
+  font-size: 10px; line-height: 22px; text-align: center;
   cursor: pointer; padding: 0; margin: 0;
 }
 .pool-mini:active { transform: scale(0.95); }
@@ -519,14 +519,15 @@ button{
     <!-- Success / Bane tallies (side-by-side, mid area) -->
     <div class="abs" style="--x:486px; --y:191px;">
       <input id="successCount" class="tally-num" type="text" value="0" readonly>
+     <div> 
     <div class="abs" style="--x:586px; --y:191px;">
       <input id="baneCount"    class="tally-num" type="text" value="0" readonly>
     </div>
 
     <!-- Roll / Push under results; pushes-allowed under Push -->
-    <img src="img/roll_icon.png"  class="abs icon-btn-sm" style="--x:540px; --y:232px;" alt="Roll" onclick="rollDice()">
-    <img src="img/push_icon.png"  class="abs icon-btn-sm" style="--x:540px; --y:450px;" alt="Push" onclick="pushRoll()">
-    <select id="pushesAllowed"    class="abs"            style="--x:536px; --y:268px; width:38px;" title="Pushes allowed">
+    <img src="img/roll_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:232px;" alt="Roll" onclick="rollDice()">
+    <img src="img/push_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:450px;" alt="Push" onclick="pushRoll()">
+    <select id="pushesAllowed" class="abs" style="--x:536px; --y:268px; width:38px;" title="Pushes allowed">
       <option value="1">1</option>
       <option value="2">2</option>
       <option value="∞">∞</option>
