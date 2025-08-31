@@ -487,10 +487,10 @@ button{
 
     <!-- ===== Dice Roller UI (fits your panel constraints/coords) ===== -->
     <!-- Pool number (editable, 0–20) -->
-    <input id="dicePool" class="abs" type="number" min="0" max="20" value="0" style="--x:225px; --y:260px;">
+    <input id="dicePool" class="abs" type="number" min="0" max="20" value="0" style="--x:372px; --y:189px;">
 
     <!-- Pool adjust buttons 3×5 in 125×75 @ (225,290) -->
-    <div id="poolBtns" class="abs" style="--x:225px; --y:290px; --w:125px; --h:75px;">
+    <div id="poolBtns" class="abs skill-num" style="--x:368px; --y:220px; --w:125px; --h:75px;">
       <div style="display:grid; grid-template-columns: repeat(5, 22px); grid-auto-rows:22px; gap:3px;">
         <!-- Row 1: +1..+5 -->
         <button class="pool-mini" onclick="changePool(+1)">+1</button>
@@ -517,22 +517,23 @@ button{
     <div id="diceGrid" class="abs" style="--x:425px; --y:260px;"></div>
 
     <!-- Success / Bane tallies (side-by-side, mid area) -->
-    <div class="abs" style="--x:470px; --y:390px;">
+    <div class="abs" style="--x:486px; --y:191px;">
       <input id="successCount" class="tally-num" type="text" value="0" readonly>
+    <div class="abs" style="--x:586px; --y:191px;">
       <input id="baneCount"    class="tally-num" type="text" value="0" readonly>
     </div>
 
     <!-- Roll / Push under results; pushes-allowed under Push -->
-    <img src="img/roll_icon.png"  class="abs icon-btn-sm" style="--x:465px; --y:420px;" alt="Roll" onclick="rollDice()">
-    <img src="img/push_icon.png"  class="abs icon-btn-sm" style="--x:465px; --y:450px;" alt="Push" onclick="pushRoll()">
-    <select id="pushesAllowed"    class="abs"            style="--x:458px; --y:480px; width:38px;" title="Pushes allowed">
+    <img src="img/roll_icon.png"  class="abs icon-btn-sm" style="--x:540px; --y:232px;" alt="Roll" onclick="rollDice()">
+    <img src="img/push_icon.png"  class="abs icon-btn-sm" style="--x:540px; --y:450px;" alt="Push" onclick="pushRoll()">
+    <select id="pushesAllowed"    class="abs"            style="--x:536px; --y:268px; width:38px;" title="Pushes allowed">
       <option value="1">1</option>
       <option value="2">2</option>
       <option value="∞">∞</option>
     </select>
 
     <!-- Clear All (bottom-left of dice-roller space) -->
-    <img src="img/clear_icon.png" class="abs icon-btn-sm" style="--x:225px; --y:620px;" alt="Clear" onclick="clearAllDice()">
+    <img src="img/clear_icon.png" class="abs icon-btn-sm" style="--x:363px; --y:295px;" alt="Clear" onclick="clearAllDice()">
 
   </div>
 </div>
