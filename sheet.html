@@ -37,7 +37,7 @@ input[type=number]{
   -moz-appearance:textfield;
 }
 input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button{ -webkit-appearance:none; }
+input[type=number]::-webkit-outer-spin_button{ -webkit-appearance:none; }
 
 button{
   font-family:'DominicanSmall', serif;
@@ -129,7 +129,7 @@ button{
 /* === Skill UI bits === */
 .skill-num {
   font-family: 'DeutschGothic', monospace;
-  font-size: 10px;   /* desired tiny numerals */
+  font-size: 10px;   /* tiny numerals */
   height: 15px;
   width: 15px;
   text-align: center;
@@ -174,7 +174,7 @@ button{
   border: none; border-radius: 50%;
   background: transparent; color: black;
   font-family: 'DeutschGothic', monospace;
-  font-size: 10px; line-height: 22px; text-align: center;
+  font-size: 10px; line-height: 22px; text-align: center; /* uses skill-num size */
   cursor: pointer; padding: 0; margin: 0;
 }
 .pool-mini:active { transform: scale(0.95); }
@@ -485,11 +485,39 @@ button{
     <input id="resolve_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:751px;">
     <button id="resolve_roll"      class="abs roll-btn" style="--x:212px; --y:755px;" onclick="addToDicePool('resolve_total')">+</button>
 
-    <!-- ===== Dice Roller UI (fits your panel constraints/coords) ===== -->
-    <!-- Pool number (editable, 0–20) -->
+    <!-- ===== Tabs box (re-inserted) ===== -->
+    <div id="tabBox" class="abs"
+      style="--x:278px; --y:331px; --w:440px; --h:430px; background:transparent; border:none; padding:5px;">
+      <div style="display:flex; gap:8px; margin-bottom:8px;">
+        <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
+        <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
+        <button type="button" class="tabBtn" data-tab="gear"   onclick="showTab('gear')">Gear</button>
+        <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
+      </div>
+
+      <!-- panel-main: inputs only (labels removed) -->
+      <div id="panel-main" class="tabPanel" style="display:block;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <input id="archetype1"  type="text" />
+          <input id="profession1" type="text" />
+          <input id="archetype2"  type="text" />
+          <input id="profession2" type="text" />
+        </div>
+        <div style="margin-top:14px; display:flex; justify-content:flex-end;">
+          <input id="xp" type="number" value="0" style="width:40px;" />
+        </div>
+      </div>
+
+      <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
+      <div id="panel-gear"   class="tabPanel" style="display:none;">Gear coming soon</div>
+      <div id="panel-powers" class="tabPanel" style="display:none;">Powers coming soon</div>
+    </div>
+
+    <!-- ===== Dice Roller UI ===== -->
+    <!-- Pool number -->
     <input id="dicePool" class="abs" type="number" min="0" max="20" value="0" style="--x:372px; --y:189px;">
 
-    <!-- Pool adjust buttons 3×5 in 125×75 @ (225,290) -->
+    <!-- Pool adjust buttons grid -->
     <div id="poolBtns" class="abs" style="--x:368px; --y:220px; --w:125px; --h:75px;">
       <div style="display:grid; grid-template-columns: repeat(5, 22px); grid-auto-rows:22px; gap:3px;">
         <!-- Row 1: +1..+5 -->
@@ -513,60 +541,30 @@ button{
       </div>
     </div>
 
-    <!-- Dice grid (4×5, up to 20 dice) 145×125 @ (425,260) -->
+    <!-- Dice grid (up to 20 dice) -->
     <div id="diceGrid" class="abs" style="--x:590px; --y:190px;"></div>
 
-    <!-- Success / Bane tallies (side-by-side, mid area) -->
+    <!-- Success / Bane tallies (independent) -->
     <div class="abs" style="--x:486px; --y:191px;">
       <input id="successCount" class="tally-num" type="text" value="0" readonly>
-     </div> 
-    <div class="abs" style="--x:557px; --y:191px;">
-      <input id="baneCount"    class="tally-num" type="text" value="0" readonly>
+    </div>
+    <div class="abs" style="--x:586px; --y:191px;">
+      <input id="baneCount" class="tally-num" type="text" value="0" readonly>
     </div>
 
-    <!-- Roll / Push under results; pushes-allowed under Push -->
+    <!-- Roll / Push / Pushes allowed -->
     <img src="img/roll_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:232px;" alt="Roll" onclick="rollDice()">
-    <img src="img/push_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:268px;" alt="Push" onclick="pushRoll()">
-    <select id="pushesAllowed" class="abs" style="--x:537px; --y:293px; width:38px;" title="Pushes allowed">
+    <img src="img/push_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:450px;" alt="Push" onclick="pushRoll()">
+    <select id="pushesAllowed" class="abs" style="--x:536px; --y:268px; width:38px;" title="Pushes allowed">
       <option value="1">1</option>
       <option value="2">2</option>
       <option value="∞">∞</option>
     </select>
 
-    <!-- Clear All (bottom-left of dice-roller space) -->
+    <!-- Clear All -->
     <img src="img/clear_icon.png" class="abs icon-btn-sm" style="--x:363px; --y:295px;" alt="Clear" onclick="clearAllDice()">
+
   </div>
-
-<!-- Tabs box -->
-<div id="tabBox" class="abs"
-  style="--x:278px; --y:331px; --w:440px; --h:430px; background:transparent; border:none; padding:5px;">
-  <div style="display:flex; gap:8px; margin-bottom:8px;">
-    <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
-    <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
-    <button type="button" class="tabBtn" data-tab="gear"   onclick="showTab('gear')">Gear</button>
-    <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
-  </div>
-
-  <!-- panel-main -->
-  <div id="panel-main" class="tabPanel" style="display:block;">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-      <input id="archetype1" type="text" />
-      <input id="profession1" type="text" />
-      <input id="archetype2" type="text" />
-      <input id="profession2" type="text" />
-    </div>
-    <div style="margin-top:14px; display:flex; justify-content:flex-end;">
-      <input id="xp" type="number" value="0" style="width:40px;" />
-    </div>
-  </div>
-
-  <!-- other tabs -->
-  <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
-  <div id="panel-gear"   class="tabPanel" style="display:none;">Gear coming soon</div>
-  <div id="panel-powers" class="tabPanel" style="display:none;">Powers coming soon</div>
-</div>
-
-  
 </div>
 
 <!-- Scripts (tabs + small helpers) -->
@@ -592,7 +590,7 @@ window.toggleLock = id => {
 window.stepUpField = id => { document.getElementById(id)?.stepUp(); };
 window.stepDownField = id => { document.getElementById(id)?.stepDown(); };
 
-/* === Dice Roller hooks (pool from skill totals) === */
+/* Dice Pool hook from skill totals */
 function addToDicePool(totalId){
   const totalEl = document.getElementById(totalId);
   const add = parseInt(totalEl?.value,10) || 0;
@@ -1120,6 +1118,25 @@ function updateTallies(){
   }
 
   // Panel wiring
+  const $ = sel => document.querySelector(sel);
+  const selectorEl = $('#dbg-selector');
+  const cursorEl   = $('#dbg-cursor');
+  const measureEl  = $('#dbg-measure');
+  const clearBtn   = $('#dbg-clear');
+  const logBtn     = $('#dbg-log');
+  const leftInput  = $('#dbg-left-x');
+  const topInput   = $('#dbg-top-y');
+  const centerXInp = $('#dbg-center-x');
+  const centerYInp = $('#dbg-center-y');
+  const alignLeft  = $('#dbg-align-left');
+  const alignTop   = $('#dbg-align-top');
+  const centerXBtn = $('#dbg-center-x-btn');
+  const centerYBtn = $('#dbg-center-y-btn');
+  const exportBtn  = $('#dbg-export');
+  const importBtn  = $('#dbg-import');
+  const exportHtmlBtn = $('#dbg-export-html');
+  const fileInput  = $('#dbg-file');
+
   selectorEl.addEventListener('change', () => { TARGET_SELECTOR = selectorEl.value.trim() || TARGET_SELECTOR; clearSelection(); });
   cursorEl.addEventListener('change', () => setCursorMode(cursorEl.checked));
   measureEl.addEventListener('change', () => setMeasureMode(measureEl.checked));
@@ -1155,11 +1172,10 @@ function updateTallies(){
     selected.forEach(el => centerOnY(el, cy));
   });
 
-  // Robust Export JSON/HTML
   function currentCharName() {
     const n = document.getElementById('charName')?.value?.trim();
     return n ? n.replace(/[^\w\-]+/g, '_') : 'positions';
-    }
+  }
 
   exportBtn.addEventListener('click', () => {
     const data = exportSelection();
@@ -1189,49 +1205,6 @@ function updateTallies(){
     };
     reader.readAsText(file);
   });
-
-  function selectorFor(el) {
-    if (el.id) return `#${el.id}`;
-    const parts = [];
-    let node = el;
-    while (node && node.nodeType === 1 && node !== canvas) {
-      let sel = node.tagName.toLowerCase();
-      const parent = node.parentElement;
-      if (node.id) { sel += `#${node.id}`; parts.unshift(sel); break; }
-      const siblings = parent ? Array.from(parent.children).filter(n => n.tagName === node.tagName) : [];
-      const idx = siblings.indexOf(node) + 1;
-      sel += `:nth-of-type(${idx})`;
-      parts.unshift(sel);
-      node = parent;
-    }
-    return `#mainCanvas > ${parts.join(' > ')}`;
-  }
-  function exportSelectedAsHTML() {
-    const items = [...selected];
-    if (!items.length) { alert('Select at least one element to export.'); return; }
-    let css = `/* Exported positions (${new Date().toISOString()}) */\n`;
-    items.forEach(el => {
-      const [x, y] = getXY(el);
-      css += `${selectorFor(el)}{ --x:${Math.round(x)}px; --y:${Math.round(y)}px; }\n`;
-    });
-    const htmlDoc =
-`<!doctype html>
-<html><head><meta charset="utf-8"><title>GxD6 Positions</title></head>
-<body>
-<style id="exported-positions">
-${css}
-</style>
-<!-- Paste the <style> block above into your main HTML (after base styles), or include as a separate CSS file -->
-</body></html>`;
-    const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' });
-    const a = document.createElement('a');
-    const ts = new Date().toISOString().replace(/[:.]/g,'-');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${currentCharName()}-positions-${ts}.html`;
-    document.body.appendChild(a); a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
-  }
-  exportHtmlBtn.addEventListener('click', exportSelectedAsHTML);
 
   // Keyboard toggles / helpers
   window.addEventListener('keydown', e => {
