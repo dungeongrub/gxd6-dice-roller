@@ -514,59 +514,51 @@ button{
 
 <!-- === TAB BOX === -->
 <div id="tabBox" class="abs"
-  style="--x:278px; --y:331px; --w:450px; --h:430px; background:transparent; border:none; padding:5px;">
+  style="--x:278px; --y:331px; --w:450px; --h:400px; background:transparent; border:none; padding:5px;">
 
   <!-- Tab Buttons -->
-  <div style="display:flex; gap:8px; margin-bottom:8px; margin-left:10">
+  <div style="display:flex; gap:8px; margin-bottom:8px; margin-left:10px;">
     <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
     <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
     <button type="button" class="tabBtn" data-tab="gear"   onclick="showTab('gear')">Gear</button>
     <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
   </div>
 
-<!-- Tab Panels -->
-<div id="panel-main" class="tabPanel"
-     style="display:block; width:450px; height:430px;
-            background:url('img/tab_main.png') no-repeat center/100% 100%;">
+  <!-- Tab Panels -->
+  <div id="panel-main" class="tabPanel"
+       style="display:block; width:450px; height:400px;
+              background:url('img/tab_main.png') no-repeat center/100% 100%;">
 
-  <!-- Archetype / Profession pair #1 (coords are within 450x400 panel) -->
-  <input id="archetype1" class="abs" type="text" maxlength="20"
-         style="--x:13px; --y:70px; --w:110px;" />
-  <input id="profession1" class="abs" type="text" maxlength="17"
-         style="--x:160px; --y:70px; --w:120px;" />
+    <!-- Archetype / Profession pair #1 -->
+    <input id="archetype1" class="abs" type="text" maxlength="20"
+           style="--x:13px; --y:70px; --w:110px;" />
+    <input id="profession1" class="abs" type="text" maxlength="17"
+           style="--x:160px; --y:70px; --w:120px;" />
 
-  <!-- Archetype / Profession pair #2 -->
-  <input id="archetype2" class="abs" type="text" maxlength="15"
-         style="--x:13px; --y:115px; --w:110px;" />
-  <input id="profession2" class="abs" type="text" maxlength="17"
-         style="--x:160px; --y:115px; --w:40px;" />
+    <!-- Archetype / Profession pair #2 -->
+    <input id="archetype2" class="abs" type="text" maxlength="15"
+           style="--x:13px; --y:115px; --w:110px;" />
+    <input id="profession2" class="abs" type="text" maxlength="17"
+           style="--x:160px; --y:115px; --w:120px;" />
 
-  <!-- XP (top-right of the panel) -->
-  <input id="xp" class="abs" type="number" value="0" min="0"
-         style="--x:390px; --y:276px; --w:96px;" />
+    <!-- XP (example position—tweak with debugger) -->
+    <input id="xp" class="abs" type="number" value="0" min="0"
+           style="--x:390px; --y:276px; --w:40px;" />
 
-  <!-- Deck placeholder for future Talent cards (stays inside the panel) -->
-  <div id="talentsDeck" class="abs" style="--x:16px; --y:160px; --w:418px; --h:220px;"></div>
-
-</div>
-
-    <!-- They’ll overlay transparently above the background -->
-    <div id="talentsDeck"></div> <!-- placeholder deck for future Talent cards -->
-
+    <!-- Deck placeholder for future Talent cards (kept inside the panel) -->
+    <div id="talentsDeck" class="abs" style="--x:16px; --y:160px; --w:418px; --h:220px;"></div>
   </div>
 
   <div id="panel-combat" class="tabPanel"
-       style="display:none; width:450px; height:450px;
-              background:#ddd;">Combat coming soon</div>
+       style="display:none; width:450px; height:400px; background:#ddd;">Combat coming soon</div>
 
   <div id="panel-gear" class="tabPanel"
-       style="display:none; width:450px; height:450px;
-              background:#ddd;">Gear coming soon</div>
+       style="display:none; width:450px; height:400px; background:#ddd;">Gear coming soon</div>
 
   <div id="panel-powers" class="tabPanel"
-       style="display:none; width:450px; height:450px;
-              background:#ddd;">Powers coming soon</div>
+       style="display:none; width:450px; height:400px; background:#ddd;">Powers coming soon</div>
 </div>
+
 
     </div>
 
@@ -825,147 +817,16 @@ function updateTallies(){
   document.getElementById('baneCount').value    = bane;
 }
 </script>
-
-<!-- Unified Debugger -->
 <script>
 (() => {
-  let TARGET_SELECTOR = '.abs';
-  let debugOn = false, hoverEnabled = false, marqueeActive = false, cursorMode = false, measureMode = false;
-  let selected = new Set();
-  let startX = 0, startY = 0;
-  let draggingEl = null, dragOffsetX = 0, dragOffsetY = 0;
+  // ====== BASIC HOOKS ======
+  const canvas = document.getElementById('mainCanvas'); // whole sheet
+  const tabBox = document.getElementById('tabBox');     // tabs wrapper
 
-  const canvas = document.getElementById('mainCanvas');
-
-  const tooltip = document.createElement('div');
-  tooltip.className = 'debug-tooltip'; document.body.appendChild(tooltip);
-
-  const marquee = document.createElement('div');
-  marquee.className = 'debug-marquee'; document.body.appendChild(marquee);
-
-  const crossX = document.createElement('div');
-  crossX.className = 'debug-crosshair-x'; document.body.appendChild(crossX);
-  const crossY = document.createElement('div');
-  crossY.className = 'debug-crosshair-y'; document.body.appendChild(crossY);
-
-  const coordHUD = document.createElement('div');
-  coordHUD.className = 'debug-coord-hud'; coordHUD.textContent = 'X: 0  Y: 0';
-  document.body.appendChild(coordHUD);
-
-  const measureBox = document.createElement('div');
-  measureBox.className = 'debug-measure'; document.body.appendChild(measureBox);
-  const measureHUD = document.createElement('div');
-  measureHUD.className = 'debug-measure-hud'; measureHUD.textContent = '0 × 0';
-  document.body.appendChild(measureHUD);
-  let measureActive = false;
-
-  function getXY(el){
-    const x = parseFloat(el.style.getPropertyValue('--x')) || 0;
-    const y = parseFloat(el.style.getPropertyValue('--y')) || 0;
-    return [x,y];
-  }
-  function refreshSelectedHUD(){
-    document.querySelectorAll('.debug-selected-hud').forEach(n => n.remove());
-    if (!debugOn || !selected.size) return;
-    selected.forEach(el => {
-      const hud = document.createElement('div');
-      hud.className = 'debug-selected-hud';
-      const [x,y] = getXY(el);
-      hud.textContent = `${el.id ? '#'+el.id : el.tagName.toLowerCase()} (${Math.round(x)}, ${Math.round(y)})`;
-      const rect = el.getBoundingClientRect();
-      hud.style.left = Math.max(0, Math.min(window.innerWidth - 8, rect.left)) + 'px';
-      hud.style.top  = Math.max(0, rect.top - 14) + 'px';
-      document.body.appendChild(hud);
-    });
-  }
-
-  const panel = document.createElement('div');
-  panel.className = 'debugger-panel';
-  panel.innerHTML = `
-    <div class="row" style="justify-content:space-between">
-      <strong>Debugger</strong>
-      <label class="row" title="Enable/disable debugger">
-        <input id="dbg-toggle" type="checkbox"><span>On</span>
-      </label>
-    </div>
-
-    <div class="row"><span class="muted">Selector</span></div>
-    <input id="dbg-selector" type="text" value="${'.abs'}" title="CSS selector for debug targets">
-
-    <div class="row" style="justify-content:space-between; margin-top:6px">
-      <label class="row" title="Show crosshair + cursor coordinates">
-        <input id="dbg-cursor" type="checkbox" checked><span>Cursor mode</span>
-      </label>
-      <label class="row" title="Drag on canvas to measure W×H in px">
-        <input id="dbg-measure" type="checkbox"><span>Measure mode</span>
-      </label>
-    </div>
-    <div class="row"><span class="muted">D=toggle • C=cursor • Alt=tooltip • Shift+drag=marquee • Drag=move • Arrows=nudge • Ctrl=5px</span></div>
-
-    <hr style="border:none;border-top:1px solid #ddd;margin:8px 0" />
-
-    <div class="row">
-      <input id="dbg-left-x" class="grow" type="number" placeholder="Left X (px)">
-      <button id="dbg-align-left" type="button" title="Set all selected left to X">Align Left</button>
-    </div>
-    <div class="row">
-      <input id="dbg-top-y" class="grow" type="number" placeholder="Top Y (px)">
-      <button id="dbg-align-top" type="button" title="Set all selected top to Y">Align Top</button>
-    </div>
-
-    <div class="row">
-      <input id="dbg-center-x" class="grow" type="number" placeholder="Center X (px) — empty = use first">
-      <button id="dbg-center-x-btn" type="button" title="Center each selected at this X">Align Center X</button>
-    </div>
-    <div class="row">
-      <input id="dbg-center-y" class="grow" type="number" placeholder="Center Y (px) — empty = use first">
-      <button id="dbg-center-y-btn" type="button" title="Center each selected at this Y">Align Center Y</button>
-    </div>
-
-    <div class="row" style="margin-top:8px">
-      <button id="dbg-clear" type="button" title="Clear selection">Clear selection</button>
-      <button id="dbg-log" type="button" title="Log selected coords to console">Log coords</button>
-    </div>
-
-    <hr style="border:none;border-top:1px solid #ddd;margin:8px 0" />
-
-    <div class="row" style="justify-content:space-between">
-      <button id="dbg-export" type="button" title="Download selected positions as JSON">Export JSON</button>
-      <button id="dbg-import" type="button" title="Import positions from JSON">Import JSON</button>
-      <button id="dbg-export-html" type="button" title="Download a <style> block you can paste">Export HTML</button>
-      <input id="dbg-file" type="file" accept="application/json" style="display:none">
-    </div>
-<script>
-(() => {
-  // === CONFIG ===
-  const canvas = document.getElementById('mainCanvas');       // whole sheet
-  const tabBox = document.getElementById('tabBox');            // tabs wrapper
-  let   DEBUG_ORIGIN_EL = canvas;                              // current origin
-  let   TARGET_SELECTOR = '.abs';                              // draggable/target elems
-
-  // === STATE ===
-  let debugOn = true, hoverEnabled = false, cursorMode = true;
-  let measureMode = false, measureActive = false, marqueeActive = false;
-  let selected = new Set(), draggingEl = null, dragOffsetX = 0, dragOffsetY = 0;
-  let startClientX = 0, startClientY = 0;
-
-  // === HUD ELEMENTS (assumed created by your existing HTML/CSS) ===
-  const tooltip     = document.getElementById('debug-tooltip')      || mk('div','debug-tooltip');
-  const coordHUD    = document.getElementById('debug-coord-hud')    || mk('div','debug-coord-hud');
-  const crossX      = document.getElementById('debug-crosshair-x')  || mk('div','debug-crosshair-x');
-  const crossY      = document.getElementById('debug-crosshair-y')  || mk('div','debug-crosshair-y');
-  const marquee     = document.getElementById('debug-marquee')      || mk('div','debug-marquee');
-  const measureBox  = document.getElementById('debug-measure')      || mk('div','debug-measure');
-  const measureHUD  = document.getElementById('debug-measure-hud')  || mk('div','debug-measure-hud');
-
-  function mk(tag, cls){
-    const el = document.createElement(tag); el.className = cls; document.body.appendChild(el); return el;
-  }
-
-  // === ORIGIN HELPERS ===
+  // ====== ORIGIN (where coordinates are measured) ======
+  let DEBUG_ORIGIN_EL = canvas; // default
   function getActiveTabPanel(){
-    if (!tabBox) return null;
-    const panels = Array.from(tabBox.querySelectorAll('.tabPanel'));
+    const panels = tabBox ? Array.from(tabBox.querySelectorAll('.tabPanel')) : [];
     return panels.find(p => p.style.display !== 'none') || null;
   }
   function setDebugOrigin(el){
@@ -975,37 +836,61 @@ function updateTallies(){
     refreshSelectedHUD();
   }
 
-  // Hotkeys: T = visible tab panel, S = sheet; Alt+Shift+Click = pick origin
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 't' || e.key === 'T') setDebugOrigin(getActiveTabPanel() || canvas);
-    if (e.key === 's' || e.key === 'S') setDebugOrigin(canvas);
-  });
-  document.addEventListener('mousedown', (e) => {
-    if (e.getModifierState && e.getModifierState('Alt') && e.getModifierState('Shift')) {
-      e.preventDefault();
-      setDebugOrigin(e.target);
-    }
-  }, true);
+  // ====== STATE ======
+  let TARGET_SELECTOR = '.abs';
+  let debugOn = false, cursorMode = false, hoverEnabled = false;
+  let measureMode = false, measureActive = false, marqueeActive = false;
+  let selected = new Set();
+  let startClientX = 0, startClientY = 0;
+  let draggingEl = null, dragOffsetX = 0, dragOffsetY = 0;
 
-  // === COORDINATE MATH (the new single source of truth) ===
+  // ====== OVERLAY NODES ======
+  const tooltip    = el('div','debug-tooltip');
+  const coordHUD   = el('div','debug-coord-hud'); coordHUD.textContent = 'X: 0  Y: 0';
+  const crossX     = el('div','debug-crosshair-x');
+  const crossY     = el('div','debug-crosshair-y');
+  const marquee    = el('div','debug-marquee');
+  const measureBox = el('div','debug-measure');
+  const measureHUD = el('div','debug-measure-hud'); measureHUD.textContent = '0 × 0';
+
+  function el(tag, cls){ const n=document.createElement(tag); n.className=cls; document.body.appendChild(n); return n; }
+
+  // ====== DOM (panel UI) ======
+  const $ = sel => document.querySelector(sel);
+  const toggleEl   = $('#dbg-toggle');
+  const cursorEl   = $('#dbg-cursor');
+  const measureEl  = $('#dbg-measure');
+  const selectorEl = $('#dbg-selector');
+  const leftInput  = $('#dbg-left-x');
+  const topInput   = $('#dbg-top-y');
+  const centerXInp = $('#dbg-center-x');
+  const centerYInp = $('#dbg-center-y');
+  const alignLeft  = $('#dbg-align-left');
+  const alignTop   = $('#dbg-align-top');
+  const centerXBtn = $('#dbg-center-x-btn');
+  const centerYBtn = $('#dbg-center-y-btn');
+  const clearBtn   = $('#dbg-clear');
+  const logBtn     = $('#dbg-log');
+  const exportBtn  = $('#dbg-export');
+  const importBtn  = $('#dbg-import');
+  const exportHtmlBtn = $('#dbg-export-html');
+  const fileInput  = $('#dbg-file');
+
+  // ====== COORD MATH (single source of truth) ======
   function dbgComputeCoords(clientX, clientY){
     const rect = (DEBUG_ORIGIN_EL || canvas).getBoundingClientRect();
     return { x: Math.round(clientX - rect.left), y: Math.round(clientY - rect.top) };
   }
   function dbgRectFromClient(x1,y1,x2,y2){
-    const a = dbgComputeCoords(x1,y1);
-    const b = dbgComputeCoords(x2,y2);
-    const left   = Math.min(a.x,b.x);
-    const top    = Math.min(a.y,b.y);
-    const width  = Math.abs(a.x-b.x);
-    const height = Math.abs(a.y-b.y);
+    const a = dbgComputeCoords(x1,y1), b = dbgComputeCoords(x2,y2);
+    const left = Math.min(a.x,b.x), top = Math.min(a.y,b.y);
+    const width = Math.abs(a.x-b.x), height = Math.abs(a.y-b.y);
     return { left, top, width, height, right:left+width, bottom:top+height };
   }
-
-  // === POSITION HELPERS (use CSS custom props --x/--y) ===
   function getXY(el){
-    const x = parseFloat(getComputedStyle(el).getPropertyValue('--x')) || 0;
-    const y = parseFloat(getComputedStyle(el).getPropertyValue('--y')) || 0;
+    const cs = getComputedStyle(el);
+    const x = parseFloat(cs.getPropertyValue('--x')) || 0;
+    const y = parseFloat(cs.getPropertyValue('--y')) || 0;
     return [x,y];
   }
   function setXY(el, x, y){
@@ -1020,11 +905,11 @@ function updateTallies(){
     return [ Math.max(0, Math.min(x, maxX)), Math.max(0, Math.min(y, maxY)) ];
   }
 
-  // === UI HELPERS ===
-  function showTooltip(el, clientX, clientY){
-    el.classList.add('debug-outline');
-    const [x,y] = getXY(el);
-    tooltip.textContent = `${el.id ? '#'+el.id : el.tagName.toLowerCase()} (${Math.round(x)}, ${Math.round(y)})`;
+  // ====== HUD / SELECT ======
+  function showTooltip(elm, clientX, clientY){
+    elm.classList.add('debug-outline');
+    const [x,y] = getXY(elm);
+    tooltip.textContent = `${elm.id ? '#'+elm.id : elm.tagName.toLowerCase()} (${Math.round(x)}, ${Math.round(y)})`;
     tooltip.style.left = Math.min(window.innerWidth - 8, clientX + 8) + 'px';
     tooltip.style.top  = Math.min(window.innerHeight - 8, clientY + 8) + 'px';
     tooltip.style.display = 'block';
@@ -1042,16 +927,37 @@ function updateTallies(){
     if (!selected.has(el)) { selected.add(el); el.classList.add('debug-selected'); }
     refreshSelectedHUD();
   }
-  function nudge(el, dx, dy){
-    const [x,y] = getXY(el);
-    const [nx, ny] = clampToOrigin(el, x + dx, y + dy);
-    setXY(el, nx, ny);
-  }
   function refreshSelectedHUD(){
-    // If you render per-selection mini labels, update them here; kept minimal.
+    document.querySelectorAll('.debug-selected-hud').forEach(n=>n.remove());
+    if (!debugOn || !selected.size) return;
+    selected.forEach(el => {
+      const hud = document.createElement('div');
+      hud.className = 'debug-selected-hud';
+      const [x,y] = getXY(el);
+      hud.textContent = `${el.id ? '#'+el.id : el.tagName.toLowerCase()} (${Math.round(x)}, ${Math.round(y)})`;
+      const r = el.getBoundingClientRect();
+      hud.style.left = Math.max(0, Math.min(window.innerWidth - 8, r.left)) + 'px';
+      hud.style.top  = Math.max(0, r.top - 14) + 'px';
+      document.body.appendChild(hud);
+    });
   }
+  function withinOrigin(el){ return (DEBUG_ORIGIN_EL || canvas).contains(el); }
+  function queryOrigin(sel){ return Array.from((DEBUG_ORIGIN_EL || canvas).querySelectorAll(sel)); }
+  function placeBox(el, r){
+    const orect = (DEBUG_ORIGIN_EL || canvas).getBoundingClientRect();
+    el.style.left = (orect.left + r.left) + 'px';
+    el.style.top  = (orect.top  + r.top ) + 'px';
+    el.style.width  = r.width + 'px';
+    el.style.height = r.height + 'px';
+  }
+  function elementRectInOrigin(el){
+    const orect = (DEBUG_ORIGIN_EL || canvas).getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    return { left:r.left-orect.left, top:r.top-orect.top, right:r.right-orect.left, bottom:r.bottom-orect.top, width:r.width, height:r.height };
+  }
+  function intersects(a,b){ return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom); }
 
-  // === CURSOR HUD (panel-relative numbers) ===
+  // ====== CURSOR HUD ======
   function setCursorMode(on){
     cursorMode = !!on;
     const disp = (debugOn && cursorMode) ? 'block' : 'none';
@@ -1060,16 +966,14 @@ function updateTallies(){
   window.addEventListener('mousemove', (e) => {
     if (!debugOn || !cursorMode) return;
     const { x, y } = dbgComputeCoords(e.clientX, e.clientY);
-    // Crosshairs follow page coords visually (for ease of use)…
     crossX.style.top  = e.clientY + 'px';
     crossY.style.left = e.clientX + 'px';
-    // …but HUD shows panel-relative coords
     coordHUD.style.left = (e.clientX + 10) + 'px';
     coordHUD.style.top  = (e.clientY + 10) + 'px';
     coordHUD.textContent = `X: ${x}   Y: ${y}`;
   });
 
-  // === HOVER TOOLTIP (panel-relative reporting) ===
+  // ====== HOVER TOOLTIP ======
   document.addEventListener('mouseover', (e) => {
     if (!debugOn || !hoverEnabled) return;
     const t = e.target.closest(TARGET_SELECTOR);
@@ -1086,13 +990,13 @@ function updateTallies(){
     if (t) hideTooltip();
   }, {capture:true});
 
-  // === MARQUEE SELECT (panel-relative) ===
+  // ====== MARQUEE (Shift-drag) ======
   canvas.addEventListener('mousedown', (e) => {
     if (!debugOn || !e.shiftKey || measureMode) return;
     startClientX = e.clientX; startClientY = e.clientY;
     marqueeActive = true;
-    const r = dbgRectFromClient(startClientX, startClientY, startClientX, startClientY);
-    placeBox(marquee, r); marquee.style.display = 'block';
+    placeBox(marquee, dbgRectFromClient(startClientX, startClientY, startClientX, startClientY));
+    marquee.style.display = 'block';
     e.preventDefault();
   });
   window.addEventListener('mousemove', (e) => {
@@ -1100,17 +1004,14 @@ function updateTallies(){
     const r = dbgRectFromClient(startClientX, startClientY, e.clientX, e.clientY);
     placeBox(marquee, r);
     clearSelection();
-    queryOrigin(TARGET_SELECTOR).forEach(el => {
-      const er = elementRectInOrigin(el);
-      if (intersects(r, er)) addToSelection(el);
-    });
+    queryOrigin(TARGET_SELECTOR).forEach(el => { if (intersects(r, elementRectInOrigin(el))) addToSelection(el); });
   });
   window.addEventListener('mouseup', () => {
     if (!debugOn || !marqueeActive) return;
     marqueeActive = false; marquee.style.display = 'none';
   });
 
-  // === MEASURE BOX (panel-relative) ===
+  // ====== MEASURE MODE ======
   function setMeasureMode(on){
     measureMode = !!on;
     if (!measureMode){ measureActive=false; measureBox.style.display='none'; measureHUD.style.display='none'; }
@@ -1118,12 +1019,11 @@ function updateTallies(){
   canvas.addEventListener('mousedown', (e) => {
     if (!debugOn || !measureMode) return;
     const t = e.target.closest(TARGET_SELECTOR);
-    if (t && withinOrigin(t)) return; // don't start on a target
+    if (t && withinOrigin(t)) return;
     startClientX = e.clientX; startClientY = e.clientY;
     measureActive = true;
-    const r = dbgRectFromClient(startClientX, startClientY, startClientX, startClientY);
-    placeBox(measureBox, r); measureBox.style.display = 'block';
-    measureHUD.style.display = 'block';
+    placeBox(measureBox, dbgRectFromClient(startClientX, startClientY, startClientX, startClientY));
+    measureBox.style.display = 'block'; measureHUD.style.display = 'block';
     e.preventDefault();
   });
   window.addEventListener('mousemove', (e) => {
@@ -1131,44 +1031,25 @@ function updateTallies(){
     const r = dbgRectFromClient(startClientX, startClientY, e.clientX, e.clientY);
     placeBox(measureBox, r);
     measureHUD.textContent = `${r.width} × ${r.height}px`;
-    // float HUD near the box (page coords)
-    const end = { left: e.clientX, top: e.clientY };
-    measureHUD.style.left = (end.left + 8) + 'px';
-    measureHUD.style.top  = (end.top  - 2) + 'px';
+    measureHUD.style.left = (e.clientX + 8) + 'px';
+    measureHUD.style.top  = (e.clientY - 2) + 'px';
   });
   window.addEventListener('mouseup', () => {
     if (!debugOn || !measureMode || !measureActive) return;
     measureActive = false; measureBox.style.display = 'none'; measureHUD.style.display = 'none';
   });
 
-  // === DRAG + NUDGE (panel-relative) ===
-  function withinOrigin(el){ return (DEBUG_ORIGIN_EL || canvas).contains(el); }
-  function queryOrigin(sel){ return Array.from((DEBUG_ORIGIN_EL || canvas).querySelectorAll(sel)); }
-  function placeBox(el, r){
-    // Convert origin-relative rect to page rect for drawing the overlay box
-    const orect = (DEBUG_ORIGIN_EL || canvas).getBoundingClientRect();
-    el.style.left = (orect.left + r.left) + 'px';
-    el.style.top  = (orect.top  + r.top ) + 'px';
-    el.style.width  = r.width + 'px';
-    el.style.height = r.height + 'px';
-  }
-  function elementRectInOrigin(el){
-    const orect = (DEBUG_ORIGIN_EL || canvas).getBoundingClientRect();
-    const r     = el.getBoundingClientRect();
-    return { left:r.left-orect.left, top:r.top-orect.top, right:(r.right-orect.left), bottom:(r.bottom-orect.top), width:r.width, height:r.height };
-    }
-
+  // ====== DRAG / NUDGE ======
   canvas.addEventListener('mousedown', (e) => {
     if (!debugOn || e.shiftKey || measureMode) return;
     const t = e.target.closest(TARGET_SELECTOR);
     if (!t || !withinOrigin(t)) return;
-    if (e.target && e.target.tagName === 'INPUT') return; // don't steal focus
+    if (e.target && e.target.tagName === 'INPUT') return;
     if (!selected.has(t)) { clearSelection(); addToSelection(t); }
-    draggingEl = t;
     const { x, y } = dbgComputeCoords(e.clientX, e.clientY);
     const [sx, sy] = getXY(t);
     dragOffsetX = x - sx; dragOffsetY = y - sy;
-    e.preventDefault();
+    draggingEl = t; e.preventDefault();
   });
   window.addEventListener('mousemove', (e) => {
     if (!debugOn || !draggingEl) return;
@@ -1180,103 +1061,78 @@ function updateTallies(){
   window.addEventListener('mouseup', () => { draggingEl = null; });
 
   window.addEventListener('keydown', (e) => {
-    // Toggle debugger (kept simple)
+    // Toggle debugger
     if (e.key === 'd' || e.key === 'D') {
-      debugOn = !debugOn; setCursorMode(debugOn);
+      debugOn = !debugOn;
+      canvas.classList.toggle('canvas-debug', debugOn);
+      setCursorMode(debugOn && (cursorEl?.checked ?? false));
       if (!debugOn){ hideTooltip(); clearSelection(); setMeasureMode(false); }
+      toggleEl && (toggleEl.checked = debugOn);
       return;
     }
-    // Cursor HUD toggle
-    if (e.key === 'c' || e.key === 'C') { setCursorMode(!cursorMode); return; }
+    // Quick origin switching
+    if (e.key === 't' || e.key === 'T') setDebugOrigin(getActiveTabPanel() || canvas);
+    if (e.key === 's' || e.key === 'S') setDebugOrigin(canvas);
 
+    // Arrow nudges
     if (!debugOn || !selected.size) return;
-    // Arrow-key nudge
     if (/^Arrow(Up|Down|Left|Right)$/.test(e.key)) {
       const step = e.ctrlKey ? 5 : 1;
       const dx = (e.key === 'ArrowRight') ? step : (e.key === 'ArrowLeft') ? -step : 0;
       const dy = (e.key === 'ArrowDown')  ? step : (e.key === 'ArrowUp')   ? -step : 0;
       e.preventDefault();
-      selected.forEach(el => nudge(el, dx, dy));
+      selected.forEach(el => {
+        const [x,y] = getXY(el);
+        const [nx, ny] = clampToOrigin(el, x + dx, y + dy);
+        setXY(el, nx, ny);
+      });
     }
-    // Alt to enable hover tooltip (your previous pattern)
     if (e.altKey) hoverEnabled = true;
   });
-  window.addEventListener('keyup',   (e) => { if (!e.altKey) { hoverEnabled = false; hideTooltip(); } });
+  window.addEventListener('keyup', () => { hoverEnabled = false; hideTooltip(); });
   window.addEventListener('scroll',  () => { if (debugOn) refreshSelectedHUD(); });
   window.addEventListener('resize',  () => { if (debugOn) refreshSelectedHUD(); });
 
-  // === ALIGN / CENTER (reads from small inputs if you keep them; safe fallbacks) ===
-  function centerOnX(el, clientCenterX){
-    // clientCenterX may be page coords; translate to origin-relative center
-    if (typeof clientCenterX !== 'number') return;
-    const { x } = dbgComputeCoords(clientCenterX, 0);
-    const r = el.getBoundingClientRect();
-    const parent = (DEBUG_ORIGIN_EL || canvas);
-    const newLeft = Math.round(x - r.width/2);
-    const [nx] = clampToOrigin(el, newLeft, getXY(el)[1]);
-    setXY(el, nx, getXY(el)[1]);
-  }
-  function centerOnY(el, clientCenterY){
-    if (typeof clientCenterY !== 'number') return;
-    const { y } = dbgComputeCoords(0, clientCenterY);
-    const r = el.getBoundingClientRect();
-    const newTop = Math.round(y - r.height/2);
-    const [,ny] = clampToOrigin(el, getXY(el)[0], newTop);
-    setXY(el, getXY(el)[0], ny);
-  }
+  // ====== PANEL UI WIRING ======
+  toggleEl && toggleEl.addEventListener('change', () => {
+    debugOn = toggleEl.checked;
+    canvas.classList.toggle('canvas-debug', debugOn);
+    setCursorMode(debugOn && (cursorEl?.checked ?? false));
+    if (!debugOn){ hideTooltip(); clearSelection(); setMeasureMode(false); }
+  });
+  cursorEl && cursorEl.addEventListener('change', () => setCursorMode(debugOn && cursorEl.checked));
+  measureEl && measureEl.addEventListener('change', () => setMeasureMode(measureEl.checked));
+  selectorEl && selectorEl.addEventListener('change', () => { TARGET_SELECTOR = selectorEl.value.trim() || '.abs'; clearSelection(); });
 
-  // === EXPORT / IMPORT (keys use #id when available) ===
-  function cssPath(el){
-    const parts = [];
-    for (let node = el; node && node.nodeType === 1 && node !== (DEBUG_ORIGIN_EL || canvas); node = node.parentElement) {
-      let sel = node.tagName.toLowerCase();
-      if (node.id){ parts.unshift(sel + '#' + node.id); return parts.join(' > '); }
-      let i = 1, sib = node;
-      while ((sib = sib.previousElementSibling) && sib.tagName === node.tagName) i++;
-      parts.unshift(sel + `:nth-of-type(${i})`);
-    }
-    return parts.join(' > ');
-  }
-  function keyFor(el){ return el.id ? `#${el.id}` : cssPath(el); }
-  function findByKey(key){
-    const root = (DEBUG_ORIGIN_EL || canvas);
-    if (key.startsWith('#')) return root.querySelector(key);
-    return root.querySelector(key);
-  }
-  function exportSelection(){
-    const items = [...selected].map(el => {
-      const [left, top] = getXY(el);
-      return { key: keyFor(el), left, top };
-    });
-    return { version: 2, origin: originLabel(DEBUG_ORIGIN_EL), items };
-  }
-  function importPositions(json){
-    const items = Array.isArray(json) ? json : (json?.items || []);
-    const res = { applied: 0, total: items.length, unmatched: [] };
-    items.forEach(it => {
-      const el = findByKey(it.key);
-      if (!el){ res.unmatched.push(it.key || '(no key)'); return; }
-      const [nx, ny] = clampToOrigin(el, it.left ?? 0, it.top ?? 0);
-      setXY(el, nx, ny); res.applied++;
-    });
-    return res;
-  }
-  function originLabel(el){
-    if (!el) return '(null)';
-    return el.id ? '#'+el.id : (el.className || el.tagName);
-  }
+  clearBtn && clearBtn.addEventListener('click', clearSelection);
+  logBtn && logBtn.addEventListener('click', () => {
+    if (!selected.size) return;
+    console.table([...selected].map(el => ({ id: el.id, x: getXY(el)[0], y: getXY(el)[1] })));
+  });
+  alignLeft && alignLeft.addEventListener('click', () => {
+    const x = parseFloat(leftInput.value); if (Number.isNaN(x)) return;
+    selected.forEach(el => setXY(el, clampToOrigin(el, x, getXY(el)[1])[0], getXY(el)[1]));
+  });
+  alignTop && alignTop.addEventListener('click', () => {
+    const y = parseFloat(topInput.value); if (Number.isNaN(y)) return;
+    selected.forEach(el => setXY(el, getXY(el)[0], clampToOrigin(el, getXY(el)[0], y)[1]));
+  });
+  centerXBtn && centerXBtn.addEventListener('click', () => {
+    const cx = parseFloat(centerXInp.value);
+    if (Number.isNaN(cx)) return;
+    selected.forEach(el => setXY(el, clampToOrigin(el, cx - el.getBoundingClientRect().width/2, getXY(el)[1])[0], getXY(el)[1]));
+  });
+  centerYBtn && centerYBtn.addEventListener('click', () => {
+    const cy = parseFloat(centerYInp.value);
+    if (Number.isNaN(cy)) return;
+    selected.forEach(el => setXY(el, getXY(el)[0], clampToOrigin(el, getXY(el)[0], cy - el.getBoundingClientRect().height/2)[1]));
+  });
 
-  // OPTIONAL: Wire up your existing export/import buttons by IDs if you keep them:
-  const exportBtn = document.getElementById('dbg-export');
-  const importBtn = document.getElementById('dbg-import');
-  const fileInput = document.getElementById('dbg-file');
   exportBtn && exportBtn.addEventListener('click', () => {
     const data = exportSelection();
     if (!data.items.length) return alert('Select at least one element to export.');
-    const json = JSON.stringify(data, null, 2);
-    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
-    const a = document.createElement('a');
-    const ts = new Date().toISOString().replace(/[:.]/g,'-');
+    const blob = new Blob([JSON.stringify(data,null,2)], { type: 'application/json;charset=utf-8' });
+    const a = document.createElement('a'); const ts = new Date().toISOString().replace(/[:.]/g,'-');
     a.href = URL.createObjectURL(blob); a.download = `positions-${ts}.json`;
     document.body.appendChild(a); a.click();
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
@@ -1296,14 +1152,70 @@ function updateTallies(){
     };
     rdr.readAsText(f);
   });
+  exportHtmlBtn && exportHtmlBtn.addEventListener('click', exportSelectedAsHTML);
 
-  // Turn on cursor HUD by default
-  setCursorMode(true);
-
-  // Helper: rectangle intersection in origin space
-  function intersects(a,b){
-    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+  function keyFor(el){ return el.id ? `#${el.id}` : cssPath(el); }
+  function cssPath(el){
+    const root = (DEBUG_ORIGIN_EL || canvas);
+    const parts = [];
+    for (let n = el; n && n.nodeType === 1 && n !== root; n = n.parentElement) {
+      if (n.id){ parts.unshift('#'+n.id); break; }
+      const tag = n.tagName.toLowerCase();
+      let i = 1; let p = n;
+      while ((p = p.previousElementSibling) && p.tagName === n.tagName) i++;
+      parts.unshift(`${tag}:nth-of-type(${i})`);
+    }
+    return parts.join(' > ');
   }
+  function exportSelection(){
+    const items = [...selected].map(el => {
+      const [left, top] = getXY(el);
+      return { key: keyFor(el), left, top };
+    });
+    return { version: 2, origin: originLabel(DEBUG_ORIGIN_EL), items };
+  }
+  function importPositions(json){
+    const items = Array.isArray(json) ? json : (json?.items || []);
+    const res = { applied: 0, total: items.length, unmatched: [] };
+    items.forEach(it => {
+      const root = (DEBUG_ORIGIN_EL || canvas);
+      const el = it.key?.startsWith('#') ? root.querySelector(it.key) : root.querySelector(it.key);
+      if (!el){ res.unmatched.push(it.key || '(no key)'); return; }
+      const [nx, ny] = clampToOrigin(el, it.left ?? 0, it.top ?? 0);
+      setXY(el, nx, ny); res.applied++;
+    });
+    return res;
+  }
+  function exportSelectedAsHTML(){
+    if (!selected.size) return alert('Select at least one element to export.');
+    let cssOut = `/* Exported positions (${new Date().toISOString()}) */\n`;
+    selected.forEach(el => {
+      const [x,y] = getXY(el);
+      const selector = keyFor(el);
+      cssOut += `${selector}{ --x:${Math.round(x)}px; --y:${Math.round(y)}px; }\n`;
+    });
+    const html = `<!doctype html><meta charset="utf-8"><title>GxD6 Positions</title>
+<style id="exported-positions">
+${cssOut}</style>`;
+    const blob = new Blob([html], { type:'text/html;charset=utf-8' });
+    const a = document.createElement('a'); const ts = new Date().toISOString().replace(/[:.]/g,'-');
+    a.href = URL.createObjectURL(blob); a.download = `positions-style-${ts}.html`;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  }
+  function originLabel(el){ return el?.id ? '#'+el.id : (el?.className || el?.tagName || '(null)'); }
+
+  // ====== EXTRA: quick origin pick (Alt+Shift+Click) ======
+  document.addEventListener('mousedown', (e) => {
+    if (e.getModifierState && e.getModifierState('Alt') && e.getModifierState('Shift')) {
+      e.preventDefault(); setDebugOrigin(e.target);
+    }
+  }, true);
+
+  // ====== INIT ======
+  // start with debugger off; UI checkbox reflects state
+  toggleEl && (toggleEl.checked = debugOn);
+  cursorEl && (cursorEl.checked = cursorMode);
 })();
 </script>
 
