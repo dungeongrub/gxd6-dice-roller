@@ -512,32 +512,42 @@ button{
     <!-- Clear All -->
     <img src="img/clear_icon.png" class="abs icon-btn-sm" style="--x:363px; --y:295px;" alt="Clear" onclick="clearAllDice()">
 
-    <!-- Tabs box -->
-    <div id="tabBox" class="abs"
-      style="--x:278px; --y:331px; --w:440px; --h:430px; background:transparent; border:none; padding:5px;">
-      <div style="display:flex; gap:8px; margin-bottom:8px;">
-        <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
-        <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
-        <button type="button" class="tabBtn" data-tab="gear"   onclick="showTab('gear')">Gear</button>
-        <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
-      </div>
+<!-- === Tab Box === -->
+<div id="tabBox" class="abs"
+  style="--x:278px; --y:331px; --w:450px; --h:400px; background:transparent; border:none; padding:5px;">
 
-      <!-- panel-main: inputs only (labels removed) -->
-      <div id="panel-main" class="tabPanel" style="display:block;">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <input id="archetype1" type="text" placeholder="" />
-          <input id="profession1" type="text" placeholder="" />
-          <input id="archetype2" type="text" placeholder="" />
-          <input id="profession2" type="text" placeholder="" />
-        </div>
-        <div style="margin-top:14px; display:flex; justify-content:flex-end;">
-          <input id="xp" type="number" value="0" style="width:40px;" />
-        </div>
-      </div>
+  <!-- Tab Buttons -->
+  <div style="display:flex; gap:8px; margin-bottom:8px;">
+    <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
+    <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
+    <button type="button" class="tabBtn" data-tab="gear"   onclick="showTab('gear')">Gear</button>
+    <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
+  </div>
 
-      <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
-      <div id="panel-gear"   class="tabPanel" style="display:none;">Gear coming soon</div>
-      <div id="panel-powers" class="tabPanel" style="display:none;">Powers coming soon</div>
+  <!-- Tab Panels -->
+  <div id="panel-main" class="tabPanel"
+       style="display:block; width:450px; height:400px;
+              background:url('img/tab_main.png') no-repeat center/100% 100%;">
+
+    <!-- 🔹 Any input/number/text fields for Main tab go here -->
+    <!-- They’ll overlay transparently above the background -->
+    <div id="talentsDeck"></div> <!-- placeholder deck for future Talent cards -->
+
+  </div>
+
+  <div id="panel-combat" class="tabPanel"
+       style="display:none; width:450px; height:400px;
+              background:#ddd;">Combat coming soon</div>
+
+  <div id="panel-gear" class="tabPanel"
+       style="display:none; width:450px; height:400px;
+              background:#ddd;">Gear coming soon</div>
+
+  <div id="panel-powers" class="tabPanel"
+       style="display:none; width:450px; height:400px;
+              background:#ddd;">Powers coming soon</div>
+</div>
+
     </div>
 
   </div>
