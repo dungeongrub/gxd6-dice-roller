@@ -492,7 +492,7 @@ button{
     <!-- Dice grid -->
     <div id="diceGrid" class="abs" style="--x:590px; --y:190px;"></div>
 
-    <!-- Tallies at your requested coordinates -->
+    <!-- Tallies -->
     <div class="abs" style="--x:486px; --y:191px;">
       <input id="successCount" class="tally-num" type="text" value="0" readonly>
     </div>
@@ -500,7 +500,7 @@ button{
       <input id="baneCount" class="tally-num" type="text" value="0" readonly>
     </div>
 
-    <!-- Roll / Push / Pushes Allowed at your requested coordinates -->
+    <!-- Roll / Push / Pushes Allowed -->
     <img src="img/roll_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:232px;" alt="Roll" onclick="rollDice()">
     <img src="img/push_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:268px;" alt="Push" onclick="pushRoll()">
     <select id="pushesAllowed" class="abs" style="--x:537px; --y:293px; width:38px;" title="Pushes allowed">
@@ -512,56 +512,109 @@ button{
     <!-- Clear All -->
     <img src="img/clear_icon.png" class="abs icon-btn-sm" style="--x:363px; --y:295px;" alt="Clear" onclick="clearAllDice()">
 
-<!-- === TAB BOX === -->
-<div id="tabBox" class="abs"
-  style="--x:278px; --y:331px; --w:450px; --h:400px; background:transparent; border:none; padding:5px;">
+    <!-- === TAB BOX === -->
+    <div id="tabBox" class="abs"
+      style="--x:278px; --y:331px; --w:450px; --h:400px; background:transparent; border:none; padding:5px;">
 
-  <!-- Tab Buttons -->
-  <div style="display:flex; gap:8px; margin-bottom:8px; margin-left:10px;">
-    <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
-    <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
-    <button type="button" class="tabBtn" data-tab="gear"   onclick="showTab('gear')">Gear</button>
-    <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
+      <!-- Tab Buttons -->
+      <div style="display:flex; gap:8px; margin-bottom:8px; margin-left:10px;">
+        <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
+        <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
+        <button type="button" class="tabBtn" data-tab="gear"   onclick="showTab('gear')">Gear</button>
+        <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
+      </div>
+
+      <!-- Tab Panels -->
+      <div id="panel-main" class="tabPanel"
+           style="display:block; width:450px; height:400px;
+                  background:url('img/tab_main.png') no-repeat center/100% 100%;">
+
+        <!-- Archetype / Profession pair #1 -->
+        <input id="archetype1" class="abs" type="text" maxlength="20"
+               style="--x:13px; --y:70px; --w:110px;" />
+        <input id="profession1" class="abs" type="text" maxlength="17"
+               style="--x:160px; --y:70px; --w:120px;" />
+
+        <!-- Archetype / Profession pair #2 -->
+        <input id="archetype2" class="abs" type="text" maxlength="15"
+               style="--x:13px; --y:115px; --w:110px;" />
+        <input id="profession2" class="abs" type="text" maxlength="17"
+               style="--x:160px; --y:115px; --w:120px;" />
+
+        <!-- XP -->
+        <input id="xp" class="abs" type="number" value="0" min="0"
+               style="--x:390px; --y:276px; --w:40px;" />
+
+        <!-- Deck placeholder for future Talent cards -->
+        <div id="talentsDeck" class="abs" style="--x:16px; --y:160px; --w:418px; --h:220px;"></div>
+      </div>
+
+      <div id="panel-combat" class="tabPanel"
+           style="display:none; width:450px; height:400px; background:#ddd;">Combat coming soon</div>
+
+      <div id="panel-gear" class="tabPanel"
+           style="display:none; width:450px; height:400px; background:#ddd;">Gear coming soon</div>
+
+      <div id="panel-powers" class="tabPanel"
+           style="display:none; width:450px; height:400px; background:#ddd;">Powers coming soon</div>
+    </div> <!-- /tabBox -->
+
+  </div> <!-- /mainCanvas -->
+</div> <!-- /sheet-container -->
+
+<!-- ===== Debugger Panel (UI) ===== -->
+<div class="debugger-panel" id="dbg-panel">
+  <div class="row" style="justify-content:space-between">
+    <strong>Debugger</strong>
+    <label class="row" title="Enable/disable debugger">
+      <input id="dbg-toggle" type="checkbox"><span>On</span>
+    </label>
   </div>
 
-  <!-- Tab Panels -->
-  <div id="panel-main" class="tabPanel"
-       style="display:block; width:450px; height:400px;
-              background:url('img/tab_main.png') no-repeat center/100% 100%;">
+  <div class="row"><span class="muted">Selector</span></div>
+  <input id="dbg-selector" type="text" value=".abs" title="CSS selector for debug targets">
 
-    <!-- Archetype / Profession pair #1 -->
-    <input id="archetype1" class="abs" type="text" maxlength="20"
-           style="--x:13px; --y:70px; --w:110px;" />
-    <input id="profession1" class="abs" type="text" maxlength="17"
-           style="--x:160px; --y:70px; --w:120px;" />
+  <div class="row" style="justify-content:space-between; margin-top:6px">
+    <label class="row" title="Show crosshair + cursor coordinates">
+      <input id="dbg-cursor" type="checkbox"><span>Cursor</span>
+    </label>
+    <label class="row" title="Drag on canvas to measure W×H in px">
+      <input id="dbg-measure" type="checkbox"><span>Measure</span>
+    </label>
+  </div>
+  <div class="row"><span class="muted">D=toggle • T=tab origin • S=sheet origin • Alt=tooltip • Shift+drag=marquee • Arrows=nudge • Ctrl=5px</span></div>
 
-    <!-- Archetype / Profession pair #2 -->
-    <input id="archetype2" class="abs" type="text" maxlength="15"
-           style="--x:13px; --y:115px; --w:110px;" />
-    <input id="profession2" class="abs" type="text" maxlength="17"
-           style="--x:160px; --y:115px; --w:120px;" />
+  <hr style="border:none;border-top:1px solid #ddd;margin:8px 0" />
 
-    <!-- XP (example position—tweak with debugger) -->
-    <input id="xp" class="abs" type="number" value="0" min="0"
-           style="--x:390px; --y:276px; --w:40px;" />
-
-    <!-- Deck placeholder for future Talent cards (kept inside the panel) -->
-    <div id="talentsDeck" class="abs" style="--x:16px; --y:160px; --w:418px; --h:220px;"></div>
+  <div class="row">
+    <input id="dbg-left-x" class="grow" type="number" placeholder="Left X (px)">
+    <button id="dbg-align-left" type="button" title="Set all selected left to X">Align Left</button>
+  </div>
+  <div class="row">
+    <input id="dbg-top-y" class="grow" type="number" placeholder="Top Y (px)">
+    <button id="dbg-align-top" type="button" title="Set all selected top to Y">Align Top</button>
+  </div>
+  <div class="row">
+    <input id="dbg-center-x" class="grow" type="number" placeholder="Center X (px)">
+    <button id="dbg-center-x-btn" type="button" title="Center each selected at this X">Center X</button>
+  </div>
+  <div class="row">
+    <input id="dbg-center-y" class="grow" type="number" placeholder="Center Y (px)">
+    <button id="dbg-center-y-btn" type="button" title="Center each selected at this Y">Center Y</button>
   </div>
 
-  <div id="panel-combat" class="tabPanel"
-       style="display:none; width:450px; height:400px; background:#ddd;">Combat coming soon</div>
+  <div class="row" style="margin-top:8px">
+    <button id="dbg-clear" type="button" title="Clear selection">Clear</button>
+    <button id="dbg-log" type="button" title="Log selected coords to console">Log</button>
+  </div>
 
-  <div id="panel-gear" class="tabPanel"
-       style="display:none; width:450px; height:400px; background:#ddd;">Gear coming soon</div>
+  <hr style="border:none;border-top:1px solid #ddd;margin:8px 0" />
 
-  <div id="panel-powers" class="tabPanel"
-       style="display:none; width:450px; height:400px; background:#ddd;">Powers coming soon</div>
-</div>
-
-
-    </div>
-
+  <div class="row" style="justify-content:space-between">
+    <button id="dbg-export" type="button" title="Download selected positions as JSON">Export JSON</button>
+    <button id="dbg-import" type="button" title="Import positions from JSON">Import JSON</button>
+    <button id="dbg-export-html" type="button" title="Download a <style> block you can paste">Export HTML</button>
+    <input id="dbg-file" type="file" accept="application/json" style="display:none">
   </div>
 </div>
 
@@ -817,6 +870,8 @@ function updateTallies(){
   document.getElementById('baneCount').value    = bane;
 }
 </script>
+
+<!-- Unified Debugger -->
 <script>
 (() => {
   // ====== BASIC HOOKS ======
