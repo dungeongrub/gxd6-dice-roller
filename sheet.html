@@ -514,7 +514,7 @@ button{
 
 <!-- === TAB BOX === -->
 <div id="tabBox" class="abs"
-  style="--x:278px; --y:331px; --w:450px; --h:450px; background:transparent; border:none; padding:5px;">
+  style="--x:278px; --y:331px; --w:450px; --h:430px; background:transparent; border:none; padding:5px;">
 
   <!-- Tab Buttons -->
   <div style="display:flex; gap:8px; margin-bottom:8px; margin-left:10">
@@ -526,24 +526,24 @@ button{
 
 <!-- Tab Panels -->
 <div id="panel-main" class="tabPanel"
-     style="display:block; width:450px; height:400px;
+     style="display:block; width:450px; height:430px;
             background:url('img/tab_main.png') no-repeat center/100% 100%;">
 
   <!-- Archetype / Profession pair #1 (coords are within 450x400 panel) -->
-  <input id="archetype1" class="abs" type="text" maxlength="18"
-         style="--x:16px; --y:70px; --w:120px;" />
-  <input id="profession1" class="abs" type="text" maxlength="20"
-         style="--x:150px; --y:70px; --w:150px;" />
+  <input id="archetype1" class="abs" type="text" maxlength="20"
+         style="--x:13px; --y:70px; --w:110px;" />
+  <input id="profession1" class="abs" type="text" maxlength="17"
+         style="--x:160px; --y:70px; --w:120px;" />
 
   <!-- Archetype / Profession pair #2 -->
-  <input id="archetype2" class="abs" type="text" maxlength="18"
-         style="--x:16px; --y:110px; --w:120px;" />
-  <input id="profession2" class="abs" type="text" maxlength="20"
-         style="--x:150px; --y:110px; --w:150px;" />
+  <input id="archetype2" class="abs" type="text" maxlength="15"
+         style="--x:13px; --y:115px; --w:110px;" />
+  <input id="profession2" class="abs" type="text" maxlength="17"
+         style="--x:160px; --y:115px; --w:40px;" />
 
   <!-- XP (top-right of the panel) -->
   <input id="xp" class="abs" type="number" value="0" min="0"
-         style="--x:390px; --y:20px; --w:40px;" />
+         style="--x:390px; --y:276px; --w:96px;" />
 
   <!-- Deck placeholder for future Talent cards (stays inside the panel) -->
   <div id="talentsDeck" class="abs" style="--x:16px; --y:160px; --w:418px; --h:220px;"></div>
@@ -935,327 +935,174 @@ function updateTallies(){
       <button id="dbg-export-html" type="button" title="Download a <style> block you can paste">Export HTML</button>
       <input id="dbg-file" type="file" accept="application/json" style="display:none">
     </div>
-  `;
-  document.body.appendChild(panel);
+<script>
+(() => {
+  // === CONFIG ===
+  const canvas = document.getElementById('mainCanvas');       // whole sheet
+  const tabBox = document.getElementById('tabBox');            // tabs wrapper
+  let   DEBUG_ORIGIN_EL = canvas;                              // current origin
+  let   TARGET_SELECTOR = '.abs';                              // draggable/target elems
 
-  (function(){
-    const headerRow = panel.querySelector('.row');
-    if (headerRow) headerRow.style.cursor = 'pointer';
-    function setCompact(on){ panel.classList.toggle('compact', !!on); }
-    setCompact(true);
-    headerRow && headerRow.addEventListener('click', function(e){
-      const tgt = e.target;
-      if (tgt && (tgt.id === 'dbg-toggle' || (tgt.closest && tgt.closest('#dbg-toggle')))) return;
-      setCompact(!panel.classList.contains('compact'));
-    });
-    const toggle = document.getElementById('dbg-toggle');
-    if (toggle){
-      toggle.addEventListener('change', function(){
-        setCompact(!toggle.checked);
-        debugOn = toggle.checked;
-        document.getElementById('dbg-cursor').checked = true;
-        setCursorMode(debugOn);
-        canvas.classList.toggle('canvas-debug', debugOn);
-        if (!debugOn) { hideTooltip(); clearSelection(); setMeasureMode(false); }
-        else { refreshSelectedHUD(); }
-      });
-      setCompact(!toggle.checked);
-    }
-  })();
+  // === STATE ===
+  let debugOn = true, hoverEnabled = false, cursorMode = true;
+  let measureMode = false, measureActive = false, marqueeActive = false;
+  let selected = new Set(), draggingEl = null, dragOffsetX = 0, dragOffsetY = 0;
+  let startClientX = 0, startClientY = 0;
 
-  const $ = sel => document.querySelector(sel);
-  const selectorEl = $('#dbg-selector');
-  const cursorEl   = $('#dbg-cursor');
-  const measureEl  = $('#dbg-measure');
-  const clearBtn   = $('#dbg-clear');
-  const logBtn     = $('#dbg-log');
-  const leftInput  = $('#dbg-left-x');
-  const topInput   = $('#dbg-top-y');
-  const centerXInp = $('#dbg-center-x');
-  const centerYInp = $('#dbg-center-y');
-  const alignLeft  = $('#dbg-align-left');
-  const alignTop   = $('#dbg-align-top');
-  const centerXBtn = $('#dbg-center-x-btn');
-  const centerYBtn = $('#dbg-center-y-btn');
-  const exportBtn  = $('#dbg-export');
-  const importBtn  = $('#dbg-import');
-  const exportHtmlBtn = $('#dbg-export-html');
-  const fileInput  = $('#dbg-file');
+  // === HUD ELEMENTS (assumed created by your existing HTML/CSS) ===
+  const tooltip     = document.getElementById('debug-tooltip')      || mk('div','debug-tooltip');
+  const coordHUD    = document.getElementById('debug-coord-hud')    || mk('div','debug-coord-hud');
+  const crossX      = document.getElementById('debug-crosshair-x')  || mk('div','debug-crosshair-x');
+  const crossY      = document.getElementById('debug-crosshair-y')  || mk('div','debug-crosshair-y');
+  const marquee     = document.getElementById('debug-marquee')      || mk('div','debug-marquee');
+  const measureBox  = document.getElementById('debug-measure')      || mk('div','debug-measure');
+  const measureHUD  = document.getElementById('debug-measure-hud')  || mk('div','debug-measure-hud');
 
-  const inCanvas = el => canvas && canvas.contains(el);
-  const isTarget = el => !!(el && el.matches && el.matches(TARGET_SELECTOR) && inCanvas(el));
+  function mk(tag, cls){
+    const el = document.createElement(tag); el.className = cls; document.body.appendChild(el); return el;
+  }
 
-  function setXY(el, x, y){
-    el.style.setProperty('--x', x + 'px');
-    el.style.setProperty('--y', y + 'px');
+  // === ORIGIN HELPERS ===
+  function getActiveTabPanel(){
+    if (!tabBox) return null;
+    const panels = Array.from(tabBox.querySelectorAll('.tabPanel'));
+    return panels.find(p => p.style.display !== 'none') || null;
+  }
+  function setDebugOrigin(el){
+    if (!el) return;
+    DEBUG_ORIGIN_EL = el;
+    console.log('Debugger origin →', el.id || el.className || el.tagName);
     refreshSelectedHUD();
   }
-  function clampToCanvas(el, x, y){
-    const maxX = canvas.clientWidth  - el.offsetWidth;
-    const maxY = canvas.clientHeight - el.offsetHeight;
-    return [ Math.max(0, Math.min(x, maxX)), Math.max(0, Math.min(y, maxY)) ];
+
+  // Hotkeys: T = visible tab panel, S = sheet; Alt+Shift+Click = pick origin
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 't' || e.key === 'T') setDebugOrigin(getActiveTabPanel() || canvas);
+    if (e.key === 's' || e.key === 'S') setDebugOrigin(canvas);
+  });
+  document.addEventListener('mousedown', (e) => {
+    if (e.getModifierState && e.getModifierState('Alt') && e.getModifierState('Shift')) {
+      e.preventDefault();
+      setDebugOrigin(e.target);
+    }
+  }, true);
+
+  // === COORDINATE MATH (the new single source of truth) ===
+  function dbgComputeCoords(clientX, clientY){
+    const rect = (DEBUG_ORIGIN_EL || canvas).getBoundingClientRect();
+    return { x: Math.round(clientX - rect.left), y: Math.round(clientY - rect.top) };
   }
-  function centerOnX(el, cx){
-    const r = el.getBoundingClientRect();
-    const parent = canvas.getBoundingClientRect();
-    const newLeft = Math.round(cx - (r.width/2) - parent.left);
-    const [nx] = clampToCanvas(el, newLeft, getXY(el)[1]);
-    setXY(el, nx, getXY(el)[1]);
-  }
-  function centerOnY(el, cy){
-    const r = el.getBoundingClientRect();
-    const parent = canvas.getBoundingClientRect();
-    const newTop = Math.round(cy - (r.height/2) - parent.top);
-    const [,ny] = clampToCanvas(el, getXY(el)[0], newTop);
-    setXY(el, getXY(el)[0], ny);
+  function dbgRectFromClient(x1,y1,x2,y2){
+    const a = dbgComputeCoords(x1,y1);
+    const b = dbgComputeCoords(x2,y2);
+    const left   = Math.min(a.x,b.x);
+    const top    = Math.min(a.y,b.y);
+    const width  = Math.abs(a.x-b.x);
+    const height = Math.abs(a.y-b.y);
+    return { left, top, width, height, right:left+width, bottom:top+height };
   }
 
-  function labelFor(el) {
-    const id = el.id ? `#${el.id}` : el.tagName.toLowerCase();
-    const [x,y] = getXY(el);
-    return `${id} (${Math.round(x)}, ${Math.round(y)})`;
+  // === POSITION HELPERS (use CSS custom props --x/--y) ===
+  function getXY(el){
+    const x = parseFloat(getComputedStyle(el).getPropertyValue('--x')) || 0;
+    const y = parseFloat(getComputedStyle(el).getPropertyValue('--y')) || 0;
+    return [x,y];
   }
-  function showTooltip(el, x, y) {
+  function setXY(el, x, y){
+    el.style.setProperty('--x', Math.round(x) + 'px');
+    el.style.setProperty('--y', Math.round(y) + 'px');
+    refreshSelectedHUD();
+  }
+  function clampToOrigin(el, x, y){
+    const parent = (DEBUG_ORIGIN_EL || canvas);
+    const maxX = Math.max(0, parent.clientWidth  - el.offsetWidth);
+    const maxY = Math.max(0, parent.clientHeight - el.offsetHeight);
+    return [ Math.max(0, Math.min(x, maxX)), Math.max(0, Math.min(y, maxY)) ];
+  }
+
+  // === UI HELPERS ===
+  function showTooltip(el, clientX, clientY){
     el.classList.add('debug-outline');
-    tooltip.textContent = labelFor(el);
-    const tx = Math.min(window.innerWidth - 8, (x ?? el.getBoundingClientRect().left) + 8);
-    const ty = Math.min(window.innerHeight - 8, (y ?? el.getBoundingClientRect().top) + 8);
-    tooltip.style.left = tx + 'px';
-    tooltip.style.top  = ty + 'px';
+    const [x,y] = getXY(el);
+    tooltip.textContent = `${el.id ? '#'+el.id : el.tagName.toLowerCase()} (${Math.round(x)}, ${Math.round(y)})`;
+    tooltip.style.left = Math.min(window.innerWidth - 8, clientX + 8) + 'px';
+    tooltip.style.top  = Math.min(window.innerHeight - 8, clientY + 8) + 'px';
     tooltip.style.display = 'block';
   }
-  function hideTooltip() {
+  function hideTooltip(){
     tooltip.style.display = 'none';
     document.querySelectorAll('.debug-outline').forEach(n => n.classList.remove('debug-outline'));
   }
-
-  function rectFromPoints(x1,y1,x2,y2){
-    const left = Math.min(x1,x2), top = Math.min(y1,y2);
-    const width = Math.abs(x2-x1), height = Math.abs(y2-y1);
-    return {left, top, width, height, right:left+width, bottom:top+height};
-  }
-  function intersects(a, b){
-    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
-  }
-  function pageRect(el){
-    const r = el.getBoundingClientRect();
-    return {left:r.left, top:r.top, right:r.right, bottom:r.bottom};
-  }
-
-  function clearSelection() {
+  function clearSelection(){
     selected.forEach(el => el.classList.remove('debug-selected'));
     selected.clear();
     refreshSelectedHUD();
   }
-  function addToSelection(el) {
+  function addToSelection(el){
     if (!selected.has(el)) { selected.add(el); el.classList.add('debug-selected'); }
     refreshSelectedHUD();
   }
-
-  function nudge(el, dx, dy) {
+  function nudge(el, dx, dy){
     const [x,y] = getXY(el);
-    const [nx, ny] = clampToCanvas(el, x + dx, y + dy);
+    const [nx, ny] = clampToOrigin(el, x + dx, y + dy);
     setXY(el, nx, ny);
   }
-
-  function cssPath(el) {
-    const parts = [];
-    for (let node = el; node && node.nodeType === 1 && node !== canvas; node = node.parentElement) {
-      let sel = node.tagName.toLowerCase();
-      if (node.id) { sel += `#${node.id}`; parts.unshift(sel); break; }
-      let sibIndex = 1, sib = node;
-      while ((sib = sib.previousElementSibling) && sib.tagName === node.tagName) sibIndex++;
-      sel += `:nth-of-type(${sibIndex})`; parts.unshift(sel);
-    }
-    return parts.join(' > ');
-  }
-  function keyFor(el){ return el.id ? `#${el.id}` : cssPath(el); }
-  function findByKey(key){
-    if (!key) return null;
-    if (key.startsWith('#')) return canvas.querySelector(key);
-    return canvas.querySelector(key);
+  function refreshSelectedHUD(){
+    // If you render per-selection mini labels, update them here; kept minimal.
   }
 
-  function exportSelection() {
-    const items = [...selected].map(el => {
-      const [left, top] = getXY(el);
-      return { key: keyFor(el), left, top };
-    });
-    return { version: 1, items };
+  // === CURSOR HUD (panel-relative numbers) ===
+  function setCursorMode(on){
+    cursorMode = !!on;
+    const disp = (debugOn && cursorMode) ? 'block' : 'none';
+    crossX.style.display = disp; crossY.style.display = disp; coordHUD.style.display = disp;
   }
-  function importPositions(json) {
-    const items = Array.isArray(json) ? json : (json?.items || []);
-    const result = { applied: 0, total: items.length, unmatched: [] };
-    items.forEach(item => {
-      const el = findByKey(item.key);
-      if (!el) { result.unmatched.push(item.key || '(no key)'); return; }
-      const [x,y] = clampToCanvas(el, item.left ?? 0, item.top ?? 0);
-      setXY(el, x, y);
-      result.applied++;
-    });
-    return result;
-  }
-
-  const $qs = sel => document.querySelector(sel);
-  selectorEl.addEventListener('change', () => { TARGET_SELECTOR = selectorEl.value.trim() || TARGET_SELECTOR; clearSelection(); });
-  cursorEl.addEventListener('change', () => setCursorMode(cursorEl.checked));
-  measureEl.addEventListener('change', () => setMeasureMode(measureEl.checked));
-  clearBtn.addEventListener('click', clearSelection);
-  logBtn.addEventListener('click', () => {
-    if (!selected.size) return;
-    console.table([...selected].map(el => ({ key:keyFor(el), x:getXY(el)[0], y:getXY(el)[1] })));
-  });
-  alignLeft.addEventListener('click', () => {
-    const x = parseFloat(leftInput.value); if (Number.isNaN(x)) return;
-    selected.forEach(el => setXY(el, clampToCanvas(el, x, getXY(el)[1])[0], getXY(el)[1]));
-  });
-  alignTop.addEventListener('click', () => {
-    const y = parseFloat(topInput.value); if (Number.isNaN(y)) return;
-    selected.forEach(el => setXY(el, getXY(el)[0], clampToCanvas(el, getXY(el)[0], y)[1]));
-  });
-  centerXBtn.addEventListener('click', () => {
-    if (!selected.size) return;
-    let cx = parseFloat(centerXInp.value);
-    if (Number.isNaN(cx)) {
-      const first = [...selected][0].getBoundingClientRect();
-      cx = Math.round(first.left + first.width/2);
-    }
-    selected.forEach(el => centerOnX(el, cx));
-  });
-  centerYBtn.addEventListener('click', () => {
-    if (!selected.size) return;
-    let cy = parseFloat(centerYInp.value);
-    if (Number.isNaN(cy)) {
-      const first = [...selected][0].getBoundingClientRect();
-      cy = Math.round(first.top + first.height/2);
-    }
-    selected.forEach(el => centerOnY(el, cy));
+  window.addEventListener('mousemove', (e) => {
+    if (!debugOn || !cursorMode) return;
+    const { x, y } = dbgComputeCoords(e.clientX, e.clientY);
+    // Crosshairs follow page coords visually (for ease of use)…
+    crossX.style.top  = e.clientY + 'px';
+    crossY.style.left = e.clientX + 'px';
+    // …but HUD shows panel-relative coords
+    coordHUD.style.left = (e.clientX + 10) + 'px';
+    coordHUD.style.top  = (e.clientY + 10) + 'px';
+    coordHUD.textContent = `X: ${x}   Y: ${y}`;
   });
 
-  function currentCharName() {
-    const n = document.getElementById('charName')?.value?.trim();
-    return n ? n.replace(/[^\w\-]+/g, '_') : 'positions';
-  }
-
-  exportBtn.addEventListener('click', () => {
-    const data = exportSelection();
-    if (!data.items.length) { alert('Select at least one element to export.'); return; }
-    const json = JSON.stringify(data, null, 2);
-    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
-    const a = document.createElement('a');
-    const ts = new Date().toISOString().replace(/[:.]/g,'-');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${currentCharName()}-debug-positions-${ts}.json`;
-    document.body.appendChild(a); a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
-  });
-
-  importBtn.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', () => {
-    const file = fileInput.files?.[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const json = JSON.parse(String(reader.result));
-        const res = importPositions(json);
-        alert(`Import complete: ${res.applied}/${res.total} applied.\nUnmatched: ${res.unmatched.length}`);
-        console.log('Unmatched keys:', res.unmatched);
-      } catch (e) { alert('Invalid JSON file.'); console.error(e); }
-      fileInput.value = '';
-    };
-    reader.readAsText(file);
-  });
-
-  function selectorFor(el) {
-    if (el.id) return `#${el.id}`;
-    const parts = [];
-    let node = el;
-    while (node && node.nodeType === 1 && node !== canvas) {
-      let sel = node.tagName.toLowerCase();
-      const parent = node.parentElement;
-      if (node.id) { sel += `#${node.id}`; parts.unshift(sel); break; }
-      const siblings = parent ? Array.from(parent.children).filter(n => n.tagName === node.tagName) : [];
-      const idx = siblings.indexOf(node) + 1;
-      sel += `:nth-of-type(${idx})`;
-      parts.unshift(sel);
-      node = parent;
-    }
-    return `#mainCanvas > ${parts.join(' > ')}`;
-  }
-  function exportSelectedAsHTML() {
-    const items = [...selected];
-    if (!items.length) { alert('Select at least one element to export.'); return; }
-    let css = `/* Exported positions (${new Date().toISOString()}) */\n`;
-    items.forEach(el => {
-      const [x, y] = getXY(el);
-      css += `${selectorFor(el)}{ --x:${Math.round(x)}px; --y:${Math.round(y)}px; }\n`;
-    });
-    const htmlDoc =
-`<!doctype html>
-<html><head><meta charset="utf-8"><title>GxD6 Positions</title></head>
-<body>
-<style id="exported-positions">
-${css}
-</style>
-<!-- Paste the <style> block above into your main HTML (after base styles), or include as a separate CSS file -->
-</body></html>`;
-    const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' });
-    const a = document.createElement('a');
-    const ts = new Date().toISOString().replace(/[:.]/g,'-');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${currentCharName()}-positions-${ts}.html`;
-    document.body.appendChild(a); a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
-  }
-  exportHtmlBtn.addEventListener('click', exportSelectedAsHTML);
-
-  window.addEventListener('keydown', e => {
-    if (e.key === 'd' || e.key === 'D') {
-      if (document.activeElement && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
-      const t = document.getElementById('dbg-toggle');
-      t.checked = !t.checked; t.dispatchEvent(new Event('change'));
-    }
-    if (e.key === 'c' || e.key === 'C') {
-      const c = document.getElementById('dbg-cursor');
-      c.checked = !c.checked; setCursorMode(c.checked);
-    }
-    if (debugOn && e.altKey) hoverEnabled = true;
-  });
-  window.addEventListener('keyup',   e => { if (debugOn && !e.altKey) { hoverEnabled = false; hideTooltip(); } });
-  window.addEventListener('scroll',  () => { if (debugOn) refreshSelectedHUD(); });
-  window.addEventListener('resize',  () => { if (debugOn) refreshSelectedHUD(); });
-
-  document.addEventListener('mouseover', e => {
+  // === HOVER TOOLTIP (panel-relative reporting) ===
+  document.addEventListener('mouseover', (e) => {
     if (!debugOn || !hoverEnabled) return;
     const t = e.target.closest(TARGET_SELECTOR);
-    if (isTarget(t)) showTooltip(t, e.clientX, e.clientY);
+    if (t && withinOrigin(t)) showTooltip(t, e.clientX, e.clientY);
   }, {capture:true});
-  document.addEventListener('mousemove', e => {
+  document.addEventListener('mousemove', (e) => {
     if (!debugOn || !hoverEnabled || tooltip.style.display !== 'block') return;
     tooltip.style.left = Math.min(window.innerWidth - 8, e.clientX + 8) + 'px';
     tooltip.style.top  = Math.min(window.innerHeight - 8, e.clientY + 8) + 'px';
   });
-  document.addEventListener('mouseout', e => {
+  document.addEventListener('mouseout', (e) => {
     if (!debugOn || !hoverEnabled) return;
     const t = e.target.closest(TARGET_SELECTOR);
-    if (isTarget(t)) hideTooltip();
+    if (t) hideTooltip();
   }, {capture:true});
 
-  canvas.addEventListener('mousedown', e => {
+  // === MARQUEE SELECT (panel-relative) ===
+  canvas.addEventListener('mousedown', (e) => {
     if (!debugOn || !e.shiftKey || measureMode) return;
+    startClientX = e.clientX; startClientY = e.clientY;
     marqueeActive = true;
-    startX = e.clientX; startY = e.clientY;
-    Object.assign(marquee.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' });
+    const r = dbgRectFromClient(startClientX, startClientY, startClientX, startClientY);
+    placeBox(marquee, r); marquee.style.display = 'block';
     e.preventDefault();
   });
-  window.addEventListener('mousemove', e => {
+  window.addEventListener('mousemove', (e) => {
     if (!debugOn || !marqueeActive) return;
-    const box = rectFromPoints(startX, startY, e.clientX, e.clientY);
-    Object.assign(marquee.style, { left:box.left+'px', top:box.top+'px', width:box.width+'px', height:box.height+'px' });
+    const r = dbgRectFromClient(startClientX, startClientY, e.clientX, e.clientY);
+    placeBox(marquee, r);
     clearSelection();
-    canvas.querySelectorAll(TARGET_SELECTOR).forEach(el => {
-      const r = pageRect(el);
-      if (intersects(box, r)) addToSelection(el);
+    queryOrigin(TARGET_SELECTOR).forEach(el => {
+      const er = elementRectInOrigin(el);
+      if (intersects(r, er)) addToSelection(el);
     });
   });
   window.addEventListener('mouseup', () => {
@@ -1263,100 +1110,200 @@ ${css}
     marqueeActive = false; marquee.style.display = 'none';
   });
 
+  // === MEASURE BOX (panel-relative) ===
   function setMeasureMode(on){
     measureMode = !!on;
     if (!measureMode){ measureActive=false; measureBox.style.display='none'; measureHUD.style.display='none'; }
   }
-  canvas.addEventListener('mousedown', e => {
+  canvas.addEventListener('mousedown', (e) => {
     if (!debugOn || !measureMode) return;
     const t = e.target.closest(TARGET_SELECTOR);
-    if (t) return;
+    if (t && withinOrigin(t)) return; // don't start on a target
+    startClientX = e.clientX; startClientY = e.clientY;
     measureActive = true;
-    startX = e.clientX; startY = e.clientY;
-    Object.assign(measureBox.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' });
+    const r = dbgRectFromClient(startClientX, startClientY, startClientX, startClientY);
+    placeBox(measureBox, r); measureBox.style.display = 'block';
     measureHUD.style.display = 'block';
     e.preventDefault();
   });
-  window.addEventListener('mousemove', e => {
+  window.addEventListener('mousemove', (e) => {
     if (!debugOn || !measureMode || !measureActive) return;
-    let x2 = e.clientX, y2 = e.clientY;
-    if (e.ctrlKey){
-      const snap = v => Math.round(v / 5) * 5;
-      x2 = snap(x2); y2 = snap(y2);
-    }
-    const box = rectFromPoints(startX, startY, x2, y2);
-    Object.assign(measureBox.style, { left:box.left+'px', top:box.top+'px', width:box.width+'px', height:box.height+'px' });
-    measureHUD.textContent = `${box.width} × ${box.height}px`;
-    measureHUD.style.left = (box.left + box.width + 8) + 'px';
-    measureHUD.style.top  = (box.top - 2) + 'px';
+    const r = dbgRectFromClient(startClientX, startClientY, e.clientX, e.clientY);
+    placeBox(measureBox, r);
+    measureHUD.textContent = `${r.width} × ${r.height}px`;
+    // float HUD near the box (page coords)
+    const end = { left: e.clientX, top: e.clientY };
+    measureHUD.style.left = (end.left + 8) + 'px';
+    measureHUD.style.top  = (end.top  - 2) + 'px';
   });
   window.addEventListener('mouseup', () => {
     if (!debugOn || !measureMode || !measureActive) return;
-    measureActive = false;
-    measureBox.style.display = 'none';
-    measureHUD.style.display = 'none';
+    measureActive = false; measureBox.style.display = 'none'; measureHUD.style.display = 'none';
   });
 
-  let selectedBeforeDrag = null;
-  canvas.addEventListener('mousedown', e => {
+  // === DRAG + NUDGE (panel-relative) ===
+  function withinOrigin(el){ return (DEBUG_ORIGIN_EL || canvas).contains(el); }
+  function queryOrigin(sel){ return Array.from((DEBUG_ORIGIN_EL || canvas).querySelectorAll(sel)); }
+  function placeBox(el, r){
+    // Convert origin-relative rect to page rect for drawing the overlay box
+    const orect = (DEBUG_ORIGIN_EL || canvas).getBoundingClientRect();
+    el.style.left = (orect.left + r.left) + 'px';
+    el.style.top  = (orect.top  + r.top ) + 'px';
+    el.style.width  = r.width + 'px';
+    el.style.height = r.height + 'px';
+  }
+  function elementRectInOrigin(el){
+    const orect = (DEBUG_ORIGIN_EL || canvas).getBoundingClientRect();
+    const r     = el.getBoundingClientRect();
+    return { left:r.left-orect.left, top:r.top-orect.top, right:(r.right-orect.left), bottom:(r.bottom-orect.top), width:r.width, height:r.height };
+    }
+
+  canvas.addEventListener('mousedown', (e) => {
     if (!debugOn || e.shiftKey || measureMode) return;
     const t = e.target.closest(TARGET_SELECTOR);
-    if (!isTarget(t)) return;
-    if (e.target && e.target.tagName === 'INPUT') return;
+    if (!t || !withinOrigin(t)) return;
+    if (e.target && e.target.tagName === 'INPUT') return; // don't steal focus
     if (!selected.has(t)) { clearSelection(); addToSelection(t); }
-    selectedBeforeDrag = t;
     draggingEl = t;
-    const [x,y] = getXY(t);
-    const crect = canvas.getBoundingClientRect();
-    dragOffsetX = e.clientX - (crect.left + x);
-    dragOffsetY = e.clientY - (crect.top  + y);
+    const { x, y } = dbgComputeCoords(e.clientX, e.clientY);
+    const [sx, sy] = getXY(t);
+    dragOffsetX = x - sx; dragOffsetY = y - sy;
     e.preventDefault();
   });
-  window.addEventListener('mousemove', e => {
+  window.addEventListener('mousemove', (e) => {
     if (!debugOn || !draggingEl) return;
-    const crect = canvas.getBoundingClientRect();
-    let nx = e.clientX - crect.left - dragOffsetX;
-    let ny = e.clientY - crect.top  - dragOffsetY;
-    [nx, ny] = clampToCanvas(draggingEl, nx, ny);
+    const { x, y } = dbgComputeCoords(e.clientX, e.clientY);
+    let nx = x - dragOffsetX, ny = y - dragOffsetY;
+    [nx, ny] = clampToOrigin(draggingEl, nx, ny);
     setXY(draggingEl, nx, ny);
   });
-  window.addEventListener('mouseup', () => { draggingEl = null; selectedBeforeDrag = null; });
+  window.addEventListener('mouseup', () => { draggingEl = null; });
 
-  window.addEventListener('keydown', e => {
+  window.addEventListener('keydown', (e) => {
+    // Toggle debugger (kept simple)
+    if (e.key === 'd' || e.key === 'D') {
+      debugOn = !debugOn; setCursorMode(debugOn);
+      if (!debugOn){ hideTooltip(); clearSelection(); setMeasureMode(false); }
+      return;
+    }
+    // Cursor HUD toggle
+    if (e.key === 'c' || e.key === 'C') { setCursorMode(!cursorMode); return; }
+
     if (!debugOn || !selected.size) return;
-    const key = e.key;
-    if (!/^Arrow(Up|Down|Left|Right)$/.test(key)) return;
-    const step = e.ctrlKey ? 5 : 1;
-    const dx = (key === 'ArrowRight') ? step : (key === 'ArrowLeft') ? -step : 0;
-    const dy = (key === 'ArrowDown')  ? step : (key === 'ArrowUp')   ? -step : 0;
-    e.preventDefault();
-    selected.forEach(el => nudge(el, dx, dy));
+    // Arrow-key nudge
+    if (/^Arrow(Up|Down|Left|Right)$/.test(e.key)) {
+      const step = e.ctrlKey ? 5 : 1;
+      const dx = (e.key === 'ArrowRight') ? step : (e.key === 'ArrowLeft') ? -step : 0;
+      const dy = (e.key === 'ArrowDown')  ? step : (e.key === 'ArrowUp')   ? -step : 0;
+      e.preventDefault();
+      selected.forEach(el => nudge(el, dx, dy));
+    }
+    // Alt to enable hover tooltip (your previous pattern)
+    if (e.altKey) hoverEnabled = true;
   });
+  window.addEventListener('keyup',   (e) => { if (!e.altKey) { hoverEnabled = false; hideTooltip(); } });
+  window.addEventListener('scroll',  () => { if (debugOn) refreshSelectedHUD(); });
+  window.addEventListener('resize',  () => { if (debugOn) refreshSelectedHUD(); });
 
-  document.addEventListener('click', e => {
-    if (!debugOn || e.shiftKey || measureMode) return;
-    const t = e.target.closest(TARGET_SELECTOR);
-    if (!isTarget(t)) return;
-    clearSelection(); addToSelection(t);
-  }, true);
-
-  function setCursorMode(on) {
-    cursorMode = !!on;
-    const disp = on && debugOn ? 'block' : 'none';
-    crossX.style.display = disp;
-    crossY.style.display = disp;
-    coordHUD.style.display = disp;
+  // === ALIGN / CENTER (reads from small inputs if you keep them; safe fallbacks) ===
+  function centerOnX(el, clientCenterX){
+    // clientCenterX may be page coords; translate to origin-relative center
+    if (typeof clientCenterX !== 'number') return;
+    const { x } = dbgComputeCoords(clientCenterX, 0);
+    const r = el.getBoundingClientRect();
+    const parent = (DEBUG_ORIGIN_EL || canvas);
+    const newLeft = Math.round(x - r.width/2);
+    const [nx] = clampToOrigin(el, newLeft, getXY(el)[1]);
+    setXY(el, nx, getXY(el)[1]);
   }
-  window.addEventListener('mousemove', e => {
-    if (!debugOn || !cursorMode) return;
-    const x = e.clientX, y = e.clientY;
-    crossX.style.top = y + 'px';
-    crossY.style.left = x + 'px';
-    coordHUD.style.left = (x + 10) + 'px';
-    coordHUD.style.top  = (y + 10) + 'px';
-    coordHUD.textContent = `X: ${x}   Y: ${y}`;
+  function centerOnY(el, clientCenterY){
+    if (typeof clientCenterY !== 'number') return;
+    const { y } = dbgComputeCoords(0, clientCenterY);
+    const r = el.getBoundingClientRect();
+    const newTop = Math.round(y - r.height/2);
+    const [,ny] = clampToOrigin(el, getXY(el)[0], newTop);
+    setXY(el, getXY(el)[0], ny);
+  }
+
+  // === EXPORT / IMPORT (keys use #id when available) ===
+  function cssPath(el){
+    const parts = [];
+    for (let node = el; node && node.nodeType === 1 && node !== (DEBUG_ORIGIN_EL || canvas); node = node.parentElement) {
+      let sel = node.tagName.toLowerCase();
+      if (node.id){ parts.unshift(sel + '#' + node.id); return parts.join(' > '); }
+      let i = 1, sib = node;
+      while ((sib = sib.previousElementSibling) && sib.tagName === node.tagName) i++;
+      parts.unshift(sel + `:nth-of-type(${i})`);
+    }
+    return parts.join(' > ');
+  }
+  function keyFor(el){ return el.id ? `#${el.id}` : cssPath(el); }
+  function findByKey(key){
+    const root = (DEBUG_ORIGIN_EL || canvas);
+    if (key.startsWith('#')) return root.querySelector(key);
+    return root.querySelector(key);
+  }
+  function exportSelection(){
+    const items = [...selected].map(el => {
+      const [left, top] = getXY(el);
+      return { key: keyFor(el), left, top };
+    });
+    return { version: 2, origin: originLabel(DEBUG_ORIGIN_EL), items };
+  }
+  function importPositions(json){
+    const items = Array.isArray(json) ? json : (json?.items || []);
+    const res = { applied: 0, total: items.length, unmatched: [] };
+    items.forEach(it => {
+      const el = findByKey(it.key);
+      if (!el){ res.unmatched.push(it.key || '(no key)'); return; }
+      const [nx, ny] = clampToOrigin(el, it.left ?? 0, it.top ?? 0);
+      setXY(el, nx, ny); res.applied++;
+    });
+    return res;
+  }
+  function originLabel(el){
+    if (!el) return '(null)';
+    return el.id ? '#'+el.id : (el.className || el.tagName);
+  }
+
+  // OPTIONAL: Wire up your existing export/import buttons by IDs if you keep them:
+  const exportBtn = document.getElementById('dbg-export');
+  const importBtn = document.getElementById('dbg-import');
+  const fileInput = document.getElementById('dbg-file');
+  exportBtn && exportBtn.addEventListener('click', () => {
+    const data = exportSelection();
+    if (!data.items.length) return alert('Select at least one element to export.');
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    const a = document.createElement('a');
+    const ts = new Date().toISOString().replace(/[:.]/g,'-');
+    a.href = URL.createObjectURL(blob); a.download = `positions-${ts}.json`;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  });
+  importBtn && importBtn.addEventListener('click', () => fileInput?.click());
+  fileInput && fileInput.addEventListener('change', () => {
+    const f = fileInput.files?.[0]; if (!f) return;
+    const rdr = new FileReader();
+    rdr.onload = () => {
+      try {
+        const js = JSON.parse(String(rdr.result));
+        const out = importPositions(js);
+        alert(`Import: ${out.applied}/${out.total} applied. Unmatched: ${out.unmatched.length}`);
+        console.log('Unmatched keys:', out.unmatched);
+      } catch(err){ alert('Invalid JSON'); console.error(err); }
+      fileInput.value = '';
+    };
+    rdr.readAsText(f);
   });
 
+  // Turn on cursor HUD by default
+  setCursorMode(true);
+
+  // Helper: rectangle intersection in origin space
+  function intersects(a,b){
+    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+  }
 })();
 </script>
 
