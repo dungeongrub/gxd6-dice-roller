@@ -126,6 +126,9 @@ button{
 .tabBtn{ background:#eee; border:1px solid #333; }
 .tabBtn.active{ background:#333; color:#fff; }
 
+/* Make tab panels the positioning context for their .abs children */
+.tabPanel { position: relative; }
+
 /* === Skill UI bits === */
 .skill-num {
   font-family: 'DeutschGothic', monospace;
@@ -448,7 +451,7 @@ button{
     <button id="vigilance_roll"    class="abs roll-btn" style="--x:212px; --y:619px;" onclick="addToDicePool('vigilance_total')">+</button>
 
     <!-- ===== WILL SKILLS ===== -->
-    <input id="inspire_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:691px;">
+    <input id="inspire_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:691px%;">
     <input id="inspire_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:702px;">
     <input id="inspire_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:703px;">
     <input id="inspire_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:702px;">
@@ -461,9 +464,9 @@ button{
     <button id="manipulate_roll"   class="abs roll-btn" style="--x:212px; --y:730px;" onclick="addToDicePool('manipulate_total')">+</button>
 
     <input id="resolve_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:735px;">
-    <input id="resolve_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:752px;">
-    <input id="resolve_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:752px;">
-    <input id="resolve_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:751px;">
+    <input id="resolve_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:752px%;">
+    <input id="resolve_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:752px%;">
+    <input id="resolve_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:751px%;">
     <button id="resolve_roll"      class="abs roll-btn" style="--x:212px; --y:755px;" onclick="addToDicePool('resolve_total')">+</button>
 
     <!-- ===== Dice Roller UI ===== -->
@@ -526,95 +529,39 @@ button{
 
       <!-- Tab Panels -->
       <div id="panel-main" class="tabPanel"
-           style="display:block; width:450px; height:400px;
-                  background:url('img/tab_main.png') no-repeat center/100% 100%;">
+          style="display:block; width:450px; height:400px;
+                background:url('img/tab_main.png') no-repeat center/100% 100%;">
 
         <!-- Archetype / Profession pair #1 -->
         <input id="archetype1" class="abs" type="text" maxlength="20"
-               style="--x:13px; --y:70px; --w:110px;" />
+              style="--x:13px; --y:70px; --w:110px;" />
         <input id="profession1" class="abs" type="text" maxlength="17"
-               style="--x:160px; --y:70px; --w:120px;" />
+              style="--x:160px; --y:70px; --w:120px;" />
 
         <!-- Archetype / Profession pair #2 -->
         <input id="archetype2" class="abs" type="text" maxlength="15"
-               style="--x:13px; --y:115px; --w:110px;" />
+              style="--x:13px; --y:115px; --w:110px;" />
         <input id="profession2" class="abs" type="text" maxlength="17"
-               style="--x:160px; --y:115px; --w:120px;" />
+              style="--x:160px; --y:115px; --w:120px;" />
 
         <!-- XP -->
         <input id="xp" class="abs" type="number" value="0" min="0"
-               style="--x:390px; --y:276px; --w:40px;" />
+              style="--x:390px; --y:276px; --w:40px;" />
 
         <!-- Deck placeholder for future Talent cards -->
         <div id="talentsDeck" class="abs" style="--x:16px; --y:160px; --w:418px; --h:220px;"></div>
       </div>
 
       <div id="panel-combat" class="tabPanel"
-           style="display:none; width:450px; height:400px; background:#ddd;">Combat coming soon</div>
+          style="display:none; width:450px; height:400px; background:#ddd;">Combat coming soon</div>
 
       <div id="panel-gear" class="tabPanel"
-           style="display:none; width:450px; height:400px; background:#ddd;">Gear coming soon</div>
+          style="display:none; width:450px; height:400px; background:#ddd;">Gear coming soon</div>
 
       <div id="panel-powers" class="tabPanel"
-           style="display:none; width:450px; height:400px; background:#ddd;">Powers coming soon</div>
-    </div> <!-- /tabBox -->
+          style="display:none; width:450px; height:400px; background:#ddd;">Powers coming soon</div>
+    </div>
 
-  </div> <!-- /mainCanvas -->
-</div> <!-- /sheet-container -->
-
-<!-- ===== Debugger Panel (UI) ===== -->
-<div class="debugger-panel" id="dbg-panel">
-  <div class="row" style="justify-content:space-between">
-    <strong>Debugger</strong>
-    <label class="row" title="Enable/disable debugger">
-      <input id="dbg-toggle" type="checkbox"><span>On</span>
-    </label>
-  </div>
-
-  <div class="row"><span class="muted">Selector</span></div>
-  <input id="dbg-selector" type="text" value=".abs" title="CSS selector for debug targets">
-
-  <div class="row" style="justify-content:space-between; margin-top:6px">
-    <label class="row" title="Show crosshair + cursor coordinates">
-      <input id="dbg-cursor" type="checkbox"><span>Cursor</span>
-    </label>
-    <label class="row" title="Drag on canvas to measure W×H in px">
-      <input id="dbg-measure" type="checkbox"><span>Measure</span>
-    </label>
-  </div>
-  <div class="row"><span class="muted">D=toggle • T=tab origin • S=sheet origin • Alt=tooltip • Shift+drag=marquee • Arrows=nudge • Ctrl=5px</span></div>
-
-  <hr style="border:none;border-top:1px solid #ddd;margin:8px 0" />
-
-  <div class="row">
-    <input id="dbg-left-x" class="grow" type="number" placeholder="Left X (px)">
-    <button id="dbg-align-left" type="button" title="Set all selected left to X">Align Left</button>
-  </div>
-  <div class="row">
-    <input id="dbg-top-y" class="grow" type="number" placeholder="Top Y (px)">
-    <button id="dbg-align-top" type="button" title="Set all selected top to Y">Align Top</button>
-  </div>
-  <div class="row">
-    <input id="dbg-center-x" class="grow" type="number" placeholder="Center X (px)">
-    <button id="dbg-center-x-btn" type="button" title="Center each selected at this X">Center X</button>
-  </div>
-  <div class="row">
-    <input id="dbg-center-y" class="grow" type="number" placeholder="Center Y (px)">
-    <button id="dbg-center-y-btn" type="button" title="Center each selected at this Y">Center Y</button>
-  </div>
-
-  <div class="row" style="margin-top:8px">
-    <button id="dbg-clear" type="button" title="Clear selection">Clear</button>
-    <button id="dbg-log" type="button" title="Log selected coords to console">Log</button>
-  </div>
-
-  <hr style="border:none;border-top:1px solid #ddd;margin:8px 0" />
-
-  <div class="row" style="justify-content:space-between">
-    <button id="dbg-export" type="button" title="Download selected positions as JSON">Export JSON</button>
-    <button id="dbg-import" type="button" title="Import positions from JSON">Import JSON</button>
-    <button id="dbg-export-html" type="button" title="Download a <style> block you can paste">Export HTML</button>
-    <input id="dbg-file" type="file" accept="application/json" style="display:none">
   </div>
 </div>
 
@@ -871,14 +818,19 @@ function updateTallies(){
 }
 </script>
 
-<!-- Unified Debugger -->
+<!-- ===== Single Unified Debugger (singleton guarded) ===== -->
 <script>
 (() => {
-  // ====== BASIC HOOKS ======
-  const canvas = document.getElementById('mainCanvas'); // whole sheet
-  const tabBox = document.getElementById('tabBox');     // tabs wrapper
+  // ----- singleton guard: bail if already initialised
+  if (document.querySelector('.debugger-panel')) {
+    console.warn('Debugger already initialised — skipping duplicate.');
+    return;
+  }
 
-  // Build the floating debugger panel UI (so the controls actually exist)
+  const canvas = document.getElementById('mainCanvas');
+  const tabBox = document.getElementById('tabBox');
+
+  // Build floating panel
   const panel = document.createElement('div');
   panel.className = 'debugger-panel compact';
   panel.innerHTML = `
@@ -938,15 +890,14 @@ function updateTallies(){
   `;
   document.body.appendChild(panel);
 
-  // Header click = compact/expand
+  // Minimise/expand by clicking header (ignore clicks on the toggle)
   panel.querySelector('#dbg-header')?.addEventListener('click', (e) => {
-    // ignore clicks directly on the toggle checkbox
     if ((e.target instanceof HTMLElement) && e.target.id === 'dbg-toggle') return;
     panel.classList.toggle('compact');
   });
 
-  // ====== ORIGIN (where coordinates are measured) ======
-  let DEBUG_ORIGIN_EL = canvas; // default
+  // ORIGIN
+  let DEBUG_ORIGIN_EL = canvas;
   function getActiveTabPanel(){
     if (!tabBox) return null;
     const panels = Array.from(tabBox.querySelectorAll('.tabPanel'));
@@ -959,7 +910,7 @@ function updateTallies(){
     refreshSelectedHUD();
   }
 
-  // ====== STATE ======
+  // STATE
   let TARGET_SELECTOR = '.abs';
   let debugOn = false, cursorMode = false, hoverEnabled = false;
   let measureMode = false, measureActive = false, marqueeActive = false;
@@ -967,7 +918,7 @@ function updateTallies(){
   let startClientX = 0, startClientY = 0;
   let draggingEl = null, dragOffsetX = 0, dragOffsetY = 0;
 
-  // ====== OVERLAY NODES ======
+  // OVERLAYS
   const tooltip    = mk('div','debug-tooltip');
   const coordHUD   = mk('div','debug-coord-hud'); coordHUD.textContent = 'X: 0  Y: 0';
   const crossX     = mk('div','debug-crosshair-x');
@@ -978,7 +929,7 @@ function updateTallies(){
 
   function mk(tag, cls){ const n=document.createElement(tag); n.className=cls; document.body.appendChild(n); return n; }
 
-  // ====== DOM handles ======
+  // DOM handles
   const $ = s => document.querySelector(s);
   const toggleEl   = $('#dbg-toggle');
   const cursorEl   = $('#dbg-cursor');
@@ -999,7 +950,7 @@ function updateTallies(){
   const exportHtmlBtn = $('#dbg-export-html');
   const fileInput  = $('#dbg-file');
 
-  // ====== COORD MATH ======
+  // COORD MATH
   function dbgComputeCoords(clientX, clientY){
     const rect = (DEBUG_ORIGIN_EL || canvas).getBoundingClientRect();
     return { x: Math.round(clientX - rect.left), y: Math.round(clientY - rect.top) };
@@ -1028,7 +979,7 @@ function updateTallies(){
     return [ Math.max(0, Math.min(x, maxX)), Math.max(0, Math.min(y, maxY)) ];
   }
 
-  // ====== HUD / SELECT ======
+  // HUD/SELECT
   function showTooltip(elm, clientX, clientY){
     elm.classList.add('debug-outline');
     const [x,y] = getXY(elm);
@@ -1080,7 +1031,7 @@ function updateTallies(){
   }
   function intersects(a,b){ return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom); }
 
-  // ====== CURSOR HUD ======
+  // CURSOR HUD
   function setCursorMode(on){
     cursorMode = !!on;
     const disp = (debugOn && cursorMode) ? 'block' : 'none';
@@ -1096,7 +1047,7 @@ function updateTallies(){
     coordHUD.textContent = `X: ${x}   Y: ${y}`;
   });
 
-  // ====== HOVER TOOLTIP ======
+  // HOVER TOOLTIP
   document.addEventListener('mouseover', (e) => {
     if (!debugOn || !hoverEnabled) return;
     const t = e.target.closest(TARGET_SELECTOR);
@@ -1109,7 +1060,7 @@ function updateTallies(){
   });
   document.addEventListener('mouseout', () => { if (!debugOn || !hoverEnabled) return; hideTooltip(); }, {capture:true});
 
-  // ====== MARQUEE (Shift-drag) ======
+  // MARQUEE (Shift-drag)
   canvas.addEventListener('mousedown', (e) => {
     if (!debugOn || !e.shiftKey || measureMode) return;
     startClientX = e.clientX; startClientY = e.clientY;
@@ -1130,7 +1081,7 @@ function updateTallies(){
     marqueeActive = false; marquee.style.display = 'none';
   });
 
-  // ====== MEASURE MODE ======
+  // MEASURE MODE
   function setMeasureMode(on){
     measureMode = !!on;
     if (!measureMode){ measureActive=false; measureBox.style.display='none'; measureHUD.style.display='none'; }
@@ -1158,12 +1109,12 @@ function updateTallies(){
     measureActive = false; measureBox.style.display = 'none'; measureHUD.style.display = 'none';
   });
 
-  // ====== DRAG / NUDGE ======
+  // DRAG / NUDGE
   canvas.addEventListener('mousedown', (e) => {
     if (!debugOn || e.shiftKey || measureMode) return;
     const t = e.target.closest(TARGET_SELECTOR);
     if (!t || !withinOrigin(t)) return;
-    if (e.target && e.target.tagName === 'INPUT') return; // don't steal input focus
+    if (e.target && e.target.tagName === 'INPUT') return; // allow typing
     if (!selected.has(t)) { clearSelection(); addToSelection(t); }
     const { x, y } = dbgComputeCoords(e.clientX, e.clientY);
     const [sx, sy] = getXY(t);
@@ -1179,8 +1130,9 @@ function updateTallies(){
   });
   window.addEventListener('mouseup', () => { draggingEl = null; });
 
+  // HOTKEYS
   window.addEventListener('keydown', (e) => {
-    // D toggles debugger
+    // D toggle debugger
     if (e.key === 'd' || e.key === 'D') {
       debugOn = !debugOn;
       canvas.classList.toggle('canvas-debug', debugOn);
@@ -1189,10 +1141,10 @@ function updateTallies(){
       if (toggleEl) toggleEl.checked = debugOn;
       return;
     }
-    // Cursor HUD toggle
+    // C toggle cursor HUD
     if (e.key === 'c' || e.key === 'C') { setCursorMode(!cursorMode); if (cursorEl) cursorEl.checked = cursorMode; return; }
 
-    // Quick origin switching
+    // Origin switch
     if (e.key === 't' || e.key === 'T') setDebugOrigin(getActiveTabPanel() || canvas);
     if (e.key === 's' || e.key === 'S') setDebugOrigin(canvas);
 
@@ -1216,7 +1168,7 @@ function updateTallies(){
   window.addEventListener('scroll',  () => { if (debugOn) refreshSelectedHUD(); });
   window.addEventListener('resize',  () => { if (debugOn) refreshSelectedHUD(); });
 
-  // ====== PANEL UI WIRING ======
+  // PANEL UI wiring
   toggleEl.addEventListener('change', () => {
     debugOn = toggleEl.checked;
     canvas.classList.toggle('canvas-debug', debugOn);
@@ -1256,7 +1208,7 @@ function updateTallies(){
     });
   });
 
-  // ====== IMPORT/EXPORT ======
+  // IMPORT/EXPORT
   function cssPath(el){
     const root = (DEBUG_ORIGIN_EL || canvas);
     const parts = [];
@@ -1335,15 +1287,14 @@ ${cssOut}</style>`;
   });
   exportHtmlBtn.addEventListener('click', exportSelectedAsHTML);
 
-  // ====== EXTRA: quick origin pick (Alt+Shift+Click) ======
+  // Quick origin pick (Alt+Shift+Click)
   document.addEventListener('mousedown', (e) => {
     if (e.getModifierState && e.getModifierState('Alt') && e.getModifierState('Shift')) {
       e.preventDefault(); setDebugOrigin(e.target);
     }
   }, true);
 
-  // ====== INIT ======
-  // Start minimised (compact) and with debugger OFF for safety
+  // INIT: Start compact, debugger OFF
   toggleEl.checked = false;
   cursorEl.checked = false;
 })();
