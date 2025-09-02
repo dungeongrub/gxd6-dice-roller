@@ -514,10 +514,10 @@ button{
 
 <!-- === Tab Box === -->
 <div id="tabBox" class="abs"
-  style="--x:278px; --y:331px; --w:450px; --h:400px; background:transparent; border:none; padding:5px;">
+  style="--x:278px; --y:331px; --w:450px; --h:450px; background:transparent; border:none; padding:5px;">
 
   <!-- Tab Buttons -->
-  <div style="display:flex; gap:8px; margin-bottom:8px; margin-left:20">
+  <div style="display:flex; gap:8px; margin-bottom:8px; margin-left:10">
     <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
     <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
     <button type="button" class="tabBtn" data-tab="gear"   onclick="showTab('gear')">Gear</button>
@@ -526,7 +526,7 @@ button{
 
   <!-- Tab Panels -->
   <div id="panel-main" class="tabPanel"
-       style="display:block; width:450px; height:450px;
+       style="display:block; width:450px; height:400px;
               background:url('img/tab_main.png') no-repeat center/100% 100%;">
 
     <!-- 🔹 Any input/number/text fields for Main tab go here -->
@@ -536,15 +536,15 @@ button{
   </div>
 
   <div id="panel-combat" class="tabPanel"
-       style="display:none; width:450px; height:400px;
+       style="display:none; width:450px; height:450px;
               background:#ddd;">Combat coming soon</div>
 
   <div id="panel-gear" class="tabPanel"
-       style="display:none; width:450px; height:400px;
+       style="display:none; width:450px; height:450px;
               background:#ddd;">Gear coming soon</div>
 
   <div id="panel-powers" class="tabPanel"
-       style="display:none; width:450px; height:400px;
+       style="display:none; width:450px; height:450px;
               background:#ddd;">Powers coming soon</div>
 </div>
 
