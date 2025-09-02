@@ -878,10 +878,78 @@ function updateTallies(){
   const canvas = document.getElementById('mainCanvas'); // whole sheet
   const tabBox = document.getElementById('tabBox');     // tabs wrapper
 
+  // Build the floating debugger panel UI (so the controls actually exist)
+  const panel = document.createElement('div');
+  panel.className = 'debugger-panel compact';
+  panel.innerHTML = `
+    <div class="row" style="justify-content:space-between; cursor:pointer" id="dbg-header">
+      <strong>Debugger</strong>
+      <label class="row" title="Enable/disable debugger">
+        <input id="dbg-toggle" type="checkbox"><span> On</span>
+      </label>
+    </div>
+
+    <div class="row"><span class="muted">Selector</span></div>
+    <input id="dbg-selector" type="text" value=".abs" title="CSS selector for debug targets">
+
+    <div class="row" style="justify-content:space-between; margin-top:6px">
+      <label class="row" title="Show crosshair + cursor coordinates">
+        <input id="dbg-cursor" type="checkbox"><span> Cursor mode</span>
+      </label>
+      <label class="row" title="Drag to measure W×H in px">
+        <input id="dbg-measure" type="checkbox"><span> Measure</span>
+      </label>
+    </div>
+    <div class="row"><span class="muted">D=toggle • C=cursor • T=tab origin • S=sheet • Alt=tooltip • Shift+drag=marquee • Arrows=nudge • Ctrl=5px</span></div>
+
+    <hr style="border:none;border-top:1px solid #ddd;margin:8px 0" />
+
+    <div class="row">
+      <input id="dbg-left-x" class="grow" type="number" placeholder="Left X">
+      <button id="dbg-align-left" type="button">Align Left</button>
+    </div>
+    <div class="row">
+      <input id="dbg-top-y" class="grow" type="number" placeholder="Top Y">
+      <button id="dbg-align-top" type="button">Align Top</button>
+    </div>
+
+    <div class="row">
+      <input id="dbg-center-x" class="grow" type="number" placeholder="Center X">
+      <button id="dbg-center-x-btn" type="button">Center X</button>
+    </div>
+    <div class="row">
+      <input id="dbg-center-y" class="grow" type="number" placeholder="Center Y">
+      <button id="dbg-center-y-btn" type="button">Center Y</button>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <button id="dbg-clear" type="button">Clear selection</button>
+      <button id="dbg-log"   type="button">Log coords</button>
+    </div>
+
+    <hr style="border:none;border-top:1px solid #ddd;margin:8px 0" />
+
+    <div class="row" style="justify-content:space-between">
+      <button id="dbg-export" type="button">Export JSON</button>
+      <button id="dbg-import" type="button">Import JSON</button>
+      <button id="dbg-export-html" type="button">Export HTML</button>
+      <input id="dbg-file" type="file" accept="application/json" style="display:none">
+    </div>
+  `;
+  document.body.appendChild(panel);
+
+  // Header click = compact/expand
+  panel.querySelector('#dbg-header')?.addEventListener('click', (e) => {
+    // ignore clicks directly on the toggle checkbox
+    if ((e.target instanceof HTMLElement) && e.target.id === 'dbg-toggle') return;
+    panel.classList.toggle('compact');
+  });
+
   // ====== ORIGIN (where coordinates are measured) ======
   let DEBUG_ORIGIN_EL = canvas; // default
   function getActiveTabPanel(){
-    const panels = tabBox ? Array.from(tabBox.querySelectorAll('.tabPanel')) : [];
+    if (!tabBox) return null;
+    const panels = Array.from(tabBox.querySelectorAll('.tabPanel'));
     return panels.find(p => p.style.display !== 'none') || null;
   }
   function setDebugOrigin(el){
@@ -900,18 +968,18 @@ function updateTallies(){
   let draggingEl = null, dragOffsetX = 0, dragOffsetY = 0;
 
   // ====== OVERLAY NODES ======
-  const tooltip    = el('div','debug-tooltip');
-  const coordHUD   = el('div','debug-coord-hud'); coordHUD.textContent = 'X: 0  Y: 0';
-  const crossX     = el('div','debug-crosshair-x');
-  const crossY     = el('div','debug-crosshair-y');
-  const marquee    = el('div','debug-marquee');
-  const measureBox = el('div','debug-measure');
-  const measureHUD = el('div','debug-measure-hud'); measureHUD.textContent = '0 × 0';
+  const tooltip    = mk('div','debug-tooltip');
+  const coordHUD   = mk('div','debug-coord-hud'); coordHUD.textContent = 'X: 0  Y: 0';
+  const crossX     = mk('div','debug-crosshair-x');
+  const crossY     = mk('div','debug-crosshair-y');
+  const marquee    = mk('div','debug-marquee');
+  const measureBox = mk('div','debug-measure');
+  const measureHUD = mk('div','debug-measure-hud'); measureHUD.textContent = '0 × 0';
 
-  function el(tag, cls){ const n=document.createElement(tag); n.className=cls; document.body.appendChild(n); return n; }
+  function mk(tag, cls){ const n=document.createElement(tag); n.className=cls; document.body.appendChild(n); return n; }
 
-  // ====== DOM (panel UI) ======
-  const $ = sel => document.querySelector(sel);
+  // ====== DOM handles ======
+  const $ = s => document.querySelector(s);
   const toggleEl   = $('#dbg-toggle');
   const cursorEl   = $('#dbg-cursor');
   const measureEl  = $('#dbg-measure');
@@ -931,7 +999,7 @@ function updateTallies(){
   const exportHtmlBtn = $('#dbg-export-html');
   const fileInput  = $('#dbg-file');
 
-  // ====== COORD MATH (single source of truth) ======
+  // ====== COORD MATH ======
   function dbgComputeCoords(clientX, clientY){
     const rect = (DEBUG_ORIGIN_EL || canvas).getBoundingClientRect();
     return { x: Math.round(clientX - rect.left), y: Math.round(clientY - rect.top) };
@@ -1039,11 +1107,7 @@ function updateTallies(){
     tooltip.style.left = Math.min(window.innerWidth - 8, e.clientX + 8) + 'px';
     tooltip.style.top  = Math.min(window.innerHeight - 8, e.clientY + 8) + 'px';
   });
-  document.addEventListener('mouseout', (e) => {
-    if (!debugOn || !hoverEnabled) return;
-    const t = e.target.closest(TARGET_SELECTOR);
-    if (t) hideTooltip();
-  }, {capture:true});
+  document.addEventListener('mouseout', () => { if (!debugOn || !hoverEnabled) return; hideTooltip(); }, {capture:true});
 
   // ====== MARQUEE (Shift-drag) ======
   canvas.addEventListener('mousedown', (e) => {
@@ -1099,7 +1163,7 @@ function updateTallies(){
     if (!debugOn || e.shiftKey || measureMode) return;
     const t = e.target.closest(TARGET_SELECTOR);
     if (!t || !withinOrigin(t)) return;
-    if (e.target && e.target.tagName === 'INPUT') return;
+    if (e.target && e.target.tagName === 'INPUT') return; // don't steal input focus
     if (!selected.has(t)) { clearSelection(); addToSelection(t); }
     const { x, y } = dbgComputeCoords(e.clientX, e.clientY);
     const [sx, sy] = getXY(t);
@@ -1116,21 +1180,25 @@ function updateTallies(){
   window.addEventListener('mouseup', () => { draggingEl = null; });
 
   window.addEventListener('keydown', (e) => {
-    // Toggle debugger
+    // D toggles debugger
     if (e.key === 'd' || e.key === 'D') {
       debugOn = !debugOn;
       canvas.classList.toggle('canvas-debug', debugOn);
       setCursorMode(debugOn && (cursorEl?.checked ?? false));
       if (!debugOn){ hideTooltip(); clearSelection(); setMeasureMode(false); }
-      toggleEl && (toggleEl.checked = debugOn);
+      if (toggleEl) toggleEl.checked = debugOn;
       return;
     }
+    // Cursor HUD toggle
+    if (e.key === 'c' || e.key === 'C') { setCursorMode(!cursorMode); if (cursorEl) cursorEl.checked = cursorMode; return; }
+
     // Quick origin switching
     if (e.key === 't' || e.key === 'T') setDebugOrigin(getActiveTabPanel() || canvas);
     if (e.key === 's' || e.key === 'S') setDebugOrigin(canvas);
 
-    // Arrow nudges
     if (!debugOn || !selected.size) return;
+
+    // Arrow nudges
     if (/^Arrow(Up|Down|Left|Right)$/.test(e.key)) {
       const step = e.ctrlKey ? 5 : 1;
       const dx = (e.key === 'ArrowRight') ? step : (e.key === 'ArrowLeft') ? -step : 0;
@@ -1149,67 +1217,46 @@ function updateTallies(){
   window.addEventListener('resize',  () => { if (debugOn) refreshSelectedHUD(); });
 
   // ====== PANEL UI WIRING ======
-  toggleEl && toggleEl.addEventListener('change', () => {
+  toggleEl.addEventListener('change', () => {
     debugOn = toggleEl.checked;
     canvas.classList.toggle('canvas-debug', debugOn);
     setCursorMode(debugOn && (cursorEl?.checked ?? false));
     if (!debugOn){ hideTooltip(); clearSelection(); setMeasureMode(false); }
   });
-  cursorEl && cursorEl.addEventListener('change', () => setCursorMode(debugOn && cursorEl.checked));
-  measureEl && measureEl.addEventListener('change', () => setMeasureMode(measureEl.checked));
-  selectorEl && selectorEl.addEventListener('change', () => { TARGET_SELECTOR = selectorEl.value.trim() || '.abs'; clearSelection(); });
+  cursorEl.addEventListener('change', () => setCursorMode(debugOn && cursorEl.checked));
+  measureEl.addEventListener('change', () => setMeasureMode(measureEl.checked));
+  selectorEl.addEventListener('change', () => { TARGET_SELECTOR = selectorEl.value.trim() || '.abs'; clearSelection(); });
 
-  clearBtn && clearBtn.addEventListener('click', clearSelection);
-  logBtn && logBtn.addEventListener('click', () => {
+  clearBtn.addEventListener('click', clearSelection);
+  logBtn.addEventListener('click', () => {
     if (!selected.size) return;
-    console.table([...selected].map(el => ({ id: el.id, x: getXY(el)[0], y: getXY(el)[1] })));
+    console.table([...selected].map(el => ({ key: (el.id? '#'+el.id : el.tagName.toLowerCase()), x: getXY(el)[0], y: getXY(el)[1] })));
   });
-  alignLeft && alignLeft.addEventListener('click', () => {
+
+  alignLeft.addEventListener('click', () => {
     const x = parseFloat(leftInput.value); if (Number.isNaN(x)) return;
     selected.forEach(el => setXY(el, clampToOrigin(el, x, getXY(el)[1])[0], getXY(el)[1]));
   });
-  alignTop && alignTop.addEventListener('click', () => {
+  alignTop.addEventListener('click', () => {
     const y = parseFloat(topInput.value); if (Number.isNaN(y)) return;
     selected.forEach(el => setXY(el, getXY(el)[0], clampToOrigin(el, getXY(el)[0], y)[1]));
   });
-  centerXBtn && centerXBtn.addEventListener('click', () => {
-    const cx = parseFloat(centerXInp.value);
-    if (Number.isNaN(cx)) return;
-    selected.forEach(el => setXY(el, clampToOrigin(el, cx - el.getBoundingClientRect().width/2, getXY(el)[1])[0], getXY(el)[1]));
+  centerXBtn.addEventListener('click', () => {
+    const cx = parseFloat(centerXInp.value); if (Number.isNaN(cx)) return;
+    selected.forEach(el => {
+      const half = el.getBoundingClientRect().width/2;
+      setXY(el, clampToOrigin(el, cx - half, getXY(el)[1])[0], getXY(el)[1]);
+    });
   });
-  centerYBtn && centerYBtn.addEventListener('click', () => {
-    const cy = parseFloat(centerYInp.value);
-    if (Number.isNaN(cy)) return;
-    selected.forEach(el => setXY(el, getXY(el)[0], clampToOrigin(el, getXY(el)[0], cy - el.getBoundingClientRect().height/2)[1]));
+  centerYBtn.addEventListener('click', () => {
+    const cy = parseFloat(centerYInp.value); if (Number.isNaN(cy)) return;
+    selected.forEach(el => {
+      const half = el.getBoundingClientRect().height/2;
+      setXY(el, getXY(el)[0], clampToOrigin(el, getXY(el)[0], cy - half)[1]);
+    });
   });
 
-  exportBtn && exportBtn.addEventListener('click', () => {
-    const data = exportSelection();
-    if (!data.items.length) return alert('Select at least one element to export.');
-    const blob = new Blob([JSON.stringify(data,null,2)], { type: 'application/json;charset=utf-8' });
-    const a = document.createElement('a'); const ts = new Date().toISOString().replace(/[:.]/g,'-');
-    a.href = URL.createObjectURL(blob); a.download = `positions-${ts}.json`;
-    document.body.appendChild(a); a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
-  });
-  importBtn && importBtn.addEventListener('click', () => fileInput?.click());
-  fileInput && fileInput.addEventListener('change', () => {
-    const f = fileInput.files?.[0]; if (!f) return;
-    const rdr = new FileReader();
-    rdr.onload = () => {
-      try {
-        const js = JSON.parse(String(rdr.result));
-        const out = importPositions(js);
-        alert(`Import: ${out.applied}/${out.total} applied. Unmatched: ${out.unmatched.length}`);
-        console.log('Unmatched keys:', out.unmatched);
-      } catch(err){ alert('Invalid JSON'); console.error(err); }
-      fileInput.value = '';
-    };
-    rdr.readAsText(f);
-  });
-  exportHtmlBtn && exportHtmlBtn.addEventListener('click', exportSelectedAsHTML);
-
-  function keyFor(el){ return el.id ? `#${el.id}` : cssPath(el); }
+  // ====== IMPORT/EXPORT ======
   function cssPath(el){
     const root = (DEBUG_ORIGIN_EL || canvas);
     const parts = [];
@@ -1222,6 +1269,9 @@ function updateTallies(){
     }
     return parts.join(' > ');
   }
+  function keyFor(el){ return el.id ? `#${el.id}` : cssPath(el); }
+  function originLabel(el){ return el?.id ? '#'+el.id : (el?.className || el?.tagName || '(null)'); }
+
   function exportSelection(){
     const items = [...selected].map(el => {
       const [left, top] = getXY(el);
@@ -1258,7 +1308,32 @@ ${cssOut}</style>`;
     document.body.appendChild(a); a.click();
     setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
   }
-  function originLabel(el){ return el?.id ? '#'+el.id : (el?.className || el?.tagName || '(null)'); }
+
+  exportBtn.addEventListener('click', () => {
+    const data = exportSelection();
+    if (!data.items.length) return alert('Select at least one element to export.');
+    const blob = new Blob([JSON.stringify(data,null,2)], { type: 'application/json;charset=utf-8' });
+    const a = document.createElement('a'); const ts = new Date().toISOString().replace(/[:.]/g,'-');
+    a.href = URL.createObjectURL(blob); a.download = `positions-${ts}.json`;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  });
+  importBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    const f = fileInput.files?.[0]; if (!f) return;
+    const rdr = new FileReader();
+    rdr.onload = () => {
+      try {
+        const js = JSON.parse(String(rdr.result));
+        const out = importPositions(js);
+        alert(`Import: ${out.applied}/${out.total} applied. Unmatched: ${out.unmatched.length}`);
+        console.log('Unmatched keys:', out.unmatched);
+      } catch(err){ alert('Invalid JSON'); console.error(err); }
+      fileInput.value = '';
+    };
+    rdr.readAsText(f);
+  });
+  exportHtmlBtn.addEventListener('click', exportSelectedAsHTML);
 
   // ====== EXTRA: quick origin pick (Alt+Shift+Click) ======
   document.addEventListener('mousedown', (e) => {
@@ -1268,9 +1343,9 @@ ${cssOut}</style>`;
   }, true);
 
   // ====== INIT ======
-  // start with debugger off; UI checkbox reflects state
-  toggleEl && (toggleEl.checked = debugOn);
-  cursorEl && (cursorEl.checked = cursorMode);
+  // Start minimised (compact) and with debugger OFF for safety
+  toggleEl.checked = false;
+  cursorEl.checked = false;
 })();
 </script>
 
