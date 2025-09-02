@@ -37,7 +37,7 @@ input[type=number]{
   -moz-appearance:textfield;
 }
 input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin_button{ -webkit-appearance:none; }
+input[type=number]::-webkit-outer-spin-button{ -webkit-appearance:none; }
 
 button{
   font-family:'DominicanSmall', serif;
@@ -160,7 +160,7 @@ button{
 }
 .roll-btn:active{ transform:scale(0.9); }
 
-/* ===== FINAL OVERRIDE: force 10px inside tiny skill boxes ===== */
+/* FINAL OVERRIDE for tiny skill boxes */
 #mainCanvas .skill-num {
   font-size: 10px !important;
   line-height: 1;
@@ -168,13 +168,13 @@ button{
   padding: 0;
 }
 
-/* === Dice Roller mini UI (integrated) === */
+/* === Dice Roller mini UI === */
 .pool-mini {
   width: 22px; height: 22px;
   border: none; border-radius: 50%;
   background: transparent; color: black;
   font-family: 'DeutschGothic', monospace;
-  font-size: 10px; line-height: 22px; text-align: center; /* uses skill-num size */
+  font-size: 10px; line-height: 22px; text-align: center;
   cursor: pointer; padding: 0; margin: 0;
 }
 .pool-mini:active { transform: scale(0.95); }
@@ -187,7 +187,7 @@ button{
   background: transparent; border: none;
 }
 
-/* Compact dice grid: 4 rows × 5, fits 145×125 */
+/* Dice grid: up to 20 dice (4×5) */
 #diceGrid {
   display: grid;
   grid-template-columns: repeat(5, 26px);
@@ -210,7 +210,7 @@ button{
 #successCount { color: #0a8615; } /* green */
 #baneCount    { color: #b00020; } /* red */
 
-/* Icon buttons under results */
+/* Icon buttons */
 .icon-btn-sm {
   width: 24px; height: 24px; cursor: pointer;
   transition: transform .15s ease;
@@ -225,7 +225,7 @@ button{
 }
   </style>
 
-  <!-- ===== Unified Debugger (styles) — compact, high-contrast, 9px system font ===== -->
+  <!-- ===== Unified Debugger (styles) ===== -->
   <style>
 .debugger-panel {
   position: fixed; right: 12px; bottom: 12px; z-index: 1000000;
@@ -245,50 +245,32 @@ button{
 }
 .debugger-panel button { border: 1px solid #bbb; background: #f6f6f6; cursor: pointer; }
 .debugger-panel .muted { opacity: .75; }
-
-/* Tooltip + coord HUD */
-.debug-tooltip,
-.debug-coord-hud {
+.debug-tooltip,.debug-coord-hud {
   position: fixed; z-index: 999998; display: none;
   background: #111; color: #fff; border: 1px solid #444; border-radius: 4px;
-  padding: 3px 5px;
-  font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  padding: 3px 5px; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   pointer-events: none; white-space: nowrap;
 }
 .debug-tooltip { transform: translate(8px,8px); }
-
-/* Crosshairs */
 .debug-crosshair-x, .debug-crosshair-y {
   position: fixed; z-index: 999996; background: rgba(255,0,0,.85); display: none; pointer-events: none;
 }
 .debug-crosshair-x { height: 1px; left: 0; right: 0; }
 .debug-crosshair-y { width: 1px; top: 0; bottom: 0; }
-
-/* Marquee box */
 .debug-marquee {
   position: fixed; z-index: 999997; display: none;
   border: 1px dashed #0077ff; background: rgba(0,119,255,.12); pointer-events: none;
 }
-
-/* Selection highlight */
 .debug-selected {
-  outline: 2px solid #0077ff !important;
-  outline-offset: 0 !important;
+  outline: 2px solid #0077ff !important; outline-offset: 0 !important;
   box-shadow: 0 0 0 2px rgba(0,119,255,.2) inset;
 }
-/* Subtle hover outline when Alt-tooltip is active */
 .debug-outline { outline:1px dotted rgba(0,0,0,.4) !important; }
-
-/* Small floating label for each selected element */
 .debug-selected-hud {
-  position: fixed; z-index: 999999;
-  background: #111; color: #fff; border: 1px solid #444; border-radius: 4px;
-  padding: 2px 4px;
-  font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  position: fixed; z-index: 999999; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px;
+  padding: 2px 4px; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   pointer-events: none; white-space: nowrap;
 }
-
-/* Measure mode box + label */
 .debug-measure {
   position: fixed; z-index: 999997; display: none;
   border: 1px dashed #00aa55; background: rgba(0,170,85,.10); pointer-events: none;
@@ -299,11 +281,7 @@ button{
   font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   pointer-events:none; white-space:nowrap;
 }
-
-/* Compact state: only show the header row */
-.debugger-panel.compact > :not(:first-child){
-  display: none;
-}
+.debugger-panel.compact > :not(:first-child){ display: none; }
   </style>
 </head>
 <body>
@@ -342,7 +320,7 @@ button{
     <input id="gender"  class="abs" type="text" maxlength="20" style="--x:382px; --y:123px; --w:80px;" />
     <input id="origin"  class="abs" type="text" maxlength="60" style="--x:482px; --y:123px; --w:250px;" />
 
-    <!-- Attributes (baked coords) -->
+    <!-- Attributes -->
     <span class="pip-base abs" style="--x:127px; --y:210px;">
       <input id="brawn" type="number" min="1" max="5" value="1">
       <img id="lock-brawn" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('brawn')">
@@ -354,6 +332,7 @@ button{
         <button onclick="stepDownField('brawnCurrent')">−</button>
       </div>
     </span>
+
     <span class="pip-base abs" style="--x:127px; --y:345px;">
       <input id="agility" type="number" min="1" max="5" value="1">
       <img id="lock-agility" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('agility')">
@@ -365,6 +344,7 @@ button{
         <button onclick="stepDownField('agilityCurrent')">−</button>
       </div>
     </span>
+
     <span class="pip-base abs" style="--x:127px; --y:480px;">
       <input id="wits" type="number" min="1" max="5" value="1">
       <img id="lock-wits" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('wits')">
@@ -376,6 +356,7 @@ button{
         <button onclick="stepDownField('witsCurrent')">−</button>
       </div>
     </span>
+
     <span class="pip-base abs" style="--x:127px; --y:665px;">
       <input id="will" type="number" min="1" max="5" value="1">
       <img id="lock-will" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('will')">
@@ -397,7 +378,7 @@ button{
       </div>
     </span>
 
-    <!-- ===== BRAWN SKILLS (baked coords) ===== -->
+    <!-- ===== BRAWN SKILLS ===== -->
     <input id="endurance_key"   type="checkbox" class="abs pip-check" style="--x:41px; --y:252px;">
     <input id="endurance_lvl"   type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:247px;">
     <input id="endurance_mod"   type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:247px;">
@@ -485,7 +466,53 @@ button{
     <input id="resolve_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:751px;">
     <button id="resolve_roll"      class="abs roll-btn" style="--x:212px; --y:755px;" onclick="addToDicePool('resolve_total')">+</button>
 
-    <!-- ===== Tabs box (re-inserted) ===== -->
+    <!-- ===== Dice Roller UI ===== -->
+    <input id="dicePool" class="abs" type="number" min="0" max="20" value="0" style="--x:372px; --y:189px;">
+
+    <div id="poolBtns" class="abs" style="--x:368px; --y:220px; --w:125px; --h:75px;">
+      <div style="display:grid; grid-template-columns: repeat(5, 22px); grid-auto-rows:22px; gap:3px;">
+        <button class="pool-mini" onclick="changePool(+1)">+1</button>
+        <button class="pool-mini" onclick="changePool(+2)">+2</button>
+        <button class="pool-mini" onclick="changePool(+3)">+3</button>
+        <button class="pool-mini" onclick="changePool(+4)">+4</button>
+        <button class="pool-mini" onclick="changePool(+5)">+5</button>
+        <button class="pool-mini" onclick="changePool(+6)">+6</button>
+        <button class="pool-mini" onclick="changePool(+7)">+7</button>
+        <button class="pool-mini" onclick="changePool(+8)">+8</button>
+        <button class="pool-mini" onclick="changePool(+9)">+9</button>
+        <button class="pool-mini" onclick="changePool(+10)">+10</button>
+        <button class="pool-mini" onclick="changePool(-1)">-1</button>
+        <button class="pool-mini" onclick="changePool(-2)">-2</button>
+        <button class="pool-mini" onclick="changePool(-3)">-3</button>
+        <button class="pool-mini" onclick="changePool(-4)">-4</button>
+        <button class="pool-mini" onclick="changePool(-5)">-5</button>
+      </div>
+    </div>
+
+    <!-- Dice grid -->
+    <div id="diceGrid" class="abs" style="--x:590px; --y:190px;"></div>
+
+    <!-- Tallies at your requested coordinates -->
+    <div class="abs" style="--x:486px; --y:191px;">
+      <input id="successCount" class="tally-num" type="text" value="0" readonly>
+    </div>
+    <div class="abs" style="--x:557px; --y:191px;">
+      <input id="baneCount" class="tally-num" type="text" value="0" readonly>
+    </div>
+
+    <!-- Roll / Push / Pushes Allowed at your requested coordinates -->
+    <img src="img/roll_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:232px;" alt="Roll" onclick="rollDice()">
+    <img src="img/push_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:268px;" alt="Push" onclick="pushRoll()">
+    <select id="pushesAllowed" class="abs" style="--x:537px; --y:293px; width:38px;" title="Pushes allowed">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="∞">∞</option>
+    </select>
+
+    <!-- Clear All -->
+    <img src="img/clear_icon.png" class="abs icon-btn-sm" style="--x:363px; --y:295px;" alt="Clear" onclick="clearAllDice()">
+
+    <!-- Tabs box -->
     <div id="tabBox" class="abs"
       style="--x:278px; --y:331px; --w:440px; --h:430px; background:transparent; border:none; padding:5px;">
       <div style="display:flex; gap:8px; margin-bottom:8px;">
@@ -498,10 +525,10 @@ button{
       <!-- panel-main: inputs only (labels removed) -->
       <div id="panel-main" class="tabPanel" style="display:block;">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <input id="archetype1"  type="text" />
-          <input id="profession1" type="text" />
-          <input id="archetype2"  type="text" />
-          <input id="profession2" type="text" />
+          <input id="archetype1" type="text" placeholder="" />
+          <input id="profession1" type="text" placeholder="" />
+          <input id="archetype2" type="text" placeholder="" />
+          <input id="profession2" type="text" placeholder="" />
         </div>
         <div style="margin-top:14px; display:flex; justify-content:flex-end;">
           <input id="xp" type="number" value="0" style="width:40px;" />
@@ -512,57 +539,6 @@ button{
       <div id="panel-gear"   class="tabPanel" style="display:none;">Gear coming soon</div>
       <div id="panel-powers" class="tabPanel" style="display:none;">Powers coming soon</div>
     </div>
-
-    <!-- ===== Dice Roller UI ===== -->
-    <!-- Pool number -->
-    <input id="dicePool" class="abs" type="number" min="0" max="20" value="0" style="--x:372px; --y:189px;">
-
-    <!-- Pool adjust buttons grid -->
-    <div id="poolBtns" class="abs" style="--x:368px; --y:220px; --w:125px; --h:75px;">
-      <div style="display:grid; grid-template-columns: repeat(5, 22px); grid-auto-rows:22px; gap:3px;">
-        <!-- Row 1: +1..+5 -->
-        <button class="pool-mini" onclick="changePool(+1)">+1</button>
-        <button class="pool-mini" onclick="changePool(+2)">+2</button>
-        <button class="pool-mini" onclick="changePool(+3)">+3</button>
-        <button class="pool-mini" onclick="changePool(+4)">+4</button>
-        <button class="pool-mini" onclick="changePool(+5)">+5</button>
-        <!-- Row 2: +6..+10 -->
-        <button class="pool-mini" onclick="changePool(+6)">+6</button>
-        <button class="pool-mini" onclick="changePool(+7)">+7</button>
-        <button class="pool-mini" onclick="changePool(+8)">+8</button>
-        <button class="pool-mini" onclick="changePool(+9)">+9</button>
-        <button class="pool-mini" onclick="changePool(+10)">+10</button>
-        <!-- Row 3: -1..-5 -->
-        <button class="pool-mini" onclick="changePool(-1)">-1</button>
-        <button class="pool-mini" onclick="changePool(-2)">-2</button>
-        <button class="pool-mini" onclick="changePool(-3)">-3</button>
-        <button class="pool-mini" onclick="changePool(-4)">-4</button>
-        <button class="pool-mini" onclick="changePool(-5)">-5</button>
-      </div>
-    </div>
-
-    <!-- Dice grid (up to 20 dice) -->
-    <div id="diceGrid" class="abs" style="--x:590px; --y:190px;"></div>
-
-    <!-- Success / Bane tallies (independent) -->
-    <div class="abs" style="--x:486px; --y:191px;">
-      <input id="successCount" class="tally-num" type="text" value="0" readonly>
-    </div>
-    <div class="abs" style="--x:586px; --y:191px;">
-      <input id="baneCount" class="tally-num" type="text" value="0" readonly>
-    </div>
-
-    <!-- Roll / Push / Pushes allowed -->
-    <img src="img/roll_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:232px;" alt="Roll" onclick="rollDice()">
-    <img src="img/push_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:450px;" alt="Push" onclick="pushRoll()">
-    <select id="pushesAllowed" class="abs" style="--x:536px; --y:268px; width:38px;" title="Pushes allowed">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="∞">∞</option>
-    </select>
-
-    <!-- Clear All -->
-    <img src="img/clear_icon.png" class="abs icon-btn-sm" style="--x:363px; --y:295px;" alt="Clear" onclick="clearAllDice()">
 
   </div>
 </div>
@@ -590,7 +566,7 @@ window.toggleLock = id => {
 window.stepUpField = id => { document.getElementById(id)?.stepUp(); };
 window.stepDownField = id => { document.getElementById(id)?.stepDown(); };
 
-/* Dice Pool hook from skill totals */
+/* Dice pool add from a skill total */
 function addToDicePool(totalId){
   const totalEl = document.getElementById(totalId);
   const add = parseInt(totalEl?.value,10) || 0;
@@ -714,7 +690,6 @@ window.deleteCharacter=async()=>{
 
 <!-- Skill totals -->
 <script>
-/* ===== Skill totals wiring ===== */
 function toNum(v){ const n = parseInt(v,10); return isNaN(n) ? 0 : n; }
 function setupSkillRow(attrCurrentId, baseId){
   const attrEl  = document.getElementById(attrCurrentId);
@@ -738,13 +713,11 @@ function initAllSkillTotals(){ initBrawnSkillTotals(); initAgilitySkillTotals();
 document.addEventListener('DOMContentLoaded', initAllSkillTotals);
 </script>
 
-<!-- ===== Dice Roller Logic (integrated) ===== -->
+<!-- Dice Roller Logic -->
 <script>
-/* Roller state */
-let diceValues = [];   // current die faces
+let diceValues = [];
 let pushCount  = 0;
 
-/* Pool helpers (0..20) */
 function getPool(){
   return Math.max(0, Math.min(20, parseInt(document.getElementById('dicePool').value,10) || 0));
 }
@@ -756,17 +729,15 @@ function setPool(n){
 }
 function changePool(delta){ setPool(getPool() + delta); }
 
-/* Clear all: dice, tallies, push state, AND pool */
 function clearAllDice(){
   diceValues.length = 0;
   pushCount = 0;
   document.getElementById('diceGrid').innerHTML = '';
   document.getElementById('successCount').value = '0';
   document.getElementById('baneCount').value    = '0';
-  setPool(0); // zero the pool too
+  setPool(0);
 }
 
-/* Roll fresh (replaces all dice) */
 function rollDice(){
   const pool = getPool();
   if (pool <= 0) return;
@@ -775,7 +746,6 @@ function rollDice(){
   animateDiceRoll();
 }
 
-/* Push: reroll only 2–5; 1s and 6s stick */
 function pushRoll(){
   if (!diceValues.length) return;
   const maxPush = document.getElementById('pushesAllowed').value;
@@ -789,7 +759,6 @@ function pushRoll(){
   animateDiceRoll();
 }
 
-/* Flashing animation pass */
 function animateDiceRoll(){
   const grid = document.getElementById('diceGrid');
   const flashes = 4;
@@ -809,12 +778,10 @@ function animateDiceRoll(){
   }, 110);
 }
 
-/* Helpers */
 function randD6(){ return (Math.random()*6|0)+1; }
 function renderDie(v){
   const img = document.createElement('img');
   img.className = 'die';
-  // asset names: Success_d6.png, Baned6.png, 2_d6.png..5_d6.png
   if (v === 1)      img.src = 'img/Baned6.png';
   else if (v === 6) img.src = 'img/Success_d6.png';
   else              img.src = `img/${v}_d6.png`;
@@ -829,28 +796,17 @@ function updateTallies(){
 }
 </script>
 
-<!-- ===== Unified Debugger ===== -->
+<!-- Unified Debugger -->
 <script>
 (() => {
-  // Targets: all positioned overlays inside the canvas
   let TARGET_SELECTOR = '.abs';
-
-  // State
-  let debugOn = false;
-  let hoverEnabled = false;   // Alt for tooltip
-  let marqueeActive = false;  // Shift+drag
-  let cursorMode = false;
-  let measureMode = false;    // measure drag
+  let debugOn = false, hoverEnabled = false, marqueeActive = false, cursorMode = false, measureMode = false;
   let selected = new Set();
   let startX = 0, startY = 0;
-
-  // Drag-to-move state
-  let draggingEl = null;
-  let dragOffsetX = 0, dragOffsetY = 0;
+  let draggingEl = null, dragOffsetX = 0, dragOffsetY = 0;
 
   const canvas = document.getElementById('mainCanvas');
 
-  // Elements
   const tooltip = document.createElement('div');
   tooltip.className = 'debug-tooltip'; document.body.appendChild(tooltip);
 
@@ -866,7 +822,6 @@ function updateTallies(){
   coordHUD.className = 'debug-coord-hud'; coordHUD.textContent = 'X: 0  Y: 0';
   document.body.appendChild(coordHUD);
 
-  // Measure mode elements
   const measureBox = document.createElement('div');
   measureBox.className = 'debug-measure'; document.body.appendChild(measureBox);
   const measureHUD = document.createElement('div');
@@ -874,7 +829,6 @@ function updateTallies(){
   document.body.appendChild(measureHUD);
   let measureActive = false;
 
-  // Per-selected-element HUDs
   function getXY(el){
     const x = parseFloat(el.style.getPropertyValue('--x')) || 0;
     const y = parseFloat(el.style.getPropertyValue('--y')) || 0;
@@ -895,7 +849,6 @@ function updateTallies(){
     });
   }
 
-  // Panel
   const panel = document.createElement('div');
   panel.className = 'debugger-panel';
   panel.innerHTML = `
@@ -955,7 +908,6 @@ function updateTallies(){
   `;
   document.body.appendChild(panel);
 
-  // Compact behavior
   (function(){
     const headerRow = panel.querySelector('.row');
     if (headerRow) headerRow.style.cursor = 'pointer';
@@ -971,8 +923,8 @@ function updateTallies(){
       toggle.addEventListener('change', function(){
         setCompact(!toggle.checked);
         debugOn = toggle.checked;
-        document.getElementById('dbg-cursor').checked = true; // auto-enable cursor mode
-        setCursorMode(debugOn); // show/hide crosshairs+HUD
+        document.getElementById('dbg-cursor').checked = true;
+        setCursorMode(debugOn);
         canvas.classList.toggle('canvas-debug', debugOn);
         if (!debugOn) { hideTooltip(); clearSelection(); setMeasureMode(false); }
         else { refreshSelectedHUD(); }
@@ -981,7 +933,6 @@ function updateTallies(){
     }
   })();
 
-  // Panel refs
   const $ = sel => document.querySelector(sel);
   const selectorEl = $('#dbg-selector');
   const cursorEl   = $('#dbg-cursor');
@@ -1001,7 +952,6 @@ function updateTallies(){
   const exportHtmlBtn = $('#dbg-export-html');
   const fileInput  = $('#dbg-file');
 
-  // Helpers
   const inCanvas = el => canvas && canvas.contains(el);
   const isTarget = el => !!(el && el.matches && el.matches(TARGET_SELECTOR) && inCanvas(el));
 
@@ -1078,7 +1028,6 @@ function updateTallies(){
     setXY(el, nx, ny);
   }
 
-  // Key for import/export
   function cssPath(el) {
     const parts = [];
     for (let node = el; node && node.nodeType === 1 && node !== canvas; node = node.parentElement) {
@@ -1117,26 +1066,7 @@ function updateTallies(){
     return result;
   }
 
-  // Panel wiring
-  const $ = sel => document.querySelector(sel);
-  const selectorEl = $('#dbg-selector');
-  const cursorEl   = $('#dbg-cursor');
-  const measureEl  = $('#dbg-measure');
-  const clearBtn   = $('#dbg-clear');
-  const logBtn     = $('#dbg-log');
-  const leftInput  = $('#dbg-left-x');
-  const topInput   = $('#dbg-top-y');
-  const centerXInp = $('#dbg-center-x');
-  const centerYInp = $('#dbg-center-y');
-  const alignLeft  = $('#dbg-align-left');
-  const alignTop   = $('#dbg-align-top');
-  const centerXBtn = $('#dbg-center-x-btn');
-  const centerYBtn = $('#dbg-center-y-btn');
-  const exportBtn  = $('#dbg-export');
-  const importBtn  = $('#dbg-import');
-  const exportHtmlBtn = $('#dbg-export-html');
-  const fileInput  = $('#dbg-file');
-
+  const $qs = sel => document.querySelector(sel);
   selectorEl.addEventListener('change', () => { TARGET_SELECTOR = selectorEl.value.trim() || TARGET_SELECTOR; clearSelection(); });
   cursorEl.addEventListener('change', () => setCursorMode(cursorEl.checked));
   measureEl.addEventListener('change', () => setMeasureMode(measureEl.checked));
@@ -1206,7 +1136,49 @@ function updateTallies(){
     reader.readAsText(file);
   });
 
-  // Keyboard toggles / helpers
+  function selectorFor(el) {
+    if (el.id) return `#${el.id}`;
+    const parts = [];
+    let node = el;
+    while (node && node.nodeType === 1 && node !== canvas) {
+      let sel = node.tagName.toLowerCase();
+      const parent = node.parentElement;
+      if (node.id) { sel += `#${node.id}`; parts.unshift(sel); break; }
+      const siblings = parent ? Array.from(parent.children).filter(n => n.tagName === node.tagName) : [];
+      const idx = siblings.indexOf(node) + 1;
+      sel += `:nth-of-type(${idx})`;
+      parts.unshift(sel);
+      node = parent;
+    }
+    return `#mainCanvas > ${parts.join(' > ')}`;
+  }
+  function exportSelectedAsHTML() {
+    const items = [...selected];
+    if (!items.length) { alert('Select at least one element to export.'); return; }
+    let css = `/* Exported positions (${new Date().toISOString()}) */\n`;
+    items.forEach(el => {
+      const [x, y] = getXY(el);
+      css += `${selectorFor(el)}{ --x:${Math.round(x)}px; --y:${Math.round(y)}px; }\n`;
+    });
+    const htmlDoc =
+`<!doctype html>
+<html><head><meta charset="utf-8"><title>GxD6 Positions</title></head>
+<body>
+<style id="exported-positions">
+${css}
+</style>
+<!-- Paste the <style> block above into your main HTML (after base styles), or include as a separate CSS file -->
+</body></html>`;
+    const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' });
+    const a = document.createElement('a');
+    const ts = new Date().toISOString().replace(/[:.]/g,'-');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${currentCharName()}-positions-${ts}.html`;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  }
+  exportHtmlBtn.addEventListener('click', exportSelectedAsHTML);
+
   window.addEventListener('keydown', e => {
     if (e.key === 'd' || e.key === 'D') {
       if (document.activeElement && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
@@ -1223,7 +1195,6 @@ function updateTallies(){
   window.addEventListener('scroll',  () => { if (debugOn) refreshSelectedHUD(); });
   window.addEventListener('resize',  () => { if (debugOn) refreshSelectedHUD(); });
 
-  // Hover tooltip (Alt)
   document.addEventListener('mouseover', e => {
     if (!debugOn || !hoverEnabled) return;
     const t = e.target.closest(TARGET_SELECTOR);
@@ -1240,7 +1211,6 @@ function updateTallies(){
     if (isTarget(t)) hideTooltip();
   }, {capture:true});
 
-  // ===== Marquee selection: Shift+drag on canvas =====
   canvas.addEventListener('mousedown', e => {
     if (!debugOn || !e.shiftKey || measureMode) return;
     marqueeActive = true;
@@ -1263,7 +1233,6 @@ function updateTallies(){
     marqueeActive = false; marquee.style.display = 'none';
   });
 
-  // ===== Measure mode: click+drag on canvas to see W×H =====
   function setMeasureMode(on){
     measureMode = !!on;
     if (!measureMode){ measureActive=false; measureBox.style.display='none'; measureHUD.style.display='none'; }
@@ -1271,7 +1240,7 @@ function updateTallies(){
   canvas.addEventListener('mousedown', e => {
     if (!debugOn || !measureMode) return;
     const t = e.target.closest(TARGET_SELECTOR);
-    if (t) return; // don’t hijack when clicking elements
+    if (t) return;
     measureActive = true;
     startX = e.clientX; startY = e.clientY;
     Object.assign(measureBox.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' });
@@ -1298,17 +1267,14 @@ function updateTallies(){
     measureHUD.style.display = 'none';
   });
 
-  // ===== Mouse drag to move selected (no Shift, not measure mode) =====
   let selectedBeforeDrag = null;
   canvas.addEventListener('mousedown', e => {
     if (!debugOn || e.shiftKey || measureMode) return;
     const t = e.target.closest(TARGET_SELECTOR);
     if (!isTarget(t)) return;
-    if (e.target && e.target.tagName === 'INPUT') return; // keep inputs editable
-
+    if (e.target && e.target.tagName === 'INPUT') return;
     if (!selected.has(t)) { clearSelection(); addToSelection(t); }
     selectedBeforeDrag = t;
-
     draggingEl = t;
     const [x,y] = getXY(t);
     const crect = canvas.getBoundingClientRect();
@@ -1326,7 +1292,6 @@ function updateTallies(){
   });
   window.addEventListener('mouseup', () => { draggingEl = null; selectedBeforeDrag = null; });
 
-  // Arrow key nudging (Ctrl = 5px)
   window.addEventListener('keydown', e => {
     if (!debugOn || !selected.size) return;
     const key = e.key;
@@ -1338,7 +1303,6 @@ function updateTallies(){
     selected.forEach(el => nudge(el, dx, dy));
   });
 
-  // Click selects one (outside marquee/measure)
   document.addEventListener('click', e => {
     if (!debugOn || e.shiftKey || measureMode) return;
     const t = e.target.closest(TARGET_SELECTOR);
@@ -1346,7 +1310,6 @@ function updateTallies(){
     clearSelection(); addToSelection(t);
   }, true);
 
-  // ===== Cursor mode (crosshairs + HUD) =====
   function setCursorMode(on) {
     cursorMode = !!on;
     const disp = on && debugOn ? 'block' : 'none';
