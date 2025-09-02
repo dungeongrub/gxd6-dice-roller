@@ -512,7 +512,7 @@ button{
     <!-- Clear All -->
     <img src="img/clear_icon.png" class="abs icon-btn-sm" style="--x:363px; --y:295px;" alt="Clear" onclick="clearAllDice()">
 
-<!-- === Tab Box === -->
+<!-- === TAB BOX === -->
 <div id="tabBox" class="abs"
   style="--x:278px; --y:331px; --w:450px; --h:450px; background:transparent; border:none; padding:5px;">
 
@@ -528,8 +528,18 @@ button{
   <div id="panel-main" class="tabPanel"
        style="display:block; width:450px; height:400px;
               background:url('img/tab_main.png') no-repeat center/100% 100%;">
-
     <!-- 🔹 Any input/number/text fields for Main tab go here -->
+      <!-- panel-main: inputs only (labels removed) -->
+  <input id="archetype1" class="abs" type="text" maxlength="18" style="--x:498px; --y:194px; --w:100px;" />
+  <input id="profession1" class="abs" type="text" maxlength="20" style="--x:613px; --y:194px; --w:120px;" />
+  <input id="archetype2" class="abs" type="text" maxlength="18" style="--x:498px; --y:245px; --w:100px;" />
+  <input id="profession2" class="abs" type="text" maxlength="20" style="--x:613px; --y:245px; --w:120px;" />
+        </div>
+  <div style="margin-top:14px; display:flex; justify-content:flex-end;">
+     <input id="xp" type="number" value="0" style="width:40px;" style="--x:720px; --y:220px;"> />
+        </div>
+      </div>
+
     <!-- They’ll overlay transparently above the background -->
     <div id="talentsDeck"></div> <!-- placeholder deck for future Talent cards -->
 
