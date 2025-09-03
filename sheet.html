@@ -559,7 +559,7 @@ button{
   <div class="tab-main-wrap" id="tabMainWrap">
     <img id="tabMainBg" src="img/tab_main.png" alt="Main Tab Background">
 
-    <div class="abs overlay-field" style="--x:64px; --y:72px;" data-dbg="Archetype 1">
+    <div class="abs overlay-field" style="--x:7px; --y:25px;" data-dbg="Archetype 1">
       <input id="archetype1" type="text" placeholder="Archetype 1">
     </div>
 
@@ -567,17 +567,16 @@ button{
       <input id="archetype2" type="text" placeholder="Archetype 2">
     </div>
 
-    <div class="abs overlay-field" style="--x:64px; --y:160px;" data-dbg="Profession 1">
+    <div class="abs overlay-field" style="--x:7px; --y:75px;" data-dbg="Profession 1">
       <input id="profession1" type="text" placeholder="Profession 1">
     </div>
 
-    <div class="abs overlay-field" style="--x:64px; --y:198px;" data-dbg="Profession 2">
+    <div class="abs overlay-field" style="--x:125px; --y:75px;" data-dbg="Profession 2">
       <input id="profession2" type="text" placeholder="Profession 2">
     </div>
 
-    <div class="abs overlay-field" style="--x:64px; --y:248px;" data-dbg="XP">
+    <div class="abs overlay-field" style="--x:210px; --y:54px;" data-dbg="XP">
       <div class="pip-wrap">
-        <span class="pip-label">XP</span>
         <button type="button" class="pip-btn" onclick="(i=>i.value=Math.max(0,(parseInt(i.value||'0',10)-1)))(document.getElementById('xp'))">−</button>
         <input id="xp" class="pip-input" type="number" inputmode="numeric" min="0" step="1" value="0">
         <button type="button" class="pip-btn" onclick="(i=>i.value=(parseInt(i.value||'0',10)+1))(document.getElementById('xp'))">+</button>
