@@ -1329,6 +1329,75 @@ ${css}
 
 })();
 </script>
+  
+<script>
+/* === Panel-relative cursor readout shim (non-invasive) ===
+   Hotkeys:  T = set origin to visible tab panel
+             S = set origin back to whole sheet
+   Only updates the HUD numbers/tooltip. Drag/marquee/measure remain unchanged.
+*/
+(function(){
+  const SHEET = document.getElementById('mainCanvas');
+  const TABS  = document.getElementById('tabBox');
+  let ORIGIN  = SHEET;
+
+  function activeTabPanel(){
+    if (!TABS) return null;
+    const list = Array.from(TABS.querySelectorAll('.tabPanel'));
+    return list.find(p => p.style.display !== 'none') || null;
+  }
+  function setOriginToTab(){
+    const p = activeTabPanel();
+    if (p) { ORIGIN = p; console.log('[DBG] origin = tab:', p.id || '(panel)'); }
+  }
+  function setOriginToSheet(){
+    ORIGIN = SHEET; console.log('[DBG] origin = sheet');
+  }
+  function rel(clientX, clientY){
+    const r = (ORIGIN || SHEET).getBoundingClientRect();
+    return { x: Math.round(clientX - r.left), y: Math.round(clientY - r.top) };
+  }
+
+  // Hotkeys (do not interfere with your existing ones)
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 't' || e.key === 'T') setOriginToTab();
+    if (e.key === 's' || e.key === 'S') setOriginToSheet();
+  });
+
+  // Try to find your existing HUD/tooltip elements by the class names you used
+  const coordHUD = document.querySelector('.debug-coord-hud');
+  const crossX   = document.querySelector('.debug-crosshair-x');
+  const crossY   = document.querySelector('.debug-crosshair-y');
+  const tooltip  = document.querySelector('.debug-tooltip');
+  const dbgToggle= document.getElementById('dbg-toggle'); // if you have an On/Off checkbox
+
+  // Cursor HUD: override the text with panel-relative numbers (last write wins)
+  if (coordHUD && crossX && crossY){
+    window.addEventListener('mousemove', (e) => {
+      // If you have a debugger toggle and it's OFF, don't show anything
+      if (dbgToggle && !dbgToggle.checked) return;
+
+      const { x, y } = rel(e.clientX, e.clientY);
+      coordHUD.textContent = `X: ${x}   Y: ${y}`;
+      // Keep crosshairs anchored to the real cursor on the page
+      crossX.style.top  = e.clientY + 'px';
+      crossY.style.left = e.clientX + 'px';
+    });
+  }
+
+  // Tooltip label: show element’s CSS --x/--y (already panel-relative for .abs inside the panel)
+  if (tooltip){
+    document.addEventListener('mouseover', (e) => {
+      const t = e.target.closest('.abs');
+      if (!t) return;
+      const cs = getComputedStyle(t);
+      const xx = parseFloat(cs.getPropertyValue('--x')) || 0;
+      const yy = parseFloat(cs.getPropertyValue('--y')) || 0;
+      tooltip.textContent = `${t.id ? '#'+t.id : t.tagName.toLowerCase()} (${Math.round(xx)}, ${Math.round(yy)})`;
+    }, { capture:true });
+  }
+})();
+</script>
 
 </body>
 </html>
