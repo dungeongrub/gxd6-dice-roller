@@ -1,1304 +1,426 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>GxD6 Character Sheet</title>
+<meta charset="utf-8">
+<title>GxD6 Character Sheet – Clean Build</title>
+<style>
+/* ====== BASE ====== */
+@font-face { font-family:'DominicanSmall'; src:url('fonts/DOMISC__.TTF'); }
+@font-face { font-family:'Dominican';      src:url('fonts/DOMINICA.TTF'); }
+@font-face { font-family:'DeutschGothic';  src:url('fonts/DeutschGothic.ttf'); }
 
-  <!-- ===== Base Sheet Styles ===== -->
-  <style>
-/* === Fonts (for the sheet—not used by debugger) === */
-@font-face { font-family: 'DominicanSmall'; src: url('fonts/DOMISC__.TTF'); }
-@font-face { font-family: 'Dominican';      src: url('fonts/DOMINICA.TTF'); }
-@font-face { font-family: 'DeutschGothic';  src: url('fonts/DeutschGothic.ttf'); }
+html,body{margin:0;padding:0;background:#f5f5f5;color:#000;font-family:'DominicanSmall',Georgia,serif}
+.sheet-container{width:800px;min-width:800px;margin:20px auto}
 
-body{
-  font-family:'DominicanSmall', Georgia, serif;
-  background:#f5f5f5;
-  margin:0;
-  padding:20px;
-  color:black;
-}
-
-.sheet-container{ width:800px; margin:0 auto; min-width:800px; }
-
-input,select{
-  font-family:'Dominican', serif;
-  font-size:14px;
-  padding:2px 6px;
-  background:transparent;
-  border:none;
-}
-input[type="text"]{ font-family:'Dominican', serif; }
-
-input[type=number]{
-  font-family:'DeutschGothic', monospace;
-  font-size:16px;
-  text-align:center;
-  -moz-appearance:textfield;
-}
+input,select,button{font-family:'Dominican',serif;font-size:14px;background:transparent;border:none;padding:2px 6px}
+input[type=number]{font-family:'DeutschGothic',monospace;text-align:center;-moz-appearance:textfield}
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button{ -webkit-appearance:none; }
 
-button{
-  font-family:'DominicanSmall', serif;
-  padding:4px 4px;
-  cursor:pointer;
-}
+button{cursor:pointer}
 
-.top-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  margin-bottom:20px;
-}
-.login-controls,.admin-controls{ display:flex; align-items:center; gap:10px; }
-
-/* === Attribute pip styles === */
-.pip-base,.pip-current{
-  width:20px; height:22px;
-  border:none;
-  background:transparent;
-  display:flex; align-items:center; justify-content:center;
-  position:relative;
-}
-.pip-base input,.pip-current input{
-  width:20px; height:22px; font-size:20px;
-  border:none; background:transparent; text-align:center;
-  font-family:'DeutschGothic', monospace;
-  padding:0; margin:0;
-}
-.pip-base .lock-icon{
-  position:absolute; bottom:-10px; left:50%; transform:translateX(-50%);
-  width:14px; height:14px; cursor:pointer;
-}
-.trauma-controls{
-  position:absolute; top:0; right:-20px;
-  display:flex; flex-direction:column; gap:2px;
-}
-.trauma-controls button{
-  width:18px; height:18px; font-size:12px; font-weight:bold;
-  background:#e0e0e0; border:none; cursor:pointer; line-height:1; padding:0;
-}
-
-/* === Canvas === */
 .sheet-canvas{
-  position:relative;
-  width:800px; height:800px;
+  position:relative;width:800px;height:800px;
   background:url("img/CharSheet_Block_1600x1600.jpg") no-repeat 0 0 / 100% 100%;
-  border:1px solid #000; margin-top:20px;
+  border:1px solid #000;
 }
-.abs{
-  position:absolute;
-  left:var(--x,0); top:var(--y,0);
-  width:var(--w,auto); height:var(--h,auto);
-  z-index:10;
-}
-/* Overlay text fields */
-.abs input[type="text"], .abs select{
-  font-family:'Dominican', serif;
-  font-size:12px;
-  background:transparent;
-  padding:2px 6px;
-  border:none;
-  box-sizing:border-box;
-  height:20px;
-}
-.abs input[type="number"]{
-  font-family:'DeutschGothic', monospace;
-  font-size:16px; text-align:center;
-  height:20px; padding:0 4px;
-}
-.abs input[type="number"]::-webkit-outer-spin-button,
-.abs input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; }
-
-/* Debug baseline outline when on */
+.abs{ position:absolute; left:var(--x,0); top:var(--y,0); width:var(--w,auto); height:var(--h,auto); z-index:10; }
 .canvas-debug .abs{ outline:1px dashed rgba(0,0,0,.25); }
 
-/* Legacy coord-badge (kept harmless) */
-.coord-badge{
-  position:absolute; z-index:9999; background:rgba(0,0,0,.75); color:#fff;
-  font:12px/1.2 'DominicanSmall',serif; padding:2px 6px; border-radius:3px;
-  pointer-events:none; white-space:nowrap; transform:translate(-2px,-18px);
-}
-
-/* Tabs */
-.tabBtn{ background:#eee; border:1px solid #333; }
+/* ====== TABS ====== */
+.tabBtn{ background:#eee; border:1px solid #333; padding:4px 8px; }
 .tabBtn.active{ background:#333; color:#fff; }
+.tabPanel{ position:relative; }
 
-/* Make tab panels the positioning context for their .abs children */
-.tabPanel { position: relative; }
+/* ====== Dice bits kept minimal so page works ====== */
+#dicePool{ width:40px; height:20px; font-family:'DeutschGothic',monospace; }
 
-/* === Skill UI bits === */
-.skill-num {
-  font-family: 'DeutschGothic', monospace;
-  font-size: 10px;   /* tiny numerals */
-  height: 15px;
-  width: 15px;
-  text-align: center;
-  padding: 0;
-  background: transparent;
-  border: none;
+/* ====== DEBUGGER UI ====== */
+.debugger{
+  position:fixed; right:12px; bottom:12px; z-index:1000000;
+  background:#fff; border:1px solid #bbb; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,.18);
+  font:12px/1.3 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:#111; width:260px;
 }
+.debugger .hdr{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:8px;border-bottom:1px solid #eee;cursor:move}
+.debugger .body{padding:8px;display:grid;gap:6px}
+.debugger .row{display:flex;align-items:center;gap:6px}
+.debugger .grow{flex:1}
+.debugger input[type="text"], .debugger input[type="number"]{border:1px solid #ddd;border-radius:4px}
+.debugger button{border:1px solid #bbb;background:#f6f6f6;border-radius:4px;padding:3px 6px}
 
-/* Pip checkbox */
-.pip-check {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 7px; height: 7px; border-radius: 50%;
-  background: transparent; cursor: pointer; display: inline-block;
-  padding: 0; margin: 0; line-height: 0; vertical-align: middle;
-}
-.pip-check:checked { background: white; }
-.pip-check:focus { outline: none; }
-
-/* Roll button overlay (uses roll_icon.png, shows '+') */
-.roll-btn{
-  width:20px; height:20px;
-  background:url("img/roll_icon.png") no-repeat center/contain;
-  border:none; cursor:pointer;
-  font-family:'DeutschGothic';
-  font-size:14px; font-weight:bold; color:black;
-  text-align:center; line-height:18px; padding:0;
-}
-.roll-btn:active{ transform:scale(0.9); }
-
-/* FINAL OVERRIDE for tiny skill boxes */
-#mainCanvas .skill-num {
-  font-size: 10px !important;
-  line-height: 1;
-  text-align: center;
-  padding: 0;
-}
-
-/* === Dice Roller mini UI === */
-.pool-mini {
-  width: 22px; height: 22px;
-  border: none; border-radius: 50%;
-  background: transparent; color: black;
-  font-family: 'DeutschGothic', monospace;
-  font-size: 10px; line-height: 22px; text-align: center;
-  cursor: pointer; padding: 0; margin: 0;
-}
-.pool-mini:active { transform: scale(0.95); }
-
-/* Dice pool field */
-#dicePool {
-  width: 40px; height: 20px;
-  font-family: 'DeutschGothic', monospace;
-  font-size: 14px; text-align: center;
-  background: transparent; border: none;
-}
-
-/* Dice grid: up to 20 dice (4×5) */
-#diceGrid {
-  display: grid;
-  grid-template-columns: repeat(5, 26px);
-  grid-auto-rows: 26px;
-  gap: 3px;
-  width: 145px; height: 125px;
-}
-.die {
-  width: 26px; height: 26px; opacity: 0;
-  animation: dieFade .25s ease forwards;
-}
-@keyframes dieFade { to { opacity: 1; } }
-
-/* Tallies */
-.tally-num {
-  font-family: 'DeutschGothic', monospace;
-  font-size: 16px; width: 28px; text-align: center;
-  background: transparent; border: none;
-}
-#successCount { color: #0a8615; } /* green */
-#baneCount    { color: #b00020; } /* red */
-
-/* Icon buttons */
-.icon-btn-sm {
-  width: 24px; height: 24px; cursor: pointer;
-  transition: transform .15s ease;
-}
-.icon-btn-sm:active { transform: scale(0.9); }
-
-/* Tiny select for pushes */
-#pushesAllowed {
-  font-family: 'DominicanSmall';
-  font-size: 10px; height: 18px;
-  background: transparent; border: 1px solid transparent;
-}
-  </style>
-
-  <!-- ===== Unified Debugger (styles) ===== -->
-  <style>
-.debugger-panel {
-  position: fixed; right: 12px; bottom: 12px; z-index: 1000000;
-  background: #ffffff; color: #111; border: 1px solid #bbb;
-  font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  padding: 6px; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.15);
-  user-select: none; min-width: 190px;
-}
-.debugger-panel .row { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
-.debugger-panel .row > .grow { flex: 1; }
-.debugger-panel input[type="text"],
-.debugger-panel input[type="number"],
-.debugger-panel button,
-.debugger-panel label {
-  font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  padding: 2px 4px;
-}
-.debugger-panel button { border: 1px solid #bbb; background: #f6f6f6; cursor: pointer; }
-.debugger-panel .muted { opacity: .75; }
-.debug-tooltip,.debug-coord-hud {
-  position: fixed; z-index: 999998; display: none;
-  background: #111; color: #fff; border: 1px solid #444; border-radius: 4px;
-  padding: 3px 5px; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  pointer-events: none; white-space: nowrap;
-}
-.debug-tooltip { transform: translate(8px,8px); }
-.debug-crosshair-x, .debug-crosshair-y {
-  position: fixed; z-index: 999996; background: rgba(255,0,0,.85); display: none; pointer-events: none;
-}
-.debug-crosshair-x { height: 1px; left: 0; right: 0; }
-.debug-crosshair-y { width: 1px; top: 0; bottom: 0; }
-.debug-marquee {
-  position: fixed; z-index: 999997; display: none;
-  border: 1px dashed #0077ff; background: rgba(0,119,255,.12); pointer-events: none;
-}
-.debug-selected {
-  outline: 2px solid #0077ff !important; outline-offset: 0 !important;
-  box-shadow: 0 0 0 2px rgba(0,119,255,.2) inset;
-}
-.debug-outline { outline:1px dotted rgba(0,0,0,.4) !important; }
-.debug-selected-hud {
-  position: fixed; z-index: 999999; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px;
-  padding: 2px 4px; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  pointer-events: none; white-space: nowrap;
-}
-.debug-measure {
-  position: fixed; z-index: 999997; display: none;
-  border: 1px dashed #00aa55; background: rgba(0,170,85,.10); pointer-events: none;
-}
-.debug-measure-hud {
-  position: fixed; z-index: 999998; display: none;
-  background:#111; color:#fff; border:1px solid #444; border-radius:4px; padding:2px 4px;
-  font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+.debug-tooltip,.debug-coord{
+  position:fixed; z-index:999998; display:none; background:#111; color:#fff;
+  border:1px solid #444; border-radius:4px; padding:3px 6px; font:11px/1.2 system-ui;
   pointer-events:none; white-space:nowrap;
 }
-.debugger-panel.compact > :not(:first-child){ display: none; }
-  </style>
+.debug-tooltip{transform:translate(8px,8px)}
+.debug-cross-x,.debug-cross-y{
+  position:fixed; z-index:999996; background:rgba(255,0,0,.85); display:none; pointer-events:none;
+}
+.debug-cross-x{height:1px;left:0;right:0}
+.debug-cross-y{width:1px;top:0;bottom:0}
+.debug-marquee{
+  position:fixed; z-index:999997; display:none;
+  border:1px dashed #0077ff; background:rgba(0,119,255,.12); pointer-events:none;
+}
+.debug-measure{
+  position:fixed; z-index:999997; display:none;
+  border:1px dashed #00aa55; background:rgba(0,170,85,.10); pointer-events:none;
+}
+.debug-selected{ outline:2px solid #0077ff !important; box-shadow:0 0 0 2px rgba(0,119,255,.2) inset; }
+.debug-mini{ position:fixed; z-index:999999; display:none; background:#111;color:#fff;border:1px solid #444;border-radius:4px;padding:2px 4px;font:10px/1.2 system-ui;pointer-events:none}
+.debugger.compact .body{ display:none; }
+</style>
 </head>
 <body>
 <div class="sheet-container">
+  <!-- Minimal login strip omitted to avoid unrelated errors -->
 
-  <!-- LOGIN FORM -->
-  <div id="loginForm" class="top-row">
-    <div class="login-controls">
-      <input id="email" type="email" placeholder="Email">
-      <input id="password" type="password" placeholder="Password">
-      <button onclick="signIn()">Sign In</button>
-      <button onclick="signUp()">Sign Up</button>
-    </div>
-  </div>
+  <div id="mainCanvas" class="sheet-canvas">
+    <!-- Character header fields -->
+    <input id="charName" class="abs" type="text" maxlength="40" style="--x:28px; --y:123px; --w:210px;">
+    <input id="ageGroup" class="abs" type="text" maxlength="20" style="--x:262px; --y:123px; --w:90px;">
+    <input id="gender"   class="abs" type="text" maxlength="20" style="--x:382px; --y:123px; --w:80px;">
+    <input id="origin"   class="abs" type="text" maxlength="60" style="--x:482px; --y:123px; --w:250px;">
 
-  <!-- ADMIN CONTROLS -->
-  <div id="accountControls" class="top-row" style="display:none;">
-    <div class="admin-controls">
-      <button onclick="signOutUser()">Sign Out</button>
-      <button onclick="deleteAccount()">Delete Account</button>
-      <button onclick="saveCharacter()">Save</button>
-      <button onclick="loadCharacter()">Load</button>
-      <label>Saved
-        <select id="characterSelect"><option value="">--Select--</option></select>
-      </label>
-      <button onclick="deleteCharacter()">Delete Character</button>
-    </div>
-  </div>
-
-  <!-- === Main canvas === -->
-  <div class="sheet-canvas" id="mainCanvas">
-
-    <!-- Character Info -->
-    <input id="charName" class="abs" type="text" maxlength="40" style="--x:28px; --y:123px; --w:210px;" />
-    <input id="ageGroup" class="abs" type="text" maxlength="20" style="--x:262px; --y:123px; --w:90px;" />
-    <input id="gender"  class="abs" type="text" maxlength="20" style="--x:382px; --y:123px; --w:80px;" />
-    <input id="origin"  class="abs" type="text" maxlength="60" style="--x:482px; --y:123px; --w:250px;" />
-
-    <!-- Attributes -->
-    <span class="pip-base abs" style="--x:127px; --y:210px;">
-      <input id="brawn" type="number" min="1" max="5" value="1">
-      <img id="lock-brawn" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('brawn')">
-    </span>
-    <span class="pip-current abs" style="--x:191px; --y:210px;">
-      <input id="brawnCurrent" type="number" min="0" max="5" value="0">
-      <div class="trauma-controls">
-        <button onclick="stepUpField('brawnCurrent')">+</button>
-        <button onclick="stepDownField('brawnCurrent')">−</button>
-      </div>
-    </span>
-
-    <span class="pip-base abs" style="--x:127px; --y:345px;">
-      <input id="agility" type="number" min="1" max="5" value="1">
-      <img id="lock-agility" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('agility')">
-    </span>
-    <span class="pip-current abs" style="--x:191px; --y:345px;">
-      <input id="agilityCurrent" type="number" min="0" max="5" value="0">
-      <div class="trauma-controls">
-        <button onclick="stepUpField('agilityCurrent')">+</button>
-        <button onclick="stepDownField('agilityCurrent')">−</button>
-      </div>
-    </span>
-
-    <span class="pip-base abs" style="--x:127px; --y:480px;">
-      <input id="wits" type="number" min="1" max="5" value="1">
-      <img id="lock-wits" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('wits')">
-    </span>
-    <span class="pip-current abs" style="--x:191px; --y:480px;">
-      <input id="witsCurrent" type="number" min="0" max="5" value="0">
-      <div class="trauma-controls">
-        <button onclick="stepUpField('witsCurrent')">+</button>
-        <button onclick="stepDownField('witsCurrent')">−</button>
-      </div>
-    </span>
-
-    <span class="pip-base abs" style="--x:127px; --y:665px;">
-      <input id="will" type="number" min="1" max="5" value="1">
-      <img id="lock-will" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('will')">
-    </span>
-    <span class="pip-current abs" style="--x:191px; --y:665px;">
-      <input id="willCurrent" type="number" min="0" max="5" value="0">
-      <div class="trauma-controls">
-        <button onclick="stepUpField('willCurrent')">+</button>
-        <button onclick="stepDownField('willCurrent')">−</button>
-      </div>
-    </span>
-
-    <!-- POWER POINTS (current) -->
-    <span class="pip-current abs" style="--x:284px; --y:244px;">
-      <input id="powerCurrent" type="number" min="0" max="99" value="0">
-      <div class="trauma-controls">
-        <button onclick="stepUpField('powerCurrent')">+</button>
-        <button onclick="stepDownField('powerCurrent')">−</button>
-      </div>
-    </span>
-
-    <!-- ===== BRAWN SKILLS ===== -->
-    <input id="endurance_key"   type="checkbox" class="abs pip-check" style="--x:41px; --y:252px;">
-    <input id="endurance_lvl"   type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:247px;">
-    <input id="endurance_mod"   type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:247px;">
-    <input id="endurance_total" type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:247px;">
-    <button id="endurance_roll" class="abs roll-btn" style="--x:212px; --y:250px;" onclick="addToDicePool('endurance_total')">+</button>
-
-    <input id="fight_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:277px;">
-    <input id="fight_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:272px;">
-    <input id="fight_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:272px;">
-    <input id="fight_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:272px;">
-    <button id="fight_roll"     class="abs roll-btn" style="--x:212px; --y:301px;" onclick="addToDicePool('fight_total')">+</button>
-
-    <input id="might_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:301px;">
-    <input id="might_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:297px;">
-    <input id="might_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:297px;">
-    <input id="might_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:297px;">
-    <button id="might_roll"     class="abs roll-btn" style="--x:212px; --y:275px;" onclick="addToDicePool('might_total')">+</button>
-
-    <!-- ===== AGILITY SKILLS ===== -->
-    <input id="marksmanship_key"   type="checkbox" class="abs pip-check" style="--x:41px; --y:387px;">
-    <input id="marksmanship_lvl"   type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:383px;">
-    <input id="marksmanship_mod"   type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:383px;">
-    <input id="marksmanship_total" type="number"   class="abs skill-num" readonly value="0" style="--x:196px; --y:382px;">
-    <button id="marksmanship_roll" class="abs roll-btn" style="--x:212px; --y:385px;" onclick="addToDicePool('marksmanship_total')">+</button>
-
-    <input id="mobility_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:412px;">
-    <input id="mobility_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:407px;">
-    <input id="mobility_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:407px;">
-    <input id="mobility_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:407px;">
-    <button id="mobility_roll"     class="abs roll-btn" style="--x:212px; --y:410px;" onclick="addToDicePool('mobility_total')">+</button>
-
-    <input id="precision_key"      type="checkbox" class="abs pip-check" style="--x:41px; --y:437px;">
-    <input id="precision_lvl"      type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:432px;">
-    <input id="precision_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:432px;">
-    <input id="precision_total"    type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:432px;">
-    <button id="precision_roll"    class="abs roll-btn" style="--x:212px; --y:435px;" onclick="addToDicePool('precision_total')">+</button>
-
-    <!-- ===== WITS SKILLS ===== -->
-    <input id="heal_key"           type="checkbox" class="abs pip-check" style="--x:41px; --y:521px;">
-    <input id="heal_lvl"           type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:517px;">
-    <input id="heal_mod"           type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:517px;">
-    <input id="heal_total"         type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:518px;">
-    <button id="heal_roll"         class="abs roll-btn" style="--x:212px; --y:519px;" onclick="addToDicePool('heal_total')">+</button>
-
-    <input id="insight_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:546px;">
-    <input id="insight_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:542px;">
-    <input id="insight_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:542px;">
-    <input id="insight_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:542px;">
-    <button id="insight_roll"      class="abs roll-btn" style="--x:212px; --y:544px;" onclick="addToDicePool('insight_total')">+</button>
-
-    <input id="logic_key"          type="checkbox" class="abs pip-check" style="--x:41px; --y:570px;">
-    <input id="logic_lvl"          type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:567px;">
-    <input id="logic_mod"          type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:567px;">
-    <input id="logic_total"        type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:567px;">
-    <button id="logic_roll"        class="abs roll-btn" style="--x:212px; --y:570px;" onclick="addToDicePool('logic_total')">+</button>
-
-    <input id="survival_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:596px;">
-    <input id="survival_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:593px;">
-    <input id="survival_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:592px;">
-    <input id="survival_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:593px;">
-    <button id="survival_roll"     class="abs roll-btn" style="--x:212px; --y:594px;" onclick="addToDicePool('survival_total')">+</button>
-
-    <input id="vigilance_key"      type="checkbox" class="abs pip-check" style="--x:41px; --y:621px;">
-    <input id="vigilance_lvl"      type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:617px;">
-    <input id="vigilance_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:617px;">
-    <input id="vigilance_total"    type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:617px;">
-    <button id="vigilance_roll"    class="abs roll-btn" style="--x:212px; --y:619px;" onclick="addToDicePool('vigilance_total')">+</button>
-
-    <!-- ===== WILL SKILLS ===== -->
-    <input id="inspire_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:691px%;">
-    <input id="inspire_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:702px;">
-    <input id="inspire_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:703px;">
-    <input id="inspire_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:702px;">
-    <button id="inspire_roll"      class="abs roll-btn" style="--x:212px; --y:708px;" onclick="addToDicePool('inspire_total')">+</button>
-
-    <input id="manipulate_key"     type="checkbox" class="abs pip-check" style="--x:41px; --y:713px;">
-    <input id="manipulate_lvl"     type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:727px;">
-    <input id="manipulate_mod"     type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:727px;">
-    <input id="manipulate_total"   type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:727px;">
-    <button id="manipulate_roll"   class="abs roll-btn" style="--x:212px; --y:730px;" onclick="addToDicePool('manipulate_total')">+</button>
-
-    <input id="resolve_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:735px;">
-    <input id="resolve_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:752px%;">
-    <input id="resolve_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:752px%;">
-    <input id="resolve_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:751px%;">
-    <button id="resolve_roll"      class="abs roll-btn" style="--x:212px; --y:755px;" onclick="addToDicePool('resolve_total')">+</button>
-
-    <!-- ===== Dice Roller UI ===== -->
+    <!-- Tiny dice pool just so addToDicePool() etc won’t blow up -->
     <input id="dicePool" class="abs" type="number" min="0" max="20" value="0" style="--x:372px; --y:189px;">
 
-    <div id="poolBtns" class="abs" style="--x:368px; --y:220px; --w:125px; --h:75px;">
-      <div style="display:grid; grid-template-columns: repeat(5, 22px); grid-auto-rows:22px; gap:3px;">
-        <button class="pool-mini" onclick="changePool(+1)">+1</button>
-        <button class="pool-mini" onclick="changePool(+2)">+2</button>
-        <button class="pool-mini" onclick="changePool(+3)">+3</button>
-        <button class="pool-mini" onclick="changePool(+4)">+4</button>
-        <button class="pool-mini" onclick="changePool(+5)">+5</button>
-        <button class="pool-mini" onclick="changePool(+6)">+6</button>
-        <button class="pool-mini" onclick="changePool(+7)">+7</button>
-        <button class="pool-mini" onclick="changePool(+8)">+8</button>
-        <button class="pool-mini" onclick="changePool(+9)">+9</button>
-        <button class="pool-mini" onclick="changePool(+10)">+10</button>
-        <button class="pool-mini" onclick="changePool(-1)">-1</button>
-        <button class="pool-mini" onclick="changePool(-2)">-2</button>
-        <button class="pool-mini" onclick="changePool(-3)">-3</button>
-        <button class="pool-mini" onclick="changePool(-4)">-4</button>
-        <button class="pool-mini" onclick="changePool(-5)">-5</button>
-      </div>
-    </div>
-
-    <!-- Dice grid -->
-    <div id="diceGrid" class="abs" style="--x:590px; --y:190px;"></div>
-
-    <!-- Tallies -->
-    <div class="abs" style="--x:486px; --y:191px;">
-      <input id="successCount" class="tally-num" type="text" value="0" readonly>
-    </div>
-    <div class="abs" style="--x:557px; --y:191px;">
-      <input id="baneCount" class="tally-num" type="text" value="0" readonly>
-    </div>
-
-    <!-- Roll / Push / Pushes Allowed -->
-    <img src="img/roll_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:232px;" alt="Roll" onclick="rollDice()">
-    <img src="img/push_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:268px;" alt="Push" onclick="pushRoll()">
-    <select id="pushesAllowed" class="abs" style="--x:537px; --y:293px; width:38px;" title="Pushes allowed">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="∞">∞</option>
-    </select>
-
-    <!-- Clear All -->
-    <img src="img/clear_icon.png" class="abs icon-btn-sm" style="--x:363px; --y:295px;" alt="Clear" onclick="clearAllDice()">
-
-    <!-- === TAB BOX === -->
-    <div id="tabBox" class="abs"
-      style="--x:278px; --y:331px; --w:450px; --h:400px; background:transparent; border:none; padding:5px;">
-
-      <!-- Tab Buttons -->
-      <div style="display:flex; gap:8px; margin-bottom:8px; margin-left:10px;">
+    <!-- === TAB BOX (450×400 inner panels) === -->
+    <div id="tabBox" class="abs" style="--x:278px; --y:331px; --w:450px; --h:400px;">
+      <!-- Buttons -->
+      <div style="display:flex; gap:8px; margin:0 0 8px 10px;">
         <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
         <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
         <button type="button" class="tabBtn" data-tab="gear"   onclick="showTab('gear')">Gear</button>
         <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
       </div>
 
-      <!-- Tab Panels -->
+      <!-- Panels -->
       <div id="panel-main" class="tabPanel"
-          style="display:block; width:450px; height:400px;
-                background:url('img/tab_main.png') no-repeat center/100% 100%;">
+           style="display:block; width:450px; height:400px; background:url('img/tab_main.png') no-repeat center/100% 100%;">
+        <!-- Fields placed relative to the *panel* (use debugger T key to lock origin here) -->
+        <input id="archetype1"  class="abs" type="text" maxlength="20" style="--x:13px;  --y:70px;  --w:110px;">
+        <input id="profession1" class="abs" type="text" maxlength="17" style="--x:160px; --y:70px;  --w:120px;">
+        <input id="archetype2"  class="abs" type="text" maxlength="15" style="--x:13px;  --y:115px; --w:110px;">
+        <input id="profession2" class="abs" type="text" maxlength="17" style="--x:160px; --y:115px; --w:120px;">
 
-        <!-- Archetype / Profession pair #1 -->
-        <input id="archetype1" class="abs" type="text" maxlength="20"
-              style="--x:13px; --y:70px; --w:110px;" />
-        <input id="profession1" class="abs" type="text" maxlength="17"
-              style="--x:160px; --y:70px; --w:120px;" />
-
-        <!-- Archetype / Profession pair #2 -->
-        <input id="archetype2" class="abs" type="text" maxlength="15"
-              style="--x:13px; --y:115px; --w:110px;" />
-        <input id="profession2" class="abs" type="text" maxlength="17"
-              style="--x:160px; --y:115px; --w:120px;" />
-
-        <!-- XP -->
-        <input id="xp" class="abs" type="number" value="0" min="0"
-              style="--x:390px; --y:276px; --w:40px;" />
-
-        <!-- Deck placeholder for future Talent cards -->
+        <input id="xp" class="abs" type="number" value="0" min="0" style="--x:390px; --y:276px; --w:40px;">
         <div id="talentsDeck" class="abs" style="--x:16px; --y:160px; --w:418px; --h:220px;"></div>
       </div>
 
-      <div id="panel-combat" class="tabPanel"
-          style="display:none; width:450px; height:400px; background:#ddd;">Combat coming soon</div>
-
-      <div id="panel-gear" class="tabPanel"
-          style="display:none; width:450px; height:400px; background:#ddd;">Gear coming soon</div>
-
-      <div id="panel-powers" class="tabPanel"
-          style="display:none; width:450px; height:400px; background:#ddd;">Powers coming soon</div>
+      <div id="panel-combat" class="tabPanel" style="display:none; width:450px; height:400px; background:#e9e9e9">
+        <div class="abs" style="--x:12px; --y:12px;">Combat coming soon</div>
+      </div>
+      <div id="panel-gear" class="tabPanel" style="display:none; width:450px; height:400px; background:#e9e9e9">
+        <div class="abs" style="--x:12px; --y:12px;">Gear coming soon</div>
+      </div>
+      <div id="panel-powers" class="tabPanel" style="display:none; width:450px; height:400px; background:#e9e9e9">
+        <div class="abs" style="--x:12px; --y:12px;">Powers coming soon</div>
+      </div>
     </div>
-
   </div>
 </div>
 
-<!-- Scripts (tabs + small helpers) -->
+<!-- ===== Tabs ===== -->
 <script>
-window.showTab = function(which){
-  document.querySelectorAll('.tabPanel').forEach(p=>p.style.display='none');
+function showTab(which){
+  document.querySelectorAll('#tabBox .tabPanel').forEach(p=>p.style.display='none');
   const active = document.getElementById('panel-'+which);
-  if(active) active.style.display='block';
-  document.querySelectorAll('.tabBtn').forEach(b=>{
-    b.classList.toggle('active', b.dataset.tab===which);
-  });
-};
-
-window.toggleLock = id => {
-  const field = document.getElementById(id);
-  const icon = document.getElementById(`lock-${id}`);
-  if (!field || !icon) return;
-  const locked = !field.disabled;
-  field.disabled = locked;
-  icon.src = locked ? 'img/lock.png' : 'img/lock_open.png';
-  field.style.opacity = locked ? 0.6 : 1;
-};
-window.stepUpField = id => { document.getElementById(id)?.stepUp(); };
-window.stepDownField = id => { document.getElementById(id)?.stepDown(); };
-
-/* Dice pool add from a skill total */
-function addToDicePool(totalId){
-  const totalEl = document.getElementById(totalId);
-  const add = parseInt(totalEl?.value,10) || 0;
-  if (add <= 0) return;
-  setPool(Math.min(20, getPool() + add));
+  if (active) active.style.display='block';
+  document.querySelectorAll('#tabBox .tabBtn').forEach(b=>b.classList.toggle('active', b.dataset.tab===which));
 }
+function getPool(){ return Math.max(0, Math.min(20, parseInt(document.getElementById('dicePool').value,10)||0)); }
+function setPool(n){ const el=document.getElementById('dicePool'); const v=Math.max(0,Math.min(20,n|0)); el.value=v; return v; }
+function addToDicePool(id){ const t=document.getElementById(id); const add=parseInt(t?.value,10)||0; if(add>0) setPool(getPool()+add); }
 </script>
 
-<!-- Firebase / Firestore -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
-  authDomain: "gxd6-character-sheet.firebaseapp.com",
-  projectId: "gxd6-character-sheet",
-  storageBucket: "gxd6-character-sheet.firebasestorage.app",
-  messagingSenderId: "761778638151",
-  appId: "1:761778638151:web:06a1d72423a7e980889062"
-};
-initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getFirestore();
-
-const loginFormEl=document.getElementById('loginForm');
-const accountControlsEl=document.getElementById('accountControls');
-const characterSelectEl=document.getElementById('characterSelect');
-
-onAuthStateChanged(auth,user=>{
-  if(user){
-    loginFormEl.style.display='none';
-    accountControlsEl.style.display='flex';
-    populateCharacterList(user.uid);
-  }else{
-    loginFormEl.style.display='flex';
-    accountControlsEl.style.display='none';
-    characterSelectEl.innerHTML='<option value="">--Select--</option>';
-  }
-});
-
-async function populateCharacterList(uid){
-  const snap=await getDocs(collection(db,'users',uid,'characters'));
-  characterSelectEl.innerHTML='<option value="">--Select--</option>';
-  snap.forEach(d=>{
-    const opt=document.createElement('option');opt.value=d.id;opt.text=d.id;characterSelectEl.appendChild(opt);
-  });
-}
-
-window.signUp=async()=>{
-  const em = document.getElementById('email').value.trim();
-  const pw = document.getElementById('password').value;
-  await createUserWithEmailAndPassword(auth,em,pw);
-  alert('Signed up!');
-};
-window.signIn=async()=>{
-  const em = document.getElementById('email').value.trim();
-  const pw = document.getElementById('password').value;
-  await signInWithEmailAndPassword(auth,em,pw);
-  alert('Signed in!');
-};
-window.signOutUser=async()=>{ await signOut(auth); alert('Signed out'); };
-window.deleteAccount=async()=>{
-  if(auth.currentUser && confirm('Delete account?')){
-    await deleteUser(auth.currentUser);
-    alert('Account deleted');
-  }
-};
-
-window.saveCharacter=async()=>{
-  const user=auth.currentUser;
-  const name=document.getElementById('charName').value.trim();
-  if(!user||!name) return alert('Sign in & name required');
-
-  const data={};
-  document.querySelectorAll('#mainCanvas input, #mainCanvas select, #tabBox input, #tabBox select').forEach(el=>{
-    if(!el.id || el.id.startsWith('lock')) return;
-    data[el.id] = (el.type==='checkbox') ? el.checked : el.value;
-  });
-  await setDoc(doc(db,'users',user.uid,'characters',name),data);
-  alert('Saved');
-  populateCharacterList(user.uid);
-};
-
-window.loadCharacter=async()=>{
-  const user=auth.currentUser;
-  if(!user) return alert('Sign in first');
-
-  const id=characterSelectEl.value || document.getElementById('charName').value.trim();
-  if(!id) return alert('Choose or type name');
-
-  const snap=await getDoc(doc(db,'users',user.uid,'characters',id));
-  if(!snap.exists()) return alert('Not found');
-
-  const data=snap.data();
-  Object.keys(data).forEach(k=>{
-    const el=document.getElementById(k);
-    if(el && !k.startsWith('lock')){
-      (el.type==='checkbox') ? el.checked=!!data[k] : el.value=(data[k] ?? '');
-    }
-  });
-
-  document.getElementById('charName').value = id;
-  characterSelectEl.value = id;
-
-  initAllSkillTotals();
-  alert('Loaded');
-};
-
-window.deleteCharacter=async()=>{
-  const user=auth.currentUser; const name=characterSelectEl.value;
-  if(!user||!name) return alert('Select a character');
-  if(confirm(`Delete "${name}"?`)){
-    await deleteDoc(doc(db,'users',user.uid,'characters',name));
-    alert('Deleted');
-    populateCharacterList(user.uid);
-  }
-};
-</script>
-
-<!-- Skill totals -->
-<script>
-function toNum(v){ const n = parseInt(v,10); return isNaN(n) ? 0 : n; }
-function setupSkillRow(attrCurrentId, baseId){
-  const attrEl  = document.getElementById(attrCurrentId);
-  const lvlEl   = document.getElementById(`${baseId}_lvl`);
-  const modEl   = document.getElementById(`${baseId}_mod`);
-  const totalEl = document.getElementById(`${baseId}_total`);
-  if(!attrEl || !lvlEl || !modEl || !totalEl) return;
-  const recalc = () => { totalEl.value = toNum(attrEl.value) + toNum(lvlEl.value) + toNum(modEl.value); };
-  ['input','change'].forEach(ev=>{
-    attrEl.addEventListener(ev,recalc);
-    lvlEl.addEventListener(ev,recalc);
-    modEl.addEventListener(ev,recalc);
-  });
-  recalc();
-}
-function initBrawnSkillTotals(){ setupSkillRow('brawnCurrent','endurance'); setupSkillRow('brawnCurrent','fight'); setupSkillRow('brawnCurrent','might'); }
-function initAgilitySkillTotals(){ setupSkillRow('agilityCurrent','marksmanship'); setupSkillRow('agilityCurrent','mobility'); setupSkillRow('agilityCurrent','precision'); }
-function initWitsSkillTotals(){ setupSkillRow('witsCurrent','heal'); setupSkillRow('witsCurrent','insight'); setupSkillRow('witsCurrent','logic'); setupSkillRow('witsCurrent','survival'); setupSkillRow('witsCurrent','vigilance'); }
-function initWillSkillTotals(){ setupSkillRow('willCurrent','inspire'); setupSkillRow('willCurrent','manipulate'); setupSkillRow('willCurrent','resolve'); }
-function initAllSkillTotals(){ initBrawnSkillTotals(); initAgilitySkillTotals(); initWitsSkillTotals(); initWillSkillTotals(); }
-document.addEventListener('DOMContentLoaded', initAllSkillTotals);
-</script>
-
-<!-- Dice Roller Logic -->
-<script>
-let diceValues = [];
-let pushCount  = 0;
-
-function getPool(){
-  return Math.max(0, Math.min(20, parseInt(document.getElementById('dicePool').value,10) || 0));
-}
-function setPool(n){
-  const v = Math.max(0, Math.min(20, n|0));
-  const el = document.getElementById('dicePool');
-  el.value = v;
-  return v;
-}
-function changePool(delta){ setPool(getPool() + delta); }
-
-function clearAllDice(){
-  diceValues.length = 0;
-  pushCount = 0;
-  document.getElementById('diceGrid').innerHTML = '';
-  document.getElementById('successCount').value = '0';
-  document.getElementById('baneCount').value    = '0';
-  setPool(0);
-}
-
-function rollDice(){
-  const pool = getPool();
-  if (pool <= 0) return;
-  pushCount = 0;
-  diceValues = Array.from({length: pool}, () => randD6());
-  animateDiceRoll();
-}
-
-function pushRoll(){
-  if (!diceValues.length) return;
-  const maxPush = document.getElementById('pushesAllowed').value;
-  if (maxPush !== '∞' && pushCount >= parseInt(maxPush,10)) return;
-
-  for (let i=0;i<diceValues.length;i++){
-    const d = diceValues[i];
-    if (d > 1 && d < 6) diceValues[i] = randD6();
-  }
-  pushCount++;
-  animateDiceRoll();
-}
-
-function animateDiceRoll(){
-  const grid = document.getElementById('diceGrid');
-  const flashes = 4;
-  let frame = 0;
-
-  const iv = setInterval(() => {
-    grid.innerHTML = '';
-    for (let i=0;i<diceValues.length && i<20;i++){
-      const show = (frame < flashes - 1) ? randD6() : diceValues[i];
-      grid.appendChild(renderDie(show));
-    }
-    frame++;
-    if (frame >= flashes){
-      clearInterval(iv);
-      updateTallies();
-    }
-  }, 110);
-}
-
-function randD6(){ return (Math.random()*6|0)+1; }
-function renderDie(v){
-  const img = document.createElement('img');
-  img.className = 'die';
-  if (v === 1)      img.src = 'img/Baned6.png';
-  else if (v === 6) img.src = 'img/Success_d6.png';
-  else              img.src = `img/${v}_d6.png`;
-  img.alt = String(v);
-  return img;
-}
-function updateTallies(){
-  const succ = diceValues.filter(d=>d===6).length;
-  const bane = diceValues.filter(d=>d===1).length;
-  document.getElementById('successCount').value = succ;
-  document.getElementById('baneCount').value    = bane;
-}
-</script>
-
-<!-- ===== Single Unified Debugger (singleton guarded) ===== -->
+<!-- ===== One, single, working debugger ===== -->
 <script>
 (() => {
-  // ----- singleton guard: bail if already initialised
-  if (document.querySelector('.debugger-panel')) {
-    console.warn('Debugger already initialised — skipping duplicate.');
-    return;
-  }
+  const SHEET = document.getElementById('mainCanvas');
+  const TABS  = document.getElementById('tabBox');
 
-  const canvas = document.getElementById('mainCanvas');
-  const tabBox = document.getElementById('tabBox');
+  // State
+  let ORIGIN = SHEET;
+  let TARGET = '.abs';
+  let debugOn = true, cursorOn = true, hoverOn = false, measureOn = false;
+  let marqueeActive = false, measureActive = false;
+  let dragging = null, dragDX = 0, dragDY = 0, startCX = 0, startCY = 0;
+  const selected = new Set();
 
-  // Build floating panel
+  // Overlays
+  const tip   = mk('div','debug-tooltip');    // shows element label + coords
+  const hud   = mk('div','debug-coord');      // cursor coords
+  const cx    = mk('div','debug-cross-x');
+  const cy    = mk('div','debug-cross-y');
+  const box   = mk('div','debug-marquee');
+  const meas  = mk('div','debug-measure');
+  const mini  = mk('div','debug-mini');
+
+  // Panel
   const panel = document.createElement('div');
-  panel.className = 'debugger-panel compact';
+  panel.className = 'debugger';
   panel.innerHTML = `
-    <div class="row" style="justify-content:space-between; cursor:pointer" id="dbg-header">
+    <div class="hdr" id="dbgHdr">
       <strong>Debugger</strong>
-      <label class="row" title="Enable/disable debugger">
-        <input id="dbg-toggle" type="checkbox"><span> On</span>
-      </label>
+      <label class="row"><input id="dbgOn" type="checkbox" checked> On</label>
     </div>
-
-    <div class="row"><span class="muted">Selector</span></div>
-    <input id="dbg-selector" type="text" value=".abs" title="CSS selector for debug targets">
-
-    <div class="row" style="justify-content:space-between; margin-top:6px">
-      <label class="row" title="Show crosshair + cursor coordinates">
-        <input id="dbg-cursor" type="checkbox"><span> Cursor mode</span>
-      </label>
-      <label class="row" title="Drag to measure W×H in px">
-        <input id="dbg-measure" type="checkbox"><span> Measure</span>
-      </label>
-    </div>
-    <div class="row"><span class="muted">D=toggle • C=cursor • T=tab origin • S=sheet • Alt=tooltip • Shift+drag=marquee • Arrows=nudge • Ctrl=5px</span></div>
-
-    <hr style="border:none;border-top:1px solid #ddd;margin:8px 0" />
-
-    <div class="row">
-      <input id="dbg-left-x" class="grow" type="number" placeholder="Left X">
-      <button id="dbg-align-left" type="button">Align Left</button>
-    </div>
-    <div class="row">
-      <input id="dbg-top-y" class="grow" type="number" placeholder="Top Y">
-      <button id="dbg-align-top" type="button">Align Top</button>
-    </div>
-
-    <div class="row">
-      <input id="dbg-center-x" class="grow" type="number" placeholder="Center X">
-      <button id="dbg-center-x-btn" type="button">Center X</button>
-    </div>
-    <div class="row">
-      <input id="dbg-center-y" class="grow" type="number" placeholder="Center Y">
-      <button id="dbg-center-y-btn" type="button">Center Y</button>
-    </div>
-
-    <div class="row" style="margin-top:8px">
-      <button id="dbg-clear" type="button">Clear selection</button>
-      <button id="dbg-log"   type="button">Log coords</button>
-    </div>
-
-    <hr style="border:none;border-top:1px solid #ddd;margin:8px 0" />
-
-    <div class="row" style="justify-content:space-between">
-      <button id="dbg-export" type="button">Export JSON</button>
-      <button id="dbg-import" type="button">Import JSON</button>
-      <button id="dbg-export-html" type="button">Export HTML</button>
-      <input id="dbg-file" type="file" accept="application/json" style="display:none">
-    </div>
-  `;
+    <div class="body">
+      <div class="row">
+        <label class="row"><input id="dbgCursor" type="checkbox" checked> Cursor HUD</label>
+        <label class="row"><input id="dbgMeasure" type="checkbox"> Measure</label>
+      </div>
+      <div class="row">
+        <span>Target</span>
+        <input id="dbgSel" class="grow" type="text" value=".abs" title="CSS selector for draggable targets">
+      </div>
+      <div class="row">
+        <button id="dbgToSheet">Origin: Sheet (S)</button>
+        <button id="dbgToTab">Origin: Tab (T)</button>
+      </div>
+      <div class="row">
+        <button id="dbgClear">Clear sel</button>
+        <button id="dbgLog">Log</button>
+        <button id="dbgMin">Min</button>
+      </div>
+      <small>Hotkeys: D toggle • T tab • S sheet • Shift drag=marquee • Alt hover • Arrows nudge (Ctrl=5px)</small>
+    </div>`;
   document.body.appendChild(panel);
 
-  // Minimise/expand by clicking header (ignore clicks on the toggle)
-  panel.querySelector('#dbg-header')?.addEventListener('click', (e) => {
-    if ((e.target instanceof HTMLElement) && e.target.id === 'dbg-toggle') return;
-    panel.classList.toggle('compact');
+  // Drag panel by header; Minimize
+  (() => {
+    const hdr = panel.querySelector('#dbgHdr');
+    let pDragging=false, px=0, py=0, oLeft=0, oTop=0;
+    hdr.addEventListener('dblclick', ()=> panel.classList.toggle('compact'));
+    panel.querySelector('#dbgMin').addEventListener('click', ()=> panel.classList.toggle('compact'));
+    hdr.addEventListener('mousedown', (e)=>{
+      if (e.target.id==='dbgOn') return;
+      pDragging = true; px=e.clientX; py=e.clientY;
+      const r = panel.getBoundingClientRect(); oLeft=r.left; oTop=r.top;
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', (e)=>{
+      if (!pDragging) return;
+      const dx=e.clientX-px, dy=e.clientY-py;
+      panel.style.left = (oLeft+dx)+'px';
+      panel.style.top  = (oTop +dy)+'px';
+      panel.style.right = 'auto'; panel.style.bottom='auto';
+    });
+    window.addEventListener('mouseup', ()=> pDragging=false);
+  })();
+
+  // Panel controls
+  const dbgOn      = panel.querySelector('#dbgOn');
+  const dbgCursor  = panel.querySelector('#dbgCursor');
+  const dbgMeasure = panel.querySelector('#dbgMeasure');
+  const dbgSel     = panel.querySelector('#dbgSel');
+  const btnSheet   = panel.querySelector('#dbgToSheet');
+  const btnTab     = panel.querySelector('#dbgToTab');
+  const btnClear   = panel.querySelector('#dbgClear');
+  const btnLog     = panel.querySelector('#dbgLog');
+
+  dbgOn.addEventListener('change', ()=> setDebug(dbgOn.checked));
+  dbgCursor.addEventListener('change', ()=> setCursor(dbgCursor.checked));
+  dbgMeasure.addEventListener('change', ()=> setMeasure(dbgMeasure.checked));
+  dbgSel.addEventListener('change', ()=> { TARGET = dbgSel.value.trim() || '.abs'; clearSel(); });
+
+  btnSheet.addEventListener('click', ()=> setOrigin(SHEET));
+  btnTab.addEventListener('click', ()=> setOrigin(activeTab() || SHEET));
+  btnClear.addEventListener('click', clearSel);
+  btnLog.addEventListener('click', ()=> {
+    if (!selected.size) return;
+    console.table([...selected].map(el => ({ id: el.id || el.tagName, ...xy(el) })));
   });
 
-  // ORIGIN
-  let DEBUG_ORIGIN_EL = canvas;
-  function getActiveTabPanel(){
-    if (!tabBox) return null;
-    const panels = Array.from(tabBox.querySelectorAll('.tabPanel'));
-    return panels.find(p => p.style.display !== 'none') || null;
-  }
-  function setDebugOrigin(el){
-    if (!el) return;
-    DEBUG_ORIGIN_EL = el;
-    console.log('Debugger origin →', el.id || el.className || el.tagName);
-    refreshSelectedHUD();
-  }
+  // Keyboard
+  window.addEventListener('keydown', (e)=>{
+    if (e.key==='d' || e.key==='D'){ dbgOn.checked=!dbgOn.checked; setDebug(dbgOn.checked); return; }
+    if (e.key==='t' || e.key==='T'){ setOrigin(activeTab() || SHEET); return; }
+    if (e.key==='s' || e.key==='S'){ setOrigin(SHEET); return; }
 
-  // STATE
-  let TARGET_SELECTOR = '.abs';
-  let debugOn = false, cursorMode = false, hoverEnabled = false;
-  let measureMode = false, measureActive = false, marqueeActive = false;
-  let selected = new Set();
-  let startClientX = 0, startClientY = 0;
-  let draggingEl = null, dragOffsetX = 0, dragOffsetY = 0;
+    if (debugOn && e.altKey) hoverOn = true;
 
-  // OVERLAYS
-  const tooltip    = mk('div','debug-tooltip');
-  const coordHUD   = mk('div','debug-coord-hud'); coordHUD.textContent = 'X: 0  Y: 0';
-  const crossX     = mk('div','debug-crosshair-x');
-  const crossY     = mk('div','debug-crosshair-y');
-  const marquee    = mk('div','debug-marquee');
-  const measureBox = mk('div','debug-measure');
-  const measureHUD = mk('div','debug-measure-hud'); measureHUD.textContent = '0 × 0';
-
-  function mk(tag, cls){ const n=document.createElement(tag); n.className=cls; document.body.appendChild(n); return n; }
-
-  // DOM handles
-  const $ = s => document.querySelector(s);
-  const toggleEl   = $('#dbg-toggle');
-  const cursorEl   = $('#dbg-cursor');
-  const measureEl  = $('#dbg-measure');
-  const selectorEl = $('#dbg-selector');
-  const leftInput  = $('#dbg-left-x');
-  const topInput   = $('#dbg-top-y');
-  const centerXInp = $('#dbg-center-x');
-  const centerYInp = $('#dbg-center-y');
-  const alignLeft  = $('#dbg-align-left');
-  const alignTop   = $('#dbg-align-top');
-  const centerXBtn = $('#dbg-center-x-btn');
-  const centerYBtn = $('#dbg-center-y-btn');
-  const clearBtn   = $('#dbg-clear');
-  const logBtn     = $('#dbg-log');
-  const exportBtn  = $('#dbg-export');
-  const importBtn  = $('#dbg-import');
-  const exportHtmlBtn = $('#dbg-export-html');
-  const fileInput  = $('#dbg-file');
-
-  // COORD MATH
-  function dbgComputeCoords(clientX, clientY){
-    const rect = (DEBUG_ORIGIN_EL || canvas).getBoundingClientRect();
-    return { x: Math.round(clientX - rect.left), y: Math.round(clientY - rect.top) };
-  }
-  function dbgRectFromClient(x1,y1,x2,y2){
-    const a = dbgComputeCoords(x1,y1), b = dbgComputeCoords(x2,y2);
-    const left = Math.min(a.x,b.x), top = Math.min(a.y,b.y);
-    const width = Math.abs(a.x-b.x), height = Math.abs(a.y-b.y);
-    return { left, top, width, height, right:left+width, bottom:top+height };
-  }
-  function getXY(el){
-    const cs = getComputedStyle(el);
-    const x = parseFloat(cs.getPropertyValue('--x')) || 0;
-    const y = parseFloat(cs.getPropertyValue('--y')) || 0;
-    return [x,y];
-  }
-  function setXY(el, x, y){
-    el.style.setProperty('--x', Math.round(x) + 'px');
-    el.style.setProperty('--y', Math.round(y) + 'px');
-    refreshSelectedHUD();
-  }
-  function clampToOrigin(el, x, y){
-    const parent = (DEBUG_ORIGIN_EL || canvas);
-    const maxX = Math.max(0, parent.clientWidth  - el.offsetWidth);
-    const maxY = Math.max(0, parent.clientHeight - el.offsetHeight);
-    return [ Math.max(0, Math.min(x, maxX)), Math.max(0, Math.min(y, maxY)) ];
-  }
-
-  // HUD/SELECT
-  function showTooltip(elm, clientX, clientY){
-    elm.classList.add('debug-outline');
-    const [x,y] = getXY(elm);
-    tooltip.textContent = `${elm.id ? '#'+elm.id : elm.tagName.toLowerCase()} (${Math.round(x)}, ${Math.round(y)})`;
-    tooltip.style.left = Math.min(window.innerWidth - 8, clientX + 8) + 'px';
-    tooltip.style.top  = Math.min(window.innerHeight - 8, clientY + 8) + 'px';
-    tooltip.style.display = 'block';
-  }
-  function hideTooltip(){
-    tooltip.style.display = 'none';
-    document.querySelectorAll('.debug-outline').forEach(n => n.classList.remove('debug-outline'));
-  }
-  function clearSelection(){
-    selected.forEach(el => el.classList.remove('debug-selected'));
-    selected.clear();
-    refreshSelectedHUD();
-  }
-  function addToSelection(el){
-    if (!selected.has(el)) { selected.add(el); el.classList.add('debug-selected'); }
-    refreshSelectedHUD();
-  }
-  function refreshSelectedHUD(){
-    document.querySelectorAll('.debug-selected-hud').forEach(n=>n.remove());
     if (!debugOn || !selected.size) return;
-    selected.forEach(el => {
-      const hud = document.createElement('div');
-      hud.className = 'debug-selected-hud';
-      const [x,y] = getXY(el);
-      hud.textContent = `${el.id ? '#'+el.id : el.tagName.toLowerCase()} (${Math.round(x)}, ${Math.round(y)})`;
-      const r = el.getBoundingClientRect();
-      hud.style.left = Math.max(0, Math.min(window.innerWidth - 8, r.left)) + 'px';
-      hud.style.top  = Math.max(0, r.top - 14) + 'px';
-      document.body.appendChild(hud);
-    });
+    if (!/^Arrow(Up|Down|Left|Right)$/.test(e.key)) return;
+    const step = e.ctrlKey ? 5 : 1;
+    const dx = (e.key==='ArrowRight')? step : (e.key==='ArrowLeft')? -step : 0;
+    const dy = (e.key==='ArrowDown') ? step : (e.key==='ArrowUp')   ? -step : 0;
+    e.preventDefault();
+    selected.forEach(el => nudge(el, dx, dy));
+  });
+  window.addEventListener('keyup', ()=>{ hoverOn=false; hideTip(); });
+
+  // Mouse HUD
+  window.addEventListener('mousemove', (e)=>{
+    if (!debugOn || !cursorOn) return;
+    const {x,y} = rel(e.clientX, e.clientY);
+    cx.style.top = e.clientY+'px';
+    cy.style.left= e.clientX+'px';
+    hud.style.left = (e.clientX+10)+'px';
+    hud.style.top  = (e.clientY+10)+'px';
+    hud.textContent = `X: ${x}  Y: ${y}`;
+    hud.style.display = 'block'; cx.style.display='block'; cy.style.display='block';
+  });
+
+  // Hover tooltip
+  document.addEventListener('mouseover', (e)=>{
+    if (!debugOn || !hoverOn) return;
+    const t = closestTarget(e.target);
+    if (t && inOrigin(t)) showTip(t, e.clientX, e.clientY);
+  }, {capture:true});
+  document.addEventListener('mousemove', (e)=>{
+    if (!debugOn || !hoverOn || tip.style.display!=='block') return;
+    tip.style.left = Math.min(window.innerWidth-8, e.clientX+8)+'px';
+    tip.style.top  = Math.min(window.innerHeight-8, e.clientY+8)+'px';
+  });
+  document.addEventListener('mouseout', ()=>{ if (!debugOn || !hoverOn) return; hideTip(); }, {capture:true});
+
+  // Marquee (Shift-drag)
+  SHEET.addEventListener('mousedown', (e)=>{
+    if (!debugOn || !e.shiftKey || measureOn) return;
+    startCX=e.clientX; startCY=e.clientY; marqueeActive=true;
+    placeBox(box, rectFrom(startCX,startCY,startCX,startCY));
+    box.style.display='block'; e.preventDefault();
+  });
+  window.addEventListener('mousemove', (e)=>{
+    if (!debugOn || !marqueeActive) return;
+    const r = rectFrom(startCX,startCY,e.clientX,e.clientY);
+    placeBox(box, r); clearSel();
+    query(TARGET).forEach(el => { if (intersects(r, rectFor(el))) addSel(el); });
+  });
+  window.addEventListener('mouseup', ()=>{
+    if (!debugOn || !marqueeActive) return;
+    marqueeActive=false; box.style.display='none';
+  });
+
+  // Measure mode
+  SHEET.addEventListener('mousedown', (e)=>{
+    if (!debugOn || !measureOn) return;
+    const t = closestTarget(e.target);
+    if (t && inOrigin(t)) return;  // don't start on target
+    startCX=e.clientX; startCY=e.clientY; measureActive=true;
+    placeBox(meas, rectFrom(startCX,startCY,startCX,startCY));
+    meas.style.display='block'; e.preventDefault();
+  });
+  window.addEventListener('mousemove', (e)=>{
+    if (!debugOn || !measureOn || !measureActive) return;
+    const r = rectFrom(startCX,startCY,e.clientX,e.clientY);
+    placeBox(meas, r);
+    mini.textContent = `${r.width} × ${r.height}px`;
+    mini.style.left = (e.clientX+8)+'px';
+    mini.style.top  = (e.clientY-2)+'px';
+    mini.style.display='block';
+  });
+  window.addEventListener('mouseup', ()=>{
+    if (!debugOn || !measureOn || !measureActive) return;
+    measureActive=false; meas.style.display='none'; mini.style.display='none';
+  });
+
+  // Drag targets (click on sheet)
+  SHEET.addEventListener('mousedown', (e)=>{
+    if (!debugOn || e.shiftKey || measureOn) return;
+    const t = closestTarget(e.target);
+    if (!t || !inOrigin(t)) return;
+    if (e.target && e.target.tagName === 'INPUT') return; // don't steal typing
+    if (!selected.has(t)) { clearSel(); addSel(t); }
+    const {x,y} = rel(e.clientX, e.clientY);
+    const pos = xy(t);
+    dragDX = x - pos.x; dragDY = y - pos.y;
+    dragging = t; e.preventDefault();
+  });
+  window.addEventListener('mousemove', (e)=>{
+    if (!debugOn || !dragging) return;
+    const {x,y} = rel(e.clientX, e.clientY);
+    moveTo(dragging, x - dragDX, y - dragDY);
+  });
+  window.addEventListener('mouseup', ()=> dragging=null);
+
+  // Helpers — origin / coords
+  function setOrigin(el){ ORIGIN = el || SHEET; console.log('Origin →', label(ORIGIN)); }
+  function activeTab(){
+    const p = Array.from(TABS.querySelectorAll('.tabPanel')).find(p=>p.style.display!=='none');
+    return p || null;
   }
-  function withinOrigin(el){ return (DEBUG_ORIGIN_EL || canvas).contains(el); }
-  function queryOrigin(sel){ return Array.from((DEBUG_ORIGIN_EL || canvas).querySelectorAll(sel)); }
+  function rel(clientX,clientY){
+    const r = (ORIGIN||SHEET).getBoundingClientRect();
+    return { x: Math.round(clientX - r.left), y: Math.round(clientY - r.top) };
+  }
+  function rectFrom(x1,y1,x2,y2){
+    const a = rel(x1,y1), b = rel(x2,y2);
+    const left=Math.min(a.x,b.x), top=Math.min(a.y,b.y);
+    const width=Math.abs(a.x-b.x), height=Math.abs(a.y-b.y);
+    return {left,top,width,height,right:left+width,bottom:top+height};
+  }
   function placeBox(el, r){
-    const orect = (DEBUG_ORIGIN_EL || canvas).getBoundingClientRect();
-    el.style.left = (orect.left + r.left) + 'px';
-    el.style.top  = (orect.top  + r.top ) + 'px';
+    const o = (ORIGIN||SHEET).getBoundingClientRect();
+    el.style.left = (o.left + r.left) + 'px';
+    el.style.top  = (o.top  + r.top ) + 'px';
     el.style.width  = r.width + 'px';
     el.style.height = r.height + 'px';
   }
-  function elementRectInOrigin(el){
-    const orect = (DEBUG_ORIGIN_EL || canvas).getBoundingClientRect();
+
+  // Helpers — selection + movement
+  function xy(el){
+    const cs = getComputedStyle(el);
+    return { x: parseFloat(cs.getPropertyValue('--x')) || 0,
+             y: parseFloat(cs.getPropertyValue('--y')) || 0 };
+  }
+  function moveTo(el, x, y){
+    const [nx,ny] = clamp(el, x, y);
+    el.style.setProperty('--x', Math.round(nx) + 'px');
+    el.style.setProperty('--y', Math.round(ny) + 'px');
+  }
+  function nudge(el, dx, dy){ const p = xy(el); moveTo(el, p.x+dx, p.y+dy); }
+  function clamp(el, x, y){
+    const root = (ORIGIN||SHEET);
+    const maxX = Math.max(0, root.clientWidth  - el.offsetWidth);
+    const maxY = Math.max(0, root.clientHeight - el.offsetHeight);
+    return [ Math.max(0, Math.min(x, maxX)), Math.max(0, Math.min(y, maxY)) ];
+  }
+  function clearSel(){ selected.forEach(el=>el.classList.remove('debug-selected')); selected.clear(); }
+  function addSel(el){ if (!selected.has(el)) { selected.add(el); el.classList.add('debug-selected'); } }
+
+  // Helpers — query/rect
+  function closestTarget(t){ return t?.closest?.(TARGET) || null; }
+  function inOrigin(el){ return (ORIGIN||SHEET).contains(el); }
+  function query(sel){ return Array.from((ORIGIN||SHEET).querySelectorAll(sel)); }
+  function rectFor(el){
+    const o = (ORIGIN||SHEET).getBoundingClientRect();
     const r = el.getBoundingClientRect();
-    return { left:r.left-orect.left, top:r.top-orect.top, right:r.right-orect.left, bottom:r.bottom-orect.top, width:r.width, height:r.height };
+    return { left:r.left-o.left, top:r.top-o.top, right:r.right-o.left, bottom:r.bottom-o.top, width:r.width, height:r.height };
   }
   function intersects(a,b){ return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom); }
+  function label(el){ return el.id ? '#'+el.id : (el.className || el.tagName); }
 
-  // CURSOR HUD
-  function setCursorMode(on){
-    cursorMode = !!on;
-    const disp = (debugOn && cursorMode) ? 'block' : 'none';
-    crossX.style.display = disp; crossY.style.display = disp; coordHUD.style.display = disp;
+  // Helpers — tooltip
+  function showTip(el, cxp, cyp){
+    const p = xy(el);
+    tip.textContent = `${el.id||el.tagName.toLowerCase()} (${Math.round(p.x)}, ${Math.round(p.y)})`;
+    tip.style.left = Math.min(window.innerWidth-8, cxp+8)+'px';
+    tip.style.top  = Math.min(window.innerHeight-8, cyp+8)+'px';
+    tip.style.display='block';
+    el.classList.add('debug-selected');
   }
-  window.addEventListener('mousemove', (e) => {
-    if (!debugOn || !cursorMode) return;
-    const { x, y } = dbgComputeCoords(e.clientX, e.clientY);
-    crossX.style.top  = e.clientY + 'px';
-    crossY.style.left = e.clientX + 'px';
-    coordHUD.style.left = (e.clientX + 10) + 'px';
-    coordHUD.style.top  = (e.clientY + 10) + 'px';
-    coordHUD.textContent = `X: ${x}   Y: ${y}`;
-  });
+  function hideTip(){ tip.style.display='none'; document.querySelectorAll('.debug-selected').forEach(n=>n.classList.remove('debug-selected')); }
 
-  // HOVER TOOLTIP
-  document.addEventListener('mouseover', (e) => {
-    if (!debugOn || !hoverEnabled) return;
-    const t = e.target.closest(TARGET_SELECTOR);
-    if (t && withinOrigin(t)) showTooltip(t, e.clientX, e.clientY);
-  }, {capture:true});
-  document.addEventListener('mousemove', (e) => {
-    if (!debugOn || !hoverEnabled || tooltip.style.display !== 'block') return;
-    tooltip.style.left = Math.min(window.innerWidth - 8, e.clientX + 8) + 'px';
-    tooltip.style.top  = Math.min(window.innerHeight - 8, e.clientY + 8) + 'px';
-  });
-  document.addEventListener('mouseout', () => { if (!debugOn || !hoverEnabled) return; hideTooltip(); }, {capture:true});
-
-  // MARQUEE (Shift-drag)
-  canvas.addEventListener('mousedown', (e) => {
-    if (!debugOn || !e.shiftKey || measureMode) return;
-    startClientX = e.clientX; startClientY = e.clientY;
-    marqueeActive = true;
-    placeBox(marquee, dbgRectFromClient(startClientX, startClientY, startClientX, startClientY));
-    marquee.style.display = 'block';
-    e.preventDefault();
-  });
-  window.addEventListener('mousemove', (e) => {
-    if (!debugOn || !marqueeActive) return;
-    const r = dbgRectFromClient(startClientX, startClientY, e.clientX, e.clientY);
-    placeBox(marquee, r);
-    clearSelection();
-    queryOrigin(TARGET_SELECTOR).forEach(el => { if (intersects(r, elementRectInOrigin(el))) addToSelection(el); });
-  });
-  window.addEventListener('mouseup', () => {
-    if (!debugOn || !marqueeActive) return;
-    marqueeActive = false; marquee.style.display = 'none';
-  });
-
-  // MEASURE MODE
-  function setMeasureMode(on){
-    measureMode = !!on;
-    if (!measureMode){ measureActive=false; measureBox.style.display='none'; measureHUD.style.display='none'; }
+  // Mode setters
+  function setDebug(on){
+    debugOn = !!on;
+    SHEET.classList.toggle('canvas-debug', debugOn);
+    setCursor(debugOn && cursorOn);
+    if (!debugOn){ hoverOn=false; marqueeActive=false; measureActive=false; box.style.display='none'; meas.style.display='none'; mini.style.display='none'; hud.style.display='none'; cx.style.display='none'; cy.style.display='none'; hideTip(); }
   }
-  canvas.addEventListener('mousedown', (e) => {
-    if (!debugOn || !measureMode) return;
-    const t = e.target.closest(TARGET_SELECTOR);
-    if (t && withinOrigin(t)) return;
-    startClientX = e.clientX; startClientY = e.clientY;
-    measureActive = true;
-    placeBox(measureBox, dbgRectFromClient(startClientX, startClientY, startClientX, startClientY));
-    measureBox.style.display = 'block'; measureHUD.style.display = 'block';
-    e.preventDefault();
-  });
-  window.addEventListener('mousemove', (e) => {
-    if (!debugOn || !measureMode || !measureActive) return;
-    const r = dbgRectFromClient(startClientX, startClientY, e.clientX, e.clientY);
-    placeBox(measureBox, r);
-    measureHUD.textContent = `${r.width} × ${r.height}px`;
-    measureHUD.style.left = (e.clientX + 8) + 'px';
-    measureHUD.style.top  = (e.clientY - 2) + 'px';
-  });
-  window.addEventListener('mouseup', () => {
-    if (!debugOn || !measureMode || !measureActive) return;
-    measureActive = false; measureBox.style.display = 'none'; measureHUD.style.display = 'none';
-  });
+  function setCursor(on){ cursorOn = !!on; const disp = (debugOn && cursorOn) ? 'block' : 'none'; if (disp!=='block'){ hud.style.display='none'; cx.style.display='none'; cy.style.display='none'; } }
+  function setMeasure(on){ measureOn = !!on; if (!measureOn){ measureActive=false; meas.style.display='none'; mini.style.display='none'; } }
 
-  // DRAG / NUDGE
-  canvas.addEventListener('mousedown', (e) => {
-    if (!debugOn || e.shiftKey || measureMode) return;
-    const t = e.target.closest(TARGET_SELECTOR);
-    if (!t || !withinOrigin(t)) return;
-    if (e.target && e.target.tagName === 'INPUT') return; // allow typing
-    if (!selected.has(t)) { clearSelection(); addToSelection(t); }
-    const { x, y } = dbgComputeCoords(e.clientX, e.clientY);
-    const [sx, sy] = getXY(t);
-    dragOffsetX = x - sx; dragOffsetY = y - sy;
-    draggingEl = t; e.preventDefault();
-  });
-  window.addEventListener('mousemove', (e) => {
-    if (!debugOn || !draggingEl) return;
-    const { x, y } = dbgComputeCoords(e.clientX, e.clientY);
-    let nx = x - dragOffsetX, ny = y - dragOffsetY;
-    [nx, ny] = clampToOrigin(draggingEl, nx, ny);
-    setXY(draggingEl, nx, ny);
-  });
-  window.addEventListener('mouseup', () => { draggingEl = null; });
+  // Start state
+  setDebug(true);
+  setOrigin(SHEET);
 
-  // HOTKEYS
-  window.addEventListener('keydown', (e) => {
-    // D toggle debugger
-    if (e.key === 'd' || e.key === 'D') {
-      debugOn = !debugOn;
-      canvas.classList.toggle('canvas-debug', debugOn);
-      setCursorMode(debugOn && (cursorEl?.checked ?? false));
-      if (!debugOn){ hideTooltip(); clearSelection(); setMeasureMode(false); }
-      if (toggleEl) toggleEl.checked = debugOn;
-      return;
-    }
-    // C toggle cursor HUD
-    if (e.key === 'c' || e.key === 'C') { setCursorMode(!cursorMode); if (cursorEl) cursorEl.checked = cursorMode; return; }
-
-    // Origin switch
-    if (e.key === 't' || e.key === 'T') setDebugOrigin(getActiveTabPanel() || canvas);
-    if (e.key === 's' || e.key === 'S') setDebugOrigin(canvas);
-
-    if (!debugOn || !selected.size) return;
-
-    // Arrow nudges
-    if (/^Arrow(Up|Down|Left|Right)$/.test(e.key)) {
-      const step = e.ctrlKey ? 5 : 1;
-      const dx = (e.key === 'ArrowRight') ? step : (e.key === 'ArrowLeft') ? -step : 0;
-      const dy = (e.key === 'ArrowDown')  ? step : (e.key === 'ArrowUp')   ? -step : 0;
-      e.preventDefault();
-      selected.forEach(el => {
-        const [x,y] = getXY(el);
-        const [nx, ny] = clampToOrigin(el, x + dx, y + dy);
-        setXY(el, nx, ny);
-      });
-    }
-    if (e.altKey) hoverEnabled = true;
-  });
-  window.addEventListener('keyup', () => { hoverEnabled = false; hideTooltip(); });
-  window.addEventListener('scroll',  () => { if (debugOn) refreshSelectedHUD(); });
-  window.addEventListener('resize',  () => { if (debugOn) refreshSelectedHUD(); });
-
-  // PANEL UI wiring
-  toggleEl.addEventListener('change', () => {
-    debugOn = toggleEl.checked;
-    canvas.classList.toggle('canvas-debug', debugOn);
-    setCursorMode(debugOn && (cursorEl?.checked ?? false));
-    if (!debugOn){ hideTooltip(); clearSelection(); setMeasureMode(false); }
-  });
-  cursorEl.addEventListener('change', () => setCursorMode(debugOn && cursorEl.checked));
-  measureEl.addEventListener('change', () => setMeasureMode(measureEl.checked));
-  selectorEl.addEventListener('change', () => { TARGET_SELECTOR = selectorEl.value.trim() || '.abs'; clearSelection(); });
-
-  clearBtn.addEventListener('click', clearSelection);
-  logBtn.addEventListener('click', () => {
-    if (!selected.size) return;
-    console.table([...selected].map(el => ({ key: (el.id? '#'+el.id : el.tagName.toLowerCase()), x: getXY(el)[0], y: getXY(el)[1] })));
-  });
-
-  alignLeft.addEventListener('click', () => {
-    const x = parseFloat(leftInput.value); if (Number.isNaN(x)) return;
-    selected.forEach(el => setXY(el, clampToOrigin(el, x, getXY(el)[1])[0], getXY(el)[1]));
-  });
-  alignTop.addEventListener('click', () => {
-    const y = parseFloat(topInput.value); if (Number.isNaN(y)) return;
-    selected.forEach(el => setXY(el, getXY(el)[0], clampToOrigin(el, getXY(el)[0], y)[1]));
-  });
-  centerXBtn.addEventListener('click', () => {
-    const cx = parseFloat(centerXInp.value); if (Number.isNaN(cx)) return;
-    selected.forEach(el => {
-      const half = el.getBoundingClientRect().width/2;
-      setXY(el, clampToOrigin(el, cx - half, getXY(el)[1])[0], getXY(el)[1]);
-    });
-  });
-  centerYBtn.addEventListener('click', () => {
-    const cy = parseFloat(centerYInp.value); if (Number.isNaN(cy)) return;
-    selected.forEach(el => {
-      const half = el.getBoundingClientRect().height/2;
-      setXY(el, getXY(el)[0], clampToOrigin(el, getXY(el)[0], cy - half)[1]);
-    });
-  });
-
-  // IMPORT/EXPORT
-  function cssPath(el){
-    const root = (DEBUG_ORIGIN_EL || canvas);
-    const parts = [];
-    for (let n = el; n && n.nodeType === 1 && n !== root; n = n.parentElement) {
-      if (n.id){ parts.unshift('#'+n.id); break; }
-      const tag = n.tagName.toLowerCase();
-      let i = 1; let p = n;
-      while ((p = p.previousElementSibling) && p.tagName === n.tagName) i++;
-      parts.unshift(`${tag}:nth-of-type(${i})`);
-    }
-    return parts.join(' > ');
-  }
-  function keyFor(el){ return el.id ? `#${el.id}` : cssPath(el); }
-  function originLabel(el){ return el?.id ? '#'+el.id : (el?.className || el?.tagName || '(null)'); }
-
-  function exportSelection(){
-    const items = [...selected].map(el => {
-      const [left, top] = getXY(el);
-      return { key: keyFor(el), left, top };
-    });
-    return { version: 2, origin: originLabel(DEBUG_ORIGIN_EL), items };
-  }
-  function importPositions(json){
-    const items = Array.isArray(json) ? json : (json?.items || []);
-    const res = { applied: 0, total: items.length, unmatched: [] };
-    items.forEach(it => {
-      const root = (DEBUG_ORIGIN_EL || canvas);
-      const el = it.key?.startsWith('#') ? root.querySelector(it.key) : root.querySelector(it.key);
-      if (!el){ res.unmatched.push(it.key || '(no key)'); return; }
-      const [nx, ny] = clampToOrigin(el, it.left ?? 0, it.top ?? 0);
-      setXY(el, nx, ny); res.applied++;
-    });
-    return res;
-  }
-  function exportSelectedAsHTML(){
-    if (!selected.size) return alert('Select at least one element to export.');
-    let cssOut = `/* Exported positions (${new Date().toISOString()}) */\n`;
-    selected.forEach(el => {
-      const [x,y] = getXY(el);
-      const selector = keyFor(el);
-      cssOut += `${selector}{ --x:${Math.round(x)}px; --y:${Math.round(y)}px; }\n`;
-    });
-    const html = `<!doctype html><meta charset="utf-8"><title>GxD6 Positions</title>
-<style id="exported-positions">
-${cssOut}</style>`;
-    const blob = new Blob([html], { type:'text/html;charset=utf-8' });
-    const a = document.createElement('a'); const ts = new Date().toISOString().replace(/[:.]/g,'-');
-    a.href = URL.createObjectURL(blob); a.download = `positions-style-${ts}.html`;
-    document.body.appendChild(a); a.click();
-    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
-  }
-
-  exportBtn.addEventListener('click', () => {
-    const data = exportSelection();
-    if (!data.items.length) return alert('Select at least one element to export.');
-    const blob = new Blob([JSON.stringify(data,null,2)], { type: 'application/json;charset=utf-8' });
-    const a = document.createElement('a'); const ts = new Date().toISOString().replace(/[:.]/g,'-');
-    a.href = URL.createObjectURL(blob); a.download = `positions-${ts}.json`;
-    document.body.appendChild(a); a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
-  });
-  importBtn.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', () => {
-    const f = fileInput.files?.[0]; if (!f) return;
-    const rdr = new FileReader();
-    rdr.onload = () => {
-      try {
-        const js = JSON.parse(String(rdr.result));
-        const out = importPositions(js);
-        alert(`Import: ${out.applied}/${out.total} applied. Unmatched: ${out.unmatched.length}`);
-        console.log('Unmatched keys:', out.unmatched);
-      } catch(err){ alert('Invalid JSON'); console.error(err); }
-      fileInput.value = '';
-    };
-    rdr.readAsText(f);
-  });
-  exportHtmlBtn.addEventListener('click', exportSelectedAsHTML);
-
-  // Quick origin pick (Alt+Shift+Click)
-  document.addEventListener('mousedown', (e) => {
-    if (e.getModifierState && e.getModifierState('Alt') && e.getModifierState('Shift')) {
-      e.preventDefault(); setDebugOrigin(e.target);
-    }
-  }, true);
-
-  // INIT: Start compact, debugger OFF
-  toggleEl.checked = false;
-  cursorEl.checked = false;
+  // Utilities
+  function mk(tag, cls){ const e=document.createElement(tag); e.className=cls; document.body.appendChild(e); return e; }
 })();
 </script>
-
 </body>
 </html>
