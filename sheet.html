@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>GxD6 Character Sheet – Clean Build</title>
+<title>GxD6 Character Sheet – Clean Build (Fixed)</title>
 <style>
 /* ====== BASE ====== */
 @font-face { font-family:'DominicanSmall'; src:url('fonts/DOMISC__.TTF'); }
@@ -12,12 +12,28 @@
 html,body{margin:0;padding:0;background:#f5f5f5;color:#000;font-family:'DominicanSmall',Georgia,serif}
 .sheet-container{width:800px;min-width:800px;margin:20px auto}
 
-input,select,button{font-family:'Dominican',serif;font-size:14px;background:transparent;border:none;padding:2px 6px}
-input[type=number]{font-family:'DeutschGothic',monospace;text-align:center;-moz-appearance:textfield}
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button{ -webkit-appearance:none; }
-
-button{cursor:pointer}
+/* Scope the sheet’s control fonts so they DON'T affect the debugger */
+.sheet-canvas input,
+.sheet-canvas select,
+.sheet-canvas button,
+#tabBox input,
+#tabBox select,
+#tabBox button{
+  font-family:'Dominican',serif;
+  font-size:14px;
+  background:transparent;
+  border:none;
+  padding:2px 6px;
+}
+.sheet-canvas input[type=number],
+#tabBox input[type=number]{
+  font-family:'DeutschGothic',monospace;
+  text-align:center; -moz-appearance:textfield;
+}
+.sheet-canvas input[type=number]::-webkit-inner-spin-button,
+.sheet-canvas input[type=number]::-webkit-outer-spin-button,
+#tabBox input[type=number]::-webkit-inner-spin_button,
+#tabBox input[type=number]::-webkit-outer-spin_button{ -webkit-appearance:none; }
 
 .sheet-canvas{
   position:relative;width:800px;height:800px;
@@ -32,31 +48,35 @@ button{cursor:pointer}
 .tabBtn.active{ background:#333; color:#fff; }
 .tabPanel{ position:relative; }
 
-/* ====== Dice bits kept minimal so page works ====== */
-#dicePool{ width:40px; height:20px; font-family:'DeutschGothic',monospace; }
+/* ====== Dice tiny stub ====== */
+#dicePool{ width:40px;height:20px; font-family:'DeutschGothic',monospace; }
 
-/* ====== DEBUGGER UI ====== */
+/* ====== DEBUGGER UI (hard reset fonts here) ====== */
+.debugger, .debugger *{
+  font:12px/1.3 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif !important;
+  color:#111;
+}
 .debugger{
   position:fixed; right:12px; bottom:12px; z-index:1000000;
   background:#fff; border:1px solid #bbb; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,.18);
-  font:12px/1.3 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:#111; width:260px;
+  width:260px; user-select:none;
 }
 .debugger .hdr{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:8px;border-bottom:1px solid #eee;cursor:move}
 .debugger .body{padding:8px;display:grid;gap:6px}
 .debugger .row{display:flex;align-items:center;gap:6px}
 .debugger .grow{flex:1}
-.debugger input[type="text"], .debugger input[type="number"]{border:1px solid #ddd;border-radius:4px}
-.debugger button{border:1px solid #bbb;background:#f6f6f6;border-radius:4px;padding:3px 6px}
+.debugger input[type="text"], .debugger input[type="number"]{border:1px solid #ddd;border-radius:4px;padding:3px 6px}
+.debugger button{border:1px solid #bbb;background:#f6f6f6;border-radius:4px;padding:3px 6px;cursor:pointer}
+.debugger.compact .body{ display:none }
 
+/* ====== Debug overlays ====== */
 .debug-tooltip,.debug-coord{
   position:fixed; z-index:999998; display:none; background:#111; color:#fff;
   border:1px solid #444; border-radius:4px; padding:3px 6px; font:11px/1.2 system-ui;
   pointer-events:none; white-space:nowrap;
 }
 .debug-tooltip{transform:translate(8px,8px)}
-.debug-cross-x,.debug-cross-y{
-  position:fixed; z-index:999996; background:rgba(255,0,0,.85); display:none; pointer-events:none;
-}
+.debug-cross-x,.debug-cross-y{ position:fixed; z-index:999996; background:rgba(255,0,0,.85); display:none; pointer-events:none; }
 .debug-cross-x{height:1px;left:0;right:0}
 .debug-cross-y{width:1px;top:0;bottom:0}
 .debug-marquee{
@@ -69,15 +89,12 @@ button{cursor:pointer}
 }
 .debug-selected{ outline:2px solid #0077ff !important; box-shadow:0 0 0 2px rgba(0,119,255,.2) inset; }
 .debug-mini{ position:fixed; z-index:999999; display:none; background:#111;color:#fff;border:1px solid #444;border-radius:4px;padding:2px 4px;font:10px/1.2 system-ui;pointer-events:none}
-.debugger.compact .body{ display:none; }
 </style>
 </head>
 <body>
 <div class="sheet-container">
-  <!-- Minimal login strip omitted to avoid unrelated errors -->
-
   <div id="mainCanvas" class="sheet-canvas">
-    <!-- Character header fields -->
+    <!-- Header fields -->
     <input id="charName" class="abs" type="text" maxlength="40" style="--x:28px; --y:123px; --w:210px;">
     <input id="ageGroup" class="abs" type="text" maxlength="20" style="--x:262px; --y:123px; --w:90px;">
     <input id="gender"   class="abs" type="text" maxlength="20" style="--x:382px; --y:123px; --w:80px;">
@@ -86,9 +103,8 @@ button{cursor:pointer}
     <!-- Tiny dice pool just so addToDicePool() etc won’t blow up -->
     <input id="dicePool" class="abs" type="number" min="0" max="20" value="0" style="--x:372px; --y:189px;">
 
-    <!-- === TAB BOX (450×400 inner panels) === -->
+    <!-- === TAB BOX (450×400 panels) === -->
     <div id="tabBox" class="abs" style="--x:278px; --y:331px; --w:450px; --h:400px;">
-      <!-- Buttons -->
       <div style="display:flex; gap:8px; margin:0 0 8px 10px;">
         <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
         <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
@@ -96,10 +112,9 @@ button{cursor:pointer}
         <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
       </div>
 
-      <!-- Panels -->
       <div id="panel-main" class="tabPanel"
            style="display:block; width:450px; height:400px; background:url('img/tab_main.png') no-repeat center/100% 100%;">
-        <!-- Fields placed relative to the *panel* (use debugger T key to lock origin here) -->
+        <!-- These coords are relative to the *panel* (use debugger: press T to set origin) -->
         <input id="archetype1"  class="abs" type="text" maxlength="20" style="--x:13px;  --y:70px;  --w:110px;">
         <input id="profession1" class="abs" type="text" maxlength="17" style="--x:160px; --y:70px;  --w:120px;">
         <input id="archetype2"  class="abs" type="text" maxlength="15" style="--x:13px;  --y:115px; --w:110px;">
@@ -122,7 +137,7 @@ button{cursor:pointer}
   </div>
 </div>
 
-<!-- ===== Tabs ===== -->
+<!-- Tabs -->
 <script>
 function showTab(which){
   document.querySelectorAll('#tabBox .tabPanel').forEach(p=>p.style.display='none');
@@ -135,7 +150,7 @@ function setPool(n){ const el=document.getElementById('dicePool'); const v=Math.
 function addToDicePool(id){ const t=document.getElementById(id); const add=parseInt(t?.value,10)||0; if(add>0) setPool(getPool()+add); }
 </script>
 
-<!-- ===== One, single, working debugger ===== -->
+<!-- Single working debugger -->
 <script>
 (() => {
   const SHEET = document.getElementById('mainCanvas');
@@ -150,8 +165,8 @@ function addToDicePool(id){ const t=document.getElementById(id); const add=parse
   const selected = new Set();
 
   // Overlays
-  const tip   = mk('div','debug-tooltip');    // shows element label + coords
-  const hud   = mk('div','debug-coord');      // cursor coords
+  const tip   = mk('div','debug-tooltip');
+  const hud   = mk('div','debug-coord');
   const cx    = mk('div','debug-cross-x');
   const cy    = mk('div','debug-cross-y');
   const box   = mk('div','debug-marquee');
@@ -188,7 +203,7 @@ function addToDicePool(id){ const t=document.getElementById(id); const add=parse
     </div>`;
   document.body.appendChild(panel);
 
-  // Drag panel by header; Minimize
+  // Drag panel / Minimize
   (() => {
     const hdr = panel.querySelector('#dbgHdr');
     let pDragging=false, px=0, py=0, oLeft=0, oTop=0;
@@ -196,16 +211,14 @@ function addToDicePool(id){ const t=document.getElementById(id); const add=parse
     panel.querySelector('#dbgMin').addEventListener('click', ()=> panel.classList.toggle('compact'));
     hdr.addEventListener('mousedown', (e)=>{
       if (e.target.id==='dbgOn') return;
-      pDragging = true; px=e.clientX; py=e.clientY;
-      const r = panel.getBoundingClientRect(); oLeft=r.left; oTop=r.top;
-      e.preventDefault();
+      pDragging=true; px=e.clientX; py=e.clientY;
+      const r=panel.getBoundingClientRect(); oLeft=r.left; oTop=r.top; e.preventDefault();
     });
     window.addEventListener('mousemove', (e)=>{
       if (!pDragging) return;
       const dx=e.clientX-px, dy=e.clientY-py;
-      panel.style.left = (oLeft+dx)+'px';
-      panel.style.top  = (oTop +dy)+'px';
-      panel.style.right = 'auto'; panel.style.bottom='auto';
+      panel.style.left=(oLeft+dx)+'px'; panel.style.top=(oTop+dy)+'px';
+      panel.style.right='auto'; panel.style.bottom='auto';
     });
     window.addEventListener('mouseup', ()=> pDragging=false);
   })();
@@ -224,7 +237,6 @@ function addToDicePool(id){ const t=document.getElementById(id); const add=parse
   dbgCursor.addEventListener('change', ()=> setCursor(dbgCursor.checked));
   dbgMeasure.addEventListener('change', ()=> setMeasure(dbgMeasure.checked));
   dbgSel.addEventListener('change', ()=> { TARGET = dbgSel.value.trim() || '.abs'; clearSel(); });
-
   btnSheet.addEventListener('click', ()=> setOrigin(SHEET));
   btnTab.addEventListener('click', ()=> setOrigin(activeTab() || SHEET));
   btnClear.addEventListener('click', clearSel);
@@ -322,12 +334,15 @@ function addToDicePool(id){ const t=document.getElementById(id); const add=parse
     if (!debugOn || e.shiftKey || measureOn) return;
     const t = closestTarget(e.target);
     if (!t || !inOrigin(t)) return;
-    if (e.target && e.target.tagName === 'INPUT') return; // don't steal typing
+    /* IMPORTANT CHANGE:
+       We NO LONGER block dragging when the target is an INPUT.
+       This lets you click any field and drag it. If you need to type,
+       toggle the debugger off (press D). */
     if (!selected.has(t)) { clearSel(); addSel(t); }
     const {x,y} = rel(e.clientX, e.clientY);
     const pos = xy(t);
     dragDX = x - pos.x; dragDY = y - pos.y;
-    dragging = t; e.preventDefault();
+    dragging = t; e.preventDefault();  // prevent text-caret grab while repositioning
   });
   window.addEventListener('mousemove', (e)=>{
     if (!debugOn || !dragging) return;
@@ -409,9 +424,14 @@ function addToDicePool(id){ const t=document.getElementById(id); const add=parse
     debugOn = !!on;
     SHEET.classList.toggle('canvas-debug', debugOn);
     setCursor(debugOn && cursorOn);
-    if (!debugOn){ hoverOn=false; marqueeActive=false; measureActive=false; box.style.display='none'; meas.style.display='none'; mini.style.display='none'; hud.style.display='none'; cx.style.display='none'; cy.style.display='none'; hideTip(); }
+    if (!debugOn){
+      hoverOn=false; marqueeActive=false; measureActive=false;
+      box.style.display='none'; meas.style.display='none'; mini.style.display='none';
+      hud.style.display='none'; cx.style.display='none'; cy.style.display='none';
+      hideTip();
+    }
   }
-  function setCursor(on){ cursorOn = !!on; const disp = (debugOn && cursorOn) ? 'block' : 'none'; if (disp!=='block'){ hud.style.display='none'; cx.style.display='none'; cy.style.display='none'; } }
+  function setCursor(on){ cursorOn = !!on; if (!(debugOn && cursorOn)){ hud.style.display='none'; cx.style.display='none'; cy.style.display='none'; } }
   function setMeasure(on){ measureOn = !!on; if (!measureOn){ measureActive=false; meas.style.display='none'; mini.style.display='none'; } }
 
   // Start state
