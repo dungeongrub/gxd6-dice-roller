@@ -239,8 +239,8 @@ Nothing else in your sheet is removed by this block.
   /* Size this to the pixel dimensions of img/tab_main.png */
   .main-tab-box {
     position: relative; /* local positioning context for overlays */
-    width: 800px;       /* ← set to your tab_main.png width */
-    height: 600px;      /* ← set to your tab_main.png height */
+    width: 400px;       /* ← set to your tab_main.png width */
+    height: 300px;      /* ← set to your tab_main.png height */
     background: url('img/tab_main.png') no-repeat 0 0 / contain;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
@@ -259,15 +259,15 @@ Nothing else in your sheet is removed by this block.
 
   .overlay-field input[type="text"],
   .overlay-field input[type="number"]{
-    font: 12px/1.2 "DominicanSmall", Georgia, serif;
+    font: 12px/1.2 "Dominican", Georgia, serif;
     padding: 2px 6px; border: 1px solid #7aa9d6; border-radius: 3px;
-    width: 220px; /* tweak per label length */
+    width: 120px; /* tweak per label length */
   }
 
   /* A tiny pip control for XP (optional; still draggable as a block) */
   .pip-wrap{ display:flex; align-items:center; gap:6px; }
   .pip-label{ font: 12px/1.2 "DominicanSmall", Georgia, serif; padding:2px 4px; }
-  .pip-input{ width: 56px; text-align:center; border:1px solid #7aa9d6; border-radius:3px; padding:2px 4px; }
+  .pip-input{ width: 30px; text-align:center; border:1px solid #7aa9d6; border-radius:3px; padding:2px 4px; }
   .pip-btn{ border:1px solid #7aa9d6; border-radius:3px; padding:0 6px; cursor:pointer; }
 
   /* Vertical stack for the tickboxes block */
@@ -582,7 +582,7 @@ Nothing else in your sheet is removed by this block.
           <input id="profession2" type="text" placeholder="" />
         </div>
         <div style="margin-top:14px; display:flex; justify-content:flex-end;">
-          <input id="xp" type="number" value="0" style="width:40px;" />
+          <input id="xp" type="number" value="0" style="width:30px;" />
         </div>
 		
 	<div id="main-tab-box" class="main-tab-box">
