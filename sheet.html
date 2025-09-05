@@ -138,7 +138,7 @@ button{
   border: none;
 }
 
-/* Pip checkbox */
+/* Pip checkbox (skill “key” dots) */
 .pip-check {
   appearance: none;
   -webkit-appearance: none;
@@ -224,36 +224,63 @@ button{
   background: transparent; border: 1px solid transparent;
 }
   </style>
-  
-<style>
-/* Container holding background image */
+
+  <!-- Tab Main overlay + independent ticks -->
+  <style>
+    /* Fixed 450px background region for the tab image */
     .tab-main-wrap { position: relative; width: 450px; margin: 0 auto; }
     #tabMainBg { display:block; width:100%; height:auto; pointer-events:none; user-select:none; }
 
     /* Fields (draggable via debugger) */
     .abs { position:absolute; left:var(--x,0); top:var(--y,0); }
 
+    /* Make overlay wrappers hug content (no big panels) */
     .overlay-field { background: transparent; display: inline-block; width: max-content; height: max-content; padding: 0; }
     .overlay-field input,
     .overlay-field .pip-input,
     .overlay-field .pip-btn { background: #cfe8ff; }
-    /* keep tick labels tight to content */
-    .tick-col label { background: transparent; padding: 0; }
-    .tick-col label span { background:#cfe8ff; padding:1px 3px; border:1px solid #7aa9d6; border-radius:3px; }
-    /* optional: show outlines only when debugger is on */
-    .canvas-debug .overlay-field { outline:1px dashed rgba(0,0,0,.25); }
 
-    /* Specific field sizes */
+    /* Specific field sizes you set earlier */
     #archetype1, #archetype2 { width:100px; height:20px; }
     #profession1, #profession2 { width:140px; height:20px; }
 
     .pip-wrap{ display:flex; align-items:center; gap:6px; }
-    .pip-label{ font:12px/1.2 "DominicanSmall", Georgia, serif; padding:2px 4px; }
     .pip-input{ width:36px; text-align:center; border:1px solid #7aa9d6; border-radius:3px; padding:2px 4px; height:20px; }
     .pip-btn{ border:1px solid #7aa9d6; border-radius:3px; padding:0 6px; cursor:pointer; height:20px; }
 
-    .tick-col{ display:flex; flex-direction:column; gap:8px; }
-    .tick-col label{ display:flex; align-items:center; gap:6px; font:12px/1.2 "DominicanSmall", Georgia, serif; }
+    /* Independent tick styling (no labels; each one draggable) */
+    #tick1, #tick2, #tick3, #tick4 {
+      appearance:none; -webkit-appearance:none;
+      width:14px; height:14px; margin:0;
+      border:1px solid #7aa9d6; border-radius:2px;
+      background:#cfe8ff; cursor:pointer;
+    }
+    #tick1:checked, #tick2:checked, #tick3:checked, #tick4:checked { background:#9fd2ff; }
+	
+	/* XP number looks like tiny skill boxes but wide enough for 2 digits */
+.xp-num {
+  width: 24px;        /* fits “99” comfortably at 10px font */
+  height: 15px;       /* same as .skill-num */
+  text-align: center; /* redundant (same as .skill-num), kept for clarity */
+}
+
+/* XP +/- buttons styled like .trauma-controls button, but standalone */
+.xp-btn {
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+  background: #e0e0e0;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.xp-btn:active { transform: scale(0.95); }
+
+
+    /* Only show outlines when debugger is on */
+    .canvas-debug .overlay-field { outline:1px dashed rgba(0,0,0,.25); }
   </style>
 
   <!-- ===== Unified Debugger (styles) ===== -->
@@ -523,7 +550,7 @@ button{
     <!-- Dice grid -->
     <div id="diceGrid" class="abs" style="--x:590px; --y:190px;"></div>
 
-    <!-- Tallies at your requested coordinates -->
+    <!-- Tallies -->
     <div class="abs" style="--x:486px; --y:191px;">
       <input id="successCount" class="tally-num" type="text" value="0" readonly>
     </div>
@@ -531,7 +558,7 @@ button{
       <input id="baneCount" class="tally-num" type="text" value="0" readonly>
     </div>
 
-    <!-- Roll / Push / Pushes Allowed at your requested coordinates -->
+    <!-- Roll / Push / Pushes Allowed -->
     <img src="img/roll_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:232px;" alt="Roll" onclick="rollDice()">
     <img src="img/push_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:268px;" alt="Push" onclick="pushRoll()">
     <select id="pushesAllowed" class="abs" style="--x:537px; --y:293px; width:38px;" title="Pushes allowed">
@@ -553,45 +580,42 @@ button{
         <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
       </div>
 
-    <!-- panel-main -->
-     <div id="panel-main" class="tabPanel" style="display:block;">
-  <!-- Fixed-width wrapper; background image is NOT draggable -->
-  <div class="tab-main-wrap" id="tabMainWrap">
-    <img id="tabMainBg" src="img/tab_main.png" alt="Main Tab Background">
+      <!-- panel-main -->
+      <div id="panel-main" class="tabPanel" style="display:block;">
+        <!-- Fixed-width wrapper; background image is NOT draggable -->
+        <div class="tab-main-wrap" id="tabMainWrap">
+          <img id="tabMainBg" src="img/tab_main.png" alt="Main Tab Background">
 
-    <div class="abs overlay-field" style="--x:7px; --y:25px;" data-dbg="Archetype 1">
-      <input id="archetype1" type="text" placeholder="Archetype 1">
-    </div>
+          <div class="abs overlay-field" style="--x:7px; --y:25px;" data-dbg="Archetype 1">
+            <input id="archetype1" type="text" placeholder="Archetype 1">
+          </div>
 
-    <div class="abs overlay-field" style="--x:7px; --y:72px;" data-dbg="Archetype 2">
-      <input id="archetype2" type="text" placeholder="Archetype 2">
-    </div>
+          <div class="abs overlay-field" style="--x:7px; --y:72px;" data-dbg="Archetype 2">
+            <input id="archetype2" type="text" placeholder="Archetype 2">
+          </div>
 
-    <div class="abs overlay-field" style="--x:125px; --y:25px;" data-dbg="Profession 1">
-      <input id="profession1" type="text" placeholder="Profession 1">
-    </div>
+          <div class="abs overlay-field" style="--x:125px; --y:25px;" data-dbg="Profession 1">
+            <input id="profession1" type="text" placeholder="Profession 1">
+          </div>
 
-    <div class="abs overlay-field" style="--x:125px; --y:72px;" data-dbg="Profession 2">
-      <input id="profession2" type="text" placeholder="Profession 2">
-    </div>
-    
-    <div class="abs overlay-field" style="--x:210px; --y:54px;" data-dbg="XP">
-      <div class="pip-wrap">
-        <button type="button" class="pip-btn" onclick="(i=>i.value=Math.max(0,(parseInt(i.value||'0',10)-1)))(document.getElementById('xp'))">−</button>
-        <input id="xp" class="pip-input" type="number" inputmode="numeric" min="0" step="1" value="0">
-        <button type="button" class="pip-btn" onclick="(i=>i.value=(parseInt(i.value||'0',10)+1))(document.getElementById('xp'))">+</button>
+          <div class="abs overlay-field" style="--x:125px; --y:72px;" data-dbg="Profession 2">
+            <input id="profession2" type="text" placeholder="Profession 2">
+          </div>
+
+		<!-- Independent XP controls (drag each one anywhere with the debugger) -->
+		<button id="xpMinus" class="abs xp-btn" style="--x:210px; --y:54px;"  type="button" title="XP −1" onclick="stepXp(-1)">−</button>
+		<input  id="xp"      class="abs skill-num xp-num" style="--x:232px; --y:55px;" type="number" inputmode="numeric" min="0" step="1" value="0" title="XP">
+		<button id="xpPlus"  class="abs xp-btn" style="--x:260px; --y:54px;"  type="button" title="XP +1" onclick="stepXp(+1)">+</button>
+		</div>
+			</div>
+
+          <!-- Independent tick boxes (draggable; no labels) -->
+          <input id="tick1" type="checkbox" class="abs" style="--x:360px; --y:72px;">
+          <input id="tick2" type="checkbox" class="abs" style="--x:360px; --y:92px;">
+          <input id="tick3" type="checkbox" class="abs" style="--x:360px; --y:112px;">
+          <input id="tick4" type="checkbox" class="abs" style="--x:360px; --y:132px;">
+        </div>
       </div>
-    </div>
-
-    <div class="abs overlay-field tick-col" style="--x:360px; --y:72px;" data-dbg="Ticks">
-      <label><input id="tick1" type="checkbox"> <span>Tick 1</span></label>
-      <label><input id="tick2" type="checkbox"> <span>Tick 2</span></label>
-      <label><input id="tick3" type="checkbox"> <span>Tick 3</span></label>
-      <label><input id="tick4" type="checkbox"> <span>Tick 4</span></label>
-    </div>
-  </div>
-</div>
-
 
       <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
       <div id="panel-gear"   class="tabPanel" style="display:none;">Gear coming soon</div>
@@ -632,6 +656,15 @@ function addToDicePool(totalId){
   setPool(Math.min(20, getPool() + add));
 }
 </script>
+
+<script>
+function stepXp(delta){
+  const el = document.getElementById('xp');
+  const cur = parseInt(el.value || '0', 10) || 0;
+  el.value = Math.max(0, cur + delta);
+}
+</script>
+
 
 <!-- Firebase / Firestore -->
 <script type="module">
@@ -1352,11 +1385,10 @@ ${css}
 
   window.addEventListener('keydown', e => {
     if (!debugOn || !selected.size) return;
-    const key = e.key;
-    if (!/^Arrow(Up|Down|Left|Right)$/.test(key)) return;
+    if (!/^Arrow(Up|Down|Left|Right)$/.test(e.key)) return;
     const step = e.ctrlKey ? 5 : 1;
-    const dx = (key === 'ArrowRight') ? step : (key === 'ArrowLeft') ? -step : 0;
-    const dy = (key === 'ArrowDown')  ? step : (key === 'ArrowUp')   ? -step : 0;
+    const dx = (e.key === 'ArrowRight') ? step : (e.key === 'ArrowLeft') ? -step : 0;
+    const dy = (e.key === 'ArrowDown')  ? step : (e.key === 'ArrowUp')   ? -step : 0;
     e.preventDefault();
     selected.forEach(el => nudge(el, dx, dy));
   });
