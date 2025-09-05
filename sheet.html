@@ -238,7 +238,7 @@ button{
     .overlay-field { background: transparent; display: inline-block; width: max-content; height: max-content; padding: 0; }
     .overlay-field input,
     .overlay-field .pip-input,
-    .overlay-field .pip-btn { background: #cfe8ff; }
+    .overlay-field .pip-btn { background: transparent; }
 
     /* Specific field sizes you set earlier */
     #archetype1, #archetype2 { width:100px; height:20px; }
@@ -246,16 +246,25 @@ button{
 
     .pip-wrap{ display:flex; align-items:center; gap:6px; }
     .pip-input{ width:36px; text-align:center; border:1px solid #7aa9d6; border-radius:3px; padding:2px 4px; height:20px; }
-    .pip-btn{ border:1px solid #7aa9d6; border-radius:3px; padding:0 6px; cursor:pointer; height:20px; }
+    .pip-btn{ border:n solid #7aa9d6; border-radius:3px; padding:0 6px; cursor:pointer; height:20px; }
 
     /* Independent tick styling (no labels; each one draggable) */
     #tick1, #tick2, #tick3, #tick4 {
       appearance:none; -webkit-appearance:none;
-      width:14px; height:14px; margin:0;
-      border:1px solid #7aa9d6; border-radius:2px;
-      background:#cfe8ff; cursor:pointer;
+      width:12px; height:12px;
+      border:1px solid #000; border-radius:2px;
+      background:transparent; cursor:pointer;
+	    margin: 0; padding: 0; position: relative;
     }
-    #tick1:checked, #tick2:checked, #tick3:checked, #tick4:checked { background:#9fd2ff; }
+	#tick1:checked::after, #tick2:checked::after, #tick3:checked::after, #tick4:checked::after {
+  content: "×";
+  position: absolute;
+  top: -2px;   /* adjust if the cross looks off-center */
+  left: 1px;
+  font-size: 14px;
+  line-height: 12px;
+  color: #000;
+}
 	
 	/* XP number looks like tiny skill boxes but wide enough for 2 digits */
 .xp-num {
@@ -271,7 +280,7 @@ button{
   font-size: 12px;
   font-weight: bold;
   line-height: 1;
-  background: #e0e0e0;
+  background: transparent;
   border: none;
   cursor: pointer;
   padding: 0;
