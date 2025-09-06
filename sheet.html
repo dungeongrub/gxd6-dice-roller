@@ -572,10 +572,19 @@ button{
 
         </div><!-- /#tabMainWrap -->
 
-        <!-- TALENTS live inside the Main panel (grid is half-width columns via CSS) -->
-        <section id="talentsPanel" class="talents-panel" aria-label="Character Talents" data-columns="2">
-          <!-- Cards appear here via drag-drop or import -->
-        </section>
+<!-- Talents button + fixed-size drop zone (inside Main panel) -->
+<div class="talents-area">
+  <div class="talents-header">
+    <button id="openTalentRepo" type="button" class="talent-repo-toggle" title="Open Talent Repository">Talents</button>
+  </div>
+
+  <div class="talents-dropwrap">
+    <!-- Fixed-size inner panel (450×250) -->
+    <section id="talentsPanel" class="talents-panel" aria-label="Character Talents" data-columns="2">
+      <!-- Cards will appear here (drag from repo, or add inline) -->
+    </section>
+  </div>
+</div>
       </div><!-- /#panel-main -->
 
       <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
@@ -587,7 +596,6 @@ button{
 </div><!-- /.sheet-container -->
 
 <!-- Repository Drawer toggle & container (outside of tabs is fine) -->
-<button id="openTalentRepo" type="button" class="talent-repo-toggle" title="Open Talent Repository">Talents</button>
 <aside id="talentRepo" class="talent-repo hidden" aria-label="Talent Repository">
   <div class="repo-header">
     <span>Talent Repository</span>
@@ -647,6 +655,65 @@ button{
 
   .hidden{display:none}
 </style>
+
+<style>
+  /* Talents area layout (inside Main tab) */
+  .talents-area{
+    width: 450px;
+    margin: 10px auto 0 auto;   /* centered inside panel-main */
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .talents-header{
+    display: flex;
+    justify-content: flex-start; /* button sits just above the panel, left aligned */
+  }
+  /* Reuse the existing .talent-repo-toggle look but remove absolute positioning for in-flow use */
+  #panel-main .talent-repo-toggle{
+    position: static;
+    margin: 0;
+    padding: .35rem .6rem;
+    border: 1px solid #0002;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 1px 6px #0002;
+    font-family: DominicanSmall, Georgia, serif;
+    cursor: pointer;
+  }
+
+  /* Fixed-size drop container with subtle boundary */
+  .talents-dropwrap{
+    width: 450px;
+    height: 250px;               /* <- requested height */
+    border: 1px dashed #0003;
+    border-radius: 10px;
+    padding: 6px;
+    background: transparent;
+    overflow: auto;              /* scroll if cards exceed height */
+  }
+
+  /* The grid INSIDE the fixed wrapper */
+  .talents-panel{
+    width: 100%;
+    min-height: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* two columns => “half the width of the panel space” */
+    grid-auto-rows: min-content;
+    gap: 8px;
+    padding: 0;
+    background: transparent;
+  }
+  .talents-panel.drag-over{ outline: 2px dashed #6aa; outline-offset: 2px; }
+
+  /* Card itself (unchanged look); will naturally occupy 1 of 2 columns (half width) */
+  .talent-card{ background:url('img/talent_card.png') center/100% 100% no-repeat; }
+
+  /* Optional: shrink min-height slightly to fit more in 250px */
+  .talent-card{ min-height: 120px; }
+  .talent-placeholder{ height: 100px; }
+</style>
+
 
 <!-- ========= BASIC UI HELPERS / TABS ========= -->
 <script>
