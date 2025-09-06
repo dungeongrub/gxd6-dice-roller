@@ -231,7 +231,7 @@ button{
     .xp-num {
       width: 24px;       /* fits 99 comfortably at 10px font */
       height: 15px;      /* matches .skill-num height */
-      font-size: 10px;   /* matches .skill-num font */
+      font-size: 14px;   /* matches .skill-num font */
       text-align: center;
     }
     /* XP +/- as standalone buttons, visually similar to trauma-controls buttons */
@@ -241,7 +241,7 @@ button{
       font-size: 12px;
       font-weight: bold;
       line-height: 1;
-      background: #e0e0e0;
+      background: transparent;
       border: none;
       cursor: pointer;
       padding: 0;
@@ -560,9 +560,9 @@ button{
           </div>
 
           <!-- Independent XP controls (ALL live INSIDE #tabMainWrap) -->
-          <button id="xpMinus" class="abs xp-btn" style="--x:210px; --y:54px;"  type="button" title="XP −1" onclick="stepXp(-1)">−</button>
-          <input  id="xp"      class="abs skill-num xp-num" style="--x:232px; --y:55px;" type="number" inputmode="numeric" min="0" step="1" value="0" title="XP">
-          <button id="xpPlus"  class="abs xp-btn" style="--x:260px; --y:54px;"  type="button" title="XP +1" onclick="stepXp(+1)">+</button>
+          <button id="xpMinus" class="abs xp-btn" style="--x:300px; --y:75px;"  type="button" title="XP −1" onclick="stepXp(-1)">−</button>
+          <input  id="xp"      class="abs skill-num xp-num" style="--x:283px; --y:55px;" type="number" inputmode="numeric" min="0" step="1" value="0" title="XP">
+          <button id="xpPlus"  class="abs xp-btn" style="--x:273px; --y:75px;"  type="button" title="XP +1" onclick="stepXp(+1)">+</button>
 
           <!-- Independent tick boxes (ALL live INSIDE #tabMainWrap) -->
           <input id="tick1" type="checkbox" class="abs" style="--x:333px; --y:37px;">
