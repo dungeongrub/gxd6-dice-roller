@@ -978,81 +978,51 @@ function updateTallies(){
     }
   })();
 
-  const selectorEl = document.querySelector('#dbg-selector');
-  const cursorEl   = document.querySelector('#dbg-cursor');
-  const measureEl  = document.querySelector('#dbg-measure');
-  const clearBtn   = document.querySelector('#dbg-clear');
-  const logBtn     = document.querySelector('#dbg-log');
-  const leftInput  = document.querySelector('#dbg-left-x');
-  const topInput   = document.querySelector('#dbg-top-y');
-  const centerXInp = document.querySelector('#dbg-center-x');
-  const centerYInp = document.querySelector('#dbg-center-y');
-  const alignLeft  = document.querySelector('#dbg-align-left');
-  const alignTop   = document.querySelector('#dbg-align-top');
-  const centerXBtn = document.querySelector('#dbg-center-x-btn');
-  const centerYBtn = document.querySelector('#dbg-center-y-btn');
-  const exportBtn  = document.querySelector('#dbg-export');
-  const importBtn  = document.querySelector('#dbg-import');
-  const exportHtmlBtn = document.querySelector('#dbg-export-html');
-  const fileInput  = document.querySelector('#dbg-file');
+  const $ = sel => document.querySelector(sel);
+  const selectorEl = $('#dbg-selector');
+  const cursorEl   = $('#dbg-cursor');
+  const measureEl  = $('#dbg-measure');
+  const clearBtn   = $('#dbg-clear');
+  const logBtn     = $('#dbg-log');
+  const leftInput  = $('#dbg-left-x');
+  const topInput   = $('#dbg-top-y');
+  const centerXInp = $('#dbg-center-x');
+  const centerYInp = $('#dbg-center-y');
+  const alignLeft  = $('#dbg-align-left');
+  const alignTop   = $('#dbg-align-top');
+  const centerXBtn = $('#dbg-center-x-btn');
+  const centerYBtn = $('#dbg-center-y-btn');
+  const exportBtn  = $('#dbg-export');
+  const importBtn  = $('#dbg-import');
+  const exportHtmlBtn = $('#dbg-export-html');
+  const fileInput  = $('#dbg-file');
 
-  function setCursorMode(on) {
-    const crossX = document.querySelector('.debug-crosshair-x');
-    const crossY = document.querySelector('.debug-crosshair-y');
-    const coordHUD = document.querySelector('.debug-coord-hud');
-    const disp = on && debugOn ? 'block' : 'none';
-    crossX.style.display = disp; crossY.style.display = disp; coordHUD.style.display = disp;
-  }
+  const inCanvas = el => canvas && canvas.contains(el);
+  const isTarget = el => !!(el && el.matches && el.matches(TARGET_SELECTOR) && inCanvas(el));
 
-  let hoverEnabled = false, marqueeActive = false, cursorMode = false, measureMode = false;
-  let selected = new Set(), draggingEl = null, dragOffsetX = 0, dragOffsetY = 0, startX=0, startY=0;
-
-  const tooltip = document.querySelector('.debug-tooltip');
-  const marquee = document.querySelector('.debug-marquee');
-  const crossXEl = document.querySelector('.debug-crosshair-x');
-  const crossYEl = document.querySelector('.debug-crosshair-y');
-  const coordHUDEl = document.querySelector('.debug-coord-hud');
-  const measureBox = document.querySelector('.debug-measure');
-  const measureHUD = document.querySelector('.debug-measure-hud');
-
-  function getXY(el){
-    const x = parseFloat(el.style.getPropertyValue('--x')) || 0;
-    const y = parseFloat(el.style.getPropertyValue('--y')) || 0;
-    return [x,y];
-  }
   function setXY(el, x, y){
     el.style.setProperty('--x', x + 'px');
     el.style.setProperty('--y', y + 'px');
     refreshSelectedHUD();
-  }
-  function refreshSelectedHUD(){
-    document.querySelectorAll('.debug-selected-hud').forEach(n => n.remove());
-    if (!debugOn || !selected.size) return;
-    selected.forEach(el => {
-      const hud = document.createElement('div');
-      hud.className = 'debug-selected-hud';
-      const [x,y] = getXY(el);
-      hud.textContent = `${el.id ? '#'+el.id : el.tagName.toLowerCase()} (${Math.round(x)}, ${Math.round(y)})`;
-      const rect = el.getBoundingClientRect();
-      hud.style.left = Math.max(0, Math.min(window.innerWidth - 8, rect.left)) + 'px';
-      hud.style.top  = Math.max(0, rect.top - 14) + 'px';
-      document.body.appendChild(hud);
-    });
   }
   function clampToCanvas(el, x, y){
     const maxX = canvas.clientWidth  - el.offsetWidth;
     const maxY = canvas.clientHeight - el.offsetHeight;
     return [ Math.max(0, Math.min(x, maxX)), Math.max(0, Math.min(y, maxY)) ];
   }
-
-  function clearSelection() {
-    selected.forEach(el => el.classList.remove('debug-selected'));
-    selected.clear();
-    refreshSelectedHUD();
+  function centerOnX(el, cx){
+    const r = el.getBoundingClientRect();
+    const parent = canvas.getBoundingClientRect();
+    const newLeft = Math.round(cx - (r.width/2) - parent.left);
+    const [nx] = clampToCanvas(el, newLeft, getXY(el)[1]);
+    setXY(el, nx, getXY(el)[1]);
   }
-  function addToSelection(el) {
-    if (!selected.has(el)) { selected.add(el); el.classList.add('debug-selected'); }
-    refreshSelectedHUD();
+  function centerOnY(el, cy){
+    const r = el.getBoundingClientRect();
+    const parent = canvas.getBoundingClientRect();
+    const newTop = Math.round(cy - (r.height/2) - parent.top);
+    const [,ny] = clampToCanvas(el, getXY(el)[0], newTop);
+    setXY(el, getXY(el)[0], ny);
   }
 
   function labelFor(el) {
@@ -1087,113 +1057,320 @@ function updateTallies(){
     return {left:r.left, top:r.top, right:r.right, bottom:r.bottom};
   }
 
-  selectorEl.addEventListener('change', () => { clearSelection(); });
-  clearBtn?.addEventListener('click', clearSelection);
-  logBtn?.addEventListener('click', () => {
+  function clearSelection() {
+    selected.forEach(el => el.classList.remove('debug-selected'));
+    selected.clear();
+    refreshSelectedHUD();
+  }
+  function addToSelection(el) {
+    if (!selected.has(el)) { selected.add(el); el.classList.add('debug-selected'); }
+    refreshSelectedHUD();
+  }
+
+  function nudge(el, dx, dy) {
+    const [x,y] = getXY(el);
+    const [nx, ny] = clampToCanvas(el, x + dx, y + dy);
+    setXY(el, nx, ny);
+  }
+
+  function cssPath(el) {
+    const parts = [];
+    for (let node = el; node && node.nodeType === 1 && node !== canvas; node = node.parentElement) {
+      let sel = node.tagName.toLowerCase();
+      if (node.id) { sel += `#${node.id}`; parts.unshift(sel); break; }
+      let sibIndex = 1, sib = node;
+      while ((sib = sib.previousElementSibling) && sib.tagName === node.tagName) sibIndex++;
+      sel += `:nth-of-type(${sibIndex})`; parts.unshift(sel);
+    }
+    return parts.join(' > ');
+  }
+  function keyFor(el){ return el.id ? `#${el.id}` : cssPath(el); }
+  function findByKey(key){
+    if (!key) return null;
+    if (key.startsWith('#')) return canvas.querySelector(key);
+    return canvas.querySelector(key);
+  }
+
+  function exportSelection() {
+    const items = [...selected].map(el => {
+      const [left, top] = getXY(el);
+      return { key: keyFor(el), left, top };
+    });
+    return { version: 1, items };
+  }
+  function importPositions(json) {
+    const items = Array.isArray(json) ? json : (json?.items || []);
+    const result = { applied: 0, total: items.length, unmatched: [] };
+    items.forEach(item => {
+      const el = findByKey(item.key);
+      if (!el) { result.unmatched.push(item.key || '(no key)'); return; }
+      const [x,y] = clampToCanvas(el, item.left ?? 0, item.top ?? 0);
+      setXY(el, x, y);
+      result.applied++;
+    });
+    return result;
+  }
+
+  const $qs = sel => document.querySelector(sel);
+  selectorEl.addEventListener('change', () => { TARGET_SELECTOR = selectorEl.value.trim() || TARGET_SELECTOR; clearSelection(); });
+  cursorEl.addEventListener('change', () => setCursorMode(cursorEl.checked));
+  measureEl.addEventListener('change', () => setMeasureMode(measureEl.checked));
+  clearBtn.addEventListener('click', clearSelection);
+  logBtn.addEventListener('click', () => {
     if (!selected.size) return;
-    console.table([...selected].map(el => ({ id: el.id || '(no id)', x:getXY(el)[0], y:getXY(el)[1] })));
+    console.table([...selected].map(el => ({ key:keyFor(el), x:getXY(el)[0], y:getXY(el)[1] })));
+  });
+  alignLeft.addEventListener('click', () => {
+    const x = parseFloat(leftInput.value); if (Number.isNaN(x)) return;
+    selected.forEach(el => setXY(el, clampToCanvas(el, x, getXY(el)[1])[0], getXY(el)[1]));
+  });
+  alignTop.addEventListener('click', () => {
+    const y = parseFloat(topInput.value); if (Number.isNaN(y)) return;
+    selected.forEach(el => setXY(el, getXY(el)[0], clampToCanvas(el, getXY(el)[0], y)[1]));
+  });
+  centerXBtn.addEventListener('click', () => {
+    if (!selected.size) return;
+    let cx = parseFloat(centerXInp.value);
+    if (Number.isNaN(cx)) {
+      const first = [...selected][0].getBoundingClientRect();
+      cx = Math.round(first.left + first.width/2);
+    }
+    selected.forEach(el => centerOnX(el, cx));
+  });
+  centerYBtn.addEventListener('click', () => {
+    if (!selected.size) return;
+    let cy = parseFloat(centerYInp.value);
+    if (Number.isNaN(cy)) {
+      const first = [...selected][0].getBoundingClientRect();
+      cy = Math.round(first.top + first.height/2);
+    }
+    selected.forEach(el => centerOnY(el, cy));
   });
 
-  // Drag, marquee, measure, etc — unchanged from your current build
-  // (kept as-is for brevity)
-})();
-</script>
-<script>
-/* --- Debugger Rescue: add CSS if missing --- */
-(function ensureDebuggerCSS(){
-  if (document.querySelector('style[data-debugger-css]')) return;
-  const css = `
-  .debugger-panel{position:fixed;right:12px;bottom:12px;z-index:1000000;background:#fff;color:#111;border:1px solid #bbb;
-    font:9px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:6px;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.15);user-select:none;min-width:190px}
-  .debugger-panel .row{display:flex;align-items:center;gap:6px;margin:4px 0}.debugger-panel .row>.grow{flex:1}
-  .debugger-panel button{border:1px solid #bbb;background:#f6f6f6;cursor:pointer}
-  .debugger-panel .muted{opacity:.75}
-  .debug-tooltip,.debug-coord-hud{position:fixed;z-index:999998;display:none;background:#111;color:#fff;border:1px solid #444;border-radius:4px;padding:3px 5px;
-    font:9px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;pointer-events:none;white-space:nowrap}
-  .debug-crosshair-x,.debug-crosshair-y{position:fixed;z-index:999996;background:rgba(255,0,0,.85);display:none;pointer-events:none}
-  .debug-crosshair-x{height:1px;left:0;right:0}.debug-crosshair-y{width:1px;top:0;bottom:0}
-  .debug-marquee{position:fixed;z-index:999997;display:none;border:1px dashed #0077ff;background:rgba(0,119,255,.12);pointer-events:none}
-  .debug-selected{outline:2px solid #0077ff!important;outline-offset:0!important;box-shadow:0 0 0 2px rgba(0,119,255,.2) inset}
-  .debug-outline{outline:1px dotted rgba(0,0,0,.4)!important}
-  .debug-selected-hud{position:fixed;z-index:999999;background:#111;color:#fff;border:1px solid #444;border-radius:4px;padding:2px 4px;
-    font:9px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;pointer-events:none;white-space:nowrap}
-  .debug-measure{position:fixed;z-index:999997;display:none;border:1px dashed #00aa55;background:rgba(0,170,85,.10);pointer-events:none}
-  .debug-measure-hud{position:fixed;z-index:999998;display:none;background:#111;color:#fff;border:1px solid #444;border-radius:4px;padding:2px 4px;
-    font:9px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;pointer-events:none;white-space:nowrap}
-  .debugger-panel.compact>:not(:first-child){display:none}`;
-  const s = document.createElement('style');
-  s.setAttribute('data-debugger-css','');
-  s.textContent = css;
-  document.head.appendChild(s);
-})();
-
-/* --- Debugger Rescue: initialize (or reinitialize) after canvas exists --- */
-(function mountDebuggerWhenReady(){
-  const MOUNT = () => {
-    if (window.__gxdbg_init) { window.__gxdbg_init(); return; } // avoid duplicates
-    // paste the *small* bootstrap that builds the panel and hooks into #mainCanvas:
-    (function(){
-      let TARGET_SELECTOR = '.abs', debugOn=false, cursorMode=false, measureMode=false;
-      const canvas = document.getElementById('mainCanvas');
-      // Guard: if no canvas, bail (nothing to attach to)
-      if (!canvas) return;
-
-      // If panel already there, don't rebuild:
-      if (document.querySelector('.debugger-panel')) return;
-
-      const panel = document.createElement('div');
-      panel.className = 'debugger-panel compact';
-      panel.innerHTML = `
-        <div class="row" style="justify-content:space-between;cursor:pointer">
-          <strong>Debugger</strong>
-          <label class="row" title="Enable/disable debugger"><input id="dbg-toggle" type="checkbox"><span>On</span></label>
-        </div>
-        <div class="row"><span class="muted">Selector</span></div>
-        <input id="dbg-selector" type="text" value=".abs" title="CSS selector for debug targets">
-        <div class="row" style="justify-content:space-between;margin-top:6px">
-          <label class="row" title="Show crosshair + cursor coordinates"><input id="dbg-cursor" type="checkbox" checked><span>Cursor mode</span></label>
-          <label class="row" title="Drag on canvas to measure W×H in px"><input id="dbg-measure" type="checkbox"><span>Measure mode</span></label>
-        </div>
-        <div class="row"><span class="muted">D=toggle • C=cursor • Shift+drag=marquee • Arrows=nudge • Ctrl=5px</span></div>
-      `;
-      document.body.appendChild(panel);
-
-      // header click toggles compact
-      panel.querySelector('.row').addEventListener('click', (e)=>{
-        if (e.target.id==='dbg-toggle') return;
-        panel.classList.toggle('compact');
-      });
-
-      // toggle behavior
-      const toggle = panel.querySelector('#dbg-toggle');
-      toggle.addEventListener('change', ()=>{
-        debugOn = toggle.checked;
-        canvas.classList.toggle('canvas-debug', debugOn);
-      });
-
-      // quick hotkeys
-      window.addEventListener('keydown', (e)=>{
-        if ((e.key==='d'||e.key==='D') && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||'')){
-          toggle.checked = !toggle.checked; toggle.dispatchEvent(new Event('change'));
-        }
-        if ((e.key==='c'||e.key==='C')){
-          const cb = panel.querySelector('#dbg-cursor');
-          cb.checked = !cb.checked;
-        }
-      });
-
-      // expose a tiny API for the rescue wrapper
-      window.__gxdbg_init = () => {}; // no-op (we’re already mounted)
-    })();
-  };
-
-  // Run now if DOM is ready & canvas present, else wait.
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    if (document.getElementById('mainCanvas')) MOUNT();
-    else document.addEventListener('DOMContentLoaded', MOUNT);
-  } else {
-    document.addEventListener('DOMContentLoaded', MOUNT);
+  function currentCharName() {
+    const n = document.getElementById('charName')?.value?.trim();
+    return n ? n.replace(/[^\w\-]+/g, '_') : 'positions';
   }
+
+  exportBtn.addEventListener('click', () => {
+    const data = exportSelection();
+    if (!data.items.length) { alert('Select at least one element to export.'); return; }
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    const a = document.createElement('a');
+    const ts = new Date().toISOString().replace(/[:.]/g,'-');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${currentCharName()}-debug-positions-${ts}.json`;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  });
+
+  importBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files?.[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const json = JSON.parse(String(reader.result));
+        const res = importPositions(json);
+        alert(`Import complete: ${res.applied}/${res.total} applied.\nUnmatched: ${res.unmatched.length}`);
+        console.log('Unmatched keys:', res.unmatched);
+      } catch (e) { alert('Invalid JSON file.'); console.error(e); }
+      fileInput.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  function selectorFor(el) {
+    if (el.id) return `#${el.id}`;
+    const parts = [];
+    let node = el;
+    while (node && node.nodeType === 1 && node !== canvas) {
+      let sel = node.tagName.toLowerCase();
+      const parent = node.parentElement;
+      if (node.id) { sel += `#${node.id}`; parts.unshift(sel); break; }
+      const siblings = parent ? Array.from(parent.children).filter(n => n.tagName === node.tagName) : [];
+      const idx = siblings.indexOf(node) + 1;
+      sel += `:nth-of-type(${idx})`;
+      parts.unshift(sel);
+      node = parent;
+    }
+    return `#mainCanvas > ${parts.join(' > ')}`;
+  }
+  function exportSelectedAsHTML() {
+    const items = [...selected];
+    if (!items.length) { alert('Select at least one element to export.'); return; }
+    let css = `/* Exported positions (${new Date().toISOString()}) */\n`;
+    items.forEach(el => {
+      const [x, y] = getXY(el);
+      css += `${selectorFor(el)}{ --x:${Math.round(x)}px; --y:${Math.round(y)}px; }\n`;
+    });
+    const htmlDoc =
+`<!doctype html>
+<html><head><meta charset="utf-8"><title>GxD6 Positions</title></head>
+<body>
+<style id="exported-positions">
+${css}
+</style>
+<!-- Paste the <style> block above into your main HTML (after base styles), or include as a separate CSS file -->
+</body></html>`;
+    const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' });
+    const a = document.createElement('a');
+    const ts = new Date().toISOString().replace(/[:.]/g,'-');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${currentCharName()}-positions-${ts}.html`;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  }
+  exportHtmlBtn.addEventListener('click', exportSelectedAsHTML);
+
+  window.addEventListener('keydown', e => {
+    if (e.key === 'd' || e.key === 'D') {
+      if (document.activeElement && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+      const t = document.getElementById('dbg-toggle');
+      t.checked = !t.checked; t.dispatchEvent(new Event('change'));
+    }
+    if (e.key === 'c' || e.key === 'C') {
+      const c = document.getElementById('dbg-cursor');
+      c.checked = !c.checked; setCursorMode(c.checked);
+    }
+    if (debugOn && e.altKey) hoverEnabled = true;
+  });
+  window.addEventListener('keyup',   e => { if (debugOn && !e.altKey) { hoverEnabled = false; hideTooltip(); } });
+  window.addEventListener('scroll',  () => { if (debugOn) refreshSelectedHUD(); });
+  window.addEventListener('resize',  () => { if (debugOn) refreshSelectedHUD(); });
+
+  document.addEventListener('mouseover', e => {
+    if (!debugOn || !hoverEnabled) return;
+    const t = e.target.closest(TARGET_SELECTOR);
+    if (isTarget(t)) showTooltip(t, e.clientX, e.clientY);
+  }, {capture:true});
+  document.addEventListener('mousemove', e => {
+    if (!debugOn || !hoverEnabled || tooltip.style.display !== 'block') return;
+    tooltip.style.left = Math.min(window.innerWidth - 8, e.clientX + 8) + 'px';
+    tooltip.style.top  = Math.min(window.innerHeight - 8, e.clientY + 8) + 'px';
+  });
+  document.addEventListener('mouseout', e => {
+    if (!debugOn || !hoverEnabled) return;
+    const t = e.target.closest(TARGET_SELECTOR);
+    if (isTarget(t)) hideTooltip();
+  }, {capture:true});
+
+  canvas.addEventListener('mousedown', e => {
+    if (!debugOn || !e.shiftKey || measureMode) return;
+    marqueeActive = true;
+    startX = e.clientX; startY = e.clientY;
+    Object.assign(marquee.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' });
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!debugOn || !marqueeActive) return;
+    const box = rectFromPoints(startX, startY, e.clientX, e.clientY);
+    Object.assign(marquee.style, { left:box.left+'px', top:box.top+'px', width:box.width+'px', height:box.height+'px' });
+    clearSelection();
+    canvas.querySelectorAll(TARGET_SELECTOR).forEach(el => {
+      const r = pageRect(el);
+      if (intersects(box, r)) addToSelection(el);
+    });
+  });
+  window.addEventListener('mouseup', () => {
+    if (!debugOn || !marqueeActive) return;
+    marqueeActive = false; marquee.style.display = 'none';
+  });
+
+  function setMeasureMode(on){
+    measureMode = !!on;
+    if (!measureMode){ measureActive=false; measureBox.style.display='none'; measureHUD.style.display='none'; }
+  }
+  canvas.addEventListener('mousedown', e => {
+    if (!debugOn || !measureMode) return;
+    const t = e.target.closest(TARGET_SELECTOR);
+    if (t) return;
+    measureActive = true;
+    startX = e.clientX; startY = e.clientY;
+    Object.assign(measureBox.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' });
+    measureHUD.style.display = 'block';
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!debugOn || !measureMode || !measureActive) return;
+    let x2 = e.clientX, y2 = e.clientY;
+    if (e.ctrlKey){
+      const snap = v => Math.round(v / 5) * 5;
+      x2 = snap(x2); y2 = snap(y2);
+    }
+    const box = rectFromPoints(startX, startY, x2, y2);
+    Object.assign(measureBox.style, { left:box.left+'px', top:box.top+'px', width:box.width+'px', height:box.height+'px' });
+    measureHUD.textContent = `${box.width} × ${box.height}px`;
+    measureHUD.style.left = (box.left + box.width + 8) + 'px';
+    measureHUD.style.top  = (box.top - 2) + 'px';
+  });
+  window.addEventListener('mouseup', () => {
+    if (!debugOn || !measureMode || !measureActive) return;
+    measureActive = false;
+    measureBox.style.display = 'none';
+    measureHUD.style.display = 'none';
+  });
+
+  let selectedBeforeDrag = null;
+  canvas.addEventListener('mousedown', e => {
+    if (!debugOn || e.shiftKey || measureMode) return;
+    const t = e.target.closest(TARGET_SELECTOR);
+    if (!isTarget(t)) return;
+    if (e.target && e.target.tagName === 'INPUT') return;
+    if (!selected.has(t)) { clearSelection(); addToSelection(t); }
+    selectedBeforeDrag = t;
+    draggingEl = t;
+    const [x,y] = getXY(t);
+    const crect = canvas.getBoundingClientRect();
+    dragOffsetX = e.clientX - (crect.left + x);
+    dragOffsetY = e.clientY - (crect.top  + y);
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!debugOn || !draggingEl) return;
+    const crect = canvas.getBoundingClientRect();
+    let nx = e.clientX - crect.left - dragOffsetX;
+    let ny = e.clientY - crect.top  - dragOffsetY;
+    [nx, ny] = clampToCanvas(draggingEl, nx, ny);
+    setXY(draggingEl, nx, ny);
+  });
+  window.addEventListener('mouseup', () => { draggingEl = null; selectedBeforeDrag = null; });
+
+  window.addEventListener('keydown', e => {
+    if (!debugOn || !selected.size) return;
+    if (!/^Arrow(Up|Down|Left|Right)$/.test(e.key)) return;
+    const step = e.ctrlKey ? 5 : 1;
+    const dx = (e.key === 'ArrowRight') ? step : (e.key === 'ArrowLeft') ? -step : 0;
+    const dy = (e.key === 'ArrowDown')  ? step : (e.key === 'ArrowUp')   ? -step : 0;
+    e.preventDefault();
+    selected.forEach(el => nudge(el, dx, dy));
+  });
+
+  document.addEventListener('click', e => {
+    if (!debugOn || e.shiftKey || measureMode) return;
+    const t = e.target.closest(TARGET_SELECTOR);
+    if (!isTarget(t)) return;
+    clearSelection(); addToSelection(t);
+  }, true);
+
+  function setCursorMode(on) {
+    cursorMode = !!on;
+    const disp = on && debugOn ? 'block' : 'none';
+    crossX.style.display = disp;
+    crossY.style.display = disp;
+    coordHUD.style.display = disp;
+  }
+  window.addEventListener('mousemove', e => {
+    if (!debugOn || !cursorMode) return;
+    const x = e.clientX, y = e.clientY;
+    crossX.style.top = y + 'px';
+    crossY.style.left = x + 'px';
+    coordHUD.style.left = (x + 10) + 'px';
+    coordHUD.style.top  = (y + 10) + 'px';
+    coordHUD.textContent = `X: ${x}   Y: ${y}`;
+  });
+
 })();
 </script>
 
