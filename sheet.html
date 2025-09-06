@@ -249,22 +249,22 @@ button{
     .pip-btn{ border:none; border-radius:3px; padding:0 6px; cursor:pointer; height:20px; }
 
     /* Independent tick styling (no labels; each one draggable) */
-    #tick1, #tick2, #tick3, #tick4 {
-      appearance:none; -webkit-appearance:none;
-      width:12px; height:12px;
-      border:1px solid #000; border-radius:2px;
-      background:transparent; cursor:pointer;
-	    margin: 0; padding: 0; position: relative;
-    }
-	#tick1:checked::after, #tick2:checked::after, #tick3:checked::after, #tick4:checked::after {
-  content: "×";
-  position: absolute;
-  top: -1px;   /* adjust if the cross looks off-center */
-  left: 1px;
-  font-size: 14px;
-  line-height: 12px;
-  color: #000;
+#tick1, #tick2, #tick3, #tick4 {
+  appearance:none; -webkit-appearance:none;
+  width:12px; height:12px;
+  border:1px solid #000; border-radius:2px;
+  background:transparent; cursor:pointer;
+  margin:0; padding:0;
+  display:inline-block; /* optional, helps sizing */
+  /* no 'position' here so .abs keeps position:absolute */
 }
+#tick1:checked::after, #tick2:checked::after, #tick3:checked::after, #tick4:checked::after {
+  content:"×";
+  position:absolute;
+  top:-2px; left:1px;   /* tweak if needed */
+  font-size:14px; line-height:12px; color:#000;
+}
+
 	
 	/* XP number looks like tiny skill boxes but wide enough for 2 digits */
 .xp-num {
@@ -611,23 +611,23 @@ button{
             <input id="profession2" type="text" placeholder="Profession 2">
           </div>
 
-<!-- Independent XP controls -->
-<button id="xpMinus" class="abs xp-btn" style="--x:210px; --y:54px;" …>−</button>
-<input  id="xp"      class="abs skill-num xp-num" style="--x:232px; --y:55px;" …>
-<button id="xpPlus"  class="abs xp-btn" style="--x:260px; --y:54px;" …>+</button>
+		<!-- Independent XP controls -->
+		<button id="xpMinus" class="abs xp-btn" style="--x:210px; --y:54px;"  type="button" title="XP −1" onclick="stepXp(-1)">−</button>
+		<input  id="xp"      class="abs skill-num xp-num" style="--x:232px; --y:55px;" type="number" inputmode="numeric" min="0" step="1" value="0" title="XP">
+		<button id="xpPlus"  class="abs xp-btn" style="--x:260px; --y:54px;"  type="button" title="XP +1" onclick="stepXp(+1)">+</button>
 
-<!-- Independent tick boxes -->
-<input id="tick1" type="checkbox" class="abs" style="--x:360px; --y:72px;">
-<input id="tick2" type="checkbox" class="abs" style="--x:360px; --y:92px;">
-<input id="tick3" type="checkbox" class="abs" style="--x:360px; --y:112px;">
-<input id="tick4" type="checkbox" class="abs" style="--x:360px; --y:132px;">
+          <!-- Independent tick boxes (draggable; no labels) -->
+          <input id="tick1" type="checkbox" class="abs" style="--x:360px; --y:72px;">
+          <input id="tick2" type="checkbox" class="abs" style="--x:360px; --y:92px;">
+          <input id="tick3" type="checkbox" class="abs" style="--x:360px; --y:112px;">
+          <input id="tick4" type="checkbox" class="abs" style="--x:360px; --y:132px;">
+        </div>
+	</div>
 
-</div> <!-- NOW close .tab-main-wrap -->
-</div> <!-- close panel-main -->
       <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
       <div id="panel-gear"   class="tabPanel" style="display:none;">Gear coming soon</div>
       <div id="panel-powers" class="tabPanel" style="display:none;">Powers coming soon</div>
-  </div>
+    </div>
 
 <!-- Scripts (tabs + small helpers) -->
 <script>
