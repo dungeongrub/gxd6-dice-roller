@@ -6,10 +6,12 @@
 
   <!-- ===== Base Sheet Styles ===== -->
   <style>
-/* === Fonts (for the sheet—not used by debugger) === */
-@font-face { font-family: 'DominicanSmall'; src: url('fonts/DOMISC__.TTF'); }
-@font-face { font-family: 'Dominican';      src: url('fonts/DOMINICA.TTF'); }
-@font-face { font-family: 'DeutschGothic';  src: url('fonts/DeutschGothic.ttf'); }
+/* === Fonts (for the sheet) === */
+@font-face { font-family: 'DominicanSmall'; src: url('fonts/DOMISC__.TTF'); font-display: swap; }
+@font-face { font-family: 'Dominican';      src: url('fonts/DOMINICA.TTF'); font-display: swap; }
+@font-face { font-family: 'DeutschGothic';  src: url('fonts/DeutschGothic.ttf'); font-display: swap; }
+@font-face { font-family: 'GokilNova';      src: url('fonts/Gokil-Nova.ttf'); font-display: swap; }
+@font-face { font-family: 'Gothics';        src: url('fonts/GOTHICS.ttf'); font-display: swap; }
 
 body{
   font-family:'DominicanSmall', Georgia, serif;
@@ -21,7 +23,7 @@ body{
 
 .sheet-container{ width:800px; margin:0 auto; min-width:800px; }
 
-input,select{
+input,select,textarea{
   font-family:'Dominican', serif;
   font-size:14px;
   padding:2px 6px;
@@ -41,7 +43,7 @@ input[type=number]::-webkit-outer-spin-button{ -webkit-appearance:none; }
 
 button{
   font-family:'DominicanSmall', serif;
-  padding:4px 4px;
+  padding:4px 6px;
   cursor:pointer;
 }
 
@@ -234,71 +236,73 @@ button{
       font-size: 14px;   /* matches .skill-num font */
       text-align: center;
     }
-    /* XP +/- as standalone buttons, visually similar to trauma-controls buttons */
+    /* XP +/- as standalone buttons */
     .xp-btn {
-      width: 18px;
-      height: 18px;
-      font-size: 12px;
-      font-weight: bold;
-      line-height: 1;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      padding: 0;
+      width: 18px; height: 18px; font-size: 12px; font-weight: bold; line-height: 1; background: transparent; border: none; cursor: pointer; padding: 0;
     }
     .xp-btn:active { transform: scale(0.95); }
 
-    /* Independent tick styling: plain boxes, thin black border, '×' when checked */
-    #tick1, #tick2, #tick3, #tick4 {
-      appearance:none; -webkit-appearance:none;
-      width:12px; height:12px;
-      border:1px solid #000; border-radius:2px;
-      background:transparent; cursor:pointer;
-      margin:0; padding:0; position:absolute; /* they are .abs elements */
-    }
-    #tick1:checked::after, #tick2:checked::after, #tick3:checked::after, #tick4:checked::after {
-      content: "×";
-      position: absolute;
-      top: -2px; left: 1px;
-      font-size: 14px; line-height: 12px; color: #000;
-    }
+    /* Independent tick styling */
+    #tick1, #tick2, #tick3, #tick4 { appearance:none; -webkit-appearance:none; width:12px; height:12px; border:1px solid #000; border-radius:2px; background:transparent; cursor:pointer; margin:0; padding:0; position:absolute; }
+    #tick1:checked::after, #tick2:checked::after, #tick3:checked::after, #tick4:checked::after { content: "×"; position: absolute; top: -2px; left: 1px; font-size: 14px; line-height: 12px; color: #000; }
   </style>
 
   <!-- ===== Unified Debugger (styles) ===== -->
   <style>
-.debugger-panel {
-  position: fixed; right: 12px; bottom: 12px; z-index: 1000000;
-  background: #ffffff; color: #111; border: 1px solid #bbb;
-  font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  padding: 6px; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.15);
-  user-select: none; min-width: 190px;
-}
+.debugger-panel { position: fixed; right: 12px; bottom: 12px; z-index: 1000000; background: #ffffff; color: #111; border: 1px solid #bbb; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 6px; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.15); user-select: none; min-width: 190px; }
 .debugger-panel .row { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
-.debugger-panel input[type="text"],
-.debugger-panel input[type="number"],
-.debugger-panel button,
-.debugger-panel label { font: 9px/1.35 system-ui, ...; padding: 2px 4px; }
+.debugger-panel input[type="text"], .debugger-panel input[type="number"], .debugger-panel button, .debugger-panel label { font: 9px/1.35 system-ui, ...; padding: 2px 4px; }
 .debugger-panel button { border: 1px solid #bbb; background: #f6f6f6; cursor: pointer; }
 .debugger-panel .muted { opacity: .75; }
-.debug-tooltip,.debug-coord-hud {
-  position: fixed; z-index: 999998; display: none;
-  background: #111; color: #fff; border: 1px solid #444; border-radius: 4px;
-  padding: 3px 5px; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  pointer-events: none; white-space: nowrap;
-}
+.debug-tooltip,.debug-coord-hud { position: fixed; z-index: 999998; display: none; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 3px 5px; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; pointer-events: none; white-space: nowrap; }
 .debug-crosshair-x, .debug-crosshair-y { position: fixed; z-index: 999996; background: rgba(255,0,0,.85); display: none; pointer-events: none; }
 .debug-crosshair-x { height: 1px; left: 0; right: 0; }
 .debug-crosshair-y { width: 1px; top: 0; bottom: 0; }
 .debug-marquee { position: fixed; z-index: 999997; display: none; border: 1px dashed #0077ff; background: rgba(0,119,255,.12); pointer-events: none; }
 .debug-selected { outline: 2px solid #0077ff !important; box-shadow: 0 0 0 2px rgba(0,119,255,.2) inset; }
 .debug-outline  { outline:1px dotted rgba(0,0,0,.4) !important; }
-.debug-selected-hud {
-  position: fixed; z-index: 999999; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px;
-  padding: 2px 4px; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; pointer-events: none; white-space: nowrap;
-}
+.debug-selected-hud { position: fixed; z-index: 999999; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 2px 4px; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; pointer-events: none; white-space: nowrap; }
 .debug-measure { position: fixed; z-index: 999997; display: none; border: 1px dashed #00aa55; background: rgba(0,170,85,.10); pointer-events: none; }
 .debug-measure-hud { position: fixed; z-index: 999998; display: none; background:#111; color:#fff; border:1px solid #444; border-radius:4px; padding:2px 4px; pointer-events:none; white-space:nowrap; }
 .debugger-panel.compact > :not(:first-child){ display: none; }
+  </style>
+
+  <!-- ===================== TALENT STYLES (INSIDE MAIN TAB) ===================== -->
+  <style>
+    /* Fixed-size area inside Main tab (absolute within #tabMainWrap) */
+    #talentsArea{ display:flex; flex-direction:column; gap:6px; }
+    .talents-header{ display:flex; gap:8px; align-items:center; }
+
+    /* Add button lives ABOVE the container */
+    #addTalentBtn{ padding:.35rem .6rem; border:1px solid #0002; border-radius:8px; background:#fff; box-shadow:0 1px 6px #0002; }
+
+    /* Fixed container (450×250) with internal two-column grid */
+    .talents-dropwrap{ width:450px; height:250px; border:1px dashed #0003; border-radius:10px; padding:6px; background:transparent; overflow:auto }
+    .talents-panel{ width:100%; min-height:100%; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); grid-auto-rows:min-content; gap:8px; padding:0; background:transparent }
+
+    /* Card layout: header image strip + fields */
+    .talent-card{ position:relative; display:flex; flex-direction:column; gap:8px; padding:10px 10px 12px 10px; min-height:120px; background:transparent; border:1px solid #0002; border-radius:12px; box-shadow:0 4px 10px #0002; user-select:none }
+    .talent-card.min .talent-body{ display:none }
+
+    /* Header strip image */
+    .talent-header-img{ position:relative; width:100%; height:44px; background:url('img/talent_card_header.png') center/cover no-repeat; border-radius:10px 10px 6px 6px }
+    .talent-title{ position:absolute; left:8px; right:8px; top:50%; transform:translateY(-50%); text-align:center; font-family:'GokilNova', 'DominicanSmall', serif; font-variant:small-caps; font-size:16px; background:transparent; border:none; outline:none }
+
+    /* Level row */
+    .talent-level-row{ display:flex; align-items:center; gap:6px; padding:0 2px }
+    .talent-level-label{ font-family:'DominicanSmall', serif; font-size:11px; opacity:.85 }
+    .talent-level{ width:44px; text-align:center }
+
+    /* Body fields */
+    .talent-body{ display:flex; flex-direction:column; gap:6px }
+    .talent-desc, .talent-info{ width:100%; padding:6px 8px; background:transparent; border:1px dashed transparent; outline:none; font-family:'Gothics','Dominican',serif; font-size:14px; line-height:1.25; resize:none }
+    .talent-desc:focus, .talent-info:focus{ border-color:#0002 }
+    .talent-desc{ min-height:56px; overflow:hidden }
+    .talent-info{ min-height:56px; max-height:110px; overflow:auto } /* scrollbar only on info */
+
+    /* Actions */
+    .talent-actions{ display:flex; gap:6px; justify-content:flex-end }
+    .icon-btn{ width:22px; height:22px; line-height:20px; text-align:center; border:1px solid #0002; border-radius:6px; background:#fff; cursor:pointer }
   </style>
 </head>
 <body>
@@ -559,27 +563,24 @@ button{
             <input id="profession2" type="text" placeholder="Profession 2">
           </div>
 
-          <!-- Independent XP controls (ALL live INSIDE #tabMainWrap) -->
+          <!-- Independent XP controls -->
           <button id="xpMinus" class="abs xp-btn" style="--x:300px; --y:75px;"  type="button" title="XP −1" onclick="stepXp(-1)">−</button>
           <input  id="xp"      class="abs skill-num xp-num" style="--x:283px; --y:55px;" type="number" inputmode="numeric" min="0" step="1" value="0" title="XP">
           <button id="xpPlus"  class="abs xp-btn" style="--x:273px; --y:75px;"  type="button" title="XP +1" onclick="stepXp(+1)">+</button>
 
-          <!-- Independent tick boxes (ALL live INSIDE #tabMainWrap) -->
+          <!-- Independent tick boxes -->
           <input id="tick1" type="checkbox" class="abs" style="--x:333px; --y:37px;">
           <input id="tick2" type="checkbox" class="abs" style="--x:333px; --y:53px;">
           <input id="tick3" type="checkbox" class="abs" style="--x:333px; --y:69px;">
           <input id="tick4" type="checkbox" class="abs" style="--x:333px; --y:86px;">
 
-          <!-- ===== Talents area (button + 450×250 drop zone) ===== -->
-          <div class="talents-area">
+          <!-- ===== Talents area (INSIDE main panel) ===== -->
+          <div id="talentsArea" class="abs overlay-field" style="--x:7px; --y:120px; --w:450px; --h:270px;">
             <div class="talents-header">
-              <button id="openTalentRepo" type="button" class="talent-repo-toggle" title="Open Talent Repository">Talents</button>
+              <button id="addTalentBtn" type="button" title="Add a Talent">+ Add Talent</button>
             </div>
             <div class="talents-dropwrap">
-              <!-- Fixed-size inner panel (450×250) -->
-              <section id="talentsPanel" class="talents-panel" aria-label="Character Talents" data-columns="2">
-                <!-- Cards will appear here (drag from repo, or add inline) -->
-              </section>
+              <section id="talentsPanel" class="talents-panel" aria-label="Character Talents" data-columns="2"></section>
             </div>
           </div>
 
@@ -593,77 +594,6 @@ button{
 
   </div><!-- /#mainCanvas -->
 </div><!-- /.sheet-container -->
-
-<!-- ===================== TALENT REPOSITORY DRAWER ===================== -->
-<aside id="talentRepo" class="talent-repo hidden" aria-label="Talent Repository">
-  <div class="repo-header">
-    <span>Talent Repository</span>
-    <div class="repo-actions">
-      <button type="button" class="btn" id="repoAddCustom">+ New</button>
-      <button type="button" class="btn" id="repoImport">Import</button>
-      <button type="button" class="btn" id="repoExport">Export</button>
-      <button type="button" class="btn" id="repoClose" title="Close">✕</button>
-    </div>
-  </div>
-  <div id="repoList" class="repo-list" aria-live="polite"></div>
-  <div class="repo-footer">
-    <small>Tip: Drag a card from here onto your sheet.</small>
-  </div>
-</aside>
-
-<!-- ===================== TALENT STYLES (AREA + REPO + CARDS) ===================== -->
-<style>
-  /* Talents toggle button (in-flow) */
-  .talent-repo-toggle{
-    position: static;
-    margin: 0;
-    padding: .35rem .6rem;
-    font-family: DominicanSmall, Georgia, serif;
-    border: 1px solid #0002;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: 0 1px 6px #0002;
-    cursor: pointer;
-  }
-
-  /* Repository drawer */
-  .talent-repo{ position:fixed; right:16px; top:56px; width:360px; max-height:70vh; display:flex; flex-direction:column; background:#faf9f6; border:1px solid #0003; border-radius:14px; box-shadow:0 12px 28px #0003; z-index:1000 }
-  .talent-repo.hidden{ display:none }
-  .repo-header{display:flex; align-items:center; justify-content:space-between; padding:.6rem .75rem; font-family:DominicanSmall, Georgia, serif; font-variant:small-caps; font-size:18px; border-bottom:1px solid #0001}
-  .repo-actions{display:flex; gap:.4rem}
-  .repo-actions .btn{font-family:inherit; font-size:12px; padding:.25rem .5rem; border:1px solid #0002; background:#fff; border-radius:6px; cursor:pointer}
-  .repo-list{overflow:auto; padding:.5rem; display:grid; grid-template-columns:1fr; gap:.5rem}
-  .repo-item{display:flex; align-items:center; gap:.5rem; padding:.5rem; border:1px dashed #0002; border-radius:10px; background:#fff; cursor:grab}
-  .repo-item:active{cursor:grabbing}
-  .repo-title{font-family:DominicanSmall, Georgia, serif; font-variant:small-caps}
-  .repo-footer{padding:.4rem .75rem .6rem; border-top:1px solid #0001; color:#444}
-
-  /* Talents area layout (inside Main tab) */
-  .talents-area{ width:450px; margin:10px auto 0 auto; display:flex; flex-direction:column; gap:6px }
-  .talents-header{ display:flex; justify-content:flex-start }
-
-  /* Fixed-size drop container */
-  .talents-dropwrap{ width:450px; height:250px; border:1px dashed #0003; border-radius:10px; padding:6px; background:transparent; overflow:auto }
-
-  /* The grid inside the fixed wrapper: two columns = half-width cards */
-  .talents-panel{ width:100%; min-height:100%; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); grid-auto-rows:min-content; gap:8px; padding:0; background:transparent }
-  .talents-panel.drag-over{ outline:2px dashed #6aa; outline-offset:2px }
-
-  /* Cards */
-  .talent-card{ position:relative; display:flex; flex-direction:column; gap:6px; padding:12px 12px 14px 12px; min-height:120px; background:url('img/talent_card.png') center/100% 100% no-repeat !important; border:1px solid #0002; border-radius:12px; box-shadow:0 4px 10px #0002; user-select:none }
-  .talent-card.min{ min-height:auto; padding:8px 10px }
-  .talent-placeholder{ height:100px }
-
-  .talent-head{ display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:6px }
-  .talent-title{ width:100%; font-family:DominicanSmall, Georgia, serif; font-variant:small-caps; font-size:16px; background:transparent; border:none; outline:none; padding:2px 4px }
-  .talent-level{ width:44px; text-align:center }
-  .talent-actions{ display:flex; gap:6px }
-  .icon-btn{ width:22px; height:22px; line-height:20px; text-align:center; border:1px solid #0002; border-radius:6px; background:#fff; cursor:pointer }
-
-  .talent-body{ display:flex; flex-direction:column; gap:6px }
-  .talent-text{ width:100%; min-height:56px; resize:none; overflow:hidden; padding:6px 8px; font-family:Dominican, Georgia, serif; font-size:14px; line-height:1.25; background:transparent; border:1px dashed transparent; outline:none }
-  .talent-text:focus{ border-color:#0002 }
-</style>
 
 <!-- Scripts (tabs + small helpers) -->
 <script>
@@ -772,17 +702,15 @@ window.saveCharacter=async()=>{
   if(!user||!name) return alert('Sign in & name required');
 
   const data={};
-  document.querySelectorAll('#mainCanvas input, #mainCanvas select, #tabBox input, #tabBox select').forEach(el=>{
+  document.querySelectorAll('#mainCanvas input, #mainCanvas select, #tabBox input, #tabBox select, #tabBox textarea').forEach(el=>{
     if(!el.id || el.id.startsWith('lock')) return;
     data[el.id] = (el.type==='checkbox') ? el.checked : el.value;
   });
 
-  // Include Talents payload (if script present)
-  try {
-    if (window.exportCharacterTalents) {
-      data.__talents = window.exportCharacterTalents();
-    }
-  } catch(e) { console.warn('Talents export failed', e); }
+  // Persist talents separately
+  if(window.exportCharacterTalents){
+    data.__talents = window.exportCharacterTalents();
+  }
 
   await setDoc(doc(db,'users',user.uid,'characters',name),data);
   alert('Saved');
@@ -801,22 +729,19 @@ window.loadCharacter=async()=>{
 
   const data=snap.data();
   Object.keys(data).forEach(k=>{
-    if (k === '__talents') return; // handled separately
+    if(k==='__talents') return;
     const el=document.getElementById(k);
     if(el && !k.startsWith('lock')){
       (el.type==='checkbox') ? el.checked=!!data[k] : el.value=(data[k] ?? '');
     }
   });
 
-  // Restore Talents if any
-  try {
-    if (window.importCharacterTalents && Array.isArray(data.__talents)) {
-      window.importCharacterTalents(data.__talents);
-    }
-  } catch(e) { console.warn('Talents import failed', e); }
-
   document.getElementById('charName').value = id;
   characterSelectEl.value = id;
+
+  if(window.importCharacterTalents){
+    window.importCharacterTalents(Array.isArray(data.__talents)? data.__talents : []);
+  }
 
   initAllSkillTotals();
   alert('Loaded');
@@ -855,6 +780,7 @@ function initAgilitySkillTotals(){ setupSkillRow('agilityCurrent','marksmanship'
 function initWitsSkillTotals(){ setupSkillRow('witsCurrent','heal'); setupSkillRow('witsCurrent','insight'); setupSkillRow('witsCurrent','logic'); setupSkillRow('witsCurrent','survival'); setupSkillRow('witsCurrent','vigilance'); }
 function initWillSkillTotals(){ setupSkillRow('willCurrent','inspire'); setupSkillRow('willCurrent','manipulate'); setupSkillRow('willCurrent','resolve'); }
 function initAllSkillTotals(){ initBrawnSkillTotals(); initAgilitySkillTotals(); initWitsSkillTotals(); initWillSkillTotals(); }
+
 document.addEventListener('DOMContentLoaded', initAllSkillTotals);
 </script>
 
@@ -941,9 +867,9 @@ function updateTallies(){
 }
 </script>
 
-<!-- Unified Debugger -->
+<!-- Unified Debugger (unchanged JS) -->
 <script>
-(()=> {
+(()=>{
   let TARGET_SELECTOR = '.abs';
   let debugOn = false, hoverEnabled = false, marqueeActive = false, cursorMode = false, measureMode = false;
   let selected = new Set();
@@ -1125,11 +1051,7 @@ function updateTallies(){
     setXY(el, getXY(el)[0], ny);
   }
 
-  function labelFor(el) {
-    const id = el.id ? `#${el.id}` : el.tagName.toLowerCase();
-    const [x,y] = getXY(el);
-    return `${id} (${Math.round(x)}, ${Math.round(y)})`;
-  }
+  function labelFor(el) { const id = el.id ? `#${el.id}` : el.tagName.toLowerCase(); const [x,y] = getXY(el); return `${id} (${Math.round(x)}, ${Math.round(y)})`; }
   function showTooltip(el, x, y) {
     el.classList.add('debug-outline');
     tooltip.textContent = labelFor(el);
@@ -1139,173 +1061,44 @@ function updateTallies(){
     tooltip.style.top  = ty + 'px';
     tooltip.style.display = 'block';
   }
-  function hideTooltip() {
-    tooltip.style.display = 'none';
-    document.querySelectorAll('.debug-outline').forEach(n => n.classList.remove('debug-outline'));
-  }
+  function hideTooltip() { tooltip.style.display = 'none'; document.querySelectorAll('.debug-outline').forEach(n => n.classList.remove('debug-outline')); }
 
-  function rectFromPoints(x1,y1,x2,y2){
-    const left = Math.min(x1,x2), top = Math.min(y1,y2);
-    const width = Math.abs(x2-x1), height = Math.abs(y2-y1);
-    return {left, top, width, height, right:left+width, bottom:top+height};
-  }
-  function intersects(a, b){
-    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
-  }
-  function pageRect(el){
-    const r = el.getBoundingClientRect();
-    return {left:r.left, top:r.top, right:r.right, bottom:r.bottom};
-  }
+  function rectFromPoints(x1,y1,x2,y2){ const left = Math.min(x1,x2), top = Math.min(y1,y2); const width = Math.abs(x2-x1), height = Math.abs(y2-y1); return {left, top, width, height, right:left+width, bottom:top+height}; }
+  function intersects(a, b){ return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom); }
+  function pageRect(el){ const r = el.getBoundingClientRect(); return {left:r.left, top:r.top, right:r.right, bottom:r.bottom}; }
 
-  function clearSelection() {
-    selected.forEach(el => el.classList.remove('debug-selected'));
-    selected.clear();
-    refreshSelectedHUD();
-  }
-  function addToSelection(el) {
-    if (!selected.has(el)) { selected.add(el); el.classList.add('debug-selected'); }
-    refreshSelectedHUD();
-  }
+  function clearSelection() { selected.forEach(el => el.classList.remove('debug-selected')); selected.clear(); refreshSelectedHUD(); }
+  function addToSelection(el) { if (!selected.has(el)) { selected.add(el); el.classList.add('debug-selected'); } refreshSelectedHUD(); }
 
-  function nudge(el, dx, dy) {
-    const [x,y] = getXY(el);
-    const [nx, ny] = clampToCanvas(el, x + dx, y + dy);
-    setXY(el, nx, ny);
-  }
+  function nudge(el, dx, dy) { const [x,y] = getXY(el); const [nx, ny] = clampToCanvas(el, x + dx, y + dy); setXY(el, nx, ny); }
 
-  function cssPath(el) {
-    const parts = [];
-    for (let node = el; node && node.nodeType === 1 && node !== canvas; node = node.parentElement) {
-      let sel = node.tagName.toLowerCase();
-      if (node.id) { sel += `#${node.id}`; parts.unshift(sel); break; }
-      let sibIndex = 1, sib = node;
-      while ((sib = sib.previousElementSibling) && sib.tagName === node.tagName) sibIndex++;
-      sel += `:nth-of-type(${sibIndex})`; parts.unshift(sel);
-    }
-    return parts.join(' > ');
-  }
+  function cssPath(el) { const parts = []; for (let node = el; node && node.nodeType === 1 && node !== canvas; node = node.parentElement) { let sel = node.tagName.toLowerCase(); if (node.id) { sel += `#${node.id}`; parts.unshift(sel); break; } let sibIndex = 1, sib = node; while ((sib = sib.previousElementSibling) && sib.tagName === node.tagName) sibIndex++; sel += `:nth-of-type(${sibIndex})`; parts.unshift(sel); } return parts.join(' > '); }
   function keyFor(el){ return el.id ? `#${el.id}` : cssPath(el); }
-  function findByKey(key){
-    if (!key) return null;
-    if (key.startsWith('#')) return canvas.querySelector(key);
-    return canvas.querySelector(key);
-  }
+  function findByKey(key){ if (!key) return null; if (key.startsWith('#')) return canvas.querySelector(key); return canvas.querySelector(key); }
 
-  function exportSelection() {
-    const items = [...selected].map(el => {
-      const [left, top] = getXY(el);
-      return { key: keyFor(el), left, top };
-    });
-    return { version: 1, items };
-  }
-  function importPositions(json) {
-    const items = Array.isArray(json) ? json : (json?.items || []);
-    const result = { applied: 0, total: items.length, unmatched: [] };
-    items.forEach(item => {
-      const el = findByKey(item.key);
-      if (!el) { result.unmatched.push(item.key || '(no key)'); return; }
-      const [x,y] = clampToCanvas(el, item.left ?? 0, item.top ?? 0);
-      setXY(el, x, y);
-      result.applied++;
-    });
-    return result;
-  }
+  function exportSelection() { const items = [...selected].map(el => { const [left, top] = getXY(el); return { key: keyFor(el), left, top }; }); return { version: 1, items }; }
+  function importPositions(json) { const items = Array.isArray(json) ? json : (json?.items || []); const result = { applied: 0, total: items.length, unmatched: [] }; items.forEach(item => { const el = findByKey(item.key); if (!el) { result.unmatched.push(item.key || '(no key)'); return; } const [x,y] = clampToCanvas(el, item.left ?? 0, item.top ?? 0); setXY(el, x, y); result.applied++; }); return result; }
 
   const $qs = sel => document.querySelector(sel);
   selectorEl.addEventListener('change', () => { TARGET_SELECTOR = selectorEl.value.trim() || TARGET_SELECTOR; clearSelection(); });
   cursorEl.addEventListener('change', () => setCursorMode(cursorEl.checked));
   measureEl.addEventListener('change', () => setMeasureMode(measureEl.checked));
   clearBtn.addEventListener('click', clearSelection);
-  logBtn.addEventListener('click', () => {
-    if (!selected.size) return;
-    console.table([...selected].map(el => ({ key:keyFor(el), x:getXY(el)[0], y:getXY(el)[1] })));
-  });
-  alignLeft.addEventListener('click', () => {
-    const x = parseFloat(leftInput.value); if (Number.isNaN(x)) return;
-    selected.forEach(el => setXY(el, clampToCanvas(el, x, getXY(el)[1])[0], getXY(el)[1]));
-  });
-  alignTop.addEventListener('click', () => {
-    const y = parseFloat(topInput.value); if (Number.isNaN(y)) return;
-    selected.forEach(el => setXY(el, getXY(el)[0], clampToCanvas(el, getXY(el)[0], y)[1]));
-  });
-  centerXBtn.addEventListener('click', () => {
-    if (!selected.size) return;
-    let cx = parseFloat(centerXInp.value);
-    if (Number.isNaN(cx)) {
-      const first = [...selected][0].getBoundingClientRect();
-      cx = Math.round(first.left + first.width/2);
-    }
-    selected.forEach(el => centerOnX(el, cx));
-  });
-  centerYBtn.addEventListener('click', () => {
-    if (!selected.size) return;
-    let cy = parseFloat(centerYInp.value);
-    if (Number.isNaN(cy)) {
-      const first = [...selected][0].getBoundingClientRect();
-      cy = Math.round(first.top + first.height/2);
-    }
-    selected.forEach(el => centerOnY(el, cy));
-  });
+  logBtn.addEventListener('click', () => { if (!selected.size) return; console.table([...selected].map(el => ({ key:keyFor(el), x:getXY(el)[0], y:getXY(el)[1] }))); });
+  alignLeft.addEventListener('click', () => { const x = parseFloat(leftInput.value); if (Number.isNaN(x)) return; selected.forEach(el => setXY(el, clampToCanvas(el, x, getXY(el)[1])[0], getXY(el)[1])); });
+  alignTop.addEventListener('click', () => { const y = parseFloat(topInput.value); if (Number.isNaN(y)) return; selected.forEach(el => setXY(el, getXY(el)[0], clampToCanvas(el, getXY(el)[0], y)[1])); });
+  centerXBtn.addEventListener('click', () => { if (!selected.size) return; let cx = parseFloat(centerXInp.value); if (Number.isNaN(cx)) { const first = [...selected][0].getBoundingClientRect(); cx = Math.round(first.left + first.width/2); } selected.forEach(el => centerOnX(el, cx)); });
+  centerYBtn.addEventListener('click', () => { if (!selected.size) return; let cy = parseFloat(centerYInp.value); if (Number.isNaN(cy)) { const first = [...selected][0].getBoundingClientRect(); cy = Math.round(first.top + first.height/2); } selected.forEach(el => centerOnY(el, cy)); });
 
-  function currentCharName() {
-    const n = document.getElementById('charName')?.value?.trim();
-    return n ? n.replace(/[^\w\-]+/g, '_') : 'positions';
-  }
+  function currentCharName() { const n = document.getElementById('charName')?.value?.trim(); return n ? n.replace(/[^\w\-]+/g, '_') : 'positions'; }
 
-  exportBtn.addEventListener('click', () => {
-    const data = exportSelection();
-    if (!data.items.length) { alert('Select at least one element to export.'); return; }
-    const json = JSON.stringify(data, null, 2);
-    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
-    const a = document.createElement('a');
-    const ts = new Date().toISOString().replace(/[:.]/g,'-');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${currentCharName()}-debug-positions-${ts}.json`;
-    document.body.appendChild(a); a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
-  });
+  exportBtn.addEventListener('click', () => { const data = exportSelection(); if (!data.items.length) { alert('Select at least one element to export.'); return; } const json = JSON.stringify(data, null, 2); const blob = new Blob([json], { type: 'application/json;charset=utf-8' }); const a = document.createElement('a'); const ts = new Date().toISOString().replace(/[:.]/g,'-'); a.href = URL.createObjectURL(blob); a.download = `${currentCharName()}-debug-positions-${ts}.json`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0); });
 
   importBtn.addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', () => {
-    const file = fileInput.files?.[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const json = JSON.parse(String(reader.result));
-        const res = importPositions(json);
-        alert(`Import complete: ${res.applied}/${res.total} applied.\nUnmatched: ${res.unmatched.length}`);
-        console.log('Unmatched keys:', res.unmatched);
-      } catch (e) { alert('Invalid JSON file.'); console.error(e); }
-      fileInput.value = '';
-    };
-    reader.readAsText(file);
-  });
+  fileInput.addEventListener('change', () => { const file = fileInput.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => { try { const json = JSON.parse(String(reader.result)); const res = importPositions(json); alert(`Import complete: ${res.applied}/${res.total} applied.\nUnmatched: ${res.unmatched.length}`); console.log('Unmatched keys:', res.unmatched); } catch (e) { alert('Invalid JSON file.'); console.error(e); } fileInput.value = ''; }; reader.readAsText(file); });
 
-  function selectorFor(el) {
-    if (el.id) return `#${el.id}`;
-    const parts = [];
-    let node = el;
-    while (node && node.nodeType === 1 && node !== canvas) {
-      let sel = node.tagName.toLowerCase();
-      const parent = node.parentElement;
-      if (node.id) { sel += `#${node.id}`; parts.unshift(sel); break; }
-      const siblings = parent ? Array.from(parent.children).filter(n => n.tagName === node.tagName) : [];
-      const idx = siblings.indexOf(node) + 1;
-      sel += `:nth-of-type(${idx})`;
-      parts.unshift(sel);
-      node = parent;
-    }
-    return `#mainCanvas > ${parts.join(' > ')}`;
-  }
-  function exportSelectedAsHTML() {
-    const items = [...selected];
-    if (!items.length) { alert('Select at least one element to export.'); return; }
-    let css = `/* Exported positions (${new Date().toISOString()}) */\n`;
-    items.forEach(el => {
-      const [x, y] = getXY(el);
-      css += `${selectorFor(el)}{ --x:${Math.round(x)}px; --y:${Math.round(y)}px; }\n`;
-    });
-    const htmlDoc =
+  function selectorFor(el) { if (el.id) return `#${el.id}`; const parts = []; let node = el; while (node && node.nodeType === 1 && node !== canvas) { let sel = node.tagName.toLowerCase(); const parent = node.parentElement; if (node.id) { sel += `#${node.id}`; parts.unshift(sel); break; } const siblings = parent ? Array.from(parent.children).filter(n => n.tagName === node.tagName) : []; const idx = siblings.indexOf(node) + 1; sel += `:nth-of-type(${idx})`; parts.unshift(sel); node = parent; } return `#mainCanvas > ${parts.join(' > ')}`; }
+  function exportSelectedAsHTML() { const items = [...selected]; if (!items.length) { alert('Select at least one element to export.'); return; } let css = `/* Exported positions (${new Date().toISOString()}) */\n`; items.forEach(el => { const [x, y] = getXY(el); css += `${selectorFor(el)}{ --x:${Math.round(x)}px; --y:${Math.round(y)}px; }\n`; }); const htmlDoc =
 `<!doctype html>
 <html><head><meta charset="utf-8"><title>GxD6 Positions</title></head>
 <body>
@@ -1313,111 +1106,33 @@ function updateTallies(){
 ${css}
 </style>
 <!-- Paste the <style> block above into your main HTML (after base styles), or include as a separate CSS file -->
-</body></html>`;
-    const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' });
-    const a = document.createElement('a');
-    const ts = new Date().toISOString().replace(/[:.]/g,'-');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${currentCharName()}-positions-${ts}.html`;
-    document.body.appendChild(a); a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
-  }
+</body></html>`; const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' }); const a = document.createElement('a'); const ts = new Date().toISOString().replace(/[:.]/g,'-'); a.href = URL.createObjectURL(blob); a.download = `${currentCharName()}-positions-${ts}.html`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0); }
   exportHtmlBtn.addEventListener('click', exportSelectedAsHTML);
 
-  window.addEventListener('keydown', e => {
-    if (e.key === 'd' || e.key === 'D') {
-      if (document.activeElement && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
-      const t = document.getElementById('dbg-toggle');
-      t.checked = !t.checked; t.dispatchEvent(new Event('change'));
-    }
-    if (e.key === 'c' || e.key === 'C') {
-      const c = document.getElementById('dbg-cursor');
-      c.checked = !c.checked; setCursorMode(c.checked);
-    }
-    if (debugOn && e.altKey) hoverEnabled = true;
-  });
+  window.addEventListener('keydown', e => { if (e.key === 'd' || e.key === 'D') { if (document.activeElement && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return; const t = document.getElementById('dbg-toggle'); t.checked = !t.checked; t.dispatchEvent(new Event('change')); } if (e.key === 'c' || e.key === 'C') { const c = document.getElementById('dbg-cursor'); c.checked = !c.checked; setCursorMode(c.checked); } if (debugOn && e.altKey) hoverEnabled = true; });
   window.addEventListener('keyup',   e => { if (debugOn && !e.altKey) { hoverEnabled = false; hideTooltip(); } });
   window.addEventListener('scroll',  () => { if (debugOn) refreshSelectedHUD(); });
   window.addEventListener('resize',  () => { if (debugOn) refreshSelectedHUD(); });
 
-  document.addEventListener('mouseover', e => {
-    if (!debugOn || !hoverEnabled) return;
-    const t = e.target.closest(TARGET_SELECTOR);
-    if (isTarget(t)) showTooltip(t, e.clientX, e.clientY);
-  }, {capture:true});
-  document.addEventListener('mousemove', e => {
-    if (!debugOn || !hoverEnabled || tooltip.style.display !== 'block') return;
-    tooltip.style.left = Math.min(window.innerWidth - 8, e.clientX + 8) + 'px';
-    tooltip.style.top  = Math.min(window.innerHeight - 8, e.clientY + 8) + 'px';
-  });
-  document.addEventListener('mouseout', e => {
-    if (!debugOn || !hoverEnabled) return;
-    const t = e.target.closest(TARGET_SELECTOR);
-    if (isTarget(t)) hideTooltip();
-  }, {capture:true});
+  document.addEventListener('mouseover', e => { if (!debugOn || !hoverEnabled) return; const t = e.target.closest(TARGET_SELECTOR); if (isTarget(t)) showTooltip(t, e.clientX, e.clientY); }, {capture:true});
+  document.addEventListener('mousemove', e => { if (!debugOn || !hoverEnabled || tooltip.style.display !== 'block') return; tooltip.style.left = Math.min(window.innerWidth - 8, e.clientX + 8) + 'px'; tooltip.style.top  = Math.min(window.innerHeight - 8, e.clientY + 8) + 'px'; });
+  document.addEventListener('mouseout', e => { if (!debugOn || !hoverEnabled) return; const t = e.target.closest(TARGET_SELECTOR); if (isTarget(t)) hideTooltip(); }, {capture:true});
 
-  canvas.addEventListener('mousedown', e => {
-    if (!debugOn || !e.shiftKey || measureMode) return;
-    marqueeActive = true;
-    startX = e.clientX; startY = e.clientY;
-    Object.assign(marquee.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' });
-    e.preventDefault();
-  });
-  window.addEventListener('mousemove', e => {
-    if (!debugOn || !marqueeActive) return;
-    const box = rectFromPoints(startX, startY, e.clientX, e.clientY);
-    Object.assign(marquee.style, { left:box.left+'px', top:box.top+'px', width:box.width+'px', height:box.height+'px' });
-    clearSelection();
-    canvas.querySelectorAll(TARGET_SELECTOR).forEach(el => {
-      const r = pageRect(el);
-      if (intersects(box, r)) addToSelection(el);
-    });
-  });
-  window.addEventListener('mouseup', () => {
-    if (!debugOn || !marqueeActive) return;
-    marqueeActive = false; marquee.style.display = 'none';
-  });
+  canvas.addEventListener('mousedown', e => { if (!debugOn || !e.shiftKey || measureMode) return; marqueeActive = true; startX = e.clientX; startY = e.clientY; Object.assign(marquee.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' }); e.preventDefault(); });
+  window.addEventListener('mousemove', e => { if (!debugOn || !marqueeActive) return; const box = rectFromPoints(startX, startY, e.clientX, e.clientY); Object.assign(marquee.style, { left:box.left+'px', top:box.top+'px', width:box.width+'px', height:box.height+'px' }); clearSelection(); canvas.querySelectorAll(TARGET_SELECTOR).forEach(el => { const r = pageRect(el); if (intersects(box, r)) addToSelection(el); }); });
+  window.addEventListener('mouseup', () => { if (!debugOn || !marqueeActive) return; marqueeActive = false; marquee.style.display = 'none'; });
 
-  function setMeasureMode(on){
-    measureMode = !!on;
-    if (!measureMode){ measureActive=false; measureBox.style.display='none'; measureHUD.style.display='none'; }
-  }
-  canvas.addEventListener('mousedown', e => {
-    if (!debugOn || !measureMode) return;
-    const t = e.target.closest(TARGET_SELECTOR);
-    if (t) return;
-    measureActive = true;
-    startX = e.clientX; startY = e.clientY;
-    Object.assign(measureBox.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' });
-    measureHUD.style.display = 'block';
-    e.preventDefault();
-  });
-  window.addEventListener('mousemove', e => {
-    if (!debugOn || !measureMode || !measureActive) return;
-    let x2 = e.clientX, y2 = e.clientY;
-    if (e.ctrlKey){
-      const snap = v => Math.round(v / 5) * 5;
-      x2 = snap(x2); y2 = snap(y2);
-    }
-    const box = rectFromPoints(startX, startY, x2, y2);
-    Object.assign(measureBox.style, { left:box.left+'px', top:box.top+'px', width:box.width+'px', height:box.height+'px' });
-    measureHUD.textContent = `${box.width} × ${box.height}px`;
-    measureHUD.style.left = (box.left + box.width + 8) + 'px';
-    measureHUD.style.top  = (box.top - 2) + 'px';
-  });
-  window.addEventListener('mouseup', () => {
-    if (!debugOn || !measureMode || !measureActive) return;
-    measureActive = false;
-    measureBox.style.display = 'none';
-    measureHUD.style.display = 'none';
-  });
+  function setMeasureMode(on){ measureMode = !!on; if (!measureMode){ measureActive=false; measureBox.style.display='none'; measureHUD.style.display='none'; } }
+  canvas.addEventListener('mousedown', e => { if (!debugOn || !measureMode) return; const t = e.target.closest(TARGET_SELECTOR); if (t) return; measureActive = true; startX = e.clientX; startY = e.clientY; Object.assign(measureBox.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' }); measureHUD.style.display = 'block'; e.preventDefault(); });
+  window.addEventListener('mousemove', e => { if (!debugOn || !measureMode || !measureActive) return; let x2 = e.clientX, y2 = e.clientY; if (e.ctrlKey){ const snap = v => Math.round(v / 5) * 5; x2 = snap(x2); y2 = snap(y2); } const box = rectFromPoints(startX, startY, x2, y2); Object.assign(measureBox.style, { left:box.left+'px', top:box.top+'px', width:box.width+'px', height:box.height+'px' }); measureHUD.textContent = `${box.width} × ${box.height}px`; measureHUD.style.left = (box.left + box.width + 8) + 'px'; measureHUD.style.top  = (box.top - 2) + 'px'; });
+  window.addEventListener('mouseup', () => { if (!debugOn || !measureMode || !measureActive) return; measureActive = false; measureBox.style.display = 'none'; measureHUD.style.display = 'none'; });
 
   let selectedBeforeDrag = null;
   canvas.addEventListener('mousedown', e => {
     if (!debugOn || e.shiftKey || measureMode) return;
     const t = e.target.closest(TARGET_SELECTOR);
     if (!isTarget(t)) return;
-    if (e.target && e.target.tagName === 'INPUT') return;
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) return;
     if (!selected.has(t)) { clearSelection(); addToSelection(t); }
     selectedBeforeDrag = t;
     draggingEl = t;
@@ -1437,260 +1152,100 @@ ${css}
   });
   window.addEventListener('mouseup', () => { draggingEl = null; selectedBeforeDrag = null; });
 
-  window.addEventListener('keydown', e => {
-    if (!debugOn || !selected.size) return;
-    if (!/^Arrow(Up|Down|Left|Right)$/.test(e.key)) return;
-    const step = e.ctrlKey ? 5 : 1;
-    const dx = (e.key === 'ArrowRight') ? step : (e.key === 'ArrowLeft') ? -step : 0;
-    const dy = (e.key === 'ArrowDown')  ? step : (e.key === 'ArrowUp')   ? -step : 0;
-    e.preventDefault();
-    selected.forEach(el => nudge(el, dx, dy));
-  });
+  document.addEventListener('click', e => { if (!debugOn || e.shiftKey || measureMode) return; const t = e.target.closest(TARGET_SELECTOR); if (!isTarget(t)) return; clearSelection(); addToSelection(t); }, true);
 
-  document.addEventListener('click', e => {
-    if (!debugOn || e.shiftKey || measureMode) return;
-    const t = e.target.closest(TARGET_SELECTOR);
-    if (!isTarget(t)) return;
-    clearSelection(); addToSelection(t);
-  }, true);
-
-  function setCursorMode(on) {
-    cursorMode = !!on;
-    const disp = on && debugOn ? 'block' : 'none';
-    crossX.style.display = disp;
-    crossY.style.display = disp;
-    coordHUD.style.display = disp;
-  }
-  window.addEventListener('mousemove', e => {
-    if (!debugOn || !cursorMode) return;
-    const x = e.clientX, y = e.clientY;
-    crossX.style.top = y + 'px';
-    crossY.style.left = x + 'px';
-    coordHUD.style.left = (x + 10) + 'px';
-    coordHUD.style.top  = (y + 10) + 'px';
-    coordHUD.textContent = `X: ${x}   Y: ${y}`;
-  });
-
+  function setCursorMode(on) { cursorMode = !!on; const disp = on && debugOn ? 'block' : 'none'; crossX.style.display = disp; crossY.style.display = disp; coordHUD.style.display = disp; }
+  window.addEventListener('mousemove', e => { if (!debugOn || !cursorMode) return; const x = e.clientX, y = e.clientY; crossX.style.top = y + 'px'; crossY.style.left = x + 'px'; coordHUD.style.left = (x + 10) + 'px'; coordHUD.style.top  = (y + 10) + 'px'; coordHUD.textContent = `X: ${x}   Y: ${y}`; });
 })();
 </script>
 
-<!-- ===================== TALENT CARDS & REPOSITORY SCRIPT ===================== -->
+<!-- ===================== TALENT CARDS (Add-button workflow) ===================== -->
 <script>
 (()=>{
-  const LS_REPO_KEY = 'gxd6.talents.repo.v1';
-  const LS_CHAR_KEY = 'gxd6.talents.character.v1';
+  const LS_CHAR_KEY = 'gxd6.talents.character.v2';
+  const panel = document.getElementById('talentsPanel');
+  const addBtn = document.getElementById('addTalentBtn');
 
-  const repo     = document.getElementById('talentRepo');
-  const repoList = document.getElementById('repoList');
-  const openBtn  = document.getElementById('openTalentRepo');
-  const closeBtn = document.getElementById('repoClose');
-  const addBtn   = document.getElementById('repoAddCustom');
-  const impBtn   = document.getElementById('repoImport');
-  const expBtn   = document.getElementById('repoExport');
-  const panel    = document.getElementById('talentsPanel');
+  if(!panel || !addBtn){ console.warn('[TALENTS] Containers missing'); return; }
 
-  if(!repo || !repoList || !panel || !openBtn){
-    console.warn('[TALENTS] Containers not found. Check placement.');
-    return;
-  }
-
-  // { id, name, level:'-'|1|2|3, desc, info, _min }
-  const defaultRepo = [
-    {id: id(), name:'Salt of the Earth', level:'-', desc:'Your labour and grit earn respect among common folk. In settlements of working poor, reduce social friction.', info:''},
-    {id: id(), name:'Inspire', level:'-', desc:'With a rousing word, grant an ally +1 die to the next roll once per scene.', info:''},
-    {id: id(), name:'Pugilist', level:'1', desc:'You fight with fists, elbows, knees. Gain +1 when brawling unarmed at Close.', info:'I/II/III scale damage or control.'},
-  ];
-
-  let TALENT_REPO = loadJSON(LS_REPO_KEY, defaultRepo);
   let charTalents = loadJSON(LS_CHAR_KEY, []);
-
-  renderRepo();
   renderPanel();
 
-  // Repo UI
-  openBtn.addEventListener('click', ()=> repo.classList.toggle('hidden'));
-  closeBtn.addEventListener('click', ()=> repo.classList.add('hidden'));
-
-  addBtn.addEventListener('click', ()=>{
+  addBtn.addEventListener('click', () => {
     const t = { id:id(), name:'New Talent', level:'-', desc:'', info:'', _min:false };
-    TALENT_REPO.unshift(t); saveRepo(); renderRepo();
-    queueMicrotask(()=>{
-      const el = repoList.querySelector(`[data-id="${t.id}"] input.repo-edit`);
-      el && el.focus();
-    });
-  });
-  expBtn.addEventListener('click', ()=>{
-    const blob = new Blob([JSON.stringify(TALENT_REPO, null, 2)], {type:'application/json'});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'gxd6_talent_repo.json'; a.click();
-    URL.revokeObjectURL(a.href);
-  });
-  impBtn.addEventListener('click', ()=>{
-    const input = document.createElement('input'); input.type = 'file'; input.accept = 'application/json';
-    input.onchange = (e)=>{
-      const file = e.target.files?.[0]; if(!file) return;
-      const r = new FileReader();
-      r.onload = ()=>{
-        try{
-          const data = JSON.parse(r.result);
-          if(Array.isArray(data)){ TALENT_REPO = data.map(sanitizeTalent); saveRepo(); renderRepo(); }
-          else alert('Invalid JSON: expected array');
-        }catch(err){ alert('Parse error: '+err.message); }
-      };
-      r.readAsText(file);
-    };
-    input.click();
+    charTalents.push(t); saveChar(); renderPanel();
   });
 
-  // Drag from repo -> panel
-  repoList.addEventListener('dragstart', (e)=>{
-    const item = e.target.closest('.repo-item'); if(!item) return;
-    e.dataTransfer.setData('text/plain', JSON.stringify({source:'repo', id:item.dataset.id}));
-    e.dataTransfer.effectAllowed = 'copy';
-  });
-
-  // Panel rendering
   function renderPanel(){
     panel.innerHTML = '';
     charTalents.forEach(t => panel.appendChild(cardElement(t)));
   }
 
   function cardElement(t){
-    const card = h('article', {class:'talent-card', draggable:'true', 'data-id':t.id});
+    const card = h('article', {class:'talent-card', 'data-id':t.id});
 
-    const head = h('div', {class:'talent-head'});
-    const title = h('input', {class:'talent-title', type:'text', placeholder:'Talent Name', value: t.name || ''});
-    const level = h('select', {class:'talent-level skill-num'});
+    // Header image + overlaid title
+    const headImg = h('div', {class:'talent-header-img'});
+    const title   = h('input', {class:'talent-title', type:'text', placeholder:'Talent Name', value: t.name || ''});
+    headImg.appendChild(title);
+
+    // Level row
+    const lvlRow = h('div', {class:'talent-level-row'});
+    const lvlLbl = h('span', {class:'talent-level-label'}, 'Level');
+    const level  = h('select', {class:'talent-level skill-num'});
     ['-','1','2','3'].forEach(v=> level.appendChild(h('option',{value:v, selected:String(t.level||'-')===v?true:null}, v)));
+    lvlRow.append(lvlLbl, level);
+
+    // Body
+    const body = h('div', {class:'talent-body'});
+    const desc = h('textarea', {class:'talent-desc', placeholder:'Description…'}, t.desc||'');
+    const info = h('textarea', {class:'talent-info', placeholder:'Info / Notes…'}, t.info||'');
+    autoSize(desc);
+    body.append(desc, info);
+
+    // Actions
     const actions = h('div', {class:'talent-actions'});
     const btnMin = h('button', {class:'icon-btn', title:'Minimize/Expand', type:'button'}, '–');
     const btnDel = h('button', {class:'icon-btn', title:'Remove', type:'button'}, '✕');
     actions.append(btnMin, btnDel);
-    head.append(title, level, actions);
 
-    const body = h('div', {class:'talent-body'});
-    const desc = h('textarea', {class:'talent-text', placeholder:'Description…'}, t.desc||'');
-    const info = h('textarea', {class:'talent-text', placeholder:'Info / Notes…'}, t.info||'');
-    autoSize(desc); autoSize(info);
-    body.append(desc, info);
+    card.append(headImg, lvlRow, body, actions);
 
-    card.append(head, body);
-
+    // Bind
     title.addEventListener('input', ()=>{ t.name = title.value.trim(); saveChar(); });
     level.addEventListener('change', ()=>{ t.level = level.value; saveChar(); });
     desc.addEventListener('input', ()=>{ t.desc = desc.value; autoSize(desc); saveChar(); });
-    info.addEventListener('input', ()=>{ t.info = info.value; autoSize(info); saveChar(); });
+    info.addEventListener('input', ()=>{ t.info = info.value; saveChar(); });
+
     btnDel.addEventListener('click', ()=>{ removeTalent(t.id); });
     btnMin.addEventListener('click', ()=>{ card.classList.toggle('min'); t._min = card.classList.contains('min'); saveChar(); });
-
     if(t._min) card.classList.add('min');
-
-    // Drag within panel
-    card.addEventListener('dragstart', (e)=>{
-      card.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', JSON.stringify({source:'panel', id:t.id}));
-    });
-    card.addEventListener('dragend', ()=> card.classList.remove('dragging'));
 
     return card;
   }
 
   function removeTalent(id){
-    const idx = charTalents.findIndex(x=>x.id===id);
-    if(idx>=0){ charTalents.splice(idx,1); saveChar(); renderPanel(); }
+    const i = charTalents.findIndex(x=>x.id===id);
+    if(i>-1){ charTalents.splice(i,1); saveChar(); renderPanel(); }
   }
 
-  // Panel DnD
-  panel.addEventListener('dragover', (e)=>{
-    e.preventDefault(); panel.classList.add('drag-over');
-    const after = getDragAfterElement(panel, e.clientY);
-    if(after == null) panel.appendChild(placeholder());
-    else panel.insertBefore(placeholder(), after);
-  });
-  panel.addEventListener('dragleave', ()=> panel.classList.remove('drag-over'));
-
-  panel.addEventListener('drop', (e)=>{
-    e.preventDefault(); panel.classList.remove('drag-over');
-    const raw = e.dataTransfer.getData('text/plain');
-    let payload = null; try{ payload = JSON.parse(raw); }catch{}
-    const ph = panel.querySelector('.talent-placeholder');
-    const insertIndex = ph ? [...panel.children].indexOf(ph) : charTalents.length;
-    if(ph) ph.remove();
-
-    if(payload?.source === 'repo'){
-      const base = TALENT_REPO.find(x=> x.id===payload.id);
-      if(!base) return;
-      const inst = {...base, id:id(), _min:false};
-      charTalents.splice(insertIndex,0, inst);
-      saveChar(); renderPanel();
-    }
-    else if(payload?.source === 'panel'){
-      const fromIdx = charTalents.findIndex(x=> x.id===payload.id);
-      if(fromIdx<0) return;
-      const [moved] = charTalents.splice(fromIdx,1);
-      const toIndex = Math.min(insertIndex, charTalents.length);
-      charTalents.splice(toIndex,0, moved);
-      saveChar(); renderPanel();
-    }
-  });
-
-  function placeholder(){
-    let ph = panel.querySelector('.talent-placeholder');
-    if(!ph){ ph = document.createElement('div'); ph.className='talent-placeholder'; }
-    return ph;
-  }
-
-  function getDragAfterElement(container, y){
-    const els = [...container.querySelectorAll('.talent-card:not(.dragging)')];
-    return els.reduce((closest, child)=>{
-      const box = child.getBoundingClientRect();
-      const offset = y - box.top - box.height/2;
-      if(offset < 0 && offset > closest.offset){ return {offset, element:child}; }
-      else return closest;
-    }, {offset:Number.NEGATIVE_INFINITY}).element;
-  }
-
-  // Repo list rendering
-  function renderRepo(){
-    repoList.innerHTML = '';
-    TALENT_REPO.forEach(t=>{
-      const row = h('div', {class:'repo-item', draggable:'true', 'data-id':t.id, title:'Drag onto sheet'},
-        h('div', {style:'flex:1 1 auto; display:flex; flex-direction:column; gap:2px;'},
-          h('input', {class:'repo-edit', value:t.name, title:'Name', type:'text'}),
-          h('div', {style:'display:flex; gap:6px; align-items:center;'},
-            h('select', {class:'skill-num', title:'Level', style:'width:44px; text-align:center;'},
-              ...['-','1','2','3'].map(v=> h('option', {value:v, selected:String(t.level||'-')===v?true:null}, v))
-            ),
-            h('small', {class:'repo-title'}, 'Ready to drag')
-          )
-        ),
-        h('button', {class:'btn', title:'Delete'}, 'Del')
-      );
-      const name = row.querySelector('input.repo-edit');
-      const lev  = row.querySelector('select');
-      const del  = row.querySelector('button');
-      name.addEventListener('input', ()=>{ t.name = name.value; saveRepo(); });
-      lev.addEventListener('change', ()=>{ t.level = lev.value; saveRepo(); });
-      del.addEventListener('click', ()=>{ TALENT_REPO = TALENT_REPO.filter(x=> x.id!==t.id); saveRepo(); renderRepo(); });
-      repoList.appendChild(row);
-    });
-  }
-
-  // Helpers
+  // ===== Autosize only the description field =====
   function autoSize(el){ const fit = ()=>{ el.style.height='auto'; el.style.height = (el.scrollHeight+2)+'px'; }; el.addEventListener('input', fit); queueMicrotask(fit); }
+
   function loadJSON(key, fallback){ try{ const raw=localStorage.getItem(key); return raw? JSON.parse(raw): structuredClone(fallback);}catch{ return structuredClone(fallback);} }
   function saveJSON(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){ console.warn('LocalStorage save failed', e);} }
-  function saveRepo(){ saveJSON(LS_REPO_KEY, TALENT_REPO); }
   function saveChar(){ saveJSON(LS_CHAR_KEY, charTalents); }
+
+  // Expose for Firestore save/load integration
+  window.exportCharacterTalents = function(){ return charTalents.map(t=> ({ id:t.id, name:t.name||'', level:String(t.level||'-'), desc:t.desc||'', info:t.info||'', _min:!!t._min })); };
+  window.importCharacterTalents = function(list){ if(!Array.isArray(list)) return; charTalents = list.map(sanitizeTalent); saveChar(); renderPanel(); };
+
   function sanitizeTalent(t){ return { id: t.id||id(), name: String(t.name||''), level: String(t.level||'-'), desc: String(t.desc||''), info: String(t.info||''), _min: !!t._min }; }
   function id(){ return 't_'+Math.random().toString(36).slice(2,9); }
   function h(tag, attrs, ...kids){ const el = document.createElement(tag); if(attrs){ for(const [k,v] of Object.entries(attrs)){ if(v===null||v===undefined||v===false) continue; if(v===true) el.setAttribute(k,''); else el.setAttribute(k,String(v)); } } for(const k of kids){ if(k==null) continue; if(typeof k==='string'||typeof k==='number') el.appendChild(document.createTextNode(k)); else el.appendChild(k); } return el; }
-
-  // Visual on drag enter
-  panel.addEventListener('dragenter', (e)=>{ e.preventDefault(); panel.classList.add('drag-over'); });
 })();
 </script>
-<!-- ===================== END TALENT SCRIPT ===================== -->
 
+<!-- (Optional) Close body + html -->
 </body>
 </html>
