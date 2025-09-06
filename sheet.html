@@ -245,8 +245,8 @@ button{
     #profession1, #profession2 { width:140px; height:20px; }
 
     .pip-wrap{ display:flex; align-items:center; gap:6px; }
-    .pip-input{ width:36px; text-align:center; border:1px solid #7aa9d6; border-radius:3px; padding:2px 4px; height:20px; }
-    .pip-btn{ border:n solid #7aa9d6; border-radius:3px; padding:0 6px; cursor:pointer; height:20px; }
+    .pip-input{ width:36px; text-align:center; border:1px solid #000; border-radius:3px; padding:2px 4px; height:20px; }
+    .pip-btn{ border:none; border-radius:3px; padding:0 6px; cursor:pointer; height:20px; }
 
     /* Independent tick styling (no labels; each one draggable) */
     #tick1, #tick2, #tick3, #tick4 {
@@ -259,7 +259,7 @@ button{
 	#tick1:checked::after, #tick2:checked::after, #tick3:checked::after, #tick4:checked::after {
   content: "×";
   position: absolute;
-  top: -2px;   /* adjust if the cross looks off-center */
+  top: -1px;   /* adjust if the cross looks off-center */
   left: 1px;
   font-size: 14px;
   line-height: 12px;
@@ -615,7 +615,6 @@ button{
 		<button id="xpMinus" class="abs xp-btn" style="--x:210px; --y:54px;"  type="button" title="XP −1" onclick="stepXp(-1)">−</button>
 		<input  id="xp"      class="abs skill-num xp-num" style="--x:232px; --y:55px;" type="number" inputmode="numeric" min="0" step="1" value="0" title="XP">
 		<button id="xpPlus"  class="abs xp-btn" style="--x:260px; --y:54px;"  type="button" title="XP +1" onclick="stepXp(+1)">+</button>
-		</div>
 			</div>
 
           <!-- Independent tick boxes (draggable; no labels) -->
@@ -624,7 +623,7 @@ button{
           <input id="tick3" type="checkbox" class="abs" style="--x:360px; --y:112px;">
           <input id="tick4" type="checkbox" class="abs" style="--x:360px; --y:132px;">
         </div>
-      </div>
+	</div>
 
       <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
       <div id="panel-gear"   class="tabPanel" style="display:none;">Gear coming soon</div>
@@ -632,7 +631,6 @@ button{
     </div>
 
   </div>
-</div>
 
 <!-- Scripts (tabs + small helpers) -->
 <script>
