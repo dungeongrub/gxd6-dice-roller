@@ -1098,6 +1098,104 @@ function updateTallies(){
   // (kept as-is for brevity)
 })();
 </script>
+<script>
+/* --- Debugger Rescue: add CSS if missing --- */
+(function ensureDebuggerCSS(){
+  if (document.querySelector('style[data-debugger-css]')) return;
+  const css = `
+  .debugger-panel{position:fixed;right:12px;bottom:12px;z-index:1000000;background:#fff;color:#111;border:1px solid #bbb;
+    font:9px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:6px;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.15);user-select:none;min-width:190px}
+  .debugger-panel .row{display:flex;align-items:center;gap:6px;margin:4px 0}.debugger-panel .row>.grow{flex:1}
+  .debugger-panel button{border:1px solid #bbb;background:#f6f6f6;cursor:pointer}
+  .debugger-panel .muted{opacity:.75}
+  .debug-tooltip,.debug-coord-hud{position:fixed;z-index:999998;display:none;background:#111;color:#fff;border:1px solid #444;border-radius:4px;padding:3px 5px;
+    font:9px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;pointer-events:none;white-space:nowrap}
+  .debug-crosshair-x,.debug-crosshair-y{position:fixed;z-index:999996;background:rgba(255,0,0,.85);display:none;pointer-events:none}
+  .debug-crosshair-x{height:1px;left:0;right:0}.debug-crosshair-y{width:1px;top:0;bottom:0}
+  .debug-marquee{position:fixed;z-index:999997;display:none;border:1px dashed #0077ff;background:rgba(0,119,255,.12);pointer-events:none}
+  .debug-selected{outline:2px solid #0077ff!important;outline-offset:0!important;box-shadow:0 0 0 2px rgba(0,119,255,.2) inset}
+  .debug-outline{outline:1px dotted rgba(0,0,0,.4)!important}
+  .debug-selected-hud{position:fixed;z-index:999999;background:#111;color:#fff;border:1px solid #444;border-radius:4px;padding:2px 4px;
+    font:9px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;pointer-events:none;white-space:nowrap}
+  .debug-measure{position:fixed;z-index:999997;display:none;border:1px dashed #00aa55;background:rgba(0,170,85,.10);pointer-events:none}
+  .debug-measure-hud{position:fixed;z-index:999998;display:none;background:#111;color:#fff;border:1px solid #444;border-radius:4px;padding:2px 4px;
+    font:9px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;pointer-events:none;white-space:nowrap}
+  .debugger-panel.compact>:not(:first-child){display:none}`;
+  const s = document.createElement('style');
+  s.setAttribute('data-debugger-css','');
+  s.textContent = css;
+  document.head.appendChild(s);
+})();
+
+/* --- Debugger Rescue: initialize (or reinitialize) after canvas exists --- */
+(function mountDebuggerWhenReady(){
+  const MOUNT = () => {
+    if (window.__gxdbg_init) { window.__gxdbg_init(); return; } // avoid duplicates
+    // paste the *small* bootstrap that builds the panel and hooks into #mainCanvas:
+    (function(){
+      let TARGET_SELECTOR = '.abs', debugOn=false, cursorMode=false, measureMode=false;
+      const canvas = document.getElementById('mainCanvas');
+      // Guard: if no canvas, bail (nothing to attach to)
+      if (!canvas) return;
+
+      // If panel already there, don't rebuild:
+      if (document.querySelector('.debugger-panel')) return;
+
+      const panel = document.createElement('div');
+      panel.className = 'debugger-panel compact';
+      panel.innerHTML = `
+        <div class="row" style="justify-content:space-between;cursor:pointer">
+          <strong>Debugger</strong>
+          <label class="row" title="Enable/disable debugger"><input id="dbg-toggle" type="checkbox"><span>On</span></label>
+        </div>
+        <div class="row"><span class="muted">Selector</span></div>
+        <input id="dbg-selector" type="text" value=".abs" title="CSS selector for debug targets">
+        <div class="row" style="justify-content:space-between;margin-top:6px">
+          <label class="row" title="Show crosshair + cursor coordinates"><input id="dbg-cursor" type="checkbox" checked><span>Cursor mode</span></label>
+          <label class="row" title="Drag on canvas to measure W×H in px"><input id="dbg-measure" type="checkbox"><span>Measure mode</span></label>
+        </div>
+        <div class="row"><span class="muted">D=toggle • C=cursor • Shift+drag=marquee • Arrows=nudge • Ctrl=5px</span></div>
+      `;
+      document.body.appendChild(panel);
+
+      // header click toggles compact
+      panel.querySelector('.row').addEventListener('click', (e)=>{
+        if (e.target.id==='dbg-toggle') return;
+        panel.classList.toggle('compact');
+      });
+
+      // toggle behavior
+      const toggle = panel.querySelector('#dbg-toggle');
+      toggle.addEventListener('change', ()=>{
+        debugOn = toggle.checked;
+        canvas.classList.toggle('canvas-debug', debugOn);
+      });
+
+      // quick hotkeys
+      window.addEventListener('keydown', (e)=>{
+        if ((e.key==='d'||e.key==='D') && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName||'')){
+          toggle.checked = !toggle.checked; toggle.dispatchEvent(new Event('change'));
+        }
+        if ((e.key==='c'||e.key==='C')){
+          const cb = panel.querySelector('#dbg-cursor');
+          cb.checked = !cb.checked;
+        }
+      });
+
+      // expose a tiny API for the rescue wrapper
+      window.__gxdbg_init = () => {}; // no-op (we’re already mounted)
+    })();
+  };
+
+  // Run now if DOM is ready & canvas present, else wait.
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    if (document.getElementById('mainCanvas')) MOUNT();
+    else document.addEventListener('DOMContentLoaded', MOUNT);
+  } else {
+    document.addEventListener('DOMContentLoaded', MOUNT);
+  }
+})();
+</script>
 
 </body>
 </html>
