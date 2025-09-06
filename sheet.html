@@ -571,6 +571,11 @@ button{
           <input id="tick4" type="checkbox" class="abs" style="--x:333px; --y:86px;">
 
         </div><!-- /#tabMainWrap -->
+
+        <!-- TALENTS live inside the Main panel (grid is half-width columns via CSS) -->
+        <section id="talentsPanel" class="talents-panel" aria-label="Character Talents" data-columns="2">
+          <!-- Cards appear here via drag-drop or import -->
+        </section>
       </div><!-- /#panel-main -->
 
       <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
@@ -581,7 +586,69 @@ button{
   </div><!-- /#mainCanvas -->
 </div><!-- /.sheet-container -->
 
-<!-- Scripts (tabs + small helpers) -->
+<!-- Repository Drawer toggle & container (outside of tabs is fine) -->
+<button id="openTalentRepo" type="button" class="talent-repo-toggle" title="Open Talent Repository">Talents</button>
+<aside id="talentRepo" class="talent-repo hidden" aria-label="Talent Repository">
+  <div class="repo-header">
+    <span>Talent Repository</span>
+    <div class="repo-actions">
+      <button type="button" class="btn" id="repoAddCustom">+ New</button>
+      <button type="button" class="btn" id="repoImport">Import</button>
+      <button type="button" class="btn" id="repoExport">Export</button>
+      <button type="button" class="btn" id="repoClose" title="Close">✕</button>
+    </div>
+  </div>
+  <div id="repoList" class="repo-list" aria-live="polite"></div>
+  <div class="repo-footer">
+    <small>Tip: Drag a card from here onto your sheet.</small>
+  </div>
+</aside>
+
+<!-- ===== TALENT styles (scoped) ===== -->
+<style>
+  .talent-repo-toggle{position:absolute; right:10px; top:10px; z-index:30; padding:.35rem .6rem; font-family:DominicanSmall, Georgia, serif; border:1px solid #0002; border-radius:8px; background:#fff; box-shadow:0 1px 6px #0002; cursor:pointer}
+  .talent-repo{position:fixed; right:16px; top:56px; width:360px; max-height:70vh; display:flex; flex-direction:column; background:#faf9f6; border:1px solid #0003; border-radius:14px; box-shadow:0 12px 28px #0003; z-index:1000}
+  .talent-repo.hidden{display:none}
+  .repo-header{display:flex; align-items:center; justify-content:space-between; padding:.6rem .75rem; font-family:DominicanSmall, Georgia, serif; font-variant:small-caps; font-size:18px; border-bottom:1px solid #0001}
+  .repo-actions{display:flex; gap:.4rem}
+  .repo-actions .btn{font-family:inherit; font-size:12px; padding:.25rem .5rem; border:1px solid #0002; background:#fff; border-radius:6px; cursor:pointer}
+  .repo-list{overflow:auto; padding:.5rem; display:grid; grid-template-columns:1fr; gap:.5rem}
+  .repo-item{display:flex; align-items:center; gap:.5rem; padding:.5rem; border:1px dashed #0002; border-radius:10px; background:#fff; cursor:grab}
+  .repo-item:active{cursor:grabbing}
+  .repo-title{font-family:DominicanSmall, Georgia, serif; font-variant:small-caps}
+  .repo-footer{padding:.4rem .75rem .6rem; border-top:1px solid #0001; color:#444}
+
+  /* Talents grid on the Main panel */
+  .talents-panel{position:relative; z-index:10; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); grid-auto-rows:min-content; gap:8px; padding:8px; background:transparent}
+  .talents-panel.drag-over{outline:2px dashed #6aa; outline-offset:4px}
+
+  /* Individual card */
+  .talent-card{position:relative; display:flex; flex-direction:column; gap:6px; padding:12px 12px 14px 12px; min-height:140px; background:url('img/talent_card.png') center/100% 100% no-repeat; border:1px solid #0002; border-radius:12px; box-shadow:0 4px 10px #0002; user-select:none}
+  .talent-card[draggable="true"]{cursor:grab}
+  .talent-card.dragging{opacity:.6; cursor:grabbing}
+  .talent-card.min{min-height:auto; padding:8px 10px}
+  .talent-card.min .talent-body{display:none}
+
+  /* Header line (title + level + actions) */
+  .talent-head{display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:6px}
+  .talent-title{width:100%; font-family:DominicanSmall, Georgia, serif; font-variant:small-caps; font-size:16px; background:transparent; border:none; outline:none; padding:2px 4px}
+  .talent-title::placeholder{color:#0008}
+  .talent-level{width:44px; text-align:center}
+  .talent-actions{display:flex; gap:6px}
+  .icon-btn{width:22px; height:22px; line-height:20px; text-align:center; border:1px solid #0002; border-radius:6px; background:#fff; cursor:pointer}
+
+  /* Body (description + info), auto-resize textareas */
+  .talent-body{display:flex; flex-direction:column; gap:6px}
+  .talent-text{width:100%; min-height:56px; resize:none; overflow:hidden; padding:6px 8px; font-family:Dominican, Georgia, serif; font-size:14px; line-height:1.25; background:transparent; border:1px dashed transparent; outline:none}
+  .talent-text:focus{border-color:#0002}
+
+  /* Drag ghost spacer for reorder */
+  .talent-placeholder{border:2px dashed #88a; border-radius:12px; height:120px}
+
+  .hidden{display:none}
+</style>
+
+<!-- ========= BASIC UI HELPERS / TABS ========= -->
 <script>
 window.showTab = function(which){
   document.querySelectorAll('.tabPanel').forEach(p=>p.style.display='none');
@@ -620,7 +687,7 @@ function stepXp(delta){
 }
 </script>
 
-<!-- Firebase / Firestore -->
+<!-- ========= FIREBASE / FIRESTORE ========= -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
@@ -692,6 +759,12 @@ window.saveCharacter=async()=>{
     if(!el.id || el.id.startsWith('lock')) return;
     data[el.id] = (el.type==='checkbox') ? el.checked : el.value;
   });
+
+  // Include talent cards in the save payload
+  if (window.exportCharacterTalents) {
+    data.__talents = window.exportCharacterTalents();
+  }
+
   await setDoc(doc(db,'users',user.uid,'characters',name),data);
   alert('Saved');
   populateCharacterList(user.uid);
@@ -709,11 +782,17 @@ window.loadCharacter=async()=>{
 
   const data=snap.data();
   Object.keys(data).forEach(k=>{
+    if (k === '__talents') return;
     const el=document.getElementById(k);
     if(el && !k.startsWith('lock')){
       (el.type==='checkbox') ? el.checked=!!data[k] : el.value=(data[k] ?? '');
     }
   });
+
+  // Restore talents if present
+  if (data.__talents && window.importCharacterTalents) {
+    window.importCharacterTalents(data.__talents);
+  }
 
   document.getElementById('charName').value = id;
   characterSelectEl.value = id;
@@ -733,7 +812,7 @@ window.deleteCharacter=async()=>{
 };
 </script>
 
-<!-- Skill totals -->
+<!-- ========= SKILL TOTALS ========= -->
 <script>
 function toNum(v){ const n = parseInt(v,10); return isNaN(n) ? 0 : n; }
 function setupSkillRow(attrCurrentId, baseId){
@@ -755,10 +834,11 @@ function initAgilitySkillTotals(){ setupSkillRow('agilityCurrent','marksmanship'
 function initWitsSkillTotals(){ setupSkillRow('witsCurrent','heal'); setupSkillRow('witsCurrent','insight'); setupSkillRow('witsCurrent','logic'); setupSkillRow('witsCurrent','survival'); setupSkillRow('witsCurrent','vigilance'); }
 function initWillSkillTotals(){ setupSkillRow('willCurrent','inspire'); setupSkillRow('willCurrent','manipulate'); setupSkillRow('willCurrent','resolve'); }
 function initAllSkillTotals(){ initBrawnSkillTotals(); initAgilitySkillTotals(); initWitsSkillTotals(); initWillSkillTotals(); }
+
 document.addEventListener('DOMContentLoaded', initAllSkillTotals);
 </script>
 
-<!-- Dice Roller Logic -->
+<!-- ========= DICE ROLLER ========= -->
 <script>
 let diceValues = [];
 let pushCount  = 0;
@@ -841,7 +921,7 @@ function updateTallies(){
 }
 </script>
 
-<!-- Unified Debugger -->
+<!-- ========= UNIFIED DEBUGGER ========= -->
 <script>
 (() => {
   let TARGET_SELECTOR = '.abs';
@@ -1372,85 +1452,8 @@ ${css}
   });
 
 })();
-
-<!-- ===================== TALENT CARDS & REPOSITORY =====================
-Paste this whole block near the end of <body> in CharsheetMain.html (just
-before your existing <script> tags). It is self‑contained and namespaced. 
-It expects your existing fonts (DominicanSmall/Dominican) and the class
-.skill-num for small numeric dropdowns. Background art: /img/talent_card.png.
-======================================================================= -->
-
-<!-- Talent Repository Drawer (prewritten talents) -->
-<aside id="talentRepo" class="talent-repo hidden" aria-label="Talent Repository">
-  <div class="repo-header">
-    <span>Talent Repository</span>
-    <div class="repo-actions">
-      <button type="button" class="btn" id="repoAddCustom">+ New</button>
-      <button type="button" class="btn" id="repoImport">Import</button>
-      <button type="button" class="btn" id="repoExport">Export</button>
-      <button type="button" class="btn" id="repoClose" title="Close">✕</button>
-    </div>
-  </div>
-  <div id="repoList" class="repo-list" aria-live="polite"></div>
-  <div class="repo-footer">
-    <small>Tip: Drag a card from here onto your sheet.</small>
-  </div>
-</aside>
-
-<!-- Toggle button to open/close repository (position this as you like) -->
-<button id="openTalentRepo" type="button" class="talent-repo-toggle" title="Open Talent Repository">Talents</button>
-
-<!-- Main Panel drop zone for character’s selected talents -->
-<section id="talentsPanel" class="talents-panel" aria-label="Character Talents" data-columns="2">
-  <!-- Cards will appear here (drag from repo, or add inline) -->
-</section>
-
-<!-- Minimal styles; keep scoped to TALENTS only -->
-<style>
-  /* Drawer / Toggle */
-  .talent-repo-toggle{position:absolute; right:10px; top:10px; z-index:30; padding:.35rem .6rem; font-family:DominicanSmall, Georgia, serif; border:1px solid #0002; border-radius:8px; background:#fff; box-shadow:0 1px 6px #0002; cursor:pointer}
-  .talent-repo{position:fixed; right:16px; top:56px; width:360px; max-height:70vh; display:flex; flex-direction:column; background:#faf9f6; border:1px solid #0003; border-radius:14px; box-shadow:0 12px 28px #0003; z-index:1000}
-  .talent-repo.hidden{display:none}
-  .repo-header{display:flex; align-items:center; justify-content:space-between; padding:.6rem .75rem; font-family:DominicanSmall, Georgia, serif; font-variant:small-caps; font-size:18px; border-bottom:1px solid #0001}
-  .repo-actions{display:flex; gap:.4rem}
-  .repo-actions .btn{font-family:inherit; font-size:12px; padding:.25rem .5rem; border:1px solid #0002; background:#fff; border-radius:6px; cursor:pointer}
-  .repo-list{overflow:auto; padding:.5rem; display:grid; grid-template-columns:1fr; gap:.5rem}
-  .repo-item{display:flex; align-items:center; gap:.5rem; padding:.5rem; border:1px dashed #0002; border-radius:10px; background:#fff; cursor:grab}
-  .repo-item:active{cursor:grabbing}
-  .repo-title{font-family:DominicanSmall, Georgia, serif; font-variant:small-caps}
-  .repo-footer{padding:.4rem .75rem .6rem; border-top:1px solid #0001; color:#444}
-
-  /* Talents grid on the Main panel */
-  .talents-panel{position:relative; z-index:10; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); grid-auto-rows:min-content; gap:8px; padding:8px; background:transparent}
-  .talents-panel.drag-over{outline:2px dashed #6aa; outline-offset:4px}
-
-  /* Individual card */
-  .talent-card{position:relative; display:flex; flex-direction:column; gap:6px; padding:12px 12px 14px 12px; min-height:140px; background:url('img/talent_card.png') center/100% 100% no-repeat; border:1px solid #0002; border-radius:12px; box-shadow:0 4px 10px #0002; user-select:none}
-  .talent-card[draggable="true"]{cursor:grab}
-  .talent-card.dragging{opacity:.6; cursor:grabbing}
-  .talent-card.min{min-height:auto; padding:8px 10px}
-  .talent-card.min .talent-body{display:none}
-
-  /* Header line (title + level + actions) */
-  .talent-head{display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:6px}
-  .talent-title{width:100%; font-family:DominicanSmall, Georgia, serif; font-variant:small-caps; font-size:16px; background:transparent; border:none; outline:none; padding:2px 4px}
-  .talent-title::placeholder{color:#0008}
-  .talent-level{width:44px; text-align:center}
-  .talent-actions{display:flex; gap:6px}
-  .icon-btn{width:22px; height:22px; line-height:20px; text-align:center; border:1px solid #0002; border-radius:6px; background:#fff; cursor:pointer}
-
-  /* Body (description + info), auto-resize textareas */
-  .talent-body{display:flex; flex-direction:column; gap:6px}
-  .talent-text{width:100%; min-height:56px; resize:none; overflow:hidden; padding:6px 8px; font-family:Dominican, Georgia, serif; font-size:14px; line-height:1.25; background:transparent; border:1px dashed transparent; outline:none}
-  .talent-text:focus{border-color:#0002}
-
-  /* Drag ghost spacer for reorder */
-  .talent-placeholder{border:2px dashed #88a; border-radius:12px; height:120px}
-
-  /* Utility */
-  .hidden{display:none}
-</style>
-
+</script>
+<!-- ========= TALENT CARDS & REPOSITORY SCRIPT ========= -->
 <script>
 (()=>{
   // ===== Namespacing =====
@@ -1468,13 +1471,12 @@ It expects your existing fonts (DominicanSmall/Dominican) and the class
   const panel    = document.getElementById('talentsPanel');
 
   if(!repo || !repoList || !panel){
-    console.warn('[TALENTS] Required containers not found. Ensure you pasted the block correctly.');
+    console.warn('[TALENTS] Required containers not found.');
     return;
   }
 
   // ===== Data =====
-  /** Repo talent shape */
-  // { id, name, level:'-'|1|2|3, desc, info }
+  // { id, name, level:'-'|1|2|3, desc, info, _min }
   const defaultRepo = [
     {id: id(), name:'Salt of the Earth', level:'-', desc:'Your labour and grit earn respect among common folk. In settlements of working poor, reduce social friction.', info:''},
     {id: id(), name:'Inspire', level:'-', desc:'With a rousing word, grant an ally +1 die to the next roll once per scene.', info:''},
@@ -1494,9 +1496,8 @@ It expects your existing fonts (DominicanSmall/Dominican) and the class
   closeBtn?.addEventListener('click', ()=> repo.classList.add('hidden'));
 
   addBtn?.addEventListener('click', ()=>{
-    const t = { id:id(), name:'New Talent', level:'-', desc:'', info:'' };
+    const t = { id:id(), name:'New Talent', level:'-', desc:'', info:'', _min:false };
     TALENT_REPO.unshift(t); saveRepo(); renderRepo();
-    // Focus the newly added repo item title
     queueMicrotask(()=>{
       const el = repoList.querySelector(`[data-id="${t.id}"] input.repo-edit`);
       el && el.focus();
@@ -1551,7 +1552,7 @@ It expects your existing fonts (DominicanSmall/Dominican) and the class
     const head = h('div', {class:'talent-head'});
     const title = h('input', {class:'talent-title', type:'text', placeholder:'Talent Name', value: t.name || ''});
     const level = h('select', {class:'talent-level skill-num'});
-    ;['-','1','2','3'].forEach(v=> level.appendChild(h('option',{value:v, selected:String(t.level||'-')===v?true:null}, v)));
+    ['-','1','2','3'].forEach(v=> level.appendChild(h('option',{value:v, selected:String(t.level||'-')===v?true:null}, v)));
     const actions = h('div', {class:'talent-actions'});
     const btnMin = h('button', {class:'icon-btn', title:'Minimize/Expand', type:'button'}, '–');
     const btnDel = h('button', {class:'icon-btn', title:'Remove', type:'button'}, '✕');
@@ -1573,12 +1574,11 @@ It expects your existing fonts (DominicanSmall/Dominican) and the class
     desc.addEventListener('input', ()=>{ t.desc = desc.value; autoSize(desc); saveChar(); });
     info.addEventListener('input', ()=>{ t.info = info.value; autoSize(info); saveChar(); });
     btnDel.addEventListener('click', ()=>{ removeTalent(t.id); });
-    btnMin.addEventListener('click', ()=>{ card.classList.toggle('min'); saveChar(); });
+    btnMin.addEventListener('click', ()=>{ card.classList.toggle('min'); t._min = card.classList.contains('min'); saveChar(); });
 
-    // Persist minimized state per card
     if(t._min) card.classList.add('min');
     card.addEventListener('click', (ev)=>{
-      if(ev.target === title) return; // allow focusing title without toggle
+      if(ev.target === title) return;
       if(ev.detail === 2){ card.classList.toggle('min'); t._min = card.classList.contains('min'); saveChar(); }
     });
 
@@ -1677,7 +1677,7 @@ It expects your existing fonts (DominicanSmall/Dominican) and the class
     });
   }
 
-  // ===== Autosize multi-line fields; keep "info" beneath "desc" =====
+  // ===== Autosize multi-line fields =====
   function autoSize(el){
     const fit = ()=>{ el.style.height='auto'; el.style.height = (el.scrollHeight+2)+'px'; };
     el.addEventListener('input', fit); queueMicrotask(fit);
@@ -1689,9 +1689,8 @@ It expects your existing fonts (DominicanSmall/Dominican) and the class
   function loadJSON(key, fallback){ try{ const raw=localStorage.getItem(key); return raw? JSON.parse(raw): structuredClone(fallback);}catch{ return structuredClone(fallback);} }
   function saveJSON(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){ console.warn('LocalStorage save failed', e);} }
 
-  // ===== Public integration points (attach to window for your saver/loader) =====
+  // ===== Public integration points =====
   window.exportCharacterTalents = function(){
-    // Return a serializable copy for your existing saveCharacter() payload
     return charTalents.map(t=> ({ id:t.id, name:t.name||'', level:String(t.level||'-'), desc:t.desc||'', info:t.info||'', _min:!!t._min }));
   };
   window.importCharacterTalents = function(list){
@@ -1716,11 +1715,9 @@ It expects your existing fonts (DominicanSmall/Dominican) and the class
     return el;
   }
 
-  // ===== Panel drag target from external sources (repo) =====
+  // ===== Panel drag target visually on enter =====
   panel.addEventListener('dragenter', (e)=>{ e.preventDefault(); panel.classList.add('drag-over'); });
 })();
-
-
 </script>
 
 </body>
