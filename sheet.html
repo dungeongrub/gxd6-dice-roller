@@ -570,21 +570,20 @@ button{
           <input id="tick3" type="checkbox" class="abs" style="--x:333px; --y:69px;">
           <input id="tick4" type="checkbox" class="abs" style="--x:333px; --y:86px;">
 
+          <!-- ===== Talents area (button + 450×250 drop zone) ===== -->
+          <div class="talents-area">
+            <div class="talents-header">
+              <button id="openTalentRepo" type="button" class="talent-repo-toggle" title="Open Talent Repository">Talents</button>
+            </div>
+            <div class="talents-dropwrap">
+              <!-- Fixed-size inner panel (450×250) -->
+              <section id="talentsPanel" class="talents-panel" aria-label="Character Talents" data-columns="2">
+                <!-- Cards will appear here (drag from repo, or add inline) -->
+              </section>
+            </div>
+          </div>
+
         </div><!-- /#tabMainWrap -->
-
-<!-- Talents button + fixed-size drop zone (inside Main panel) -->
-<div class="talents-area">
-  <div class="talents-header">
-    <button id="openTalentRepo" type="button" class="talent-repo-toggle" title="Open Talent Repository">Talents</button>
-  </div>
-
-  <div class="talents-dropwrap">
-    <!-- Fixed-size inner panel (450×250) -->
-    <section id="talentsPanel" class="talents-panel" aria-label="Character Talents" data-columns="2">
-      <!-- Cards will appear here (drag from repo, or add inline) -->
-    </section>
-  </div>
-</div>
       </div><!-- /#panel-main -->
 
       <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
@@ -595,7 +594,7 @@ button{
   </div><!-- /#mainCanvas -->
 </div><!-- /.sheet-container -->
 
-<!-- Repository Drawer toggle & container (outside of tabs is fine) -->
+<!-- ===================== TALENT REPOSITORY DRAWER ===================== -->
 <aside id="talentRepo" class="talent-repo hidden" aria-label="Talent Repository">
   <div class="repo-header">
     <span>Talent Repository</span>
@@ -612,11 +611,24 @@ button{
   </div>
 </aside>
 
-<!-- ===== TALENT styles (scoped) ===== -->
+<!-- ===================== TALENT STYLES (AREA + REPO + CARDS) ===================== -->
 <style>
-  .talent-repo-toggle{position:absolute; right:10px; top:10px; z-index:30; padding:.35rem .6rem; font-family:DominicanSmall, Georgia, serif; border:1px solid #0002; border-radius:8px; background:#fff; box-shadow:0 1px 6px #0002; cursor:pointer}
-  .talent-repo{position:fixed; right:16px; top:56px; width:360px; max-height:70vh; display:flex; flex-direction:column; background:#faf9f6; border:1px solid #0003; border-radius:14px; box-shadow:0 12px 28px #0003; z-index:1000}
-  .talent-repo.hidden{display:none}
+  /* Talents toggle button (in-flow) */
+  .talent-repo-toggle{
+    position: static;
+    margin: 0;
+    padding: .35rem .6rem;
+    font-family: DominicanSmall, Georgia, serif;
+    border: 1px solid #0002;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 1px 6px #0002;
+    cursor: pointer;
+  }
+
+  /* Repository drawer */
+  .talent-repo{ position:fixed; right:16px; top:56px; width:360px; max-height:70vh; display:flex; flex-direction:column; background:#faf9f6; border:1px solid #0003; border-radius:14px; box-shadow:0 12px 28px #0003; z-index:1000 }
+  .talent-repo.hidden{ display:none }
   .repo-header{display:flex; align-items:center; justify-content:space-between; padding:.6rem .75rem; font-family:DominicanSmall, Georgia, serif; font-variant:small-caps; font-size:18px; border-bottom:1px solid #0001}
   .repo-actions{display:flex; gap:.4rem}
   .repo-actions .btn{font-family:inherit; font-size:12px; padding:.25rem .5rem; border:1px solid #0002; background:#fff; border-radius:6px; cursor:pointer}
@@ -626,96 +638,34 @@ button{
   .repo-title{font-family:DominicanSmall, Georgia, serif; font-variant:small-caps}
   .repo-footer{padding:.4rem .75rem .6rem; border-top:1px solid #0001; color:#444}
 
-  /* Talents grid on the Main panel */
-  .talents-panel{position:relative; z-index:10; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); grid-auto-rows:min-content; gap:8px; padding:8px; background:transparent}
-  .talents-panel.drag-over{outline:2px dashed #6aa; outline-offset:4px}
-
-  /* Individual card */
-  .talent-card{position:relative; display:flex; flex-direction:column; gap:6px; padding:12px 12px 14px 12px; min-height:140px; background:url('img/talent_card.png') center/100% 100% no-repeat; border:1px solid #0002; border-radius:12px; box-shadow:0 4px 10px #0002; user-select:none}
-  .talent-card[draggable="true"]{cursor:grab}
-  .talent-card.dragging{opacity:.6; cursor:grabbing}
-  .talent-card.min{min-height:auto; padding:8px 10px}
-  .talent-card.min .talent-body{display:none}
-
-  /* Header line (title + level + actions) */
-  .talent-head{display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:6px}
-  .talent-title{width:100%; font-family:DominicanSmall, Georgia, serif; font-variant:small-caps; font-size:16px; background:transparent; border:none; outline:none; padding:2px 4px}
-  .talent-title::placeholder{color:#0008}
-  .talent-level{width:44px; text-align:center}
-  .talent-actions{display:flex; gap:6px}
-  .icon-btn{width:22px; height:22px; line-height:20px; text-align:center; border:1px solid #0002; border-radius:6px; background:#fff; cursor:pointer}
-
-  /* Body (description + info), auto-resize textareas */
-  .talent-body{display:flex; flex-direction:column; gap:6px}
-  .talent-text{width:100%; min-height:56px; resize:none; overflow:hidden; padding:6px 8px; font-family:Dominican, Georgia, serif; font-size:14px; line-height:1.25; background:transparent; border:1px dashed transparent; outline:none}
-  .talent-text:focus{border-color:#0002}
-
-  /* Drag ghost spacer for reorder */
-  .talent-placeholder{border:2px dashed #88a; border-radius:12px; height:120px}
-
-  .hidden{display:none}
-</style>
-
-<style>
   /* Talents area layout (inside Main tab) */
-  .talents-area{
-    width: 450px;
-    margin: 10px auto 0 auto;   /* centered inside panel-main */
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .talents-header{
-    display: flex;
-    justify-content: flex-start; /* button sits just above the panel, left aligned */
-  }
-  /* Reuse the existing .talent-repo-toggle look but remove absolute positioning for in-flow use */
-  #panel-main .talent-repo-toggle{
-    position: static;
-    margin: 0;
-    padding: .35rem .6rem;
-    border: 1px solid #0002;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: 0 1px 6px #0002;
-    font-family: DominicanSmall, Georgia, serif;
-    cursor: pointer;
-  }
+  .talents-area{ width:450px; margin:10px auto 0 auto; display:flex; flex-direction:column; gap:6px }
+  .talents-header{ display:flex; justify-content:flex-start }
 
-  /* Fixed-size drop container with subtle boundary */
-  .talents-dropwrap{
-    width: 450px;
-    height: 250px;               /* <- requested height */
-    border: 1px dashed #0003;
-    border-radius: 10px;
-    padding: 6px;
-    background: transparent;
-    overflow: auto;              /* scroll if cards exceed height */
-  }
+  /* Fixed-size drop container */
+  .talents-dropwrap{ width:450px; height:250px; border:1px dashed #0003; border-radius:10px; padding:6px; background:transparent; overflow:auto }
 
-  /* The grid INSIDE the fixed wrapper */
-  .talents-panel{
-    width: 100%;
-    min-height: 100%;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr)); /* two columns => “half the width of the panel space” */
-    grid-auto-rows: min-content;
-    gap: 8px;
-    padding: 0;
-    background: transparent;
-  }
-  .talents-panel.drag-over{ outline: 2px dashed #6aa; outline-offset: 2px; }
+  /* The grid inside the fixed wrapper: two columns = half-width cards */
+  .talents-panel{ width:100%; min-height:100%; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); grid-auto-rows:min-content; gap:8px; padding:0; background:transparent }
+  .talents-panel.drag-over{ outline:2px dashed #6aa; outline-offset:2px }
 
-  /* Card itself (unchanged look); will naturally occupy 1 of 2 columns (half width) */
-  .talent-card{ background:url('img/talent_card.png') center/100% 100% no-repeat; }
+  /* Cards */
+  .talent-card{ position:relative; display:flex; flex-direction:column; gap:6px; padding:12px 12px 14px 12px; min-height:120px; background:url('img/talent_card.png') center/100% 100% no-repeat !important; border:1px solid #0002; border-radius:12px; box-shadow:0 4px 10px #0002; user-select:none }
+  .talent-card.min{ min-height:auto; padding:8px 10px }
+  .talent-placeholder{ height:100px }
 
-  /* Optional: shrink min-height slightly to fit more in 250px */
-  .talent-card{ min-height: 120px; }
-  .talent-placeholder{ height: 100px; }
+  .talent-head{ display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:6px }
+  .talent-title{ width:100%; font-family:DominicanSmall, Georgia, serif; font-variant:small-caps; font-size:16px; background:transparent; border:none; outline:none; padding:2px 4px }
+  .talent-level{ width:44px; text-align:center }
+  .talent-actions{ display:flex; gap:6px }
+  .icon-btn{ width:22px; height:22px; line-height:20px; text-align:center; border:1px solid #0002; border-radius:6px; background:#fff; cursor:pointer }
+
+  .talent-body{ display:flex; flex-direction:column; gap:6px }
+  .talent-text{ width:100%; min-height:56px; resize:none; overflow:hidden; padding:6px 8px; font-family:Dominican, Georgia, serif; font-size:14px; line-height:1.25; background:transparent; border:1px dashed transparent; outline:none }
+  .talent-text:focus{ border-color:#0002 }
 </style>
 
-
-<!-- ========= BASIC UI HELPERS / TABS ========= -->
+<!-- Scripts (tabs + small helpers) -->
 <script>
 window.showTab = function(which){
   document.querySelectorAll('.tabPanel').forEach(p=>p.style.display='none');
@@ -754,7 +704,7 @@ function stepXp(delta){
 }
 </script>
 
-<!-- ========= FIREBASE / FIRESTORE ========= -->
+<!-- Firebase / Firestore -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
@@ -827,10 +777,12 @@ window.saveCharacter=async()=>{
     data[el.id] = (el.type==='checkbox') ? el.checked : el.value;
   });
 
-  // Include talent cards in the save payload
-  if (window.exportCharacterTalents) {
-    data.__talents = window.exportCharacterTalents();
-  }
+  // Include Talents payload (if script present)
+  try {
+    if (window.exportCharacterTalents) {
+      data.__talents = window.exportCharacterTalents();
+    }
+  } catch(e) { console.warn('Talents export failed', e); }
 
   await setDoc(doc(db,'users',user.uid,'characters',name),data);
   alert('Saved');
@@ -849,17 +801,19 @@ window.loadCharacter=async()=>{
 
   const data=snap.data();
   Object.keys(data).forEach(k=>{
-    if (k === '__talents') return;
+    if (k === '__talents') return; // handled separately
     const el=document.getElementById(k);
     if(el && !k.startsWith('lock')){
       (el.type==='checkbox') ? el.checked=!!data[k] : el.value=(data[k] ?? '');
     }
   });
 
-  // Restore talents if present
-  if (data.__talents && window.importCharacterTalents) {
-    window.importCharacterTalents(data.__talents);
-  }
+  // Restore Talents if any
+  try {
+    if (window.importCharacterTalents && Array.isArray(data.__talents)) {
+      window.importCharacterTalents(data.__talents);
+    }
+  } catch(e) { console.warn('Talents import failed', e); }
 
   document.getElementById('charName').value = id;
   characterSelectEl.value = id;
@@ -879,7 +833,7 @@ window.deleteCharacter=async()=>{
 };
 </script>
 
-<!-- ========= SKILL TOTALS ========= -->
+<!-- Skill totals -->
 <script>
 function toNum(v){ const n = parseInt(v,10); return isNaN(n) ? 0 : n; }
 function setupSkillRow(attrCurrentId, baseId){
@@ -901,11 +855,10 @@ function initAgilitySkillTotals(){ setupSkillRow('agilityCurrent','marksmanship'
 function initWitsSkillTotals(){ setupSkillRow('witsCurrent','heal'); setupSkillRow('witsCurrent','insight'); setupSkillRow('witsCurrent','logic'); setupSkillRow('witsCurrent','survival'); setupSkillRow('witsCurrent','vigilance'); }
 function initWillSkillTotals(){ setupSkillRow('willCurrent','inspire'); setupSkillRow('willCurrent','manipulate'); setupSkillRow('willCurrent','resolve'); }
 function initAllSkillTotals(){ initBrawnSkillTotals(); initAgilitySkillTotals(); initWitsSkillTotals(); initWillSkillTotals(); }
-
 document.addEventListener('DOMContentLoaded', initAllSkillTotals);
 </script>
 
-<!-- ========= DICE ROLLER ========= -->
+<!-- Dice Roller Logic -->
 <script>
 let diceValues = [];
 let pushCount  = 0;
@@ -988,9 +941,9 @@ function updateTallies(){
 }
 </script>
 
-<!-- ========= UNIFIED DEBUGGER ========= -->
+<!-- Unified Debugger -->
 <script>
-(() => {
+(()=> {
   let TARGET_SELECTOR = '.abs';
   let debugOn = false, hoverEnabled = false, marqueeActive = false, cursorMode = false, measureMode = false;
   let selected = new Set();
@@ -1520,14 +1473,13 @@ ${css}
 
 })();
 </script>
-<!-- ========= TALENT CARDS & REPOSITORY SCRIPT ========= -->
+
+<!-- ===================== TALENT CARDS & REPOSITORY SCRIPT ===================== -->
 <script>
 (()=>{
-  // ===== Namespacing =====
   const LS_REPO_KEY = 'gxd6.talents.repo.v1';
   const LS_CHAR_KEY = 'gxd6.talents.character.v1';
 
-  // ===== DOM =====
   const repo     = document.getElementById('talentRepo');
   const repoList = document.getElementById('repoList');
   const openBtn  = document.getElementById('openTalentRepo');
@@ -1537,12 +1489,11 @@ ${css}
   const expBtn   = document.getElementById('repoExport');
   const panel    = document.getElementById('talentsPanel');
 
-  if(!repo || !repoList || !panel){
-    console.warn('[TALENTS] Required containers not found.');
+  if(!repo || !repoList || !panel || !openBtn){
+    console.warn('[TALENTS] Containers not found. Check placement.');
     return;
   }
 
-  // ===== Data =====
   // { id, name, level:'-'|1|2|3, desc, info, _min }
   const defaultRepo = [
     {id: id(), name:'Salt of the Earth', level:'-', desc:'Your labour and grit earn respect among common folk. In settlements of working poor, reduce social friction.', info:''},
@@ -1550,19 +1501,17 @@ ${css}
     {id: id(), name:'Pugilist', level:'1', desc:'You fight with fists, elbows, knees. Gain +1 when brawling unarmed at Close.', info:'I/II/III scale damage or control.'},
   ];
 
-  // Load repo from LS
   let TALENT_REPO = loadJSON(LS_REPO_KEY, defaultRepo);
-  renderRepo();
-
-  // Load character talents
   let charTalents = loadJSON(LS_CHAR_KEY, []);
+
+  renderRepo();
   renderPanel();
 
-  // ===== UI Handlers: Repository =====
-  openBtn?.addEventListener('click', ()=> repo.classList.toggle('hidden'));
-  closeBtn?.addEventListener('click', ()=> repo.classList.add('hidden'));
+  // Repo UI
+  openBtn.addEventListener('click', ()=> repo.classList.toggle('hidden'));
+  closeBtn.addEventListener('click', ()=> repo.classList.add('hidden'));
 
-  addBtn?.addEventListener('click', ()=>{
+  addBtn.addEventListener('click', ()=>{
     const t = { id:id(), name:'New Talent', level:'-', desc:'', info:'', _min:false };
     TALENT_REPO.unshift(t); saveRepo(); renderRepo();
     queueMicrotask(()=>{
@@ -1570,43 +1519,36 @@ ${css}
       el && el.focus();
     });
   });
-
-  expBtn?.addEventListener('click', ()=>{
+  expBtn.addEventListener('click', ()=>{
     const blob = new Blob([JSON.stringify(TALENT_REPO, null, 2)], {type:'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'gxd6_talent_repo.json';
-    a.click(); URL.revokeObjectURL(a.href);
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'gxd6_talent_repo.json'; a.click();
+    URL.revokeObjectURL(a.href);
   });
-
-  impBtn?.addEventListener('click', ()=>{
-    const input = document.createElement('input');
-    input.type = 'file'; input.accept = 'application/json';
+  impBtn.addEventListener('click', ()=>{
+    const input = document.createElement('input'); input.type = 'file'; input.accept = 'application/json';
     input.onchange = (e)=>{
       const file = e.target.files?.[0]; if(!file) return;
       const r = new FileReader();
       r.onload = ()=>{
         try{
           const data = JSON.parse(r.result);
-          if(Array.isArray(data)){
-            TALENT_REPO = data.map(sanitizeTalent);
-            saveRepo(); renderRepo();
-          } else alert('Invalid JSON format. Expected an array of talents.');
-        }catch(err){ alert('Could not parse JSON: '+err.message); }
+          if(Array.isArray(data)){ TALENT_REPO = data.map(sanitizeTalent); saveRepo(); renderRepo(); }
+          else alert('Invalid JSON: expected array');
+        }catch(err){ alert('Parse error: '+err.message); }
       };
       r.readAsText(file);
     };
     input.click();
   });
 
-  // ===== Drag from repo -> panel =====
+  // Drag from repo -> panel
   repoList.addEventListener('dragstart', (e)=>{
     const item = e.target.closest('.repo-item'); if(!item) return;
     e.dataTransfer.setData('text/plain', JSON.stringify({source:'repo', id:item.dataset.id}));
     e.dataTransfer.effectAllowed = 'copy';
   });
 
-  // ===== Panel: create, render, reorder, edit, minimize =====
+  // Panel rendering
   function renderPanel(){
     panel.innerHTML = '';
     charTalents.forEach(t => panel.appendChild(cardElement(t)));
@@ -1615,7 +1557,6 @@ ${css}
   function cardElement(t){
     const card = h('article', {class:'talent-card', draggable:'true', 'data-id':t.id});
 
-    // Header
     const head = h('div', {class:'talent-head'});
     const title = h('input', {class:'talent-title', type:'text', placeholder:'Talent Name', value: t.name || ''});
     const level = h('select', {class:'talent-level skill-num'});
@@ -1626,7 +1567,6 @@ ${css}
     actions.append(btnMin, btnDel);
     head.append(title, level, actions);
 
-    // Body
     const body = h('div', {class:'talent-body'});
     const desc = h('textarea', {class:'talent-text', placeholder:'Description…'}, t.desc||'');
     const info = h('textarea', {class:'talent-text', placeholder:'Info / Notes…'}, t.info||'');
@@ -1635,7 +1575,6 @@ ${css}
 
     card.append(head, body);
 
-    // Bind
     title.addEventListener('input', ()=>{ t.name = title.value.trim(); saveChar(); });
     level.addEventListener('change', ()=>{ t.level = level.value; saveChar(); });
     desc.addEventListener('input', ()=>{ t.desc = desc.value; autoSize(desc); saveChar(); });
@@ -1644,12 +1583,8 @@ ${css}
     btnMin.addEventListener('click', ()=>{ card.classList.toggle('min'); t._min = card.classList.contains('min'); saveChar(); });
 
     if(t._min) card.classList.add('min');
-    card.addEventListener('click', (ev)=>{
-      if(ev.target === title) return;
-      if(ev.detail === 2){ card.classList.toggle('min'); t._min = card.classList.contains('min'); saveChar(); }
-    });
 
-    // Drag within panel (reorder)
+    // Drag within panel
     card.addEventListener('dragstart', (e)=>{
       card.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
@@ -1665,11 +1600,10 @@ ${css}
     if(idx>=0){ charTalents.splice(idx,1); saveChar(); renderPanel(); }
   }
 
-  // ===== Panel drag/drop targets =====
+  // Panel DnD
   panel.addEventListener('dragover', (e)=>{
     e.preventDefault(); panel.classList.add('drag-over');
     const after = getDragAfterElement(panel, e.clientY);
-    const dragging = document.querySelector('.talent-card.dragging');
     if(after == null) panel.appendChild(placeholder());
     else panel.insertBefore(placeholder(), after);
   });
@@ -1716,7 +1650,7 @@ ${css}
     }, {offset:Number.NEGATIVE_INFINITY}).element;
   }
 
-  // ===== Render repository list =====
+  // Repo list rendering
   function renderRepo(){
     repoList.innerHTML = '';
     TALENT_REPO.forEach(t=>{
@@ -1737,55 +1671,26 @@ ${css}
       const del  = row.querySelector('button');
       name.addEventListener('input', ()=>{ t.name = name.value; saveRepo(); });
       lev.addEventListener('change', ()=>{ t.level = lev.value; saveRepo(); });
-      del.addEventListener('click', ()=>{
-        TALENT_REPO = TALENT_REPO.filter(x=> x.id!==t.id); saveRepo(); renderRepo();
-      });
+      del.addEventListener('click', ()=>{ TALENT_REPO = TALENT_REPO.filter(x=> x.id!==t.id); saveRepo(); renderRepo(); });
       repoList.appendChild(row);
     });
   }
 
-  // ===== Autosize multi-line fields =====
-  function autoSize(el){
-    const fit = ()=>{ el.style.height='auto'; el.style.height = (el.scrollHeight+2)+'px'; };
-    el.addEventListener('input', fit); queueMicrotask(fit);
-  }
-
-  // ===== Save / Load helpers =====
-  function saveRepo(){ saveJSON(LS_REPO_KEY, TALENT_REPO); }
-  function saveChar(){ saveJSON(LS_CHAR_KEY, charTalents); }
+  // Helpers
+  function autoSize(el){ const fit = ()=>{ el.style.height='auto'; el.style.height = (el.scrollHeight+2)+'px'; }; el.addEventListener('input', fit); queueMicrotask(fit); }
   function loadJSON(key, fallback){ try{ const raw=localStorage.getItem(key); return raw? JSON.parse(raw): structuredClone(fallback);}catch{ return structuredClone(fallback);} }
   function saveJSON(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){ console.warn('LocalStorage save failed', e);} }
-
-  // ===== Public integration points =====
-  window.exportCharacterTalents = function(){
-    return charTalents.map(t=> ({ id:t.id, name:t.name||'', level:String(t.level||'-'), desc:t.desc||'', info:t.info||'', _min:!!t._min }));
-  };
-  window.importCharacterTalents = function(list){
-    if(!Array.isArray(list)) return;
-    charTalents = list.map(sanitizeTalent); saveChar(); renderPanel();
-  };
-  window.addTalentFromRepoByName = function(name){
-    const base = TALENT_REPO.find(x=> x.name.toLowerCase()===String(name||'').toLowerCase());
-    if(!base) return null; const t={...base, id:id(), _min:false};
-    charTalents.push(t); saveChar(); renderPanel(); return t.id;
-  };
-
-  // ===== Utils =====
-  function sanitizeTalent(t){
-    return { id: t.id||id(), name: String(t.name||''), level: String(t.level||'-'), desc: String(t.desc||''), info: String(t.info||''), _min: !!t._min };
-  }
+  function saveRepo(){ saveJSON(LS_REPO_KEY, TALENT_REPO); }
+  function saveChar(){ saveJSON(LS_CHAR_KEY, charTalents); }
+  function sanitizeTalent(t){ return { id: t.id||id(), name: String(t.name||''), level: String(t.level||'-'), desc: String(t.desc||''), info: String(t.info||''), _min: !!t._min }; }
   function id(){ return 't_'+Math.random().toString(36).slice(2,9); }
-  function h(tag, attrs, ...kids){
-    const el = document.createElement(tag);
-    if(attrs){ for(const [k,v] of Object.entries(attrs)){ if(v===null||v===undefined||v===false) continue; if(v===true) el.setAttribute(k,''); else el.setAttribute(k,String(v)); } }
-    for(const k of kids){ if(k==null) continue; if(typeof k==='string'||typeof k==='number') el.appendChild(document.createTextNode(k)); else el.appendChild(k); }
-    return el;
-  }
+  function h(tag, attrs, ...kids){ const el = document.createElement(tag); if(attrs){ for(const [k,v] of Object.entries(attrs)){ if(v===null||v===undefined||v===false) continue; if(v===true) el.setAttribute(k,''); else el.setAttribute(k,String(v)); } } for(const k of kids){ if(k==null) continue; if(typeof k==='string'||typeof k==='number') el.appendChild(document.createTextNode(k)); else el.appendChild(k); } return el; }
 
-  // ===== Panel drag target visually on enter =====
+  // Visual on drag enter
   panel.addEventListener('dragenter', (e)=>{ e.preventDefault(); panel.classList.add('drag-over'); });
 })();
 </script>
+<!-- ===================== END TALENT SCRIPT ===================== -->
 
 </body>
 </html>
