@@ -10,7 +10,7 @@
 @font-face { font-family: 'DominicanSmall'; src: url('fonts/DOMISC__.TTF'); font-display: swap; }
 @font-face { font-family: 'Dominican';      src: url('fonts/DOMINICA.TTF'); font-display: swap; }
 @font-face { font-family: 'DeutschGothic';  src: url('fonts/DeutschGothic.ttf'); font-display: swap; }
-@font-face { font-family: 'GokilNova';      src: url('fonts/Gokil-Nova.ttf'); font-display: swap; }
+@font-face { font-family: 'GokilNova';      src: url('fonts/Gokil-Nova.ttf') format('truetype'); font-display: swap; }
 @font-face { font-family: 'Gothics';        src: url('fonts/GOTHICS.ttf'); font-display: swap; }
 
 body{
@@ -269,68 +269,88 @@ button{
 
   <!-- ===================== TALENT STYLES (INSIDE MAIN TAB) ===================== -->
 <style>
-  /* Fixed-size area inside Main tab */
+  /* --- Talent area inside Main tab (unchanged) --- */
   #talentsArea{ display:flex; flex-direction:column; gap:6px; }
   .talents-header{ display:flex; gap:8px; align-items:center; }
+  #addTalentBtn{ padding:.35rem .6rem; border:1px solid #0002; border-radius:8px; background:#fff; box-shadow:0 1px 6px #0002; cursor:pointer }
 
-  /* Add button above the container */
-  #addTalentBtn{ padding:.35rem .6rem; border:1px solid #0002; border-radius:8px; background:#fff; box-shadow:0 1px 6px #0002; }
+  .talents-dropwrap{
+    width:450px; height:250px; border:1px dashed #0003; border-radius:6px;
+    padding:6px; background:transparent; overflow:auto;
+  }
+  .talents-panel{
+    width:100%; min-height:100%;
+    display:grid; grid-template-columns:repeat(2, minmax(0,1fr));
+    grid-auto-rows:min-content; gap:8px; padding:0; background:transparent;
+  }
 
-  /* Fixed container (450×250) with internal two-column grid */
-  .talents-dropwrap{ width:450px; height:250px; border:1px dashed #0003; border-radius:10px; padding:6px; background:transparent; overflow:auto }
-  .talents-panel{ width:100%; min-height:100%; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); grid-auto-rows:min-content; gap:8px; padding:0; background:transparent }
-
-  /* Card layout */
+  /* --- Talent Card --- */
   .talent-card{
-    position:relative; display:flex; flex-direction:column; gap:8px;
-    padding:10px 10px 12px 10px; min-height:120px;
-    background:transparent; border:1px solid #0002; border-radius:12px; box-shadow:0 4px 10px #0002; user-select:none
+    box-sizing:border-box;             /* width stays consistent */
+    position:relative; display:flex; flex-direction:column;
+    gap:8px;                           /* internal spacing */
+    padding:0;                         /* keep width consistent in both states */
+    min-height:120px;                  /* only for expanded */
+    background:transparent;
+    border:1px solid #000;             /* square corners now */
+    border-radius:0;                   /* <-- removed rounding */
+    box-shadow:0 2px 6px #0002;
+    user-select:none;
   }
 
-  /* Header strip image: show full image across card width (no crop) */
+  /* Header strip: shows full art across width, fixed height used in BOTH states */
   .talent-header-img{
-    position:relative; width:100%; height:56px; /* taller so 'contain' can show whole image */
+    position:relative;
+    width:100%; height:64px;           /* same height collapsed/expanded */
     background:url('img/talent_card_header.png') center top / contain no-repeat;
-    border-radius:10px 10px 6px 6px
   }
-  /* Title sits ON the header; use Gokill/Gokil first, then fallbacks */
+
+  /* Title over the header art: use GokilNova */
   .talent-title{
-    position:absolute; left:8px; right:8px; top:50%; transform:translateY(-50%);
+    position:absolute; left:10px; right:10px; top:50%; transform:translateY(-50%);
     text-align:center;
-    font-family:'GokillNova','GokilNova','DominicanSmall', serif;
-    font-variant:small-caps; font-size:16px; background:transparent; border:none; outline:none;
+    font-family:'GokilNova','DominicanSmall',serif;
+    font-size:18px;                    /* adjust as you like */
+    letter-spacing:.2px;
+    background:transparent; border:none; outline:none;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
 
   /* Level row */
-  .talent-level-row{ display:flex; align-items:center; gap:6px; padding:0 2px }
-  .talent-level-label{ font-family:'DominicanSmall', serif; font-size:11px; opacity:.85 }
+  .talent-level-row{ display:flex; align-items:center; gap:6px; padding:6px 8px 0 8px; }
+  .talent-level-label{ font-family:'DominicanSmall',serif; font-size:11px; opacity:.85; }
   .talent-level{ width:44px; text-align:center }
 
-  /* Body fields */
-  .talent-body{ display:flex; flex-direction:column; gap:6px }
+  /* Body */
+  .talent-body{ display:flex; flex-direction:column; gap:6px; padding:6px 8px 8px 8px; }
   .talent-desc, .talent-info{
     width:100%; padding:6px 8px; background:transparent; border:1px dashed transparent; outline:none;
-    font-family:'Gothics','Dominican',serif; font-size:14px; line-height:1.25; resize:none
+    font-family:'Gothics','Dominican',serif; font-size:14px; line-height:1.25; resize:none;
   }
-  .talent-desc:focus, .talent-info:focus{ border-color:#0002 }
-  .talent-desc{ min-height:56px; overflow:hidden }           /* auto-resizes */
-  .talent-info{ min-height:56px; max-height:110px; overflow:auto } /* scrollbar only here */
+  .talent-desc:focus, .talent-info:focus{ border-color:#0002; }
+  .talent-desc{ min-height:56px; overflow:hidden; }              /* auto-resizes (JS) */
+  .talent-info{ min-height:56px; max-height:110px; overflow:auto; } /* scrollbar only here */
 
   /* Actions */
-  .talent-actions{ display:flex; gap:6px; justify-content:flex-end }
-  .icon-btn{ width:22px; height:22px; line-height:20px; text-align:center; border:1px solid #0002; border-radius:6px; background:#fff; cursor:pointer }
+  .talent-actions{ display:flex; gap:6px; justify-content:flex-end; padding:0 8px 8px 8px; }
+  .icon-btn{ width:22px; height:22px; line-height:20px; text-align:center; border:1px solid #000; border-radius:4px; background:#fff; cursor:pointer }
 
-  /* Minimized state: show ONLY the title (single line) */
-  .talent-card.min{ padding:6px 8px }
+  /* --- Minimized state: header only; ZERO extra vertical space --- */
+  .talent-card.min{
+    min-height:0; height:64px;         /* EXACT height of header, no extra */
+    padding:0; gap:0; overflow:hidden; /* prevent leftover space */
+  }
   .talent-card.min .talent-level-row,
   .talent-card.min .talent-body,
-  .talent-card.min .talent-actions{ display:none }
-  .talent-card.min .talent-header-img{ height:28px; } /* slimmer header when collapsed */
-  .talent-card.min .talent-title{ font-size:14px; }   /* slightly smaller title when collapsed */
+  .talent-card.min .talent-actions{ display:none !important; }
+
+  /* Keep the header identical size in both states (prevents title ‘jump’) */
+  .talent-card.min .talent-header-img{ height:64px; }
+  .talent-card.min .talent-title{ font-size:18px; } /* same size = no visual jump */
 </style>
 </head>
 <body>
+
 <div class="sheet-container">
 
   <!-- LOGIN FORM -->
