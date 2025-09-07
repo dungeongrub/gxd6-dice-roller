@@ -269,84 +269,88 @@ button{
 
   <!-- ===================== TALENT STYLES (INSIDE MAIN TAB) ===================== -->
 <style>
-  /* --- Talent area inside Main tab (unchanged) --- */
-  #talentsArea{ display:flex; flex-direction:column; gap:6px; }
-  .talents-header{ display:flex; gap:8px; align-items:center; }
-  #addTalentBtn{ padding:.35rem .6rem; border:1px solid #0002; border-radius:8px; background:#fff; box-shadow:0 1px 6px #0002; cursor:pointer }
+/* Talents area absolute placement inside the Main tab wrapper */
+#talentsArea{
+  position:absolute;
+  left:0; top:100px;
+  width:450px; /* matches your fixed panel width */
+  margin:0 !important; padding:0; /* no stray spacing */
+}
+.talents-header{ margin:0; padding:0 0 6px 0; display:flex; gap:8px; align-items:center; }
+.talents-dropwrap{ width:450px; height:250px; border:1px dashed #0003; border-radius:0; padding:6px; background:transparent; overflow:auto; }
+.talents-panel{
+  width:100%; min-height:100%;
+  display:grid; grid-template-columns:repeat(2, minmax(0,1fr));
+  grid-auto-rows:min-content; gap:8px; padding:0; background:transparent;
+}
+#addTalentBtn{ padding:.35rem .6rem; border:1px solid #000; border-radius:0; background:#fff; box-shadow:0 1px 4px #0002; cursor:pointer; }
 
-  .talents-dropwrap{
-    width:450px; height:250px; border:1px dashed #0003; border-radius:6px;
-    padding:6px; background:transparent; overflow:auto;
-  }
-  .talents-panel{
-    width:100%; min-height:100%;
-    display:grid; grid-template-columns:repeat(2, minmax(0,1fr));
-    grid-auto-rows:min-content; gap:8px; padding:0; background:transparent;
-  }
+/* --- Talent Cards --- */
 
-  /* --- Talent Card --- */
-  .talent-card{
-    box-sizing:border-box;             /* width stays consistent */
-    position:relative; display:flex; flex-direction:column;
-    gap:8px;                           /* internal spacing */
-    padding:0;                         /* keep width consistent in both states */
-    min-height:120px;                  /* only for expanded */
-    background:transparent;
-    border:1px solid #000;             /* square corners now */
-    border-radius:0;                   /* <-- removed rounding */
-    box-shadow:0 2px 6px #0002;
-    user-select:none;
-  }
+/* Card: square corners, consistent width in all states */
+.talent-card{
+  box-sizing:border-box;
+  position:relative; display:flex; flex-direction:column;
+  gap:0; padding:0; /* same in both states */
+  min-height:120px; /* expanded only (min state overrides) */
+  background:transparent;
+  border:1px solid #000; border-radius:0; /* square */
+  box-shadow:0 2px 6px #0002;
+  user-select:none;
+}
 
-  /* Header strip: shows full art across width, fixed height used in BOTH states */
-  .talent-header-img{
-    position:relative;
-    width:100%; height:64px;           /* same height collapsed/expanded */
-    background:url('img/talent_card_header.png') center top / contain no-repeat;
-  }
+/* Header strip (title + level live inside here) */
+.talent-header-img{
+  position:relative;
+  width:100%; height:72px;              /* full header height */
+  background:url('img/talent_card_header.png') center top / contain no-repeat;
+}
 
-  /* Title over the header art: use GokilNova */
-  .talent-title{
-    position:absolute; left:10px; right:10px; top:50%; transform:translateY(-50%);
-    text-align:center;
-    font-family:'GokilNova','DominicanSmall',serif;
-    font-size:18px;                    /* adjust as you like */
-    letter-spacing:.2px;
-    background:transparent; border:none; outline:none;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  }
+/* Title at the very top (no size change on toggle) */
+.talent-title{
+  position:absolute; left:8px; right:8px; top:6px;
+  text-align:center;
+  font-family:'GokilNova','DominicanSmall',serif; /* see @font-face name below */
+  font-size:18px; line-height:1.1; letter-spacing:.2px;
+  background:transparent; border:none; outline:none;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
 
-  /* Level row */
-  .talent-level-row{ display:flex; align-items:center; gap:6px; padding:6px 8px 0 8px; }
-  .talent-level-label{ font-family:'DominicanSmall',serif; font-size:11px; opacity:.85; }
-  .talent-level{ width:44px; text-align:center }
+/* Level row sits just under the title, INSIDE the header */
+.talent-level-inline{
+  position:absolute; left:0; right:0; top:36px; /* directly under the name */
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.talent-level-label{ font-family:'DominicanSmall',serif; font-size:11px; opacity:.9; }
+.talent-level{ width:44px; text-align:center }
 
-  /* Body */
-  .talent-body{ display:flex; flex-direction:column; gap:6px; padding:6px 8px 8px 8px; }
-  .talent-desc, .talent-info{
-    width:100%; padding:6px 8px; background:transparent; border:1px dashed transparent; outline:none;
-    font-family:'Gothics','Dominican',serif; font-size:14px; line-height:1.25; resize:none;
-  }
-  .talent-desc:focus, .talent-info:focus{ border-color:#0002; }
-  .talent-desc{ min-height:56px; overflow:hidden; }              /* auto-resizes (JS) */
-  .talent-info{ min-height:56px; max-height:110px; overflow:auto; } /* scrollbar only here */
+/* Body (smaller fonts) */
+.talent-body{ display:flex; flex-direction:column; gap:6px; padding:8px; }
+.talent-desc, .talent-info{
+  width:100%; padding:6px 8px; background:transparent; border:1px dashed transparent; outline:none;
+  font-family:'Gothics','Dominican',serif; font-size:11px; line-height:1.25; resize:none;
+}
+.talent-desc:focus, .talent-info:focus{ border-color:#0002; }
+.talent-desc{ min-height:48px; overflow:hidden; }        /* auto-resize via JS */
+.talent-info{ min-height:48px; max-height:100px; overflow:auto; } /* scrollbar here only */
 
-  /* Actions */
-  .talent-actions{ display:flex; gap:6px; justify-content:flex-end; padding:0 8px 8px 8px; }
-  .icon-btn{ width:22px; height:22px; line-height:20px; text-align:center; border:1px solid #000; border-radius:4px; background:#fff; cursor:pointer }
+/* Actions */
+.talent-actions{ display:flex; gap:6px; justify-content:flex-end; padding:0 8px 8px 8px; }
+.icon-btn{ width:22px; height:22px; line-height:20px; text-align:center; border:1px solid #000; border-radius:0; background:#fff; cursor:pointer }
 
-  /* --- Minimized state: header only; ZERO extra vertical space --- */
-  .talent-card.min{
-    min-height:0; height:64px;         /* EXACT height of header, no extra */
-    padding:0; gap:0; overflow:hidden; /* prevent leftover space */
-  }
-  .talent-card.min .talent-level-row,
-  .talent-card.min .talent-body,
-  .talent-card.min .talent-actions{ display:none !important; }
+/* Minimized: EXACTLY header height — no blank space */
+.talent-card.min{
+  min-height:0; height:72px; padding:0; overflow:hidden;
+}
+.talent-card.min .talent-body,
+.talent-card.min .talent-actions{ display:none !important; }
 
-  /* Keep the header identical size in both states (prevents title ‘jump’) */
-  .talent-card.min .talent-header-img{ height:64px; }
-  .talent-card.min .talent-title{ font-size:18px; } /* same size = no visual jump */
+/* No font-size change in min state (keeps title steady) */
+.talent-card.min .talent-title{ font-size:18px; }
+
+/* Optional: subtle hover */
+.talent-card:hover{ box-shadow:0 3px 8px #0003; }
+
 </style>
 </head>
 <body>
@@ -620,7 +624,7 @@ button{
           <input id="tick4" type="checkbox" class="abs" style="--x:333px; --y:86px;">
 
           <!-- ===== Talents area (INSIDE main panel) ===== -->
-          <div id="talentsArea" class="abs overlay-field" style="--x:7px; --y:120px; --w:450px; --h:270px;">
+          <div id="talentsArea" class="abs overlay-field" style="--x:0px; --y:100px; --w:450px; --h:270px;">
             <div class="talents-header">
               <button id="addTalentBtn" type="button" title="Add a Talent">+ Add Talent</button>
             </div>
@@ -1228,17 +1232,19 @@ ${css}
   function cardElement(t){
     const card = h('article', {class:'talent-card' + (t._min?' min':''), 'data-id':t.id});
 
-    // Header image + overlaid title
-    const headImg = h('div', {class:'talent-header-img', title:'Click to minimize/expand'});
-    const title   = h('input', {class:'talent-title', type:'text', placeholder:'Talent Name', value: t.name || ''});
-    headImg.appendChild(title);
+// Header image with title + inline level (inside the same header block)
+const headImg = h('div', {class:'talent-header-img', title:'Click to minimize/expand'});
+const title   = h('input', {class:'talent-title', type:'text', placeholder:'Talent Name', value: t.name || ''});
 
-    // Level row
-    const lvlRow = h('div', {class:'talent-level-row'});
-    const lvlLbl = h('span', {class:'talent-level-label'}, 'Level');
-    const level  = h('select', {class:'talent-level skill-num'});
-    ['-','1','2','3'].forEach(v=> level.appendChild(h('option',{value:v, selected:String(t.level||'-')===v?true:null}, v)));
-    lvlRow.append(lvlLbl, level);
+// Level sits just under the name, inside header
+const lvlInline = h('div', {class:'talent-level-inline'});
+const lvlLbl    = h('span', {class:'talent-level-label'}, 'Level');
+const level     = h('select', {class:'talent-level skill-num'});
+['-','1','2','3'].forEach(v=> level.appendChild(h('option',{value:v, selected:String(t.level||'-')===v?true:null}, v)));
+lvlInline.append(lvlLbl, level);
+
+headImg.append(title, lvlInline);
+
 
     // Body
     const body = h('div', {class:'talent-body'});
@@ -1281,7 +1287,9 @@ ${css}
   }
 
   // autosize only the description field
-  function autoSize(el){ const fit = ()=>{ el.style.height='auto'; el.style.height = (el.scrollHeight+2)+'px'; }; el.addEventListener('input', fit); queueMicrotask(fit); }
+  function autoSize(el){ 
+	const fit = ()=>{ el.style.height='auto'; el.style.height = (el.scrollHeight+2)+'px'; }; 
+	el.addEventListener('input', fit); queueMicrotask(fit); }
 
   function loadJSON(key, fallback){ try{ const raw=localStorage.getItem(key); return raw? JSON.parse(raw): structuredClone(fallback);}catch{ return structuredClone(fallback);} }
   function saveJSON(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){ console.warn('LocalStorage save failed', e);} }
