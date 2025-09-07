@@ -267,8 +267,7 @@ button{
 .debugger-panel.compact > :not(:first-child){ display: none; }
   </style>
 
-  <!-- ===================== TALENT STYLES (INSIDE MAIN TAB) ===================== -->
-<style>
+/* ===================== TALENT STYLES (INSIDE MAIN TAB) ===================== */
 /* Talents area absolute placement inside the Main tab wrapper */
 #talentsArea{
   position:absolute;
@@ -285,12 +284,36 @@ button{
   background:#fff; box-shadow:0 1px 4px #0002; cursor:pointer;
 }
 
+/* Talents container scroll area */
+.talents-dropwrap{
+  width:450px; height:250px;
+  box-sizing: border-box;   /* ensure 450px includes padding/border */
+  border:1px dashed #0003;
+  padding:6px; margin:0;
+  background:transparent;
+  overflow:auto;
+}
+
+/* Two-column grid for the cards */
+#talentsPanel{
+  display:grid;
+  width:100%;                                /* span the scroll area */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: min-content;
+  gap:8px;
+  align-content:start;
+}
+
+/* Make sure cards can shrink inside the grid cells */
+.talent-card{ min-width:0; }
+
 .talent-header-img{
   position:relative;
   width:100%; height:72px;
   background:url('img/talent_card_header.png') no-repeat center top;
   background-size:100% auto;   /* stretch across width */
 }
+
 
 /* --- Talent Cards --- */
 
