@@ -268,42 +268,67 @@ button{
   </style>
 
   <!-- ===================== TALENT STYLES (INSIDE MAIN TAB) ===================== -->
-  <style>
-    /* Fixed-size area inside Main tab (absolute within #tabMainWrap) */
-    #talentsArea{ display:flex; flex-direction:column; gap:6px; }
-    .talents-header{ display:flex; gap:8px; align-items:center; }
+<style>
+  /* Fixed-size area inside Main tab */
+  #talentsArea{ display:flex; flex-direction:column; gap:6px; }
+  .talents-header{ display:flex; gap:8px; align-items:center; }
 
-    /* Add button lives ABOVE the container */
-    #addTalentBtn{ padding:.35rem .6rem; border:1px solid #0002; border-radius:8px; background:#fff; box-shadow:0 1px 6px #0002; }
+  /* Add button above the container */
+  #addTalentBtn{ padding:.35rem .6rem; border:1px solid #0002; border-radius:8px; background:#fff; box-shadow:0 1px 6px #0002; }
 
-    /* Fixed container (450×250) with internal two-column grid */
-    .talents-dropwrap{ width:450px; height:250px; border:1px dashed #0003; border-radius:10px; padding:6px; background:transparent; overflow:auto }
-    .talents-panel{ width:100%; min-height:100%; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); grid-auto-rows:min-content; gap:8px; padding:0; background:transparent }
+  /* Fixed container (450×250) with internal two-column grid */
+  .talents-dropwrap{ width:450px; height:250px; border:1px dashed #0003; border-radius:10px; padding:6px; background:transparent; overflow:auto }
+  .talents-panel{ width:100%; min-height:100%; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); grid-auto-rows:min-content; gap:8px; padding:0; background:transparent }
 
-    /* Card layout: header image strip + fields */
-    .talent-card{ position:relative; display:flex; flex-direction:column; gap:8px; padding:10px 10px 12px 10px; min-height:120px; background:transparent; border:1px solid #0002; border-radius:12px; box-shadow:0 4px 10px #0002; user-select:none }
-    .talent-card.min .talent-body{ display:none }
+  /* Card layout */
+  .talent-card{
+    position:relative; display:flex; flex-direction:column; gap:8px;
+    padding:10px 10px 12px 10px; min-height:120px;
+    background:transparent; border:1px solid #0002; border-radius:12px; box-shadow:0 4px 10px #0002; user-select:none
+  }
 
-    /* Header strip image */
-    .talent-header-img{ position:relative; width:100%; height:44px; background:url('img/talent_card_header.png') center/cover no-repeat; border-radius:10px 10px 6px 6px }
-    .talent-title{ position:absolute; left:8px; right:8px; top:50%; transform:translateY(-50%); text-align:center; font-family:'GokilNova', 'DominicanSmall', serif; font-variant:small-caps; font-size:16px; background:transparent; border:none; outline:none }
+  /* Header strip image: show full image across card width (no crop) */
+  .talent-header-img{
+    position:relative; width:100%; height:56px; /* taller so 'contain' can show whole image */
+    background:url('img/talent_card_header.png') center top / contain no-repeat;
+    border-radius:10px 10px 6px 6px
+  }
+  /* Title sits ON the header; use Gokill/Gokil first, then fallbacks */
+  .talent-title{
+    position:absolute; left:8px; right:8px; top:50%; transform:translateY(-50%);
+    text-align:center;
+    font-family:'GokillNova','GokilNova','DominicanSmall', serif;
+    font-variant:small-caps; font-size:16px; background:transparent; border:none; outline:none;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
 
-    /* Level row */
-    .talent-level-row{ display:flex; align-items:center; gap:6px; padding:0 2px }
-    .talent-level-label{ font-family:'DominicanSmall', serif; font-size:11px; opacity:.85 }
-    .talent-level{ width:44px; text-align:center }
+  /* Level row */
+  .talent-level-row{ display:flex; align-items:center; gap:6px; padding:0 2px }
+  .talent-level-label{ font-family:'DominicanSmall', serif; font-size:11px; opacity:.85 }
+  .talent-level{ width:44px; text-align:center }
 
-    /* Body fields */
-    .talent-body{ display:flex; flex-direction:column; gap:6px }
-    .talent-desc, .talent-info{ width:100%; padding:6px 8px; background:transparent; border:1px dashed transparent; outline:none; font-family:'Gothics','Dominican',serif; font-size:14px; line-height:1.25; resize:none }
-    .talent-desc:focus, .talent-info:focus{ border-color:#0002 }
-    .talent-desc{ min-height:56px; overflow:hidden }
-    .talent-info{ min-height:56px; max-height:110px; overflow:auto } /* scrollbar only on info */
+  /* Body fields */
+  .talent-body{ display:flex; flex-direction:column; gap:6px }
+  .talent-desc, .talent-info{
+    width:100%; padding:6px 8px; background:transparent; border:1px dashed transparent; outline:none;
+    font-family:'Gothics','Dominican',serif; font-size:14px; line-height:1.25; resize:none
+  }
+  .talent-desc:focus, .talent-info:focus{ border-color:#0002 }
+  .talent-desc{ min-height:56px; overflow:hidden }           /* auto-resizes */
+  .talent-info{ min-height:56px; max-height:110px; overflow:auto } /* scrollbar only here */
 
-    /* Actions */
-    .talent-actions{ display:flex; gap:6px; justify-content:flex-end }
-    .icon-btn{ width:22px; height:22px; line-height:20px; text-align:center; border:1px solid #0002; border-radius:6px; background:#fff; cursor:pointer }
-  </style>
+  /* Actions */
+  .talent-actions{ display:flex; gap:6px; justify-content:flex-end }
+  .icon-btn{ width:22px; height:22px; line-height:20px; text-align:center; border:1px solid #0002; border-radius:6px; background:#fff; cursor:pointer }
+
+  /* Minimized state: show ONLY the title (single line) */
+  .talent-card.min{ padding:6px 8px }
+  .talent-card.min .talent-level-row,
+  .talent-card.min .talent-body,
+  .talent-card.min .talent-actions{ display:none }
+  .talent-card.min .talent-header-img{ height:28px; } /* slimmer header when collapsed */
+  .talent-card.min .talent-title{ font-size:14px; }   /* slightly smaller title when collapsed */
+</style>
 </head>
 <body>
 <div class="sheet-container">
@@ -1161,11 +1186,10 @@ ${css}
 
 <!-- ===================== TALENT CARDS (Add-button workflow) ===================== -->
 <script>
-(()=>{
+(()=> {
   const LS_CHAR_KEY = 'gxd6.talents.character.v2';
   const panel = document.getElementById('talentsPanel');
   const addBtn = document.getElementById('addTalentBtn');
-
   if(!panel || !addBtn){ console.warn('[TALENTS] Containers missing'); return; }
 
   let charTalents = loadJSON(LS_CHAR_KEY, []);
@@ -1182,10 +1206,10 @@ ${css}
   }
 
   function cardElement(t){
-    const card = h('article', {class:'talent-card', 'data-id':t.id});
+    const card = h('article', {class:'talent-card' + (t._min?' min':''), 'data-id':t.id});
 
     // Header image + overlaid title
-    const headImg = h('div', {class:'talent-header-img'});
+    const headImg = h('div', {class:'talent-header-img', title:'Click to minimize/expand'});
     const title   = h('input', {class:'talent-title', type:'text', placeholder:'Talent Name', value: t.name || ''});
     headImg.appendChild(title);
 
@@ -1205,7 +1229,7 @@ ${css}
 
     // Actions
     const actions = h('div', {class:'talent-actions'});
-    const btnMin = h('button', {class:'icon-btn', title:'Minimize/Expand', type:'button'}, '–');
+    const btnMin = h('button', {class:'icon-btn', title:'Minimize/Expand', type:'button', 'aria-expanded': String(!t._min)}, '–');
     const btnDel = h('button', {class:'icon-btn', title:'Remove', type:'button'}, '✕');
     actions.append(btnMin, btnDel);
 
@@ -1217,9 +1241,16 @@ ${css}
     desc.addEventListener('input', ()=>{ t.desc = desc.value; autoSize(desc); saveChar(); });
     info.addEventListener('input', ()=>{ t.info = info.value; saveChar(); });
 
+    function toggleMin(){
+      card.classList.toggle('min');
+      t._min = card.classList.contains('min');
+      btnMin.setAttribute('aria-expanded', String(!t._min));
+      saveChar();
+    }
+    btnMin.addEventListener('click', toggleMin);
+    headImg.addEventListener('click', (e)=>{ if(e.target !== title) toggleMin(); });
+
     btnDel.addEventListener('click', ()=>{ removeTalent(t.id); });
-    btnMin.addEventListener('click', ()=>{ card.classList.toggle('min'); t._min = card.classList.contains('min'); saveChar(); });
-    if(t._min) card.classList.add('min');
 
     return card;
   }
@@ -1229,7 +1260,7 @@ ${css}
     if(i>-1){ charTalents.splice(i,1); saveChar(); renderPanel(); }
   }
 
-  // ===== Autosize only the description field =====
+  // autosize only the description field
   function autoSize(el){ const fit = ()=>{ el.style.height='auto'; el.style.height = (el.scrollHeight+2)+'px'; }; el.addEventListener('input', fit); queueMicrotask(fit); }
 
   function loadJSON(key, fallback){ try{ const raw=localStorage.getItem(key); return raw? JSON.parse(raw): structuredClone(fallback);}catch{ return structuredClone(fallback);} }
