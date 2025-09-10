@@ -10,7 +10,7 @@
 @font-face { font-family: 'DominicanSmall'; src: url('fonts/DOMISC__.TTF'); font-display: swap; }
 @font-face { font-family: 'Dominican';      src: url('fonts/DOMINICA.TTF'); font-display: swap; }
 @font-face { font-family: 'DeutschGothic';  src: url('fonts/DeutschGothic.ttf'); font-display: swap; }
-@font-face { font-family: 'GokilNova';      src: url('fonts/Gokil-Nova.ttf') format('truetype'); }
+@font-face { font-family: 'GokilNova';      src: url('fonts/Gokil-Nova.ttf') format('truetype'); font-display: swap; }
 @font-face { font-family: 'Gothics';        src: url('fonts/GOTHICS.ttf'); font-display: swap; }
 
 body{
@@ -229,14 +229,13 @@ button{
     #archetype1, #archetype2 { width:100px; height:20px; }
     #profession1, #profession2 { width:140px; height:20px; }
 
-    /* XP number: looks like skill-num (10px / 15px tall) but wide enough for two digits */
+    /* XP number */
     .xp-num {
-      width: 24px;       /* fits 99 comfortably at 10px font */
-      height: 15px;      /* matches .skill-num height */
-      font-size: 14px;   /* matches .skill-num font */
+      width: 24px;
+      height: 15px;
+      font-size: 14px;
       text-align: center;
     }
-    /* XP +/- as standalone buttons */
     .xp-btn {
       width: 18px; height: 18px; font-size: 12px; font-weight: bold; line-height: 1; background: transparent; border: none; cursor: pointer; padding: 0;
     }
@@ -267,7 +266,8 @@ button{
 .debugger-panel.compact > :not(:first-child){ display: none; }
   </style>
 
-/* ===================== TALENT STYLES (INSIDE MAIN TAB) ===================== */
+  <!-- ===================== TALENT STYLES (INSIDE MAIN TAB) ===================== -->
+  <style>
 /* Talents area absolute placement inside the Main tab wrapper */
 #talentsArea{
   position:absolute;
@@ -287,7 +287,6 @@ button{
 /* Talents container scroll area */
 .talents-dropwrap{
   width:450px; height:250px;
-  box-sizing: border-box;   /* ensure 450px includes padding/border */
   border:1px dashed #0003;
   padding:6px; margin:0;
   background:transparent;
@@ -295,60 +294,48 @@ button{
 }
 
 /* Two-column grid for the cards */
-#talentsPanel{
+.talents-panel{
   display:grid;
-  width:100%;                                /* span the scroll area */
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-rows: min-content;
   gap:8px;
   align-content:start;
 }
 
-/* Make sure cards can shrink inside the grid cells */
-.talent-card{ min-width:0; }
-
-.talent-header-img{
-  position:relative;
-  width:100%; height:72px;
-  background:url('img/talent_card_header.png') no-repeat center top;
-  background-size:100% auto;   /* stretch across width */
-}
-
-
 /* --- Talent Cards --- */
-
-/* Card: square corners, consistent width in all states */
 .talent-card{
   box-sizing:border-box;
   position:relative; display:flex; flex-direction:column;
-  gap:0; padding:0; /* same in both states */
-  min-height:120px; /* expanded only (min state overrides) */
+  gap:0; padding:0;
+  min-height:120px; /* expanded; minimized overrides */
   background:transparent;
   border:1px solid #000; border-radius:0; /* square */
   box-shadow:0 2px 6px #0002;
   user-select:none;
+  min-width:0; /* allow shrinking within grid */
 }
 
-/* Header strip (title + level live inside here) */
+/* Header strip (title + level inside here) */
 .talent-header-img{
   position:relative;
+  width:100%; height:72px;
   background:url('img/talent_card_header.png') no-repeat center top;
-  background-size:100% auto;   /* ← was "contain"; this pins to the full width */
+  background-size:100% auto; /* stretch across width */
 }
 
-/* Title at the very top (no size change on toggle) */
+/* Title pinned at top; same size both states */
 .talent-title{
   position:absolute; left:8px; right:8px; top:6px;
   text-align:center;
-  font-family:'GokilNova','DominicanSmall',serif; /* see @font-face name below */
+  font-family:'GokilNova','DominicanSmall',serif;
   font-size:18px; line-height:1.1; letter-spacing:.2px;
   background:transparent; border:none; outline:none;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
-/* Level row sits just under the title, INSIDE the header */
+/* Level row just under the title, INSIDE header */
 .talent-level-inline{
-  position:absolute; left:0; right:0; top:36px; /* directly under the name */
+  position:absolute; left:0; right:0; top:36px;
   display:flex; align-items:center; justify-content:center; gap:6px;
 }
 .talent-level-label{ font-family:'DominicanSmall',serif; font-size:11px; opacity:.9; }
@@ -361,7 +348,7 @@ button{
   font-family:'Gothics','Dominican',serif; font-size:11px; line-height:1.25; resize:none;
 }
 .talent-desc:focus, .talent-info:focus{ border-color:#0002; }
-.talent-desc{ min-height:48px; overflow:hidden; }        /* auto-resize via JS */
+.talent-desc{ min-height:48px; overflow:hidden; }
 .talent-info{ min-height:48px; max-height:100px; overflow:auto; } /* scrollbar here only */
 
 /* Actions */
@@ -369,19 +356,14 @@ button{
 .icon-btn{ width:22px; height:22px; line-height:20px; text-align:center; border:1px solid #000; border-radius:0; background:#fff; cursor:pointer }
 
 /* Minimized: EXACTLY header height — no blank space */
-.talent-card.min{
-  min-height:0; height:72px; padding:0; overflow:hidden;
-}
+.talent-card.min{ min-height:0; height:72px; padding:0; overflow:hidden; }
 .talent-card.min .talent-body,
 .talent-card.min .talent-actions{ display:none !important; }
-
-/* No font-size change in min state (keeps title steady) */
 .talent-card.min .talent-title{ font-size:18px; }
 
 /* Optional: subtle hover */
 .talent-card:hover{ box-shadow:0 3px 8px #0003; }
-
-</style>
+  </style>
 </head>
 <body>
 
@@ -653,15 +635,15 @@ button{
           <input id="tick3" type="checkbox" class="abs" style="--x:333px; --y:69px;">
           <input id="tick4" type="checkbox" class="abs" style="--x:333px; --y:86px;">
 
-<!-- ===== Talents area (INSIDE main panel) ===== -->
-<div id="talentsArea" class="abs" style="--x:0px; --y:100px; --w:450px; --h:270px;">
-  <div class="talents-header">
-    <button id="addTalentBtn" type="button" title="Add a Talent">+ Add Talent</button>
-  </div>
-  <div class="talents-dropwrap">
-    <section id="talentsPanel" class="talents-panel" aria-label="Character Talents" data-columns="2"></section>
-  </div>
-</div>
+          <!-- ===== Talents area (INSIDE main panel) ===== -->
+          <div id="talentsArea" class="abs" style="--x:0px; --y:100px; --w:450px; --h:270px;">
+            <div class="talents-header">
+              <button id="addTalentBtn" type="button" title="Add a Talent">+ Add Talent</button>
+            </div>
+            <div class="talents-dropwrap">
+              <section id="talentsPanel" class="talents-panel" aria-label="Character Talents" data-columns="2"></section>
+            </div>
+          </div>
 
         </div><!-- /#tabMainWrap -->
       </div><!-- /#panel-main -->
@@ -673,7 +655,6 @@ button{
 
   </div><!-- /#mainCanvas -->
 </div><!-- /.sheet-container -->
-
 <!-- Scripts (tabs + small helpers) -->
 <script>
 window.showTab = function(which){
@@ -1197,6 +1178,11 @@ ${css}
   document.addEventListener('mousemove', e => { if (!debugOn || !hoverEnabled || tooltip.style.display !== 'block') return; tooltip.style.left = Math.min(window.innerWidth - 8, e.clientX + 8) + 'px'; tooltip.style.top  = Math.min(window.innerHeight - 8, e.clientY + 8) + 'px'; });
   document.addEventListener('mouseout', e => { if (!debugOn || !hoverEnabled) return; const t = e.target.closest(TARGET_SELECTOR); if (isTarget(t)) hideTooltip(); }, {capture:true});
 
+  const coordHUD = document.querySelector('.debug-coord-hud');
+
+  const crossX = document.querySelector('.debug-crosshair-x');
+  const crossY = document.querySelector('.debug-crosshair-y');
+
   canvas.addEventListener('mousedown', e => { if (!debugOn || !e.shiftKey || measureMode) return; marqueeActive = true; startX = e.clientX; startY = e.clientY; Object.assign(marquee.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' }); e.preventDefault(); });
   window.addEventListener('mousemove', e => { if (!debugOn || !marqueeActive) return; const box = rectFromPoints(startX, startY, e.clientX, e.clientY); Object.assign(marquee.style, { left:box.left+'px', top:box.top+'px', width:box.width+'px', height:box.height+'px' }); clearSelection(); canvas.querySelectorAll(TARGET_SELECTOR).forEach(el => { const r = pageRect(el); if (intersects(box, r)) addToSelection(el); }); });
   window.addEventListener('mouseup', () => { if (!debugOn || !marqueeActive) return; marqueeActive = false; marquee.style.display = 'none'; });
@@ -1262,19 +1248,18 @@ ${css}
   function cardElement(t){
     const card = h('article', {class:'talent-card' + (t._min?' min':''), 'data-id':t.id});
 
-// Header image with title + inline level (inside the same header block)
-const headImg = h('div', {class:'talent-header-img', title:'Click to minimize/expand'});
-const title   = h('input', {class:'talent-title', type:'text', placeholder:'Talent Name', value: t.name || ''});
+    // Header image with title + inline level (inside the same header block)
+    const headImg = h('div', {class:'talent-header-img', title:'Click to minimize/expand'});
+    const title   = h('input', {class:'talent-title', type:'text', placeholder:'Talent Name', value: t.name || ''});
 
-// Level sits just under the name, inside header
-const lvlInline = h('div', {class:'talent-level-inline'});
-const lvlLbl    = h('span', {class:'talent-level-label'}, 'Level');
-const level     = h('select', {class:'talent-level skill-num'});
-['-','1','2','3'].forEach(v=> level.appendChild(h('option',{value:v, selected:String(t.level||'-')===v?true:null}, v)));
-lvlInline.append(lvlLbl, level);
+    // Level sits just under the name, inside header
+    const lvlInline = h('div', {class:'talent-level-inline'});
+    const lvlLbl    = h('span', {class:'talent-level-label'}, 'Level');
+    const level     = h('select', {class:'talent-level skill-num'});
+    ['-','1','2','3'].forEach(v=> level.appendChild(h('option',{value:v, selected:String(t.level||'-')===v?true:null}, v)));
+    lvlInline.append(lvlLbl, level);
 
-headImg.append(title, lvlInline);
-
+    headImg.append(title, lvlInline);
 
     // Body
     const body = h('div', {class:'talent-body'});
@@ -1318,8 +1303,8 @@ headImg.append(title, lvlInline);
 
   // autosize only the description field
   function autoSize(el){ 
-	const fit = ()=>{ el.style.height='auto'; el.style.height = (el.scrollHeight+2)+'px'; }; 
-	el.addEventListener('input', fit); queueMicrotask(fit); }
+    const fit = ()=>{ el.style.height='auto'; el.style.height = (el.scrollHeight+2)+'px'; }; 
+    el.addEventListener('input', fit); queueMicrotask(fit); }
 
   function loadJSON(key, fallback){ try{ const raw=localStorage.getItem(key); return raw? JSON.parse(raw): structuredClone(fallback);}catch{ return structuredClone(fallback);} }
   function saveJSON(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){ console.warn('LocalStorage save failed', e);} }
@@ -1335,6 +1320,6 @@ headImg.append(title, lvlInline);
 })();
 </script>
 
-<!-- (Optional) Close body + html -->
+<!-- Close body + html -->
 </body>
 </html>
