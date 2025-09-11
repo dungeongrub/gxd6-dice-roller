@@ -266,29 +266,36 @@ button{
 .debugger-panel.compact > :not(:first-child){ display: none; }
   </style>
 
-  <!-- ===================== TALENT STYLES (INSIDE MAIN TAB) ===================== -->
-  <style>
+<!-- ===================== TALENT STYLES (INSIDE MAIN TAB) ===================== -->
+<style>
 /* Talents area absolute placement inside the Main tab wrapper */
 #talentsArea{
   position:absolute;
   left:0; top:100px;
-  width:450px; /* matches your fixed panel width */
-  margin:0 !important; padding:0;
+  width:450px;               /* matches your fixed panel width */
+  margin:0 !important;
+  padding:0;
   /* height comes from inline --h:270px and inner content */
 }
 
+/* Add Talent button */
 #addTalentBtn{
-  padding:0;           /* remove padding as requested */
-  margin-left:75px;    /* move 75px to the right */
-  border:1px solid #000; border-radius:0;
-  background:#fff; box-shadow:0 1px 4px #0002; cursor:pointer;
+  padding:0;                 /* remove padding as requested */
+  margin-left:75px;          /* move 75px to the right */
+  border:1px solid #000;
+  border-radius:0;
+  background:#fff;
+  box-shadow:0 1px 4px #0002;
+  cursor:pointer;
 }
 
 /* Talents container scroll area */
 .talents-dropwrap{
-  width:450px; height:250px;
+  width:450px;
+  height:250px;
   border:1px dashed #0003;
-  padding:6px; margin:0;
+  padding:6px;
+  margin:0;
   background:transparent;
   overflow:auto;
 }
@@ -297,73 +304,124 @@ button{
 .talents-panel{
   display:grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: min-content;
+  grid-auto-rows:min-content;
   gap:8px;
   align-content:start;
 }
 
-/* --- Talent Cards --- */
+/* Make sure cards can shrink inside grid cells */
+.talent-card{ min-width:0; }
+
+/* Talent card styling */
 .talent-card{
   box-sizing:border-box;
-  position:relative; display:flex; flex-direction:column;
-  gap:0; padding:0;
-  min-height:120px; /* expanded; minimized overrides */
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  padding:0;
+  min-height:120px;
   background:transparent;
-  border:1px solid #000; border-radius:0; /* square */
+  border:1px solid #000;
+  border-radius:0;
   box-shadow:0 2px 6px #0002;
   user-select:none;
-  min-width:0; /* allow shrinking within grid */
 }
 
-/* Header strip (title + level inside here) */
+/* Header strip (title + level inside) */
 .talent-header-img{
   position:relative;
   width:100%; height:72px;
   background:url('img/talent_card_header.png') no-repeat center top;
-  background-size:100% auto; /* stretch across width */
+  background-size:100% auto;  /* stretch across width */
 }
 
-/* Title pinned at top; same size both states */
+/* Title always top, no resize on minimize */
 .talent-title{
-  position:absolute; left:8px; right:8px; top:6px;
+  position:absolute;
+  left:8px; right:8px; top:6px;
   text-align:center;
   font-family:'GokilNova','DominicanSmall',serif;
-  font-size:18px; line-height:1.1; letter-spacing:.2px;
-  background:transparent; border:none; outline:none;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  font-size:18px;
+  line-height:1.1;
+  letter-spacing:.2px;
+  background:transparent;
+  border:none;
+  outline:none;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
-/* Level row just under the title, INSIDE header */
+/* Level row under title */
 .talent-level-inline{
-  position:absolute; left:0; right:0; top:36px;
-  display:flex; align-items:center; justify-content:center; gap:6px;
+  position:absolute;
+  left:0; right:0; top:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
 }
-.talent-level-label{ font-family:'DominicanSmall',serif; font-size:11px; opacity:.9; }
+.talent-level-label{
+  font-family:'DominicanSmall',serif;
+  font-size:11px;
+  opacity:.9;
+}
 .talent-level{ width:44px; text-align:center }
 
-/* Body (smaller fonts) */
-.talent-body{ display:flex; flex-direction:column; gap:6px; padding:8px; }
+/* Body text (small font) */
+.talent-body{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:8px;
+}
 .talent-desc, .talent-info{
-  width:100%; padding:6px 8px; background:transparent; border:1px dashed transparent; outline:none;
-  font-family:'Gothics','Dominican',serif; font-size:11px; line-height:1.25; resize:none;
+  width:100%;
+  padding:6px 8px;
+  background:transparent;
+  border:1px dashed transparent;
+  outline:none;
+  font-family:'Gothics','Dominican',serif;
+  font-size:11px;            /* smaller font size */
+  line-height:1.25;
+  resize:none;
 }
 .talent-desc:focus, .talent-info:focus{ border-color:#0002; }
 .talent-desc{ min-height:48px; overflow:hidden; }
-.talent-info{ min-height:48px; max-height:100px; overflow:auto; } /* scrollbar here only */
+.talent-info{ min-height:48px; max-height:100px; overflow:auto; }
 
-/* Actions */
-.talent-actions{ display:flex; gap:6px; justify-content:flex-end; padding:0 8px 8px 8px; }
-.icon-btn{ width:22px; height:22px; line-height:20px; text-align:center; border:1px solid #000; border-radius:0; background:#fff; cursor:pointer }
+/* Actions row */
+.talent-actions{
+  display:flex;
+  gap:6px;
+  justify-content:flex-end;
+  padding:0 8px 8px 8px;
+}
+.icon-btn{
+  width:22px; height:22px;
+  line-height:20px;
+  text-align:center;
+  border:1px solid #000;
+  border-radius:0;
+  background:#fff;
+  cursor:pointer;
+}
 
-/* Minimized: EXACTLY header height — no blank space */
-.talent-card.min{ min-height:0; height:72px; padding:0; overflow:hidden; }
+/* Minimized: only show header strip */
+.talent-card.min{
+  min-height:0;
+  height:72px;
+  padding:0;
+  overflow:hidden;
+}
 .talent-card.min .talent-body,
 .talent-card.min .talent-actions{ display:none !important; }
-.talent-card.min .talent-title{ font-size:18px; }
+.talent-card.min .talent-title{ font-size:18px; } /* keep steady */
 
-/* Optional: subtle hover */
+/* Hover highlight */
 .talent-card:hover{ box-shadow:0 3px 8px #0003; }
-  </style>
+</style>
 </head>
 <body>
 
