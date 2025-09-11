@@ -250,7 +250,7 @@ button{
   <style>
 .debugger-panel { position: fixed; right: 12px; bottom: 12px; z-index: 1000000; background: #ffffff; color: #111; border: 1px solid #bbb; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 6px; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.15); user-select: none; min-width: 190px; }
 .debugger-panel .row { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
-.debugger-panel input[type="text"], .debugger-panel input[type="number"], .debugger-panel button, .debugger-panel label { font: 9px/1.35 system-ui, ...; padding: 2px 4px; }
+.debugger-panel input[type="text"], .debugger-panel input[type="number"], .debugger-panel button, .debugger-panel label { font: 9px/1.35 system-ui,system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
 .debugger-panel button { border: 1px solid #bbb; background: #f6f6f6; cursor: pointer; }
 .debugger-panel .muted { opacity: .75; }
 .debug-tooltip,.debug-coord-hud { position: fixed; z-index: 999998; display: none; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 3px 5px; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; pointer-events: none; white-space: nowrap; }
@@ -1177,11 +1177,6 @@ ${css}
   document.addEventListener('mouseover', e => { if (!debugOn || !hoverEnabled) return; const t = e.target.closest(TARGET_SELECTOR); if (isTarget(t)) showTooltip(t, e.clientX, e.clientY); }, {capture:true});
   document.addEventListener('mousemove', e => { if (!debugOn || !hoverEnabled || tooltip.style.display !== 'block') return; tooltip.style.left = Math.min(window.innerWidth - 8, e.clientX + 8) + 'px'; tooltip.style.top  = Math.min(window.innerHeight - 8, e.clientY + 8) + 'px'; });
   document.addEventListener('mouseout', e => { if (!debugOn || !hoverEnabled) return; const t = e.target.closest(TARGET_SELECTOR); if (isTarget(t)) hideTooltip(); }, {capture:true});
-
-  const coordHUD = document.querySelector('.debug-coord-hud');
-
-  const crossX = document.querySelector('.debug-crosshair-x');
-  const crossY = document.querySelector('.debug-crosshair-y');
 
   canvas.addEventListener('mousedown', e => { if (!debugOn || !e.shiftKey || measureMode) return; marqueeActive = true; startX = e.clientX; startY = e.clientY; Object.assign(marquee.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' }); e.preventDefault(); });
   window.addEventListener('mousemove', e => { if (!debugOn || !marqueeActive) return; const box = rectFromPoints(startX, startY, e.clientX, e.clientY); Object.assign(marquee.style, { left:box.left+'px', top:box.top+'px', width:box.width+'px', height:box.height+'px' }); clearSelection(); canvas.querySelectorAll(TARGET_SELECTOR).forEach(el => { const r = pageRect(el); if (intersects(box, r)) addToSelection(el); }); });
