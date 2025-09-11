@@ -272,16 +272,15 @@ button{
 #talentsArea{
   position:absolute;
   left:0; top:100px;
-  width:450px;               /* matches your fixed panel width */
+  width:450px;
   margin:0 !important;
   padding:0;
-  /* height comes from inline --h:270px and inner content */
 }
 
 /* Add Talent button */
 #addTalentBtn{
-  padding:0;                 /* remove padding as requested */
-  margin-left:75px;          /* move 75px to the right */
+  padding:0;
+  margin-left:75px;
   border:1px solid #000;
   border-radius:0;
   background:#fff;
@@ -289,7 +288,7 @@ button{
   cursor:pointer;
 }
 
-/* Talents container scroll area */
+/* Scroll wrapper */
 .talents-dropwrap{
   width:450px;
   height:250px;
@@ -300,27 +299,18 @@ button{
   overflow:auto;
 }
 
-/* Two-column grid for the cards */
+/* Full-width, single column */
 .talents-panel{
   display:grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows:min-content;
+  grid-template-columns: 1fr;   /* full width per card */
   gap:8px;
   align-content:start;
 }
 
-/* Make sure cards can shrink inside grid cells */
-.talent-card{ min-width:0; }
-
-/* Talent card styling */
+/* Card */
 .talent-card{
   box-sizing:border-box;
-  position:relative;
-  display:flex;
-  flex-direction:column;
-  gap:0;
-  padding:0;
-  min-height:120px;
+  width:100%;
   background:transparent;
   border:1px solid #000;
   border-radius:0;
@@ -328,19 +318,22 @@ button{
   user-select:none;
 }
 
-/* Header strip (title + level inside) */
-.talent-header-img{
-  position:relative;
-  width:100%; height:72px;
-  background:url('img/talent_card_header.png') no-repeat center top;
-  background-size:100% auto;  /* stretch across width */
+/* Header row */
+.talent-header{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-height:48px;
+  padding:8px;
+  /* optional header art strip: uncomment if you want it
+  background: url('img/talent_card_header.png') no-repeat center top / 100% auto;
+  */
 }
 
-/* Title always top, no resize on minimize */
+/* Title on the left */
 .talent-title{
-  position:absolute;
-  left:8px; right:8px; top:6px;
-  text-align:center;
+  flex:1;
+  min-width:0;
   font-family:'GokilNova','DominicanSmall',serif;
   font-size:18px;
   line-height:1.1;
@@ -348,34 +341,30 @@ button{
   background:transparent;
   border:none;
   outline:none;
+  text-align:left;
+  padding:0;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 
-/* Level row under title */
-.talent-level-inline{
-  position:absolute;
-  left:0; right:0; top:36px;
+/* Right side cluster (level + buttons) */
+.talent-head-right{
   display:flex;
   align-items:center;
-  justify-content:center;
-  gap:6px;
+  gap:8px;
+  margin-left:auto;
 }
-.talent-level-label{
-  font-family:'DominicanSmall',serif;
-  font-size:11px;
-  opacity:.9;
-}
+
+/* Level inline */
+.talent-level-inline{ display:flex; align-items:center; gap:6px; }
+.talent-level-label{ font-family:'DominicanSmall',serif; font-size:11px; opacity:.9; }
 .talent-level{ width:44px; text-align:center }
 
-/* Body text (small font) */
-.talent-body{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  padding:8px;
-}
+/* Body (desc & info) */
+.talent-body{ display:flex; flex-direction:column; gap:6px; padding:8px; }
+
+/* Description: single line by default, auto-expands */
 .talent-desc, .talent-info{
   width:100%;
   padding:6px 8px;
@@ -383,21 +372,22 @@ button{
   border:1px dashed transparent;
   outline:none;
   font-family:'Gothics','Dominican',serif;
-  font-size:11px;            /* smaller font size */
+  font-size:11px;
   line-height:1.25;
-  resize:none;
+  resize:none;                /* we auto-size in JS */
+}
+.talent-desc{
+  min-height:22px;            /* single-line look */
+  overflow:hidden;
+}
+.talent-info{
+  min-height:48px;
+  max-height:160px;
+  overflow:auto;
 }
 .talent-desc:focus, .talent-info:focus{ border-color:#0002; }
-.talent-desc{ min-height:48px; overflow:hidden; }
-.talent-info{ min-height:48px; max-height:100px; overflow:auto; }
 
-/* Actions row */
-.talent-actions{
-  display:flex;
-  gap:6px;
-  justify-content:flex-end;
-  padding:0 8px 8px 8px;
-}
+/* Header buttons */
 .icon-btn{
   width:22px; height:22px;
   line-height:20px;
@@ -408,20 +398,13 @@ button{
   cursor:pointer;
 }
 
-/* Minimized: only show header strip */
-.talent-card.min{
-  min-height:0;
-  height:72px;
-  padding:0;
-  overflow:hidden;
-}
-.talent-card.min .talent-body,
-.talent-card.min .talent-actions{ display:none !important; }
-.talent-card.min .talent-title{ font-size:18px; } /* keep steady */
+/* Minimize: collapse body only, keep header visible */
+.talent-card.min .talent-body{ display:none !important; }
 
-/* Hover highlight */
+/* Hover */
 .talent-card:hover{ box-shadow:0 3px 8px #0003; }
 </style>
+<!-- =============== END OF TALENT STYLES (INSIDE MAIN TAB) ===================== -->
 </head>
 <body>
 
@@ -1298,56 +1281,60 @@ ${css}
     charTalents.forEach(t => panel.appendChild(cardElement(t)));
   }
 
-  function cardElement(t){
-    const card = h('article', {class:'talent-card' + (t._min?' min':''), 'data-id':t.id});
+function cardElement(t){
+  const card = h('article', {class:'talent-card' + (t._min?' min':''), 'data-id':t.id});
 
-    // Header image with title + inline level (inside the same header block)
-    const headImg = h('div', {class:'talent-header-img', title:'Click to minimize/expand'});
-    const title   = h('input', {class:'talent-title', type:'text', placeholder:'Talent Name', value: t.name || ''});
+  // Header row: Title (left), Level + Min/Del (right)
+  const header = h('div', {class:'talent-header', title:'Click to minimize/expand'});
+  const title  = h('input', {class:'talent-title', type:'text', placeholder:'Talent Name', value: t.name || ''});
 
-    // Level sits just under the name, inside header
-    const lvlInline = h('div', {class:'talent-level-inline'});
-    const lvlLbl    = h('span', {class:'talent-level-label'}, 'Level');
-    const level     = h('select', {class:'talent-level skill-num'});
-    ['-','1','2','3'].forEach(v=> level.appendChild(h('option',{value:v, selected:String(t.level||'-')===v?true:null}, v)));
-    lvlInline.append(lvlLbl, level);
+  const lvlWrap = h('div', {class:'talent-level-inline'});
+  const lvlLbl  = h('span', {class:'talent-level-label'}, 'Level');
+  const level   = h('select', {class:'talent-level skill-num'});
+  ['-','1','2','3'].forEach(v =>
+    level.appendChild(h('option',{value:v, selected:String(t.level||'-')===v?true:null}, v))
+  );
+  lvlWrap.append(lvlLbl, level);
 
-    headImg.append(title, lvlInline);
+  const btnMin = h('button', {class:'icon-btn', title:'Minimize/Expand', type:'button', 'aria-expanded': String(!t._min)}, '–');
+  const btnDel = h('button', {class:'icon-btn', title:'Remove',         type:'button'}, '✕');
 
-    // Body
-    const body = h('div', {class:'talent-body'});
-    const desc = h('textarea', {class:'talent-desc', placeholder:'Description…'}, t.desc||'');
-    const info = h('textarea', {class:'talent-info', placeholder:'Info / Notes…'}, t.info||'');
-    autoSize(desc);
-    body.append(desc, info);
+  const right  = h('div', {class:'talent-head-right'});
+  right.append(lvlWrap, btnMin, btnDel);
 
-    // Actions
-    const actions = h('div', {class:'talent-actions'});
-    const btnMin = h('button', {class:'icon-btn', title:'Minimize/Expand', type:'button', 'aria-expanded': String(!t._min)}, '–');
-    const btnDel = h('button', {class:'icon-btn', title:'Remove', type:'button'}, '✕');
-    actions.append(btnMin, btnDel);
+  header.append(title, right);
 
-    card.append(headImg, body, actions);
+  // Body: Description (single line, auto-expands) + Info below
+  const body = h('div', {class:'talent-body'});
+  const desc = h('textarea', {class:'talent-desc', placeholder:'Description…', rows:1}, t.desc||'');
+  const info = h('textarea', {class:'talent-info', placeholder:'Info / Notes…'}, t.info||'');
+  autoSize(desc);   // single-line -> grows as you type
+  autoSize(info);
+  body.append(desc, info);
 
-    // Bind
-    title.addEventListener('input', ()=>{ t.name = title.value.trim(); saveChar(); });
-    level.addEventListener('change', ()=>{ t.level = level.value; saveChar(); });
-    desc.addEventListener('input', ()=>{ t.desc = desc.value; autoSize(desc); saveChar(); });
-    info.addEventListener('input', ()=>{ t.info = info.value; saveChar(); });
+  card.append(header, body);
 
-    function toggleMin(){
-      card.classList.toggle('min');
-      t._min = card.classList.contains('min');
-      btnMin.setAttribute('aria-expanded', String(!t._min));
-      saveChar();
-    }
-    btnMin.addEventListener('click', toggleMin);
-    headImg.addEventListener('click', (e)=>{ if(e.target !== title) toggleMin(); });
+  // Bind: save on change
+  title.addEventListener('input', ()=>{ t.name = title.value.trim(); saveChar(); });
+  level.addEventListener('change', ()=>{ t.level = level.value; saveChar(); });
+  desc.addEventListener('input', ()=>{ t.desc = desc.value; autoSize(desc); saveChar(); });
+  info.addEventListener('input', ()=>{ t.info = info.value; autoSize(info); saveChar(); });
 
-    btnDel.addEventListener('click', ()=>{ removeTalent(t.id); });
-
-    return card;
+  // Minimise toggle (collapse body only)
+  function toggleMin(){
+    card.classList.toggle('min');
+    t._min = card.classList.contains('min');
+    btnMin.setAttribute('aria-expanded', String(!t._min));
+    saveChar();
   }
+  btnMin.addEventListener('click', toggleMin);
+  header.addEventListener('click', (e)=>{ if(e.target !== title && e.target !== level) toggleMin(); });
+
+  // Delete
+  btnDel.addEventListener('click', ()=>{ removeTalent(t.id); });
+
+  return card;
+}
 
   function removeTalent(id){
     const i = charTalents.findIndex(x=>x.id===id);
