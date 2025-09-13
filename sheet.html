@@ -244,6 +244,17 @@ button{
     /* Independent tick styling */
     #tick1, #tick2, #tick3, #tick4 { appearance:none; -webkit-appearance:none; width:12px; height:12px; border:1px solid #000; border-radius:2px; background:transparent; cursor:pointer; margin:0; padding:0; position:absolute; }
     #tick1:checked::after, #tick2:checked::after, #tick3:checked::after, #tick4:checked::after { content: "×"; position: absolute; top: -2px; left: 1px; font-size: 14px; line-height: 12px; color: #000; }
+	
+	/* Add Talent button */
+#addTalentBtn{
+  padding:0;                 /* remove padding as requested */
+  margin-left:75px;          /* move 75px to the right */
+  border:1px solid #000;
+  border-radius:0;
+  background:#fff;
+  box-shadow:0 1px 4px #0002;
+  cursor:pointer;
+  }
   </style>
 
   <!-- ===== Unified Debugger (styles) ===== -->
@@ -1322,15 +1333,15 @@ function cardElement(t){
   top.append(title, right);
 
   // Body: Description (single line style) + Info
-  const body = h('div', {class:'talent-body'});
-  const desc = h('textarea', {class:'talent-desc', placeholder:'Description…', rows:1}, t.desc||'');
-  const info = h('textarea', {class:'talent-info', placeholder:'Info / Notes…'}, t.info||'');
+const body = h('div',{class:'talent-body'});
+const desc = h('textarea',{
+  class:'talent-desc',
+  placeholder:'Description',
+  value: t.desc || ''
+});
+body.appendChild(desc);
+card.appendChild(body);
 
-  // Autosize description to content as user types (keeps the single-line feel but expands)
-  autoSize(desc);
-
-  body.append(desc, info);
-  card.append(top, body);
 
   /* ==== Bindings ==== */
   title.addEventListener('input', ()=>{ t.name = title.value.trim(); saveChar(); });
