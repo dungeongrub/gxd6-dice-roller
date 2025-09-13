@@ -233,7 +233,7 @@ button{
     .xp-num {
       width: 24px;
       height: 15px;
-      font-size: 14px;
+      font-size: 16px;
       text-align: center;
     }
     .xp-btn {
@@ -248,7 +248,7 @@ button{
 	/* Add Talent button */
 #addTalentBtn{
   padding:0;                 /* remove padding as requested */
-  margin-left:75px;          /* move 75px to the right */
+  margin-left:70px;          /* move 70px to the right */
   border:1px solid #000;
   border-radius:0;
   background:#fff;
@@ -366,13 +366,13 @@ button{
   border:1px solid #000;
   padding:0 2px;
   font-family:'DeutschGothic', monospace;
-  font-size:12px;
+  font-size:14px;
 }
 
 /* Circular bold delete button with centered X */
 .btn-del{
-  width:22px;
-  height:22px;
+  width:18px;
+  height:18px;
   border:1px solid #000;
   border-radius:50%;
   background:#fff;
@@ -394,33 +394,16 @@ button{
 /* Description = single line by default, no padding, bottom border */
 .talent-desc{
   width:100%;
+  padding:0;                 /* no padding */
+  margin:0;
   background:transparent;
   border:none;
-  border-bottom:1px solid #000;  /* only bottom border */
+  border-bottom:1px solid #000;  /* bottom border only */
   outline:none;
   font-family:'Gothics','Dominican',serif;
   font-size:11px;
   line-height:1.25;
-  padding:0;            /* no padding */
-  margin:0;
-  resize:vertical;      /* user can expand */
-  min-height:18px;      /* single-line feel */
-  overflow:hidden;
-}
-
-/* Info field underneath, no padding, no border */
-.talent-info{
-  width:100%;
-  background:transparent;
-  border:none;
-  outline:none;
-  font-family:'Gothics','Dominican',serif;
-  font-size:11px;
-  line-height:1.25;
-  padding:0;            /* no padding */
-  margin:0;
-  resize:vertical;
-  min-height:48px;
+  resize:none;               /* grows vertically via JS */
 }
 
 /* Minimise state: show ONLY the title row */
@@ -1308,57 +1291,50 @@ ${css}
   }
 
 function cardElement(t){
-  const card = h('article', {class:'talent-card' + (t._min?' min':''), 'data-id':t.id});
-
-  // Top row: [ Title (center, fills) | Level label+select | X ]
-  const top   = h('div', {class:'talent-top'});
-  const title = h('input', {
-    class:'talent-title',
-    type:'text',
-    placeholder:'Talent Name',
-    value: t.name || '',
-    title:'Click to minimise / expand'
+  const card = h('article', {
+    class: 'talent-card' + (t._min ? ' min' : ''),
+    'data-id': t.id
   });
 
-  const right = h('div', {class:'talent-right'});
-  const lvlLbl = h('span', {class:'talent-level-label'}, 'Level');
-  const level  = h('select', {class:'talent-level'});
-  ['-','1','2','3'].forEach(v=>{
-    level.appendChild(h('option',{value:v, selected:String(t.level||'-')===v?true:null}, v));
-  });
+  // Header: centered title + right side (level + delete)
+  const head    = h('div', { class: 'talent-header', title: 'Click to minimise/expand' });
+  const title   = h('input', { class: 'talent-title', type: 'text', placeholder: 'Talent Name', value: t.name || '' });
 
-  const btnDel = h('button', {class:'btn-del', type:'button', title:'Delete talent'}, 'X');
+  const right   = h('div', { class: 'talent-right' });
+  const lvlLbl  = h('span', { class: 'talent-level-label' }, 'Level');
+  const level   = h('select', { class: 'talent-level skill-num' });
+  ['-','1','2','3'].forEach(v => level.appendChild(
+    h('option', { value: v, selected: String(t.level || '-') === v ? true : null }, v)
+  ));
+  const btnDel  = h('button', { class: 'btn-delete', type: 'button', title: 'Delete' }, '×');
 
   right.append(lvlLbl, level, btnDel);
-  top.append(title, right);
+  head.append(title, right);
 
-  // Body: Description (single line style) + Info
-const body = h('div',{class:'talent-body'});
-const desc = h('textarea',{
-  class:'talent-desc',
-  placeholder:'Description',
-  value: t.desc || ''
-});
-body.appendChild(desc);
-card.appendChild(body);
+  // Body: single auto-growing Description
+  const body = h('div', { class: 'talent-body' });
+  const desc = h('textarea', { class: 'talent-desc', placeholder: 'Description…', rows: 1 }, t.desc || '');
+  autoSize(desc);
+  body.append(desc);
 
-  /* ==== Bindings ==== */
-  title.addEventListener('input', ()=>{ t.name = title.value.trim(); saveChar(); });
-  title.addEventListener('click', ()=>{ // toggle minimise on title click
+  card.append(head, body);
+
+  // Bind
+  title.addEventListener('input', () => { t.name = title.value.trim(); saveChar(); });
+  level.addEventListener('change', () => { t.level = level.value; saveChar(); });
+  desc.addEventListener('input', () => { t.desc = desc.value; autoSize(desc); saveChar(); });
+  btnDel.addEventListener('click', () => { removeTalent(t.id); });
+
+  // Minimise on header click (but not when interacting with controls)
+  head.addEventListener('click', (e) => {
+    if (e.target === title || e.target === level || e.target === btnDel) return;
     card.classList.toggle('min');
     t._min = card.classList.contains('min');
     saveChar();
   });
 
-  level.addEventListener('change', ()=>{ t.level = level.value; saveChar(); });
-  desc.addEventListener('input', ()=>{ t.desc = desc.value; autoSize(desc); saveChar(); });
-  info.addEventListener('input', ()=>{ t.info = info.value; saveChar(); });
-
-  btnDel.addEventListener('click', ()=>{ removeTalent(t.id); });
-
   return card;
 }
-
 
 
   function removeTalent(id){
