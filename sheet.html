@@ -295,7 +295,7 @@ button{
   border:1px dashed #0003;
   background:transparent;
   overflow:auto;
-  padding:0;              /* no left/right padding */
+  padding:10px 0 0 0;              /* no left/right padding */
 }
 
 .talents-panel{
@@ -310,6 +310,7 @@ button{
   display:flex;
   flex-direction:column;
   width:100%;
+  padding:2px 2px;
   background:transparent;
   border:1px solid #000;
   border-radius:0;
@@ -330,6 +331,7 @@ button{
   position:absolute;
   left:50%;
   transform:translateX(-50%);
+  width:360px
   font-family:'GokilNova','DominicanSmall',serif;
   font-size:18px;
   background:transparent;
@@ -379,6 +381,17 @@ button{
   text-align:center;
   cursor:pointer;
   padding:0;
+}
+
+/* Padlock icon inside header */
+.talent-lock{
+  width:20px;
+  height:20px;
+  cursor:pointer;
+  background-size:contain;
+  background-repeat:no-repeat;
+  border:none;
+  background:transparent;
 }
 
 /* Body */
@@ -1301,71 +1314,84 @@ ${css}
   }
 
   // Build one card
-  function cardElement(t) {
-    const card = h('article', { class: 'talent-card' + (t._min ? ' min' : ''), 'data-id': t.id });
+function cardElement(t){
+  const card = h('article', {
+    class: 'talent-card' + (t._min ? ' min' : ''),
+    'data-id': t.id
+  });
 
-    // Header
-    const header = h('div', { class: 'talent-header', title: 'Click empty header space to minimize/expand' });
+  // Header
+  const header = h('div', { class: 'talent-header', title: 'Click empty header space to minimize/expand' });
 
-    // Centered title
-    const title = h('input', {
-      class: 'talent-title',
-      type: 'text',
-      placeholder: 'Talent Name',
-      value: t.name || ''
-    });
+  // Title
+  const title = h('input', {
+    class: 'talent-title',
+    type: 'text',
+    placeholder: 'Talent Name',
+    value: t.name || ''
+  });
 
-    // Right-side controls (level + delete)
-    const right = h('div', { class: 'talent-right' });
+  // Right controls: level, delete, lock
+  const right = h('div', { class: 'talent-right' });
 
-    const lvlLbl = h('span', { class: 'talent-level-label' }, 'Level');
-    const level  = h('select', { class: 'talent-level' });
-    ['-','1','2','3'].forEach(v => {
-      level.appendChild(h('option', { value: v, selected: String(t.level || '-') === v ? true : null }, v));
-    });
+  const lvlLbl = h('span', { class: 'talent-level-label' }, 'Level');
+  const level  = h('select', { class: 'talent-level' });
+  ['-','1','2','3'].forEach(v=>{
+    level.appendChild(h('option',{ value:v, selected:String(t.level||'-')===v?true:null }, v));
+  });
 
-    const btnDel = h('button', { class: 'btn-delete', type: 'button', title: 'Delete' }, 'X');
+  const btnDel = h('button', { class: 'btn-delete', type: 'button', title: 'Delete' }, 'X');
 
-    right.append(lvlLbl, level, btnDel);
-    header.append(title, right);
+  // Padlock
+  const btnLock = h('button', { class:'talent-lock', type:'button', title:'Lock/Unlock' });
+  btnLock.style.backgroundImage = `url('img/${t._locked ? 'lock.png' : 'lock_open.png'}')`;
 
-    // Body
-    const body  = h('div', { class: 'talent-body' });
-    const desc  = h('textarea', { class: 'talent-desc', placeholder: 'Description…' }, t.desc || '');
-    body.append(desc);
+  right.append(lvlLbl, level, btnDel, btnLock);
+  header.append(title, right);
 
-    // Assemble
-    card.append(header, body);
+  // Body
+  const body  = h('div', { class: 'talent-body' });
+  const desc  = h('textarea', { class: 'talent-desc', placeholder: 'Description…' }, t.desc || '');
+  body.append(desc);
 
-    // -------- Bindings --------
-    // Update fields
-    title.addEventListener('input', () => { t.name = title.value; saveChar(); });
-    level.addEventListener('change', () => { t.level = level.value; saveChar(); });
+  card.append(header, body);
 
-    // Auto-size description
-    autoSize(desc);
-    desc.addEventListener('input', () => { t.desc = desc.value; saveChar(); });
-
-    // Minimize/expand when clicking *empty* header space
-    header.addEventListener('click', (e) => {
-      const clickedOnControl = (e.target === title) || right.contains(e.target);
-      if (clickedOnControl) return; // don't toggle when typing or clicking controls
-      toggleMin();
-    });
-
-    function toggleMin() {
-      card.classList.toggle('min');
-      t._min = card.classList.contains('min');
-      saveChar();
-    }
-
-    // Delete
-    btnDel.addEventListener('click', () => {
-      removeTalent(t.id);
-    });
-
-    return card;
+  // === Bindings ===
+  function applyLockState(){
+    const locked = !!t._locked;
+    title.disabled = locked;
+    level.disabled = locked;
+    desc.disabled  = locked;
+    btnDel.disabled = locked;
+    btnLock.style.backgroundImage = `url('img/${locked ? 'lock.png' : 'lock_open.png'}')`;
   }
+
+  title.addEventListener('input', ()=>{ t.name = title.value; saveChar(); });
+  level.addEventListener('change', ()=>{ t.level = level.value; saveChar(); });
+  autoSize(desc);
+  desc.addEventListener('input', ()=>{ t.desc = desc.value; saveChar(); });
+
+  btnDel.addEventListener('click', ()=>{ removeTalent(t.id); });
+
+  // Lock toggle
+  btnLock.addEventListener('click', ()=>{
+    t._locked = !t._locked;
+    saveChar();
+    applyLockState();
+  });
+
+  // Minimize/expand when clicking empty header space
+  header.addEventListener('click', (e)=>{
+    if (e.target === title || right.contains(e.target)) return;
+    card.classList.toggle('min');
+    t._min = card.classList.contains('min');
+    saveChar();
+  });
+
+  applyLockState();
+  return card;
+}
+ 
 
   function removeTalent(idVal) {
     const i = charTalents.findIndex(x => x.id === idVal);
@@ -1408,6 +1434,7 @@ ${css}
       level: String(t.level || '-'),
       desc: String(t.desc || ''),
       _min: !!t._min
+	  _locked: !!t._locked
     }));
   };
 
@@ -1427,6 +1454,7 @@ ${css}
       level: String(t.level || '-'),
       desc: String(t.desc || ''),
       _min: !!t._min
+	  _locked: !!t._locked
     };
   }
 
