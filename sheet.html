@@ -278,7 +278,7 @@ button{
   </style>
 
 <!-- ===================== TALENT STYLES (INSIDE MAIN TAB) ===================== -->
-<<style>
+<style>
 /* ===== Talents ===== */
 
 #talentsArea{
@@ -323,7 +323,7 @@ button{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:4px 8px;
+  padding:4px 6px;
 }
 
 /* Title stays centered regardless of side controls */
@@ -331,7 +331,7 @@ button{
   position:absolute;
   left:50%;
   transform:translateX(-50%);
-  width:360px
+	width: min(30ch, calc(100% - 140px)); /* 30 chars wide, but never overflow the header */
   font-family:'GokilNova','DominicanSmall',serif;
   font-size:18px;
   background:transparent;
@@ -420,6 +420,27 @@ button{
 /* Minimized: hide body + right controls, keep centered title */
 .talent-card.min .talent-body,
 .talent-card.min .talent-right { display:none !important; }
+
+/* Talent lock icon (reuses base lock art) */
+.talent-lock {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+/* Make the delete button clearly disabled when locked */
+.btn-delete[disabled] {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+/* Optional: slight visual cue when locked */
+.talent-card.is-locked {
+  opacity: .95;
+}
+
 
 
 /* Optional hover lift */
@@ -1299,13 +1320,11 @@ ${css}
   // Initial render
   renderPanel();
 
-  // Add new card
+  // Add new card 
   addBtn.addEventListener('click', () => {
-    const t = { id: id(), name: 'New Talent', level: '-', desc: '', _min: false };
-    charTalents.push(t);
-    saveChar();
-    renderPanel();
-  });
+  const t = { id:id(), name:'New Talent', level:'-', desc:'', _min:false, _locked:false };
+  charTalents.push(t); saveChar(); renderPanel();
+});
 
   // ---------- RENDER ----------
   function renderPanel() {
@@ -1362,7 +1381,7 @@ function cardElement(t){
     title.disabled = locked;
     level.disabled = locked;
     desc.disabled  = locked;
-    btnDel.disabled = locked;
+    btnDel.disabled = locked; // disable delete when locked
     btnLock.style.backgroundImage = `url('img/${locked ? 'lock.png' : 'lock_open.png'}')`;
   }
 
@@ -1427,16 +1446,17 @@ function cardElement(t){
   function saveChar() { saveJSON(LS_CHAR_KEY, charTalents); }
 
   // Export / Import for Firestore integration — no "info" in v3
-  window.exportCharacterTalents = function () {
-    return charTalents.map(t => ({
-      id: t.id,
-      name: String(t.name || ''),
-      level: String(t.level || '-'),
-      desc: String(t.desc || ''),
-      _min: !!t._min
-	  _locked: !!t._locked
-    }));
-  };
+window.exportCharacterTalents = function () {
+  return charTalents.map(t => ({
+    id: t.id,
+    name: String(t.name || ''),
+    level: String(t.level || '-'),
+    desc: String(t.desc || ''),
+    _min: !!t._min,
+    _locked: !!t._locked
+  }));
+};
+
 
   window.importCharacterTalents = function (list) {
     if (!Array.isArray(list)) return;
@@ -1446,17 +1466,17 @@ function cardElement(t){
     renderPanel();
   };
 
-  function sanitizeTalent(t) {
-    // drop any legacy "info" field; ensure shape
-    return {
-      id: t.id || id(),
-      name: String(t.name || ''),
-      level: String(t.level || '-'),
-      desc: String(t.desc || ''),
-      _min: !!t._min
-	  _locked: !!t._locked
-    };
-  }
+function sanitizeTalent(t) {
+  return {
+    id: t.id || id(),
+    name: String(t.name || ''),
+    level: String(t.level || '-'),
+    desc: String(t.desc || ''),
+    _min: !!t._min,
+    _locked: !!t._locked
+  };
+}
+
 
   function id() { return 't_' + Math.random().toString(36).slice(2, 9); }
 
