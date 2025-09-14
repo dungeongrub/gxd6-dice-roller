@@ -385,8 +385,8 @@ button{
 
 /* Padlock icon inside header */
 .talent-lock{
-  width:20px;
-  height:20px;
+  width:14px;
+  height:14px;
   cursor:pointer;
   background-size:contain;
   background-repeat:no-repeat;
@@ -1399,17 +1399,27 @@ function cardElement(t){
     applyLockState();
   });
 
-  // Minimize/expand when clicking empty header space
-  header.addEventListener('click', (e)=>{
-    if (e.target === title || right.contains(e.target)) return;
-    card.classList.toggle('min');
-    t._min = card.classList.contains('min');
-    saveChar();
-  });
+// Minimize/expand when clicking empty header space
+header.addEventListener('click', (e)=>{
+  if (e.target === title || right.contains(e.target)) return;
 
-  applyLockState();
-  return card;
+  const nowMin = card.classList.toggle('min');
+  t._min = nowMin;
+  saveChar();
+
+  // NEW: if we just expanded, refit the textarea height now it’s visible
+  if (!nowMin) {
+    requestAnimationFrame(()=>{
+      desc.style.height = 'auto';
+      desc.style.height = (desc.scrollHeight + 2) + 'px';
+    });
+  }
+});
+
+applyLockState();
+return card;
 }
+
  
 
   function removeTalent(idVal) {
@@ -1428,6 +1438,13 @@ function cardElement(t){
     queueMicrotask(fit);
     el.addEventListener('input', fit);
   }
+
+// helper (put near autoSize)
+function fitTextarea(el){
+  el.style.height = 'auto';
+  el.style.height = (el.scrollHeight + 2) + 'px';
+}
+
 
   function loadJSON(key, fallback) {
     try {
