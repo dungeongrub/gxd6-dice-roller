@@ -255,6 +255,36 @@ button{
   box-shadow:0 1px 4px #0002;
   cursor:pointer;
   }
+  
+  .panel { 
+  background: #fff8; 
+  border: 1px solid #2228; 
+  border-radius: 6px; 
+  padding: 8px; 
+  box-sizing: border-box; 
+}
+
+.panel-header{
+  font: 14px/1.2 'DominicanSmall', Georgia, serif;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin-bottom: 6px;
+}
+
+#wounds { overflow: visible; } /* allow textarea growth */
+
+.wounds-text{
+  width: 100%;
+  min-height: 64px;      /* starting height */
+  resize: none;          /* we auto-size instead */
+  border: 1px solid #2226;
+  background: #ffff;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font: 12px/1.35 'Dominican', Georgia, serif;
+  box-sizing: border-box;
+}
+  
   </style>
 
   <!-- ===== Unified Debugger (styles) ===== -->
@@ -427,7 +457,7 @@ button{
   height: 14px;
   cursor: pointer;
   vertical-align: middle;
-  margin-left: 6px;
+  margin-left: 3px;
 }
 
 /* Make the delete button clearly disabled when locked */
@@ -719,7 +749,7 @@ button{
           <input id="tick4" type="checkbox" class="abs" style="--x:333px; --y:86px;">
 
           <!-- ===== Talents area (INSIDE main panel) ===== -->
-          <div id="talentsArea" class="abs" style="--x:0px; --y:100px; --w:450px; --h:270px;">
+          <div id="talentsArea" class="abs" style="--x:0px; --y:100px; --w:450px; --h:250px;">
             <div class="talents-header">
               <button id="addTalentBtn" type="button" title="Add a Talent">+ Add Talent</button>
             </div>
@@ -727,6 +757,14 @@ button{
               <section id="talentsPanel" class="talents-panel" aria-label="Character Talents" data-columns="2"></section>
             </div>
           </div>
+		
+		<!-- Wounds box: same width as Talents, auto-expands with content -->
+<div id="wounds" class="abs panel" 
+     style="--x:px; --y:356px; width: 450px; min-height: 80px;"
+     data-label="MAIN: Wounds">
+  <div class="panel-header">Wounds</div>
+  <textarea id="woundsText" class="wounds-text" placeholder="Describe wounds, locations, penalties…"></textarea>
+</div>
 
         </div><!-- /#tabMainWrap -->
       </div><!-- /#panel-main -->
@@ -1513,6 +1551,17 @@ function sanitizeTalent(t) {
     }
     return el;
   }
+})();
+</script>
+
+<script>
+(function autoGrowWounds(){
+  const ta = document.getElementById('woundsText');
+  if(!ta) return;
+  const fit = () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
+  ['input','change'].forEach(ev => ta.addEventListener(ev, fit));
+  // grow on load if there’s saved text
+  window.addEventListener('load', fit);
 })();
 </script>
 
