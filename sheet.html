@@ -1571,26 +1571,15 @@ function sanitizeTalent(t) {
 })();
 </script>
 
-	<script>
-(function autoGrowWounds(){
-  const ta = document.getElementById('woundsText');
-  if(!ta) return;
-
-  function fit(){
-    ta.style.height = 'auto';
-    const maxH = parseFloat(getComputedStyle(ta).maxHeight); // from CSS
-    const newH = Math.min(ta.scrollHeight, isNaN(maxH) ? ta.scrollHeight : maxH);
-    ta.style.height = newH + 'px';
-    // show scrollbar only when needed
-    ta.style.overflowY = (ta.scrollHeight > newH) ? 'auto' : 'hidden';
-  }
-
-  ['input','change'].forEach(ev => ta.addEventListener(ev, fit));
-  window.addEventListener('load', fit);
-})();
+<script?	
+#woundsText{
+  height:75px;           /* fixed */
+  max-height:75px;       /* belt-and-braces */
+  overflow-y:auto;       /* scroll inside */
+  resize:none;           /* optional: stop manual drag */
+  box-sizing:border-box;
+}
 </script>
-
-
 <!-- Close body + html -->
 </body>
 </html>
