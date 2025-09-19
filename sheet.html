@@ -287,6 +287,23 @@ button{
   
   </style>
 
+<style>
+  /* adjust the max-height to the space you actually have */
+  #woundsText{
+    box-sizing: border-box;
+    width: 100%;
+    max-height: 170px;      /* ← cap it */
+    overflow-y: auto;        /* ← scroll once capped */
+    resize: none;            /* optional (prevents manual resize) */
+  }
+</style>
+
+
+
+
+
+
+	
   <!-- ===== Unified Debugger (styles) ===== -->
   <style>
 .debugger-panel { position: fixed; right: 12px; bottom: 12px; z-index: 1000000; background: #ffffff; color: #111; border: 1px solid #bbb; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 6px; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.15); user-select: none; min-width: 190px; }
@@ -1554,13 +1571,21 @@ function sanitizeTalent(t) {
 })();
 </script>
 
-<script>
+	<script>
 (function autoGrowWounds(){
   const ta = document.getElementById('woundsText');
   if(!ta) return;
-  const fit = () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
+
+  function fit(){
+    ta.style.height = 'auto';
+    const maxH = parseFloat(getComputedStyle(ta).maxHeight); // from CSS
+    const newH = Math.min(ta.scrollHeight, isNaN(maxH) ? ta.scrollHeight : maxH);
+    ta.style.height = newH + 'px';
+    // show scrollbar only when needed
+    ta.style.overflowY = (ta.scrollHeight > newH) ? 'auto' : 'hidden';
+  }
+
   ['input','change'].forEach(ev => ta.addEventListener(ev, fit));
-  // grow on load if there’s saved text
   window.addEventListener('load', fit);
 })();
 </script>
