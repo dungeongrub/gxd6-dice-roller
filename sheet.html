@@ -297,9 +297,153 @@ button{
   }
 </style>
 
+<style>
+/*
+  GXD6 — Gear Tab: Dynamic Item Cards
+  --------------------------------------------------------
+  JavaScript logic goes in a <script> block.
+  This file now also includes a <style> block with reusable CSS
+  so that inline styles can be reduced.
+*/
 
+/* ================== CSS (place in <style>) ================== */
+.gear-card {
+  position: absolute;
+  width: 360px;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 0 2px 6px rgba(0,0,0,.15);
+}
 
+.gear-card.collapsed .card-body,
+.gear-card.collapsed .card-footer {
+  display: none;
+}
 
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  padding: 4px 6px;
+  background: #f2f2f2;
+  border-bottom: 1px solid #000;
+  cursor: grab;
+}
+
+.card-title {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-family: DominicanSmall, serif;
+  font-size: 14px;
+}
+
+.card-quick {
+  margin-left: 8px;
+  font: 12px DominicanSmall, serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-header button.close-btn {
+  border: 1px solid #000;
+  background: #fff;
+  width: 18px;
+  height: 18px;
+  line-height: 16px;
+  padding: 0;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.card-body {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 8px;
+  padding: 8px;
+}
+
+.card-body textarea.description {
+  width: 100%;
+  min-height: 72px;
+  border: 1px dashed #bbb;
+  background: transparent;
+  font-family: Gothics, Dominican, serif;
+  font-size: 11px;
+  resize: vertical;
+  padding: 4px;
+}
+
+.fields-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.fields-wrap label {
+  font: 11px DominicanSmall, serif;
+}
+
+.fields-wrap input,
+.fields-wrap textarea {
+  width: 100%;
+  border: 1px solid #bbb;
+  background: #fff;
+  font: 12px Dominican, serif;
+  padding: 2px 4px;
+}
+
+.fields-wrap textarea {
+  min-height: 48px;
+  font: 11px Gothics, Dominican, serif;
+  resize: vertical;
+  padding: 3px;
+}
+
+.image-dropzone {
+  border: 1px dashed #bbb;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+.image-dropzone img.preview {
+  max-width: 100%;
+  max-height: 100%;
+  display: none;
+}
+
+.image-dropzone .label {
+  font: 11px DominicanSmall, serif;
+  opacity: .7;
+}
+
+.card-footer {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  padding: 6px;
+  border-top: 1px solid #000;
+  background: #fafafa;
+}
+
+.card-footer button {
+  border: 1px solid #000;
+  background: #fff;
+  padding: 2px 6px;
+  cursor: pointer;
+  font: 12px DominicanSmall, serif;
+}
+
+</style>
 
 
 	
