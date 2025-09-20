@@ -1570,7 +1570,7 @@ function sanitizeTalent(t) {
 })();
 </script>
 
-<script?	
+<script>	
 #woundsText{
   height:75px;           /* fixed */
   max-height:75px;       /* belt-and-braces */
@@ -1578,6 +1578,442 @@ function sanitizeTalent(t) {
   resize:none;           /* optional: stop manual drag */
   box-sizing:border-box;
 }
+</script>
+
+<script>
+/*
+  GXD6 — Gear Tab: Dynamic Item Cards
+  --------------------------------------------------------
+  Drop-in module that renders draggable, collapsible cards
+  on the *Gear* tab panel. Cards are built from per-type
+  templates and tag-driven trait rules. Numeric fields can
+  push bonuses to your existing dice pool.
+
+  WHERE TO PLACE (simple):
+  1) Paste this entire <script> block at the BOTTOM of your
+     CharsheetMain.html, just before </body>.
+  2) Ensure your Gear tab's panel has id="tabPanel" or
+     id="tabContent". This module will use either.
+  3) If you already have Firestore layout save/load for cards,
+     it will reuse saveLayoutDebounced(), placeCard(), etc.
+     If not, this module provides light fallbacks.
+  4) To spawn a card from your Library picker call:
+       window.spawnGearCardFromLibrary(libraryDocData)
+     Or to create a blank template:
+       window.spawnBlankGearCard('weapon'|'armor'|'gear'|'narcotic'|'tool'|'light'|'container')
+
+  NOTE: Pure client-side. No CSS required; styles are inline.
+*/
+
+(function GearCardsModule(){
+  'use strict';
+
+  /* -------------------- PANEL -------------------- */
+  const panel = document.getElementById('tabPanel') || document.getElementById('tabContent');
+  if(!panel){ console.warn('[GearCards] No #tabPanel/#tabContent found.'); return; }
+
+  // Ensure relative positioning for absolute children we place
+  if(getComputedStyle(panel).position === 'static') panel.style.position = 'relative';
+
+  /* --------------- UTIL / ENV HOOKS --------------- */
+  const hasFn = (name)=> typeof window[name] === 'function';
+  const addToPool = (n)=> {
+    if(hasFn('changePool'))      return window.changePool(Number(n)||0);
+    if(hasFn('addToDicePool'))   return window.addToDicePool(Number(n)||0);
+    // silent fallback
+  };
+  const uid = ()=> 'gc_'+Math.random().toString(36).slice(2,9);
+
+  // Fallbacks if your global helpers are absent
+  const _placeCard = (card,{x,y})=>{
+    const maxX = panel.clientWidth  - card.offsetWidth;
+    const maxY = panel.clientHeight - Math.min(card.offsetHeight, 200);
+    card.style.left = Math.max(0, Math.min(x||12, maxX))+'px';
+    card.style.top  = Math.max(0, Math.min(y||12, maxY))+'px';
+  };
+  const place = (card, pos) => (typeof window.placeCard === 'function') ? window.placeCard(card,pos) : _placeCard(card,pos);
+  const saveLayoutNow = () => (typeof window.saveLayoutDebounced === 'function') ? window.saveLayoutDebounced() : void 0;
+
+  /* ----------------- TEMPLATES ----------------- */
+  // Minimal field keys per item type (display + edit)
+  const TEMPLATES = {
+    weapon_melee: [
+      {k:'name',        t:'text',    label:'Name'},
+      {k:'damage',      t:'text',    label:'Damage'},
+      {k:'reach',       t:'text',    label:'Reach/Grip'},
+      {k:'diceMod',     t:'number',  label:'Dice Mod'},
+      {k:'weight',      t:'number',  label:'Weight'},
+      {k:'traits',      t:'textarea',label:'Traits/Notes'}
+    ],
+    weapon_ranged: [
+      {k:'name',        t:'text',    label:'Name'},
+      {k:'damage',      t:'text',    label:'Damage'},
+      {k:'range',       t:'text',    label:'Range Bands'},
+      {k:'ammo',        t:'text',    label:'Ammo/Reload'},
+      {k:'diceMod',     t:'number',  label:'Dice Mod'},
+      {k:'weight',      t:'number',  label:'Weight'},
+      {k:'traits',      t:'textarea',label:'Traits/Notes'}
+    ],
+    armor: [
+      {k:'name',        t:'text',    label:'Name'},
+      {k:'coverage',    t:'text',    label:'Coverage'},
+      {k:'armor',       t:'number',  label:'Armor Value'},
+      {k:'penalty',     t:'text',    label:'Penalties'},
+      {k:'weight',      t:'number',  label:'Weight'},
+      {k:'traits',      t:'textarea',label:'Traits/Notes'}
+    ],
+    narcotic: [
+      {k:'name',        t:'text',    label:'Name'},
+      {k:'dose',        t:'text',    label:'Dose'},
+      {k:'onset',       t:'text',    label:'Onset'},
+      {k:'duration',    t:'text',    label:'Peak/Duration'},
+      {k:'effects',     t:'textarea',label:'Effects (+/− dice)'},
+      {k:'withdrawal',  t:'textarea',label:'Withdrawal/Crash'},
+      {k:'addiction',   t:'text',    label:'Addiction Rating'},
+      {k:'legal',       t:'text',    label:'Legal Class'},
+      {k:'price',       t:'text',    label:'Price'},
+      {k:'weight',      t:'number',  label:'Weight'}
+    ],
+    gear: [
+      {k:'name',        t:'text',    label:'Name'},
+      {k:'core',        t:'text',    label:'Core Stat (eg Brightness/Capacity)'},
+      {k:'diceMod',     t:'number',  label:'Use Bonus (dice)'},
+      {k:'durability',  t:'text',    label:'Durability/Break'},
+      {k:'weight',      t:'number',  label:'Weight'},
+      {k:'traits',      t:'textarea',label:'Traits/Notes'}
+    ],
+    tool: [
+      {k:'name',        t:'text',    label:'Name'},
+      {k:'bonus',       t:'number',  label:'Proficiency Bonus (dice)'},
+      {k:'weight',      t:'number',  label:'Weight'},
+      {k:'traits',      t:'textarea',label:'Traits/Notes'}
+    ],
+    light: [
+      {k:'name',        t:'text',    label:'Name'},
+      {k:'brightness',  t:'text',    label:'Brightness'},
+      {k:'burn',        t:'text',    label:'Burn Time/Fuel'},
+      {k:'weight',      t:'number',  label:'Weight'},
+      {k:'traits',      t:'textarea',label:'Traits/Notes'}
+    ],
+    container: [
+      {k:'name',        t:'text',    label:'Name'},
+      {k:'capacity',    t:'text',    label:'Capacity/Slots'},
+      {k:'weight',      t:'number',  label:'Weight (empty)'},
+      {k:'traits',      t:'textarea',label:'Traits/Notes'}
+    ]
+  };
+
+  /* ----------------- TRAIT RULES ----------------- */
+  // Inject additional fields based on tags
+  const TRAIT_RULES = {
+    blackpowder: [
+      {k:'fouling', t:'number', label:'Fouling'},
+      {k:'misfire', t:'text',   label:'Misfire/Jam'}
+    ],
+    poison: [
+      {k:'potency', t:'text',   label:'Potency'},
+      {k:'save',    t:'text',   label:'Save'},
+      {k:'delivery',t:'text',   label:'Delivery'}
+    ],
+    thrown: [
+      {k:'break',   t:'text',   label:'Break Chance'}
+    ]
+  };
+
+  /* ------------- TEMPLATE RESOLUTION ------------- */
+  function resolveTemplate(baseType, tags){
+    const t = (tags||[]).map(s=>String(s).toLowerCase());
+    if(baseType === 'weapon'){
+      if(t.includes('ranged') || t.includes('firearm')) return 'weapon_ranged';
+      return 'weapon_melee';
+    }
+    return baseType; // armor, narcotic, gear, tool, light, container
+  }
+
+  /* ---------------- CARD FACTORY ---------------- */
+  let topZ = 12;
+
+  function createCardEl(type, data){
+    const id  = data.id || uid();
+    const tags = (data.tags && Array.isArray(data.tags)) ? data.tags : [];
+    const templateKey = resolveTemplate(type, tags);
+
+    // Root
+    const card = document.createElement('div');
+    card.className = 'gear-card';
+    card.dataset.cardId = id;
+    card.dataset.cardType = type;
+    card.style.cssText = [
+      'position:absolute', 'left:12px', 'top:12px', 'z-index:'+ (topZ++),
+      'width:360px', 'background:#fff', 'border:1px solid #000', 'box-shadow:0 2px 6px rgba(0,0,0,.15)'
+    ].join(';');
+
+    // Header (collapsed view keeps this visible)
+    const header = document.createElement('div');
+    header.className = 'card-header';
+    header.style.cssText = 'display:flex;align-items:center;gap:8px;justify-content:space-between;padding:4px 6px;background:#f2f2f2;border-bottom:1px solid #000;cursor:grab;';
+
+    const title = document.createElement('input');
+    title.type = 'text';
+    title.value = data.name || data.title || '';
+    title.placeholder = 'Item Name';
+    title.className = 'card-title';
+    title.style.cssText = 'flex:1;min-width:0;border:none;background:transparent;font-family:DominicanSmall,serif;font-size:14px;';
+
+    const quick = document.createElement('div');
+    quick.className = 'card-quick';
+    quick.style.cssText = 'margin-left:8px;font:12px DominicanSmall,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+    quick.textContent = buildQuickLine(type, data);
+
+    const btnClose = document.createElement('button');
+    btnClose.textContent = '×';
+    btnClose.title = 'Remove';
+    btnClose.style.cssText = 'border:1px solid #000;background:#fff;width:18px;height:18px;line-height:16px;padding:0;font-weight:700;cursor:pointer;';
+
+    header.append(title, quick, btnClose);
+
+    // Body (desc 2/3 + image 1/3)
+    const body = document.createElement('div');
+    body.className = 'card-body';
+    body.style.cssText = 'display:grid;grid-template-columns:2fr 1fr;gap:8px;padding:8px;';
+
+    const left = document.createElement('div');
+    const right = document.createElement('div');
+
+    // Description
+    const desc = document.createElement('textarea');
+    desc.placeholder = 'Description…';
+    desc.value = data.description || '';
+    desc.style.cssText = 'width:100%;min-height:72px;border:1px dashed #bbb;background:transparent;font-family:Gothics,Dominican,serif;font-size:11px;resize:vertical;padding:4px;';
+
+    left.appendChild(desc);
+
+    // Dynamic fields area under description
+    const fieldsWrap = document.createElement('div');
+    fieldsWrap.className = 'fields-wrap';
+    fieldsWrap.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;';
+    left.appendChild(fieldsWrap);
+
+    // Image dropzone
+    const imgWrap = document.createElement('div');
+    imgWrap.style.cssText = 'border:1px dashed #bbb;min-height:120px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:#fafafa;';
+    const imgLabel = document.createElement('div');
+    imgLabel.textContent = 'Drop JPG/PNG or click';
+    imgLabel.style.cssText = 'font:11px DominicanSmall,serif;opacity:.7;';
+
+    const img = document.createElement('img');
+    img.style.cssText = 'max-width:100%;max-height:100%;display:none;';
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/png,image/jpeg';
+    fileInput.style.cssText = 'position:absolute;inset:0;opacity:0;cursor:pointer;';
+
+    imgWrap.append(imgLabel,img,fileInput);
+    right.appendChild(imgWrap);
+
+    body.append(left,right);
+
+    // Footer actions (dice hooks)
+    const footer = document.createElement('div');
+    footer.style.cssText = 'display:flex;gap:6px;justify-content:flex-end;padding:6px;border-top:1px solid #000;background:#fafafa;';
+
+    const pushBtn = document.createElement('button');
+    pushBtn.textContent = '+ Dice';
+    pushBtn.title = 'Add this item\'s dice bonus to pool';
+    pushBtn.style.cssText = 'border:1px solid #000;background:#fff;padding:2px 6px;cursor:pointer;font:12px DominicanSmall,serif;';
+
+    footer.appendChild(pushBtn);
+
+    // Assemble
+    card.append(header, body, footer);
+
+    /* ------ Build dynamic fields from template + traits ------ */
+    const baseType = type; // weapon/armor/gear/narcotic/tool/light/container
+    const template = TEMPLATES[templateKey] || [];
+    const traitAdds = [].concat(...(tags||[]).map(t=> TRAIT_RULES[(t+'').toLowerCase()]||[]));
+    const allFields = [...template, ...traitAdds];
+
+    const inputs = {};
+    allFields.forEach(def => {
+      const label = document.createElement('label');
+      label.textContent = def.label;
+      label.style.cssText = 'font:11px DominicanSmall,serif;';
+
+      let inp;
+      if(def.t === 'textarea'){
+        inp = document.createElement('textarea');
+        inp.style.cssText = 'width:100%;min-height:48px;border:1px dashed #bbb;background:transparent;font:11px Gothics,Dominican,serif;resize:vertical;padding:3px;';
+      } else {
+        inp = document.createElement('input');
+        inp.type = def.t || 'text';
+        inp.style.cssText = 'width:100%;border:1px solid #bbb;padding:2px 4px;background:#fff;font:12px Dominican,serif;';
+        if(def.t === 'number') inp.style.fontFamily = 'DeutschGothic,monospace';
+      }
+
+      const val = (data[def.k] != null) ? data[def.k] : '';
+      inp.value = val;
+
+      // id for persistence
+      inp.id = id + '_' + def.k;
+
+      // hook: update quick line on change
+      const onChange = ()=>{
+        // mirror back into data fields
+        data[def.k] = (def.t==='number') ? Number(inp.value||0) : inp.value;
+        quick.textContent = buildQuickLine(baseType, {...data, type:baseType});
+        saveLayoutNow();
+      };
+      inp.addEventListener('input', onChange);
+
+      const slot = document.createElement('div');
+      slot.style.cssText = 'display:flex;flex-direction:column;gap:2px;';
+      slot.append(label, inp);
+      fieldsWrap.appendChild(slot);
+
+      inputs[def.k] = inp;
+    });
+
+    // Title binding
+    title.addEventListener('input', ()=>{ data.name = title.value; saveLayoutNow(); });
+
+    // Dice hook: prefer diceMod/bonus/core->number
+    pushBtn.addEventListener('click', ()=>{
+      const n = Number(
+        (inputs.diceMod && inputs.diceMod.value) ||
+        (inputs.bonus   && inputs.bonus.value)   || 0
+      );
+      if(!isNaN(n) && n!==0) addToPool(n);
+    });
+
+    // Image handling
+    const setPreview = (src)=>{
+      img.src = src; img.style.display = 'block'; imgLabel.style.display = 'none'; saveLayoutNow();
+      data.image = src; // persistable data URL
+    };
+    fileInput.addEventListener('change', async (e)=>{
+      const f = e.target.files && e.target.files[0];
+      if(!f) return;
+      const reader = new FileReader();
+      reader.onload = ev => setPreview(ev.target.result);
+      reader.readAsDataURL(f);
+    });
+    imgWrap.addEventListener('dragover', (e)=>{ e.preventDefault(); imgWrap.style.background = '#eef'; });
+    imgWrap.addEventListener('dragleave', ()=>{ imgWrap.style.background = '#fafafa'; });
+    imgWrap.addEventListener('drop', (e)=>{
+      e.preventDefault(); imgWrap.style.background = '#fafafa';
+      const f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if(!f) return;
+      if(!/image\/(png|jpeg)/.test(f.type)) return;
+      const reader = new FileReader();
+      reader.onload = ev => setPreview(ev.target.result);
+      reader.readAsDataURL(f);
+    });
+
+    // Close/remove
+    btnClose.addEventListener('click', ()=>{ card.remove(); saveLayoutNow(); });
+
+    // Collapse/expand on header click (ignore drag)
+    let moved = false;
+    header.addEventListener('mousedown', ()=>{ moved=false; });
+    header.addEventListener('mousemove', ()=>{ moved=true; });
+    header.addEventListener('click', ()=>{
+      if(moved) return; // was a drag
+      card.classList.toggle('collapsed');
+      if(card.classList.contains('collapsed')){
+        body.style.display = 'none'; footer.style.display = 'none';
+      } else { body.style.display = ''; footer.style.display = ''; }
+      saveLayoutNow();
+    });
+
+    // Dragging
+    enableDrag(card, header);
+
+    return card;
+  }
+
+  function buildQuickLine(type, d){
+    // Compact top-line summary
+    if(type==='weapon'){
+      const dmg = d.damage? String(d.damage) : '';
+      const rng = d.range?  String(d.range)  : '';
+      const mod = (d.diceMod!=null && d.diceMod!=='' && Number(d.diceMod)!==0) ? ((Number(d.diceMod)>0?'+':'')+Number(d.diceMod)) : '';
+      const wt  = (d.weight!=null && d.weight!=='') ? ('Wt '+d.weight) : '';
+      return [dmg,rng,mod,wt].filter(Boolean).join(' • ');
+    }
+    if(type==='armor'){
+      const ar = (d.armor!=null && d.armor!=='')?('AV '+d.armor):'';
+      const pen= d.penalty? String(d.penalty):'';
+      const wt = (d.weight!=null && d.weight!=='')?('Wt '+d.weight):'';
+      return [ar,pen,wt].filter(Boolean).join(' • ');
+    }
+    if(type==='narcotic'){
+      const eff = d.effects? 'Effects' : '';
+      const dur = d.duration? String(d.duration):'';
+      const pr  = d.price? String(d.price):'';
+      return [eff,dur,pr].filter(Boolean).join(' • ');
+    }
+    // generic gear/tool/light/container
+    const core = d.core || d.capacity || d.brightness || '';
+    const mod  = (d.diceMod!=null && d.diceMod!=='')?((Number(d.diceMod)>0?'+':'')+Number(d.diceMod)) : '';
+    const wt   = (d.weight!=null && d.weight!=='')?('Wt '+d.weight):'';
+    return [core,mod,wt].filter(Boolean).join(' • ');
+  }
+
+  /* ------------------ DRAG LOGIC ------------------ */
+  function enableDrag(card, handle){
+    let sx, sy, sl, st, dragging=false;
+    const onMove = (e)=>{
+      if(!dragging) return; e.preventDefault();
+      const cx = (e.touches? e.touches[0].clientX : e.clientX);
+      const cy = (e.touches? e.touches[0].clientY : e.clientY);
+      const dx = cx - sx; const dy = cy - sy;
+      const rect = panel.getBoundingClientRect();
+      let L = sl + dx - rect.left; let T = st + dy - rect.top;
+      L = Math.max(0, Math.min(L, rect.width  - card.offsetWidth));
+      T = Math.max(0, Math.min(T, rect.height - card.offsetHeight));
+      card.style.left = L+'px'; card.style.top = T+'px';
+    };
+    const onUp = ()=>{
+      dragging=false; document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      document.removeEventListener('touchmove', onMove);
+      document.removeEventListener('touchend', onUp);
+      saveLayoutNow();
+    };
+    handle.addEventListener('mousedown', (e)=>{
+      dragging=true; card.style.zIndex = (topZ++);
+      const r = card.getBoundingClientRect(); sx = e.clientX; sy = e.clientY; sl = r.left; st = r.top;
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+    handle.addEventListener('touchstart', (e)=>{
+      dragging=true; card.style.zIndex = (topZ++);
+      const t = e.touches[0]; const r = card.getBoundingClientRect(); sx=t.clientX; sy=t.clientY; sl=r.left; st=r.top;
+      document.addEventListener('touchmove', onMove, {passive:false});
+      document.addEventListener('touchend', onUp);
+    }, {passive:true});
+    handle.addEventListener('dragstart', e=> e.preventDefault());
+  }
+
+  /* ----------------- PUBLIC API ----------------- */
+  function spawnFromData(item){
+    // item: { type, tags[], name, ...fields }
+    if(!item || !item.type){ console.warn('[GearCards] Missing item.type'); return; }
+    const type = String(item.type).toLowerCase();
+    const card = createCardEl(type, item);
+    panel.appendChild(card);
+    place(card, {x:12,y:12});
+    saveLayoutNow();
+    return card;
+  }
+  function spawnBlank(type){ return spawnFromData({ type, name:'New Item' }); }
+
+  window.spawnGearCardFromLibrary = spawnFromData;
+  window.spawnBlankGearCard = spawnBlank;
+
+})();
+
 </script>
 <!-- Close body + html -->
 </body>
