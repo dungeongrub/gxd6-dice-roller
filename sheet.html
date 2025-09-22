@@ -961,11 +961,17 @@ button{
 <div id="panel-gear" class="tabPanel" style="display:none; position:relative; min-height:380px;">
 <div id="gearToolbar">
 <button type="button" title="Add Weapon" onclick="window.spawnBlankGearCard && spawnBlankGearCard('weapon')">+ Weapon</button>
-<button type="button" title="Add Armor" onclick="window.spawnBlankGearCard && spawnBlankGearCard('armor')">+ Armor</button>
+
+<button type="button" title="Add Armour" onclick="window.spawnBlankGearCard && spawnBlankGearCard('armor')">+ Armour</button>
+
 <button type="button" title="Add Gear" onclick="window.spawnBlankGearCard && spawnBlankGearCard('gear')">+ Gear</button>
+
 <button type="button" title="Add Tool" onclick="window.spawnBlankGearCard && spawnBlankGearCard('tool')">+ Tool</button>
+
 <button type="button" title="Add Light" onclick="window.spawnBlankGearCard && spawnBlankGearCard('light')">+ Light</button>
+
 <button type="button" title="Add Container" onclick="window.spawnBlankGearCard && spawnBlankGearCard('container')">+ Container</button>
+
 <button type="button" title="Add Narcotic" onclick="window.spawnBlankGearCard && spawnBlankGearCard('narcotic')">+ Narcotic</button>
 </div>
 <!-- Cards will render inside this inner panel -->
@@ -1755,80 +1761,453 @@ function sanitizeTalent(t) {
 })();
 </script>
 
-<script>	
-#woundsText{
-  height:75px;           /* fixed */
-  max-height:75px;       /* belt-and-braces */
-  overflow-y:auto;       /* scroll inside */
-  resize:none;           /* optional: stop manual drag */
-  box-sizing:border-box;
-}
-</script>
 
 <!-- PATCH 3 — INSERT this <script> at the very bottom of <body>, AFTER all other scripts, immediately before </body> -->
 <script id="gear-cards-module">
 (function GearCardsModule(){
-'use strict';
-function findGearPanel(){
-return document.getElementById('gearPanelInner')
-|| document.querySelector('#panel-gear')
-|| document.querySelector('#tabPanel')
-|| document.querySelector('#tabContent')
-|| document.querySelector('[data-tab="gear"]');
-}
-const panel = findGearPanel();
-if(!panel){ console.warn('[GearCards] Gear panel not found.'); return; }
-if(getComputedStyle(panel).position === 'static') panel.style.position = 'relative';
+  'use strict';
 
+  // ---------- Panel hookup ----------
+  function findGearPanel(){
+    return document.getElementById('gearPanelInner')
+        || document.querySelector('#panel-gear')
+        || document.querySelector('[data-tab="gear"]');
+  }
+  const panel = findGearPanel();
+  if(!panel){ console.warn('[GearCards] Gear panel not found.'); return; }
+  if(getComputedStyle(panel).position === 'static') panel.style.position = 'relative';
 
-const hasFn = (name)=> typeof window[name] === 'function';
-const addToPool = (n)=> { if(hasFn('changePool')) return window.changePool(Number(n)||0); if(hasFn('addToDicePool')) return window.addToDicePool(Number(n)||0); };
-const uid = ()=> 'gc_'+Math.random().toString(36).slice(2,9);
+  // ---------- Utilities ----------
+  const hasFn = (name)=> typeof window[name] === 'function';
+  const addToPool = (n)=> { if(hasFn('changePool')) return window.changePool(Number(n)||0); };
+  const uid = ()=> 'gc_'+Math.random().toString(36).slice(2,9);
+  let topZ = 12;
 
+  const clamp = (v,min,max)=> Math.max(min, Math.min(max, v));
+  const placeDefault = (card, {x=12,y=12}={})=>{
+    const host = panel.closest('#panel-gear') || panel;
+    const maxX = Math.max(0, (host.clientWidth  - card.offsetWidth));
+    const maxY = Math.max(0, (host.clientHeight - Math.min(card.offsetHeight, 200)));
+    card.style.left = clamp(x,0,maxX)+'px';
+    card.style.top  = clamp(y,0,maxY)+'px';
+  };
 
-const _placeCard = (card,{x,y})=>{ const host = panel.closest('#panel-gear') || panel; const maxX = host.clientWidth - card.offsetWidth; const maxY = host.clientHeight - Math.min(card.offsetHeight, 200); card.style.left = Math.max(0, Math.min(x||12, maxX))+'px'; card.style.top = Math.max(0, Math.min(y||12, maxY))+'px'; };
-const place = (card, pos) => (typeof window.placeCard === 'function') ? window.placeCard(card,pos) : _placeCard(card,pos);
-const saveLayoutNow = () => (typeof window.saveLayoutDebounced === 'function') ? window.saveLayoutDebounced() : void 0;
+  // Expose hooks (optional override points)
+  const place = (card,pos)=>(typeof window.placeCard==='function'?window.placeCard:placeDefault)(card,pos||{});
+  const saveLayoutNow = ()=> (typeof window.saveLayoutDebounced==='function') ? window.saveLayoutDebounced() : void 0;
 
+  // ---------- Templates (UI labels are UK English) ----------
+  const TEMPLATES = {
+    weapon_melee: [
+      {k:'name',     t:'text',   label:'Name'},
+      {k:'damage',   t:'text',   label:'Damage'},
+      {k:'reach',    t:'text',   label:'Reach/Grip'},
+      {k:'diceMod',  t:'number', label:'Dice Mod'},
+      {k:'weight',   t:'number', label:'Weight'},
+      {k:'traits',   t:'textarea',label:'Traits/Notes'}
+    ],
+    weapon_ranged: [
+      {k:'name',     t:'text',   label:'Name'},
+      {k:'damage',   t:'text',   label:'Damage'},
+      {k:'range',    t:'text',   label:'Range Bands'},
+      {k:'ammo',     t:'text',   label:'Ammo/Reload'},
+      {k:'diceMod',  t:'number', label:'Dice Mod'},
+      {k:'weight',   t:'number', label:'Weight'},
+      {k:'traits',   t:'textarea',label:'Traits/Notes'}
+    ],
+    armor: [ // internal key stays 'armor'; UI says 'Armour'
+      {k:'name',     t:'text',   label:'Name'},
+      {k:'coverage', t:'text',   label:'Coverage'},
+      {k:'armor',    t:'number', label:'Armour Value'},
+      {k:'penalty',  t:'text',   label:'Penalties'},
+      {k:'weight',   t:'number', label:'Weight'},
+      {k:'traits',   t:'textarea',label:'Traits/Notes'}
+    ],
+    narcotic: [
+      {k:'name',     t:'text',   label:'Name'},
+      {k:'dose',     t:'text',   label:'Dose'},
+      {k:'onset',    t:'text',   label:'Onset'},
+      {k:'duration', t:'text',   label:'Peak/Duration'},
+      {k:'effects',  t:'textarea',label:'Effects (+/− dice)'},
+      {k:'withdrawal',t:'textarea',label:'Withdrawal/Crash'},
+      {k:'addiction',t:'text',   label:'Addiction Rating'},
+      {k:'legal',    t:'text',   label:'Legal Class'},
+      {k:'price',    t:'text',   label:'Price'},
+      {k:'weight',   t:'number', label:'Weight'}
+    ],
+    gear: [
+      {k:'name',     t:'text',   label:'Name'},
+      {k:'core',     t:'text',   label:'Core Stat (e.g., Brightness/Capacity)'},
+      {k:'diceMod',  t:'number', label:'Use Bonus (dice)'},
+      {k:'durability',t:'text',  label:'Durability/Break'},
+      {k:'weight',   t:'number', label:'Weight'},
+      {k:'traits',   t:'textarea',label:'Traits/Notes'}
+    ],
+    tool: [
+      {k:'name',     t:'text',   label:'Name'},
+      {k:'bonus',    t:'number', label:'Proficiency Bonus (dice)'},
+      {k:'weight',   t:'number', label:'Weight'},
+      {k:'traits',   t:'textarea',label:'Traits/Notes'}
+    ],
+    light: [
+      {k:'name',     t:'text',   label:'Name'},
+      {k:'brightness',t:'text',  label:'Brightness'},
+      {k:'burn',     t:'text',   label:'Burn Time/Fuel'},
+      {k:'weight',   t:'number', label:'Weight'},
+      {k:'traits',   t:'textarea',label:'Traits/Notes'}
+    ],
+    container: [
+      {k:'name',     t:'text',   label:'Name'},
+      {k:'capacity', t:'text',   label:'Capacity/Slots'},
+      {k:'weight',   t:'number', label:'Weight (empty)'},
+      {k:'traits',   t:'textarea',label:'Traits/Notes'}
+    ]
+  };
 
-const TEMPLATES = {
-weapon_melee: [ {k:'name',t:'text',label:'Name'}, {k:'damage',t:'text',label:'Damage'}, {k:'reach',t:'text',label:'Reach/Grip'}, {k:'diceMod',t:'number',label:'Dice Mod'}, {k:'weight',t:'number',label:'Weight'}, {k:'traits',t:'textarea',label:'Traits/Notes'} ],
-weapon_ranged:[ {k:'name',t:'text',label:'Name'},{k:'damage',t:'text',label:'Damage'},{k:'range',t:'text',label:'Range Bands'},{k:'ammo',t:'text',label:'Ammo/Reload'},{k:'diceMod',t:'number',label:'Dice Mod'},{k:'weight',t:'number',label:'Weight'},{k:'traits',t:'textarea',label:'Traits/Notes'} ],
-armor: [ {k:'name',t:'text',label:'Name'},{k:'coverage',t:'text',label:'Coverage'},{k:'armor',t:'number',label:'Armor Value'},{k:'penalty',t:'text',label:'Penalties'},{k:'weight',t:'number',label:'Weight'},{k:'traits',t:'textarea',label:'Traits/Notes'} ],
-narcotic: [ {k:'name',t:'text',label:'Name'},{k:'dose',t:'text',label:'Dose'},{k:'onset',t:'text',label:'Onset'},{k:'duration',t:'text',label:'Peak/Duration'},{k:'effects',t:'textarea',label:'Effects (+/− dice)'},{k:'withdrawal',t:'textarea',label:'Withdrawal/Crash'},{k:'addiction',t:'text',label:'Addiction Rating'},{k:'legal',t:'text',label:'Legal Class'},{k:'price',t:'text',label:'Price'},{k:'weight',t:'number',label:'Weight'} ],
-gear: [ {k:'name',t:'text',label:'Name'},{k:'core',t:'text',label:'Core Stat (eg Brightness/Capacity)'},{k:'diceMod',t:'number',label:'Use Bonus (dice)'},{k:'durability',t:'text',label:'Durability/Break'},{k:'weight',t:'number',label:'Weight'},{k:'traits',t:'textarea',label:'Traits/Notes'} ],
-tool: [ {k:'name',t:'text',label:'Name'},{k:'bonus',t:'number',label:'Proficiency Bonus (dice)'},{k:'weight',t:'number',label:'Weight'},{k:'traits',t:'textarea',label:'Traits/Notes'} ],
-light: [ {k:'name',t:'text',label:'Name'},{k:'brightness',t:'text',label:'Brightness'},{k:'burn',t:'text',label:'Burn Time/Fuel'},{k:'weight',t:'number',label:'Weight'},{k:'traits',t:'textarea',label:'Traits/Notes'} ],
-container: [ {k:'name',t:'text',label:'Name'},{k:'capacity',t:'text',label:'Capacity/Slots'},{k:'weight',t:'number',label:'Weight (empty)'},{k:'traits',t:'textarea',label:'Traits/Notes'} ]
-};
-const TRAIT_RULES = { blackpowder:[{k:'fouling',t:'number',label:'Fouling'},{k:'misfire',t:'text',label:'Misfire/Jam'}], poison:[{k:'potency',t:'text',label:'Potency'},{k:'save',t:'text',label:'Save'},{k:'delivery',t:'text',label:'Delivery'}], thrown:[{k:'break',t:'text',label:'Break Chance'}] };
-function resolveTemplate(baseType, tags){ const t=(tags||[]).map(s=>String(s).toLowerCase()); if(baseType==='weapon'){ if(t.includes('ranged')||t.includes('firearm')) return 'weapon_ranged'; return 'weapon_melee'; } return baseType; }
+  const TRAIT_RULES = {
+    blackpowder: [
+      {k:'fouling', t:'number', label:'Fouling'},
+      {k:'misfire', t:'text',   label:'Misfire/Jam'}
+    ],
+    poison: [
+      {k:'potency', t:'text',   label:'Potency'},
+      {k:'save',    t:'text',   label:'Save'},
+      {k:'delivery',t:'text',   label:'Delivery'}
+    ],
+    thrown: [
+      {k:'break',   t:'text',   label:'Break Chance'}
+    ]
+  };
 
+  function resolveTemplate(baseType, tags){
+    const t = (tags||[]).map(s=>String(s).toLowerCase());
+    if(baseType==='weapon'){
+      if(t.includes('ranged') || t.includes('firearm')) return 'weapon_ranged';
+      return 'weapon_melee';
+    }
+    return baseType;
+  }
 
-let topZ = 12;
-function createCardEl(type, data){
-const id = data.id || uid();
-const tags = (data.tags && Array.isArray(data.tags)) ? data.tags : [];
-const templateKey = resolveTemplate(type, tags);
+  // ---------- State + (optional) persistence ----------
+  const LS_KEY = 'gxd6.gear.cards.v1';
+  let cards = loadJSON(LS_KEY, []);   // [{id,type,data,x,y,z}]
 
+  // Render all that exist (if any)
+  cards.forEach(spawnFromState);
 
-const card = document.createElement('div'); card.className='gear-card'; card.dataset.cardId=id; card.dataset.cardType=type; card.style.cssText='position:absolute;left:12px;top:12px;z-index:'+(topZ++)+';width:360px;background:#fff;border:1px solid #000;box-shadow:0 2px 6px rgba(0,0,0,.15)';
+  function loadJSON(k, fb){ try{ const s=localStorage.getItem(k); return s?JSON.parse(s):fb; }catch{ return fb; } }
+  function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(cards)); }catch(e){ console.warn('[GearCards] save failed', e); } }
 
+  // ---------- Public API ----------
+  window.spawnBlankGearCard = function(type){
+    const t = String(type||'gear').toLowerCase();
+    const id = uid();
+    const data = { name:'', description:'', tags:[] };
+    const el = createCardEl(t, data, id);
+    panel.appendChild(el);
+    place(el, {x: 12 + (cards.length*16)%120, y: 12 + (cards.length*12)%90});
+    cards.push({ id, type:t, data:cloneData(data), x: parseInt(el.style.left), y: parseInt(el.style.top), z: topZ-1 });
+    save();
+    return el;
+  };
 
-const header=document.createElement('div'); header.className='card-header'; header.style.cssText='display:flex;align-items:center;gap:8px;justify-content:space-between;padding:4px 6px;background:#f2f2f2;border-bottom:1px solid #000;cursor:grab;';
-const title=document.createElement('input'); title.type='text'; title.value=data.name||data.title||''; title.placeholder='Item Name'; title.className='card-title'; title.style.cssText='flex:1;min-width:0;border:none;background:transparent;font-family:DominicanSmall,serif;font-size:14px;';
-const quick=document.createElement('div'); quick.className='card-quick'; quick.style.cssText='margin-left:8px;font:12px DominicanSmall,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'; quick.textContent=buildQuickLine(type,data);
-const btnClose=document.createElement('button'); btnClose.textContent='×'; btnClose.title='Remove'; btnClose.className='close-btn'; btnClose.style.cssText='border:1px solid #000;background:#fff;width:18px;height:18px;line-height:16px;padding:0;font-weight:700;cursor:pointer;';
-header.append(title,quick,btnClose);
+  window.spawnGearCardFromLibrary = function(item){
+    // item: {type, name, description?, tags?, ...extra fields...}
+    const t = String(item?.type||'gear').toLowerCase();
+    const id = uid();
+    const data = Object.assign({ name:'', description:'', tags:[] }, item||{});
+    const el = createCardEl(t, data, id);
+    panel.appendChild(el);
+    place(el, {x: 18 + (cards.length*18)%150, y: 18 + (cards.length*14)%120});
+    cards.push({ id, type:t, data:cloneData(data), x: parseInt(el.style.left), y: parseInt(el.style.top), z: topZ-1 });
+    save();
+    return el;
+  };
 
+  // Export/Import for your Firestore glue (optional)
+  window.exportGearCards = function(){
+    return cards.map(c => ({ id:c.id, type:c.type, data:c.data, x:c.x, y:c.y, z:c.z }));
+  };
+  window.importGearCards = function(list){
+    if(!Array.isArray(list)) return;
+    // Clear existing DOM + state
+    panel.querySelectorAll('.gear-card').forEach(n=>n.remove());
+    cards = [];
+    list.forEach(c => {
+      const id   = c.id || uid();
+      const type = String(c.type||'gear').toLowerCase();
+      const data = Object.assign({ name:'', description:'', tags:[] }, c.data||{});
+      const el = createCardEl(type, data, id);
+      el.style.left = (c.x||12)+'px';
+      el.style.top  = (c.y||12)+'px';
+      el.style.zIndex = (c.z|| (topZ++) );
+      panel.appendChild(el);
+      cards.push({ id, type, data:cloneData(data), x:c.x||12, y:c.y||12, z: parseInt(el.style.zIndex,10) });
+    });
+    save();
+  };
 
-const body=document.createElement('div'); body.className='card-body'; body.style.cssText='display:grid;grid-template-columns:2fr 1fr;gap:8px;padding:8px;';
-const left=document.createElement('div'); const right=document.createElement('div');
+  // ---------- Card factory ----------
+  function createCardEl(type, data, id){
+    const tags = (data.tags && Array.isArray(data.tags)) ? data.tags : [];
+    const templateKey = resolveTemplate(type, tags);
+    const spec = TEMPLATES[templateKey] || TEMPLATES.gear;
 
+    const card = el('div', { class:'gear-card', 'data-card-id': id, 'data-card-type': type });
+    card.style.cssText = 'position:absolute;left:12px;top:12px;z-index:'+(topZ++)+';width:360px;background:#fff;border:1px solid #000;box-shadow:0 2px 6px rgba(0,0,0,.15)';
 
-const desc=document.createElement('textarea'); desc.placeholder='Description…'; desc.value=data.description||''; desc.className='description'; desc.style.cssText='width:100%;min-height:72px;border:1px dashed #bbb;background:transparent;font-family:Gothics,Dominican,serif;font-size:11px;resize:vertical;padding:4px;';
-left.appendChild(desc);
+    // Header
+    const header = el('div',{ class:'card-header', title:'Drag to move • Click quick to collapse/expand' });
+    const title  = el('input',{ class:'card-title', type:'text', placeholder:'Item Name', value: (data.name||data.title||'') });
+    const quick  = el('div',{ class:'card-quick' }, buildQuickLine(type, data));
+    const btnX   = el('button',{ class:'close-btn', type:'button', title:'Remove' }, '×');
+    header.append(title, quick, btnX);
+
+    // Body
+    const body   = el('div',{ class:'card-body' });
+    const left   = el('div');
+    const right  = el('div');
+
+    const desc   = el('textarea',{ class:'description', placeholder:'Description…' }, data.description||'');
+    left.append(desc);
+
+    // Right fields from template + trait rules
+    const fieldsWrap = el('div', { class:'fields-wrap' });
+    const fields = {};
+
+    function addField(def){
+      const label = el('label', null, def.label);
+      let input;
+      if(def.t === 'textarea') input = el('textarea');
+      else input = el('input', { type: def.t==='number'?'number':'text' });
+      input.value = data[def.k] ?? '';
+      input.dataset.key = def.k;
+      fields[def.k] = input;
+
+      // number fields: tidy parse
+      if(def.t==='number'){
+        input.addEventListener('input', ()=>{ if(input.value==='') return; const n = parseFloat(input.value); if(isNaN(n)) input.value=''; });
+      }
+
+      // update quick line on any change
+      input.addEventListener('input', ()=>{
+        data[def.k] = (def.t==='number' ? (input.value===''?'':Number(input.value)) : input.value);
+        quick.textContent = buildQuickLine(type, data);
+        persistCard(id, type, data, card);
+      });
+
+      const wrap = el('div'); wrap.append(label, input);
+      fieldsWrap.append(wrap);
+    }
+
+    spec.forEach(addField);
+
+    // trait-derived fields (based on simple tag keywords)
+    const lowerTraits = ((data.traits||'') + ' ' + (Array.isArray(data.tags)? data.tags.join(' '):'')).toLowerCase();
+    Object.entries(TRAIT_RULES).forEach(([key, defs])=>{
+      if(lowerTraits.includes(key)){
+        defs.forEach(addField);
+      }
+    });
+
+    right.append(fieldsWrap);
+    body.append(left, right);
+
+    // Footer
+    const footer = el('div',{ class:'card-footer' });
+    const btnPool = el('button',{ type:'button', title:'Add Dice Mod to Pool' }, '+ Dice');
+    const btnDup  = el('button',{ type:'button', title:'Duplicate' }, 'Duplicate');
+    const btnCol  = el('button',{ type:'button', title:'Collapse/Expand' }, 'Collapse');
+    footer.append(btnPool, btnDup, btnCol);
+
+    card.append(header, body, footer);
+
+    // --- Bindings ---
+    // Title
+    title.addEventListener('input', ()=>{
+      data.name = title.value;
+      persistCard(id, type, data, card);
+    });
+
+    // Description
+    autoGrow(desc);
+    desc.addEventListener('input', ()=>{
+      data.description = desc.value;
+      persistCard(id, type, data, card);
+    });
+
+    // Remove
+    btnX.addEventListener('click', ()=>{
+      card.remove();
+      const i = cards.findIndex(c=>c.id===id);
+      if(i>-1){ cards.splice(i,1); save(); }
+    });
+
+    // Collapse/expand
+    btnCol.addEventListener('click', ()=>{
+      card.classList.toggle('collapsed');
+    });
+    quick.addEventListener('click', ()=>{
+      card.classList.toggle('collapsed');
+    });
+
+    // Duplicate
+    btnDup.addEventListener('click', ()=>{
+      const copy = JSON.parse(JSON.stringify({type, data}));
+      copy.data.name = (copy.data.name||'') + ' (copy)';
+      window.spawnGearCardFromLibrary(copy);
+    });
+
+    // + Dice to pool (uses diceMod/bonus/bonus-like if present)
+    btnPool.addEventListener('click', ()=>{
+      const n = coalesceNumber(
+        data.diceMod,
+        data.bonus,
+        data.effects && parseDiceFromText(String(data.effects))
+      );
+      if(typeof n === 'number' && !isNaN(n) && n !== 0){
+        addToPool(n);
+      }
+    });
+
+    // Dragging (header = handle)
+    let drag = null;
+    header.addEventListener('mousedown', (e)=>{
+      if(e.button!==0) return;
+      const rect = card.getBoundingClientRect();
+      const host = (panel.closest('#panel-gear')||panel).getBoundingClientRect();
+      drag = {
+        dx: e.clientX - rect.left,
+        dy: e.clientY - rect.top,
+        maxX: host.left + host.width  - rect.width,
+        maxY: host.top  + host.height - rect.height
+      };
+      // raise z
+      card.style.zIndex = ++topZ;
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', (e)=>{
+      if(!drag) return;
+      const host = (panel.closest('#panel-gear')||panel).getBoundingClientRect();
+      let x = clamp(e.clientX - drag.dx - host.left, 0, host.width - card.offsetWidth);
+      let y = clamp(e.clientY - drag.dy - host.top,  0, host.height- card.offsetHeight);
+      card.style.left = Math.round(x)+'px';
+      card.style.top  = Math.round(y)+'px';
+    });
+    window.addEventListener('mouseup', ()=>{
+      if(!drag) return;
+      drag = null;
+      persistCard(id, type, data, card);
+    });
+
+    return card;
+  }
+
+  // ---------- Helpers ----------
+  function el(tag, attrs, ...kids){
+    const n = document.createElement(tag);
+    if(attrs){
+      for(const [k,v] of Object.entries(attrs)){
+        if(v===false || v==null) continue;
+        if(v===true) n.setAttribute(k,'');
+        else n.setAttribute(k,String(v));
+      }
+    }
+    for(const k of kids){
+      if(k==null) continue;
+      n.appendChild(typeof k==='string' || typeof k==='number' ? document.createTextNode(String(k)) : k);
+    }
+    return n;
+  }
+
+  function autoGrow(t){
+    const fit = ()=>{ t.style.height = 'auto'; t.style.height = (t.scrollHeight+2)+'px'; };
+    queueMicrotask(fit);
+    t.addEventListener('input', fit);
+  }
+
+  function buildQuickLine(type, d){
+    const t = type.toLowerCase();
+    if(t==='weapon' || t==='weapon_melee' || t==='weapon_ranged'){
+      const bits = [
+        d.damage ? `DMG ${d.damage}` : null,
+        (d.range||d.reach) ? (d.range||d.reach) : null,
+        numLabel(d.diceMod,'±'),
+        numLabel(d.weight,'kg','w')
+      ].filter(Boolean);
+      return bits.join(' · ') || '—';
+    }
+    if(t==='armor'){ // UI shows Armour in card body; quick line can be concise
+      const bits = [
+        d.coverage || null,
+        numLabel(d.armor,'AV'),
+        numLabel(d.weight,'kg','w')
+      ].filter(Boolean);
+      return bits.join(' · ') || '—';
+    }
+    if(t==='narcotic'){
+      const bits = [
+        d.dose || null,
+        d.onset || null,
+        d.duration || null
+      ].filter(Boolean);
+      return bits.join(' · ') || '—';
+    }
+    if(t==='container'){
+      const bits = [
+        d.capacity || null,
+        numLabel(d.weight,'kg','w')
+      ].filter(Boolean);
+      return bits.join(' · ') || '—';
+    }
+    // generic
+    const bits = [
+      d.core || null,
+      numLabel(d.diceMod,'±') || numLabel(d.bonus,'±'),
+      numLabel(d.weight,'kg','w')
+    ].filter(Boolean);
+    return bits.join(' · ') || '—';
+  }
+
+  function numLabel(v, label, fallback){
+    if(v==null || v==='') return null;
+    const n = Number(v);
+    if(!isFinite(n)) return (fallback? `${fallback}:${v}` : String(v));
+    if(label==='±') return (n>0?'+':'') + n;
+    if(label) return `${label} ${n}`;
+    return String(n);
+  }
+
+  function parseDiceFromText(s){
+    // find a “+N dice” / “-N dice” style number (very lenient)
+    const m = s.match(/([+\-]?\s*\d+)\s*(?:d(ice)?|dice|die|bonus)/i);
+    if(!m) return 0;
+    return Number(m[1].replace(/\s+/g,''));
+    }
+
+  function cloneData(d){ return JSON.parse(JSON.stringify(d||{})); }
+
+  function persistCard(id, type, data, node){
+    const i = cards.findIndex(c=>c.id===id);
+    const x = parseInt(node.style.left,10)  || 0;
+    const y = parseInt(node.style.top,10)   || 0;
+    const z = parseInt(node.style.zIndex,10)|| 1;
+    if(i>-1){ cards[i] = { id, type, data:cloneData(data), x, y, z }; }
+    else { cards.push({ id, type, data:cloneData(data), x, y, z }); }
+    save();
+    saveLayoutNow();
+  }
+
+  function spawnFromState(c){
+    const node = createCardEl(c.type, c.data, c.id);
+    node.style.left   = (c.x||12)+'px';
+    node.style.top    = (c.y||12)+'px';
+    node.style.zIndex = (c.z|| (topZ++) );
+    panel.appendChild(node);
+  }
+})();
 </script>
+
 
 <!-- Close body + html -->
 </body>
