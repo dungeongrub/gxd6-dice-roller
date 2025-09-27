@@ -493,16 +493,16 @@ button{
 #gearToolbar{display:flex;gap:6px;margin-bottom:6px}
 #gearToolbar button{border:1px solid #000;background:#fff;padding:3px 6px;cursor:pointer;font:12px DominicanSmall,serif}
 
-/* Make panel match Talents sizing */
 #gearPanelInner{
   width:450px;
-  height:250px;
+  height:350px;       /* ← increased by +100px */
   border:1px dashed #0003;
   background:transparent;
-  overflow:auto;            /* scroll, don’t grow the page */
+  overflow:auto;      /* keep the page from growing */
   padding:10px 0 0 0;
   box-sizing:border-box;
 }
+
 
 /* Stacked list like Talents */
 .gear-list{
@@ -599,31 +599,35 @@ button{
 
 <!-- =============== MONEY STYLES (INSIDE MAIN TAB) ===================== -->
 <style id="money-panel-css">
-  /* Money panel */
-  #moneyPanel {
-    width: 200px;                  /* tweak if you want wider/narrower */
-  }
-  #moneyPanel .money-grid{
-    display: grid;
-    grid-template-columns: 1fr 70px; /* label | number */
-    row-gap: 6px;
-    column-gap: 8px;
-  }
-  #moneyPanel label{
-    font: 12px/1.2 'DominicanSmall', Georgia, serif;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-  }
-  #moneyPanel input[type="number"]{
-    text-align: center;
-    font-family: 'DeutschGothic', monospace;
-    font-size: 14px;
-    height: 20px;
-    background: transparent;
-    border: 1px solid #000;
-  }
+/* Money panel */
+#moneyPanel{
+  width:130px;
+  height:100px;          /* fixed height as requested */
+  margin-top:8px;        /* space below gear panel */
+  overflow:auto;         /* in case fonts/OS push it slightly */
+}
+
+#moneyPanel .money-grid{
+  display:grid;
+  grid-template-columns: 1fr 48px;  /* label | 3-digit box */
+  row-gap:4px;
+  column-gap:6px;
+}
+
+#moneyPanel label{
+  font: 12px/1.1 'DominicanSmall', Georgia, serif;
+  white-space:nowrap;
+}
+
+#moneyPanel input[type="number"]{
+  text-align:center;
+  font-family:'DeutschGothic', monospace;
+  font-size:12px;
+  height:18px;
+  border:1px solid #000;
+  padding:0;
+}
+
 </style>
 <!-- =============== END OF MONEY STYLES (INSIDE MAIN TAB) ===================== -->
 
@@ -940,26 +944,21 @@ button{
 <!-- Cards will render inside this inner panel -->
 <div id="gearPanelInner" aria-label="Gear Cards Area"></div>
 
-<!-- Money panel (positioned within the Gear tab) -->
-<div id="moneyPanel" class="panel" 
-     style="position:absolute; left:130px; top:100px;"
-     data-label="GEAR: Money">
+<!-- Money panel sits directly UNDER the gear cards -->
+<div id="moneyPanel" class="panel" data-label="GEAR: Money">
   <div class="panel-header">Money</div>
-
   <div class="money-grid">
     <label for="moneyCrown">Crown (₵)</label>
-    <input id="moneyCrown" type="number" min="0" max="999" inputmode="numeric" placeholder="000" oninput="limit3(this)">
-
+    <input id="moneyCrown" type="number" min="0" max="999" inputmode="numeric" placeholder="0" oninput="limit3(this)">
     <label for="moneyShilling">Shilling (ș)</label>
-    <input id="moneyShilling" type="number" min="0" max="999" inputmode="numeric" placeholder="000" oninput="limit3(this)">
-
+    <input id="moneyShilling" type="number" min="0" max="999" inputmode="numeric" placeholder="0" oninput="limit3(this)">
     <label for="moneyPenny">Penny (ḍ)</label>
-    <input id="moneyPenny" type="number" min="0" max="999" inputmode="numeric" placeholder="000" oninput="limit3(this)">
-
+    <input id="moneyPenny" type="number" min="0" max="999" inputmode="numeric" placeholder="0" oninput="limit3(this)">
     <label for="moneyFarthing">Farthing (ƒ)</label>
-    <input id="moneyFarthing" type="number" min="0" max="999" inputmode="numeric" placeholder="000" oninput="limit3(this)">
+    <input id="moneyFarthing" type="number" min="0" max="999" inputmode="numeric" placeholder="0" oninput="limit3(this)">
   </div>
-  </div>
+</div>
+
 </div>
 
 
