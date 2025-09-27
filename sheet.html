@@ -645,7 +645,7 @@ button{
 /* Make panel match Talents sizing */
 #gearPanelInner{
   width:450px;
-  height:350px;
+  height:250px;
   border:1px dashed #0003;
   background:transparent;
   overflow:auto;            /* scroll, don’t grow the page */
@@ -744,8 +744,38 @@ button{
 .gear-card.is-locked .card-title{opacity:.85}
 </style>
 
-
 <!-- =============== END OF GEAR STYLES (INSIDE MAIN TAB) ===================== -->
+
+<!-- =============== MONEY STYLES (INSIDE MAIN TAB) ===================== -->
+<style id="money-panel-css">
+  /* Money panel */
+  #moneyPanel {
+    width: 200px;                  /* tweak if you want wider/narrower */
+  }
+  #moneyPanel .money-grid{
+    display: grid;
+    grid-template-columns: 1fr 70px; /* label | number */
+    row-gap: 6px;
+    column-gap: 8px;
+  }
+  #moneyPanel label{
+    font: 12px/1.2 'DominicanSmall', Georgia, serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  #moneyPanel input[type="number"]{
+    text-align: center;
+    font-family: 'DeutschGothic', monospace;
+    font-size: 14px;
+    height: 20px;
+    background: transparent;
+    border: 1px solid #000;
+  }
+</style>
+<!-- =============== END OF MONEY STYLES (INSIDE MAIN TAB) ===================== -->
+
 </head>
 <body>
 
@@ -1060,11 +1090,34 @@ button{
 <div id="gearPanelInner" aria-label="Gear Cards Area"></div>
 </div>
 
+<!-- Money panel (positioned within the Gear tab) -->
+<div id="moneyPanel" class="panel" 
+     style="position:absolute; left:130px; top:100px;"
+     data-label="GEAR: Money">
+  <div class="panel-header">Money</div>
+
+  <div class="money-grid">
+    <label for="moneyCrown">Crown (₵)</label>
+    <input id="moneyCrown" type="number" min="0" max="999" inputmode="numeric" placeholder="000" oninput="limit3(this)">
+
+    <label for="moneyShilling">Shilling (ș)</label>
+    <input id="moneyShilling" type="number" min="0" max="999" inputmode="numeric" placeholder="000" oninput="limit3(this)">
+
+    <label for="moneyPenny">Penny (ḍ)</label>
+    <input id="moneyPenny" type="number" min="0" max="999" inputmode="numeric" placeholder="000" oninput="limit3(this)">
+
+    <label for="moneyFarthing">Farthing (ƒ)</label>
+    <input id="moneyFarthing" type="number" min="0" max="999" inputmode="numeric" placeholder="000" oninput="limit3(this)">
+  </div>
+</div>
+
+
       <div id="panel-powers" class="tabPanel" style="display:none;">Powers coming soon</div>
     </div><!-- /#tabBox -->
 
   </div><!-- /#mainCanvas -->
 </div><!-- /.sheet-container -->
+
 <!-- Scripts (tabs + small helpers) -->
 <script>
 window.showTab = function(which){
@@ -1103,6 +1156,15 @@ function stepXp(delta){
   el.value = Math.max(0, cur + delta);
 }
 </script>
+
+<script>
+  function limit3(el){
+    // enforce 0..999 and keep max 3 visible digits
+    let v = el.value.replace(/\D/g,'').slice(0,3);
+    el.value = v === '' ? '' : Math.min(999, parseInt(v,10));
+  }
+</script>
+
 
 <!-- Firebase / Firestore -->
 <script type="module">
