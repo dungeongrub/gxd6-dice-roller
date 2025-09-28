@@ -489,9 +489,20 @@ button{
 
 <!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 <style id="gear-cards-css">
+
 /* Toolbar */
 #gearToolbar{display:flex;gap:6px;margin-bottom:6px}
 #gearToolbar button{border:1px solid #000;background:#fff;padding:3px 6px;cursor:pointer;font:12px DominicanSmall,serif}
+
+#gearToolbar .enc-label { align-self: center; font: 12px DominicanSmall, serif; }
+#gearToolbar .enc-input {
+  width: 52px; height: 22px;
+  text-align: center;
+  font-family: 'DeutschGothic', monospace;
+  font-size: 12px;
+  border: 1px solid #000;
+  background: #fff;
+}
 
 #gearPanelInner{
   width:450px;
@@ -923,24 +934,34 @@ button{
         </div><!-- /#tabMainWrap -->
       </div><!-- /#panel-main -->
 
+<!-- COMBAT PANEL -->
       <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
 
+<!--------------------------- GEAR PANEL ----------------------------->
+
 <div id="panel-gear" class="tabPanel" style="display:none; position:relative; min-height:380px;">
+
 <div id="gearToolbar">
-<button type="button" title="Add Weapon" onclick="window.spawnBlankGearCard && spawnBlankGearCard('weapon')">+ Weapon</button>
+  <button type="button" title="Add Weapon"
+          onclick="window.spawnBlankGearCard && spawnBlankGearCard('weapon')">+ Weapon</button>
 
-<button type="button" title="Add Armour" onclick="window.spawnBlankGearCard && spawnBlankGearCard('armor')">+ Armour</button>
+  <button type="button" title="Add Armour"
+          onclick="window.spawnBlankGearCard && spawnBlankGearCard('armor')">+ Armour</button>
 
-<button type="button" title="Add Gear" onclick="window.spawnBlankGearCard && spawnBlankGearCard('gear')">+ Gear</button>
+  <button type="button" title="Add Gear"
+          onclick="window.spawnBlankGearCard && spawnBlankGearCard('gear')">+ Gear</button>
 
-<button type="button" title="Add Tool" onclick="window.spawnBlankGearCard && spawnBlankGearCard('tool')">+ Tool</button>
+  <button type="button" title="Add Chemical"
+          onclick="window.spawnBlankGearCard && spawnBlankGearCard('chemical')">+ Chemical</button>
 
-<button type="button" title="Add Light" onclick="window.spawnBlankGearCard && spawnBlankGearCard('light')">+ Light</button>
+  <span class="enc-label">Max. Enc.</span>
+  <input id="encMax" class="enc-input" type="number" min="0" step="1" value="0" />
 
-<button type="button" title="Add Container" onclick="window.spawnBlankGearCard && spawnBlankGearCard('container')">+ Container</button>
-
-<button type="button" title="Add Narcotic" onclick="window.spawnBlankGearCard && spawnBlankGearCard('narcotic')">+ Narcotic</button>
+  <span class="enc-label">Current Enc.</span>
+  <input id="encCurrent" class="enc-input" type="number" min="0" step="1" value="0" />
 </div>
+
+
 <!-- Cards will render inside this inner panel -->
 <div id="gearPanelInner" aria-label="Gear Cards Area"></div>
 
@@ -1070,7 +1091,13 @@ window.signIn=async()=>{
   await signInWithEmailAndPassword(auth,em,pw);
   alert('Signed in!');
 };
-window.signOutUser=async()=>{ await signOut(auth); alert('Signed out'); };
+window.signOutUser=async()=>{
+ await signOut(auth);
+   // optional UI cleanup
+  if (window.clearGearCards) window.clearGearCards();
+ alert('Signed out'); 
+ };
+
 window.deleteAccount=async()=>{
   if(auth.currentUser && confirm('Delete account?')){
     await deleteUser(auth.currentUser);
@@ -1093,6 +1120,11 @@ window.saveCharacter=async()=>{
   if(window.exportCharacterTalents){
     data.__talents = window.exportCharacterTalents();
   }
+  
+  // Persist gear cards
+if(window.exportCharacterGear){
+  data.__gear = window.exportCharacterGear();
+}
 
   await setDoc(doc(db,'users',user.uid,'characters',name),data);
   alert('Saved');
@@ -1124,6 +1156,12 @@ window.loadCharacter=async()=>{
   if(window.importCharacterTalents){
     window.importCharacterTalents(Array.isArray(data.__talents)? data.__talents : []);
   }
+  
+ // Clear any previous gear cards and import fresh ones
+if (window.clearGearCards) window.clearGearCards();
+if (window.importCharacterGear){
+  window.importCharacterGear(Array.isArray(data.__gear) ? data.__gear : []);
+} 
 
   initAllSkillTotals();
   alert('Loaded');
@@ -1798,45 +1836,23 @@ function sanitizeTalent(t) {
       {k:'weight',   t:'number', label:'Weight'},
       {k:'traits',   t:'textarea',label:'Traits/Notes'}
     ],
-    narcotic: [
-      {k:'name', t:'text', label:'Name'},
-      {k:'dose', t:'text', label:'Dose'},
-      {k:'onset',t:'text', label:'Onset'},
-      {k:'duration',t:'text',label:'Peak/Duration'},
-      {k:'effects', t:'textarea', label:'Effects (+/− dice)'},
-      {k:'withdrawal', t:'textarea', label:'Withdrawal/Crash'},
-      {k:'addiction',  t:'text', label:'Addiction Rating'},
-      {k:'legal',      t:'text', label:'Legal Class'},
-      {k:'price',      t:'text', label:'Price'},
-      {k:'weight',     t:'number', label:'Weight'}
-    ],
+    chemical: [
+  {k:'name', t:'text', label:'Name'},
+  {k:'dose', t:'text', label:'Dose'},
+  {k:'duration', t:'text', label:'Duration'},
+  {k:'effects', t:'textarea', label:'Effects (+/− dice)'},
+  {k:'withdrawal', t:'textarea', label:'Withdrawal/Crash'},
+  {k:'addiction',  t:'text', label:'Addiction Rating'},
+  {k:'price',      t:'text', label:'Price'},
+],
+
     gear: [
       {k:'name',    t:'text',   label:'Name'},
-      {k:'core',    t:'text',   label:'Core Stat (e.g. Brightness/Capacity)'},
+      {k:'core',    t:'text',   label:'Core Stat'},
       {k:'diceMod', t:'number', label:'Gear Bonus'},
-      {k:'durability',t:'text', label:'Durability/Break'},
       {k:'weight',  t:'number', label:'Weight'},
       {k:'traits',  t:'textarea',label:'Traits/Notes'}
     ],
-    tool: [
-      {k:'name',   t:'text',   label:'Name'},
-      {k:'bonus',  t:'number', label:'Gear Bonus'},
-      {k:'weight', t:'number', label:'Weight'},
-      {k:'traits', t:'textarea',label:'Traits/Notes'}
-    ],
-    light: [
-      {k:'name',      t:'text',   label:'Name'},
-      {k:'brightness',t:'text',   label:'Brightness'},
-      {k:'burn',      t:'text',   label:'Burn Time/Fuel'},
-      {k:'weight',    t:'number', label:'Weight'},
-      {k:'traits',    t:'textarea',label:'Traits/Notes'}
-    ],
-    container: [
-      {k:'name',     t:'text',   label:'Name'},
-      {k:'capacity', t:'text',   label:'Capacity/Slots'},
-      {k:'weight',   t:'number', label:'Weight (empty)'},
-      {k:'traits',   t:'textarea',label:'Traits/Notes'}
-    ]
   };
 
   function resolveTemplate(baseType, tags){
@@ -1847,13 +1863,17 @@ function sanitizeTalent(t) {
     }
     if (baseType==='armor' || baseType==='armour') return 'armour';
     return baseType;
+	  if (baseType==='narcotic') return 'chemical';   // ← legacy -> new
+  return baseType;
   }
 
   const uid = ()=> 'gc_'+Math.random().toString(36).slice(2,9);
 
   // ---------- Public API ----------
   window.spawnBlankGearCard = function(kind){
-    const type = (kind === 'armor') ? 'armour' : (kind||'gear');
+    const type = (kind === 'armor') ? 'armour' 
+			: (kind === 'narcotic') ? 'chemical'
+			: (kind||'gear');
     const data = { id: uid(), name:'', description:'', diceMod:0 };
     const el = createCardEl(type, data);
     list.appendChild(el);
@@ -1866,6 +1886,49 @@ function sanitizeTalent(t) {
     list.appendChild(el);
     return el;
   };
+  
+// ---- Export all gear cards to a plain object array ----
+window.exportCharacterGear = function(){
+  const out = [];
+  list.querySelectorAll('.gear-card').forEach(card=>{
+    const item = {
+      id: card.dataset.cardId || null,
+      type: card.dataset.cardType || 'gear',
+      _locked: card.classList.contains('is-locked'),
+      _min: card.classList.contains('min'),
+      name: card.querySelector('.card-title')?.value || '',
+      description: card.querySelector('.description')?.value || ''
+    };
+    // collect all named inputs in the right-side fields
+    card.querySelectorAll('.fields-wrap input, .fields-wrap textarea, .fields-wrap select')
+      .forEach(el=>{
+        const k = el.name || el.getAttribute('name');
+        if (!k) return;
+        item[k] = (el.type === 'checkbox') ? !!el.checked : el.value;
+      });
+    out.push(item);
+  });
+  return out;
+};
+
+// ---- Import (replace current list with items) ----
+window.importCharacterGear = function(items){
+  list.innerHTML = '';
+  if (!Array.isArray(items)) return;
+  items.forEach(data=>{
+    const el = createCardEl(data.type || 'gear', data);
+    // restore collapsed/locked flags
+    if (data._min) el.classList.add('min');
+    if (data._locked) el.classList.add('is-locked');
+    list.appendChild(el);
+  });
+};
+
+// ---- Clear everything (used when switching characters) ----
+window.clearGearCards = function(){
+  list.innerHTML = '';
+};
+  
 
   // ---------- One-time DnD wiring on the list ----------
   if (!list.dataset.ddInit){
