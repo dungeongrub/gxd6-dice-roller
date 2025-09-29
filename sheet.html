@@ -1009,8 +1009,24 @@ window.toggleLock = id => {
   icon.src = locked ? 'img/lock.png' : 'img/lock_open.png';
   field.style.opacity = locked ? 0.6 : 1;
 };
-window.stepUpField = id => { document.getElementById(id)?.stepUp(); };
-window.stepDownField = id => { document.getElementById(id)?.stepDown(); };
+
+<script>
+window.setLockState = (id, locked) => {
+  const field = document.getElementById(id);
+  const icon  = document.getElementById(`lock-${id}`);
+  if (!field || !icon) return;
+  
+  field.disabled = !!locked;
+  icon.src = locked ? 'img/lock.png' : 'img/lock_open.png';
+  field.style.opacity = locked ? 0.6 : 1;
+};
+</script>
+
+
+window.stepUpField = id => { document.getElementById(id)?.stepUp(); 
+};
+window.stepDownField = id => { document.getElementById(id)?.stepDown(); 
+};
 
 /* Dice pool add from a skill total */
 function addToDicePool(totalId){
@@ -1150,11 +1166,22 @@ window.loadCharacter=async()=>{
     }
   });
 
+  // >>> Clears the current talents UI/state) <<<
+  if (window.clearTalentsPanel) window.clearTalentsPanel();
+
   document.getElementById('charName').value = id;
   characterSelectEl.value = id;
 
   if(window.importCharacterTalents){
     window.importCharacterTalents(Array.isArray(data.__talents)? data.__talents : []);
+  }
+  
+  const locks = data.__attrLocks || {};
+  if (typeof window.setLockState === 'function') {
+    window.setLockState('brawn',   !!locks.brawn);
+    window.setLockState('agility', !!locks.agility);
+    window.setLockState('wits',    !!locks.wits);
+    window.setLockState('will',    !!locks.will);
   }
   
  // Clear any previous gear cards and import fresh ones
@@ -1596,6 +1623,20 @@ ${css}
 
   // Initial render
   renderPanel();
+  
+ // Clear all talents and UI (used when switching characters)
+  window.clearTalentsPanel = function () {
+    charTalents = [];
+    saveChar();
+    renderPanel();
+  };
+  // >>> END INSERT <<<
+
+  // Add new card 
+  addBtn.addEventListener('click', () => {
+    const t = { id:id(), name:'New Talent', level:'-', desc:'', _min:false, _locked:false };
+    charTalents.push(t); saveChar(); renderPanel();
+  });  
 
   // Add new card 
   addBtn.addEventListener('click', () => {
@@ -1812,7 +1853,6 @@ function sanitizeTalent(t) {
   // ---------- Templates (UK spellings + Gear Bonus) ----------
   const TEMPLATES = {
     weapon_melee: [
-      {k:'name',    t:'text',   label:'Name'},
       {k:'damage',  t:'text',   label:'Damage'},
       {k:'reach',   t:'text',   label:'Reach/Grip'},
       {k:'diceMod', t:'number', label:'Gear Bonus'},
@@ -1820,7 +1860,6 @@ function sanitizeTalent(t) {
       {k:'traits',  t:'textarea',label:'Traits/Notes'}
     ],
     weapon_ranged: [
-      {k:'name',    t:'text',   label:'Name'},
       {k:'damage',  t:'text',   label:'Damage'},
       {k:'range',   t:'text',   label:'Range Bands'},
       {k:'ammo',    t:'text',   label:'Ammo/Reload'},
@@ -1829,7 +1868,6 @@ function sanitizeTalent(t) {
       {k:'traits',  t:'textarea',label:'Traits/Notes'}
     ],
     armour: [
-      {k:'name',     t:'text',   label:'Name'},
       {k:'coverage', t:'text',   label:'Coverage'},
       {k:'armor',    t:'number', label:'Armour Value'},
       {k:'penalty',  t:'text',   label:'Penalties'},
@@ -1837,7 +1875,6 @@ function sanitizeTalent(t) {
       {k:'traits',   t:'textarea',label:'Traits/Notes'}
     ],
     chemical: [
-  {k:'name', t:'text', label:'Name'},
   {k:'dose', t:'text', label:'Dose'},
   {k:'duration', t:'text', label:'Duration'},
   {k:'effects', t:'textarea', label:'Effects (+/− dice)'},
@@ -1847,7 +1884,6 @@ function sanitizeTalent(t) {
 ],
 
     gear: [
-      {k:'name',    t:'text',   label:'Name'},
       {k:'core',    t:'text',   label:'Core Stat'},
       {k:'diceMod', t:'number', label:'Gear Bonus'},
       {k:'weight',  t:'number', label:'Weight'},
