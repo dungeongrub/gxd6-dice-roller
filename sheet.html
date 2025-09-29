@@ -1020,13 +1020,13 @@ window.setLockState = (id, locked) => {
   icon.src = locked ? 'img/lock.png' : 'img/lock_open.png';
   field.style.opacity = locked ? 0.6 : 1;
 };
-</script>
-
 
 window.stepUpField = id => { document.getElementById(id)?.stepUp(); 
 };
 window.stepDownField = id => { document.getElementById(id)?.stepDown(); 
 };
+
+</script>
 
 /* Dice pool add from a skill total */
 function addToDicePool(totalId){
