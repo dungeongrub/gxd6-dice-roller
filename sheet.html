@@ -1613,217 +1613,124 @@ ${css}
 })();
 </script>
 
-<!-- ===================== TALENT CARDS (Add-button workflow) ===================== -->
+<!-- ===================== TALENT CARDS ===================== -->
 <script>
 (() => {
-  const LS_CHAR_KEY = 'gxd6.talents.character.v3';
   const panel = document.getElementById('talentsPanel');
   const addBtn = document.getElementById('addTalentBtn');
-  if (!panel || !addBtn) { console.warn('[TALENTS] Containers missing'); return; }
+  if (!panel || !addBtn) { console.warn('[TALENTS] containers missing'); return; }
 
-  // --- State ---
-  let charTalents = loadJSON(LS_CHAR_KEY, []);
-
-  // Migrate any legacy items that might still have "info"
-  charTalents = charTalents.map(sanitizeTalent);
-  saveChar();
-
-  // Initial render
-  renderPanel();
-  
- // Clear all talents and UI (used when switching characters)
-  window.clearTalentsPanel = function () {
-    charTalents = [];
-    saveChar();
-    renderPanel();
-  };
-  // >>> END INSERT <<<
-
-  // Add new card 
-  addBtn.addEventListener('click', () => {
-    const t = { id:id(), name:'New Talent', level:'-', desc:'', _min:false, _locked:false };
-    charTalents.push(t); saveChar(); renderPanel();
-  });  
-
-  // ---------- RENDER ----------
-  function renderPanel() {
-    panel.innerHTML = '';
-    charTalents.forEach(t => panel.appendChild(cardElement(t)));
-  }
+  // In-memory state (no localStorage cache)
+  let charTalents = [];
 
   // Build one card
-function cardElement(t){
-  const card = h('article', {
-    class: 'talent-card' + (t._min ? ' min' : ''),
-    'data-id': t.id
-  });
+  function buildCard(t) {
+    const card = h('article', { class: 'talent-card' + (t._min ? ' min' : ''), 'data-id': t.id });
 
-  // Header
-  const header = h('div', { class: 'talent-header', title: 'Click empty header space to minimize/expand' });
+    const header = h('div', { class: 'talent-header', title: 'Click empty header to minimize/expand' });
+    const title  = h('input', { class: 'talent-title', type: 'text', placeholder: 'Talent Name', value: t.name || '' });
 
-  // Title
-  const title = h('input', {
-    class: 'talent-title',
-    type: 'text',
-    placeholder: 'Talent Name',
-    value: t.name || ''
-  });
+    const right  = h('div', { class: 'talent-right' });
+    const lvlLbl = h('span', { class: 'talent-level-label' }, 'Level');
+    const level  = h('select', { class: 'talent-level' });
+    ['-','1','2','3'].forEach(v => level.appendChild(h('option', { value: v, selected: String(t.level || '-') === v ? true : null }, v)));
+    const btnDel  = h('button', { class: 'btn-delete', type: 'button', title: 'Delete' }, 'X');
+    const btnLock = h('button', { class: 'talent-lock', type: 'button', title: 'Lock/Unlock' });
 
-  // Right controls: level, delete, lock
-  const right = h('div', { class: 'talent-right' });
+    right.append(lvlLbl, level, btnDel, btnLock);
+    header.append(title, right);
 
-  const lvlLbl = h('span', { class: 'talent-level-label' }, 'Level');
-  const level  = h('select', { class: 'talent-level' });
-  ['-','1','2','3'].forEach(v=>{
-    level.appendChild(h('option',{ value:v, selected:String(t.level||'-')===v?true:null }, v));
-  });
+    const body = h('div', { class: 'talent-body' });
+    const desc = h('textarea', { class: 'talent-desc', placeholder: 'Description…' }, t.desc || '');
+    body.append(desc);
 
-  const btnDel = h('button', { class: 'btn-delete', type: 'button', title: 'Delete' }, 'X');
+    card.append(header, body);
 
-  // Padlock
-  const btnLock = h('button', { class:'talent-lock', type:'button', title:'Lock/Unlock' });
-  btnLock.style.backgroundImage = `url('img/${t._locked ? 'lock.png' : 'lock_open.png'}')`;
+    function applyLock() {
+      const locked = !!t._locked;
+      title.disabled = locked;
+      level.disabled = locked;
+      desc.disabled  = locked;
+      btnDel.disabled = locked;
+      btnLock.style.backgroundImage = `url('img/${locked ? 'lock.png' : 'lock_open.png'}')`;
+      card.classList.toggle('is-locked', locked);
+    }
 
-  right.append(lvlLbl, level, btnDel, btnLock);
-  header.append(title, right);
+    title.addEventListener('input',  () => { t.name  = title.value; });
+    level.addEventListener('change', () => { t.level = level.value; });
+    autosize(desc);
+    desc.addEventListener('input',   () => { t.desc  = desc.value; });
 
-  // Body
-  const body  = h('div', { class: 'talent-body' });
-  const desc  = h('textarea', { class: 'talent-desc', placeholder: 'Description…' }, t.desc || '');
-  body.append(desc);
-
-  card.append(header, body);
-
-  // === Bindings ===
-  function applyLockState(){
-    const locked = !!t._locked;
-    title.disabled = locked;
-    level.disabled = locked;
-    desc.disabled  = locked;
-    btnDel.disabled = locked; // disable delete when locked
-    btnLock.style.backgroundImage = `url('img/${locked ? 'lock.png' : 'lock_open.png'}')`;
-  }
-
-  title.addEventListener('input', ()=>{ t.name = title.value; saveChar(); });
-  level.addEventListener('change', ()=>{ t.level = level.value; saveChar(); });
-  autoSize(desc);
-  desc.addEventListener('input', ()=>{ t.desc = desc.value; saveChar(); });
-
-  btnDel.addEventListener('click', ()=>{ removeTalent(t.id); });
-
-  // Lock toggle
-  btnLock.addEventListener('click', ()=>{
-    t._locked = !t._locked;
-    saveChar();
-    applyLockState();
-  });
-
-// Minimize/expand when clicking empty header space
-header.addEventListener('click', (e)=>{
-  if (e.target === title || right.contains(e.target)) return;
-
-  const nowMin = card.classList.toggle('min');
-  t._min = nowMin;
-  saveChar();
-
-  // NEW: if we just expanded, refit the textarea height now it’s visible
-  if (!nowMin) {
-    requestAnimationFrame(()=>{
-      desc.style.height = 'auto';
-      desc.style.height = (desc.scrollHeight + 2) + 'px';
+    btnDel.addEventListener('click', () => {
+      const i = charTalents.findIndex(x => x.id === t.id);
+      if (i > -1) { charTalents.splice(i, 1); renderPanel(); }
     });
-  }
-});
 
-applyLockState();
-return card;
-}
+    btnLock.addEventListener('click', () => { t._locked = !t._locked; applyLock(); });
 
- 
+    header.addEventListener('click', (e) => {
+      if (e.target === title || right.contains(e.target)) return;
+      card.classList.toggle('min');
+      t._min = card.classList.contains('min');
+      if (!t._min) requestAnimationFrame(() => fitTextarea(desc));
+    });
 
-  function removeTalent(idVal) {
-    const i = charTalents.findIndex(x => x.id === idVal);
-    if (i > -1) {
-      charTalents.splice(i, 1);
-      saveChar();
-      renderPanel();
-    }
+    applyLock();
+    return card;
   }
 
-  // ---------- Utils ----------
-  function autoSize(el) {
-    const fit = () => { el.style.height = 'auto'; el.style.height = (el.scrollHeight + 2) + 'px'; };
-    // Resize now and on input
-    queueMicrotask(fit);
-    el.addEventListener('input', fit);
+  // Render the whole panel from state
+  function renderPanel() {
+    panel.innerHTML = '';
+    charTalents.forEach(t => panel.appendChild(buildCard(t)));
   }
 
-// helper (put near autoSize)
-function fitTextarea(el){
-  el.style.height = 'auto';
-  el.style.height = (el.scrollHeight + 2) + 'px';
-}
+  // Add button
+  addBtn.addEventListener('click', () => {
+    const t = { id: uid(), name: 'New Talent', level: '-', desc: '', _min: false, _locked: false };
+    charTalents.push(t);
+    renderPanel();
+  });
 
-
-  function loadJSON(key, fallback) {
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : structuredClone(fallback);
-    } catch {
-      return structuredClone(fallback);
-    }
-  }
-
-  function saveJSON(key, val) {
-    try { localStorage.setItem(key, JSON.stringify(val)); }
-    catch (e) { console.warn('LocalStorage save failed', e); }
-  }
-
-  function saveChar() { saveJSON(LS_CHAR_KEY, charTalents); }
-
-  // Export / Import for Firestore integration — no "info" in v3
-window.exportCharacterTalents = function () {
-  return charTalents.map(t => ({
-    id: t.id,
-    name: String(t.name || ''),
-    level: String(t.level || '-'),
-    desc: String(t.desc || ''),
-    _min: !!t._min,
-    _locked: !!t._locked
-  }));
-};
-
+  // Public API used by your Save/Load code
+  window.exportCharacterTalents = function () {
+    return charTalents.map(t => ({
+      id: t.id,
+      name: String(t.name || ''),
+      level: String(t.level || '-'),
+      desc: String(t.desc || ''),
+      _min: !!t._min,
+      _locked: !!t._locked
+    }));
+  };
 
   window.importCharacterTalents = function (list) {
-    if (!Array.isArray(list)) return;
-    // Accept legacy objects that may contain "info" and drop it
-    charTalents = list.map(sanitizeTalent);
-    saveChar();
+    charTalents = Array.isArray(list) ? list.map(sanitize) : [];
     renderPanel();
   };
 
-function sanitizeTalent(t) {
-  return {
-    id: t.id || id(),
-    name: String(t.name || ''),
-    level: String(t.level || '-'),
-    desc: String(t.desc || ''),
-    _min: !!t._min,
-    _locked: !!t._locked
+  window.clearTalentsPanel = function () {
+    charTalents = [];
+    renderPanel();
   };
-}
 
-
-  function id() { return 't_' + Math.random().toString(36).slice(2, 9); }
-
+  // Helpers
+  function sanitize(t) {
+    return {
+      id: t.id || uid(),
+      name: String(t.name || ''),
+      level: String(t.level || '-'),
+      desc: String(t.desc || ''),
+      _min: !!t._min,
+      _locked: !!t._locked
+    };
+  }
+  function uid() { return 't_' + Math.random().toString(36).slice(2, 9); }
   function h(tag, attrs, ...kids) {
     const el = document.createElement(tag);
-    if (attrs) {
-      for (const [k, v] of Object.entries(attrs)) {
-        if (v === null || v === undefined || v === false) continue;
-        if (v === true) el.setAttribute(k, '');
-        else el.setAttribute(k, String(v));
-      }
+    if (attrs) for (const [k, v] of Object.entries(attrs)) {
+      if (v === null || v === undefined || v === false) continue;
+      if (v === true) el.setAttribute(k, ''); else el.setAttribute(k, String(v));
     }
     for (const k of kids) {
       if (k == null) continue;
@@ -1832,6 +1739,11 @@ function sanitizeTalent(t) {
     }
     return el;
   }
+  function autosize(el){ const fit=()=>{ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }; queueMicrotask(fit); el.addEventListener('input', fit); }
+  function fitTextarea(el){ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }
+
+  // Start empty
+  renderPanel();
 })();
 </script>
 
