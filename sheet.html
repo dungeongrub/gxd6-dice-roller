@@ -982,7 +982,6 @@ button{
 
 </div>
 
-
       <div id="panel-powers" class="tabPanel" style="display:none;">Powers coming soon</div>
     </div><!-- /#tabBox -->
 
@@ -991,6 +990,7 @@ button{
 
 <!-- Scripts (tabs + small helpers) -->
 <script>
+/* Tabs */
 window.showTab = function(which){
   document.querySelectorAll('.tabPanel').forEach(p=>p.style.display='none');
   const active = document.getElementById('panel-'+which);
@@ -1000,6 +1000,7 @@ window.showTab = function(which){
   });
 };
 
+/* Attribute lock toggle (by click on the padlock) */
 window.toggleLock = id => {
   const field = document.getElementById(id);
   const icon = document.getElementById(`lock-${id}`);
@@ -1010,22 +1011,19 @@ window.toggleLock = id => {
   field.style.opacity = locked ? 0.6 : 1;
 };
 
-<script>
+/* Programmatic lock setter (used on load) */
 window.setLockState = (id, locked) => {
   const field = document.getElementById(id);
   const icon  = document.getElementById(`lock-${id}`);
   if (!field || !icon) return;
-  
   field.disabled = !!locked;
   icon.src = locked ? 'img/lock.png' : 'img/lock_open.png';
   field.style.opacity = locked ? 0.6 : 1;
 };
 
-window.stepUpField = id => { document.getElementById(id)?.stepUp(); 
-};
-window.stepDownField = id => { document.getElementById(id)?.stepDown(); 
-};
-
+/* Tiny helpers for + / − buttons by the current-value pips */
+window.stepUpField   = id => { document.getElementById(id)?.stepUp();   };
+window.stepDownField = id => { document.getElementById(id)?.stepDown(); };
 </script>
 
 <script>
@@ -1142,6 +1140,14 @@ window.saveCharacter=async()=>{
 if(window.exportCharacterGear){
   data.__gear = window.exportCharacterGear();
 }
+
+// Persist attribute base lock states
+data.__attrLocks = {
+  brawn:   !!document.getElementById('brawn')?.disabled,
+  agility: !!document.getElementById('agility')?.disabled,
+  wits:    !!document.getElementById('wits')?.disabled,
+  will:    !!document.getElementById('will')?.disabled
+};
 
   await setDoc(doc(db,'users',user.uid,'characters',name),data);
   alert('Saved');
@@ -1639,12 +1645,6 @@ ${css}
     charTalents.push(t); saveChar(); renderPanel();
   });  
 
-  // Add new card 
-  addBtn.addEventListener('click', () => {
-  const t = { id:id(), name:'New Talent', level:'-', desc:'', _min:false, _locked:false };
-  charTalents.push(t); saveChar(); renderPanel();
-});
-
   // ---------- RENDER ----------
   function renderPanel() {
     panel.innerHTML = '';
@@ -1892,17 +1892,18 @@ function sanitizeTalent(t) {
     ],
   };
 
-  function resolveTemplate(baseType, tags){
-    const t = (tags||[]).map(s=>String(s).toLowerCase());
-    if (baseType==='weapon'){
-      if (t.includes('ranged')||t.includes('firearm')) return 'weapon_ranged';
-      return 'weapon_melee';
-    }
-    if (baseType==='armor' || baseType==='armour') return 'armour';
-    return baseType;
-	  if (baseType==='narcotic') return 'chemical';   // ← legacy -> new
-  return baseType;
+function resolveTemplate(baseType, tags){
+  const t = (tags||[]).map(s=>String(s).toLowerCase());
+
+  if (baseType==='weapon'){
+    if (t.includes('ranged') || t.includes('firearm')) return 'weapon_ranged';
+    return 'weapon_melee';
   }
+  if (baseType==='armor' || baseType==='armour') return 'armour';
+  if (baseType==='narcotic') return 'chemical'; // legacy → new
+
+  return baseType;
+}
 
   const uid = ()=> 'gc_'+Math.random().toString(36).slice(2,9);
 
