@@ -491,8 +491,20 @@ button{
 <style id="gear-cards-css">
 
 /* Toolbar */
-#gearToolbar{display:flex;gap:6px;margin-bottom:6px}
-#gearToolbar button{border:1px solid #000;background:#fff;padding:3px 6px;cursor:pointer;font:12px DominicanSmall,serif}
+#gearToolbar{
+display:flex;
+gap:6px;
+margin-bottom:6px}
+ align-items:center;
+}
+
+#gearToolbar button{
+border:1px solid #000;
+background:#fff;
+padding:3px 6px;
+cursor:pointer;
+font:12px DominicanSmall,serif
+}
 
 #gearToolbar .enc-label { align-self: center; font: 12px DominicanSmall, serif; }
 #gearToolbar .enc-input {
@@ -605,8 +617,45 @@ button{
 /* Locked state */
 .gear-card.is-locked{opacity:.96}
 .gear-card.is-locked .card-title{opacity:.85}
-</style>
 
+/* Encumbrance block styling */
+.enc-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 22px;            /* same height as buttons */
+  margin-left: 6px;
+}
+
+.enc-title {
+  font: 11px DominicanSmall, serif;
+  text-align: center;
+  line-height: 12px;
+}
+
+.enc-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+}
+
+.enc-label {
+  font: 11px DominicanSmall, serif;
+}
+
+.enc-input {
+  width: 17px;             /* small boxes */
+  height: 16px;
+  text-align: center;
+  font-family: 'DeutschGothic', monospace;
+  font-size: 11px;
+  border: 1px solid #000;
+  background: #fff;
+  padding: 0;
+}
+
+</style>
 <!-- =============== END OF GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 
 <!-- =============== MONEY STYLES (INSIDE MAIN TAB) ===================== -->
