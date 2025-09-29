@@ -496,6 +496,9 @@ display:flex;
 gap:6px;
 margin-bottom:6px}
  align-items:center;
+ flex-wrap:wrap; 
+   height:22px;          /* lock height */
+  line-height:16px;     /* keeps text nicely centered */
 }
 
 #gearToolbar button{
@@ -640,6 +643,7 @@ font:12px DominicanSmall,serif
   justify-content: center;
 }
 
+/* Labels and tiny inputs */
 .enc-label {
   font: 11px DominicanSmall, serif;
 }
@@ -1013,6 +1017,7 @@ font:12px DominicanSmall,serif
     <span class="enc-label">Current</span>
     <input id="encCurrent" class="enc-input" type="number" min="0" step="1" value="0" />
   </div>
+</div>
 </div>
 
 <!-- Cards will render inside this inner panel -->
