@@ -668,7 +668,7 @@ button{
 /* Money panel */
 #moneyPanel{
   width:150px;
-  height:115px;
+  height:120px;
   margin-top:2px;        /* space below gear panel */
   overflow:auto;         /* in case fonts/OS push it slightly */
 }
@@ -686,7 +686,7 @@ button{
 }
 
 #moneyPanel input[type="number"]{
-  width:20px;
+  width:22px;
   text-align:center;
   font-family:'DeutschGothic', monospace;
   font-size:12px;
@@ -1010,18 +1010,18 @@ button{
   <button type="button" title="Add Chemical"
           onclick="window.spawnBlankGearCard && spawnBlankGearCard('chemical')">+ Chemical</button>
 
-<div class="enc-block">
-  <div class="enc-title">Encumbrance</div>
-  <div class="enc-line">
-    <span class="enc-label">Maximum</span>
-    <input id="encMax" class="enc-input" type="number" min="0" step="1" value="0">
-  </div>
-  <div class="enc-line">
-    <span class="enc-label">Current</span>
-    <input id="encCurrent" class="enc-input" type="number" min="0" step="1" value="0">
+  <!-- Encumbrance box (fixed 120×50, right-aligned) -->
+  <div id="encBox">
+    <div class="enc-title">Encumbrance</div>
+    <div class="enc-line">
+      <label for="encMax">Max.</label>
+      <input id="encMax" type="number" min="0" step="1" value="0">
+      <label for="encCurrent" style="margin-left:6px;">Current</label>
+      <input id="encCurrent" type="number" min="0" step="1" value="0">
+    </div>
   </div>
 </div>
-</div>
+
 
 <!-- Cards will render inside this inner panel -->
 <div id="gearPanelInner" aria-label="Gear Cards Area"></div>
