@@ -489,22 +489,74 @@ button{
 
 <!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 <style id="gear-cards-css">
+/* =============== GEAR STYLES (INSIDE MAIN TAB) ===================== */
+
 /* Toolbar */
 #gearToolbar{
   display:flex;
+  align-items:center;     /* keep all items aligned */
   gap:6px;
   margin-bottom:6px;
-  align-items:center;
-  flex-wrap:wrap;
+  flex-wrap:nowrap;
 }
 #gearToolbar button{
-  border:1px solid #000; 
+  border:1px solid #000;
   background:#fff;
-  padding:3px 6px; 
+  padding:3px 6px;
   cursor:pointer;
   font:12px DominicanSmall,serif;
-  height:28px; 
+  height:26px;            /* slightly slimmer so box fits */
   line-height:20px;
+}
+
+/* Encumbrance box (fixed size, top-aligned) */
+.enc-block{
+  margin-left:auto;       /* push to right edge */
+  width:110px;            /* trimmed a bit to fit */
+  height:42px;            /* shorter so it stays inline */
+  border:1px solid #000;
+  border-radius:4px;
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  align-items:center;
+  padding:2px 2px;        /* small padding */
+  box-sizing:border-box;
+}
+
+/* Title larger */
+.enc-title{
+  font:12px 'DominicanSmall', serif;
+  text-align:center;
+  line-height:12px;
+  margin-bottom:2px;
+}
+
+/* Row for Max./Current */
+.enc-line{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  justify-content:center;
+}
+
+/* Smaller labels */
+.enc-label{
+  font:10px 'DominicanSmall', serif;
+}
+
+/* Inputs: force override to Money size */
+.enc-input{
+  width:20px !important;
+  height:16px !important;
+  text-align:center;
+  font-family:'DeutschGothic', monospace !important;
+  font-size:11px !important;      /* smaller, matches Money */
+  border:1px solid #000;
+  background:#fff;
+  padding:0;
+  line-height:1;
 }
 
 /* Cards area */
@@ -514,7 +566,7 @@ button{
   border:1px dashed #0003;
   background:transparent;
   overflow:auto;
-  padding:10px 0 0 0;
+  padding:6px 0 0 0;      /* slightly less top padding so enc box fits */
   box-sizing:border-box;
 }
 
@@ -534,7 +586,7 @@ button{
 .gear-card.min .card-body,
 .gear-card.min .card-footer{ display:none !important; }
 
-/* Header (NEW ORDER: drag | title | min | lock | Gear Bonus) */
+/* Header (order: drag | title | min | lock | Gear Bonus) */
 .card-header{
   display:flex; align-items:center; gap:8px;
   justify-content:flex-start;
@@ -551,7 +603,7 @@ button{
 .drag-handle{ cursor:grab; }
 .lock-btn{ background-position:center; background-repeat:no-repeat; background-size:contain; }
 
-/* Title in the middle, small caps look */
+/* Title in middle */
 .card-title{
   flex:1 1 auto; min-width:0;
   border:none; background:transparent;
@@ -561,20 +613,15 @@ button{
 }
 
 /* Gear Bonus (right side of header) */
-.gb-wrap{
-  display:flex; align-items:center; gap:4px; white-space:nowrap;
-}
-.gb-label{
-  font:11px DominicanSmall,serif; opacity:.9;
-}
+.gb-wrap{ display:flex; align-items:center; gap:4px; white-space:nowrap; }
+.gb-label{ font:11px DominicanSmall,serif; opacity:.9; }
 .gb-input{
   width:44px; height:22px;
   text-align:center;
   font-family:'DeutschGothic', monospace;
   font-size:12px;
   border:1px solid #000; background:#fff;
-  padding:0;
-  cursor:pointer;         /* acts like a button */
+  padding:0; cursor:pointer;
 }
 
 /* Body */
@@ -595,7 +642,7 @@ button{
 }
 .fields-wrap textarea{ min-height:48px; font:11px Gothics,Dominican,serif; resize:vertical; padding:3px; }
 
-/* Footer (ONLY the Remove button now) */
+/* Footer (Remove button only) */
 .card-footer{
   display:flex; gap:6px; justify-content:flex-end;
   padding:6px; border-top:1px solid #000; background:#fafafa;
@@ -608,63 +655,11 @@ button{
 
 /* Drag feedback */
 .gear-card.dragging{ opacity:.6 }
-.gear-card.drop-target{ outline:2px dashed #0077ff 
-}
+.gear-card.drop-target{ outline:2px dashed #0077ff }
 
 /* Locked state */
 .gear-card.is-locked{ opacity:.96 }
-.gear-card.is-locked .card-title{ opacity:.85 
-}
-
-/* ENCUMBRANCE box — fixed size, aligned right */
-.enc-block{
-  margin-left:auto;             /* push to right edge */
-  width:140px;
-  height:50px;
-  border:1px solid #000;
-  border-radius:2px;
-  background:#fff;
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-start;
-  align-items:center;
-  padding:1px 1px;
-  box-sizing:border-box;
-}
-
-/* Title big enough to stand out */
-.enc-title{
-  font:12px 'DominicanSmall', serif;  /* larger now */
-  text-align:center;
-  line-height:14px;
-  margin-bottom:2px;
-}
-
-/* Row for Max. + Current */
-.enc-line{
-  display:flex;
-  align-items:center;
-  gap:4px;
-  justify-content:center;
-}
-
-/* Smaller labels for Max./Current */
-.enc-label{
-  font:10px 'DominicanSmall', serif;  /* smaller now */
-}
-
-/* Inputs match Money fields */
-.enc-input{
-  width:15px;
-  height:15px;
-  text-align:center;
-  font-family:'DeutschGothic', monospace;
-  font-size:9px;
-  border:1px solid #000;
-  background:#fff;
-  padding:0;
-}
-
+.gear-card.is-locked .card-title{ opacity:.85 }
 
 </style>
 
@@ -676,7 +671,7 @@ button{
 #moneyPanel{
   width:150px;
   height:110px;
-  margin-top:0px;        /* space below gear panel */
+  margin-top:2px;        /* space below gear panel */
   overflow:auto;         /* in case fonts/OS push it slightly */
 }
 
@@ -689,6 +684,7 @@ button{
 
 #moneyPanel label{
   font: 11px/1.1 'DominicanSmall', Georgia, serif;
+  margin-top:1px;
   white-space:nowrap;
 }
 
