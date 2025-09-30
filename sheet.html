@@ -616,48 +616,55 @@ button{
 .gear-card.is-locked .card-title{ opacity:.85 
 }
 
-/* ENCUMBRANCE block — sits at the far right */
+/* ENCUMBRANCE box — fixed size, aligned right */
 .enc-block{
-  margin-left:auto;     /* ← pushes it to the right edge */
+  margin-left:auto;             /* push to right edge */
+  width:120px;
+  height:50px;
+  border:1px solid #000;
+  border-radius:4px;
+  background:#fff;
   display:flex;
   flex-direction:column;
-  justify-content:center;
-  height:28px;          /* same as buttons */
+  justify-content:flex-start;
+  align-items:center;
+  padding:2px 4px;
+  box-sizing:border-box;
 }
 
-/* Title centered above the two rows */
+/* Title big enough to stand out */
 .enc-title{
-  font:11px DominicanSmall, serif;
+  font:12px 'DominicanSmall', serif;  /* larger now */
   text-align:center;
-  line-height:12px;
+  line-height:14px;
   margin-bottom:2px;
 }
 
-/* Each row: label + tiny number box */
+/* Row for Max. + Current */
 .enc-line{
   display:flex;
   align-items:center;
   gap:4px;
   justify-content:center;
-  height:12px;          /* two rows fit under the title within 28px total */
 }
 
-/* Labels */
+/* Smaller labels for Max./Current */
 .enc-label{
-  font:11px DominicanSmall, serif;
+  font:10px 'DominicanSmall', serif;  /* smaller now */
 }
 
-/* Tiny inputs */
+/* Inputs match Money fields */
 .enc-input{
-  width:17px;           /* your requested size */
-  height:16px;
+  width:20px;
+  height:18px;
   text-align:center;
   font-family:'DeutschGothic', monospace;
-  font-size:11px;
+  font-size:12px;
   border:1px solid #000;
   background:#fff;
   padding:0;
 }
+
 
 </style>
 
@@ -1011,15 +1018,15 @@ button{
           onclick="window.spawnBlankGearCard && spawnBlankGearCard('chemical')">+ Chemical</button>
 
   <!-- Encumbrance box (fixed 120×50, right-aligned) -->
-  <div id="encBox">
-    <div class="enc-title">Encumbrance</div>
-    <div class="enc-line">
-      <label for="encMax">Max.</label>
-      <input id="encMax" type="number" min="0" step="1" value="0">
-      <label for="encCurrent" style="margin-left:6px;">Current</label>
-      <input id="encCurrent" type="number" min="0" step="1" value="0">
-    </div>
+<div class="enc-block">
+  <div class="enc-title">Encumbrance</div>
+  <div class="enc-line">
+    <span class="enc-label">Max.</span>
+    <input id="encMax" class="enc-input" type="number" min="0" step="1" value="0" />
+    <span class="enc-label">Current</span>
+    <input id="encCurrent" class="enc-input" type="number" min="0" step="1" value="0" />
   </div>
+</div>
 </div>
 
 
