@@ -489,109 +489,92 @@ button{
 
 <!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 <style id="gear-cards-css">
-
 /* Toolbar */
 #gearToolbar{
-display:flex;
-gap:6px;
-margin-bottom:6px}
- align-items:center;
- flex-wrap:wrap; 
-   height:22px;          /* lock height */
-  line-height:16px;     /* keeps text nicely centered */
+  display:flex;
+  gap:6px;
+  margin-bottom:6px;
+  align-items:center;
+  flex-wrap:wrap;
 }
-
 #gearToolbar button{
-border:1px solid #000;
-background:#fff;
-padding:3px 6px;
-cursor:pointer;
-font:12px DominicanSmall,serif
+  border:1px solid #000; background:#fff;
+  padding:3px 6px; cursor:pointer;
+  font:12px DominicanSmall,serif;
+  height:22px; line-height:16px;
 }
 
-#gearToolbar .enc-label { align-self: center; font: 12px DominicanSmall, serif; }
-#gearToolbar .enc-input {
-  width: 17px; 
-  height: 22px;
-  text-align: center;
-  font-family: 'DeutschGothic', monospace;
-  font-size: 12px;
-  border: 1px solid #000;
-  background: #fff;
-}
-
+/* Cards area */
 #gearPanelInner{
   width:450px;
-  height:350px;       /* ← increased by +100px */
+  height:350px;
   border:1px dashed #0003;
   background:transparent;
-  overflow:auto;      /* keep the page from growing */
+  overflow:auto;
   padding:10px 0 0 0;
   box-sizing:border-box;
 }
 
-
-/* Stacked list like Talents */
+/* Stacked list */
 .gear-list{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  padding-top:10px;
-  padding-left:0;
+  display:flex; flex-direction:column;
+  gap:8px; padding-top:10px; padding-left:0;
 }
 
 /* Cards fill width */
 .gear-card{
-  position:relative;
-  width:100%;
-  background:#fff;
-  border:1px solid #000;
-  border-radius:0;
+  position:relative; width:100%;
+  background:#fff; border:1px solid #000; border-radius:0;
   box-shadow:0 2px 6px rgba(0,0,0,.15);
   box-sizing:border-box;
 }
 .gear-card.min .card-body,
 .gear-card.min .card-footer{ display:none !important; }
 
-/* Header */
+/* Header (NEW ORDER: drag | title | min | lock | Gear Bonus) */
 .card-header{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  justify-content:space-between;
-  padding:4px 6px;
-  background:#f2f2f2;
-  border-bottom:1px solid #000;
-  user-select:none;
+  display:flex; align-items:center; gap:8px;
+  justify-content:flex-start;
+  padding:4px 6px; background:#f2f2f2;
+  border-bottom:1px solid #000; user-select:none;
 }
-
-/* Left badge: Gear Bonus */
-.card-meta{display:flex;align-items:center;gap:4px;white-space:nowrap}
-.card-meta .meta-label{font:11px DominicanSmall,serif;opacity:.9}
-.card-meta .meta-val{font:12px DominicanSmall,serif}
-
-/* Editable title */
-.card-title{
-  flex:1; min-width:0;
-  border:none; background:transparent;
-  font-family:DominicanSmall,serif; font-size:14px;
-}
-
-/* Header controls */
 .drag-handle,
 .min-btn,
-.lock-btn,
-.close-btn{
-  border:1px solid #000;
-  background:#fff;
-  width:22px; height:22px;
-  line-height:20px;
+.lock-btn{
+  border:1px solid #000; background:#fff;
+  width:22px; height:22px; line-height:20px;
   padding:0; cursor:pointer;
 }
 .drag-handle{ cursor:grab; }
 .lock-btn{ background-position:center; background-repeat:no-repeat; background-size:contain; }
 
-/* Body grid */
+/* Title in the middle, small caps look */
+.card-title{
+  flex:1 1 auto; min-width:0;
+  border:none; background:transparent;
+  font-family:DominicanSmall,serif; font-size:14px;
+  font-variant: small-caps;
+  text-align:center;
+}
+
+/* Gear Bonus (right side of header) */
+.gb-wrap{
+  display:flex; align-items:center; gap:4px; white-space:nowrap;
+}
+.gb-label{
+  font:11px DominicanSmall,serif; opacity:.9;
+}
+.gb-input{
+  width:44px; height:22px;
+  text-align:center;
+  font-family:'DeutschGothic', monospace;
+  font-size:12px;
+  border:1px solid #000; background:#fff;
+  padding:0;
+  cursor:pointer;         /* acts like a button */
+}
+
+/* Body */
 .card-body{ display:grid; grid-template-columns:2fr 1fr; gap:8px; padding:8px; }
 .card-body textarea.description{
   width:100%; min-height:72px;
@@ -601,65 +584,34 @@ font:12px DominicanSmall,serif
 }
 
 /* Right fields grid */
-.fields-wrap{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
-.fields-wrap label{font:11px DominicanSmall,serif}
+.fields-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px; }
+.fields-wrap label{ font:11px DominicanSmall,serif; }
 .fields-wrap input,.fields-wrap textarea{
   width:100%; border:1px solid #bbb; background:#fff;
   font:12px Dominican,serif; padding:2px 4px; box-sizing:border-box;
 }
-.fields-wrap textarea{min-height:48px;font:11px Gothics,Dominican,serif;resize:vertical;padding:3px}
+.fields-wrap textarea{ min-height:48px; font:11px Gothics,Dominican,serif; resize:vertical; padding:3px; }
 
-/* Footer */
-.card-footer{display:flex;gap:6px;justify-content:flex-end;padding:6px;border-top:1px solid #000;background:#fafafa}
-.card-footer button{border:1px solid #000;background:#fff;padding:2px 6px;cursor:pointer;font:12px DominicanSmall,serif}
+/* Footer (ONLY the Remove button now) */
+.card-footer{
+  display:flex; gap:6px; justify-content:flex-end;
+  padding:6px; border-top:1px solid #000; background:#fafafa;
+}
+.card-footer .remove-btn{
+  border:1px solid #000; background:#fff;
+  padding:2px 8px; cursor:pointer;
+  font:12px DominicanSmall,serif;
+}
 
 /* Drag feedback */
-.gear-card.dragging{opacity:.6}
-.gear-card.drop-target{outline:2px dashed #0077ff}
+.gear-card.dragging{ opacity:.6 }
+.gear-card.drop-target{ outline:2px dashed #0077ff }
 
 /* Locked state */
-.gear-card.is-locked{opacity:.96}
-.gear-card.is-locked .card-title{opacity:.85}
-
-/* Encumbrance block styling */
-.enc-block {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 22px;            /* same height as buttons */
-  margin-left: 6px;
-}
-
-.enc-title {
-  font: 11px DominicanSmall, serif;
-  text-align: center;
-  line-height: 12px;
-}
-
-.enc-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  justify-content: center;
-}
-
-/* Labels and tiny inputs */
-.enc-label {
-  font: 11px DominicanSmall, serif;
-}
-
-.enc-input {
-  width: 17px;             /* small boxes */
-  height: 16px;
-  text-align: center;
-  font-family: 'DeutschGothic', monospace;
-  font-size: 11px;
-  border: 1px solid #000;
-  background: #fff;
-  padding: 0;
-}
-
+.gear-card.is-locked{ opacity:.96 }
+.gear-card.is-locked .card-title{ opacity:.85 }
 </style>
+
 <!-- =============== END OF GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 
 <!-- =============== MONEY STYLES (INSIDE MAIN TAB) ===================== -->
@@ -1821,7 +1773,7 @@ ${css}
     panel.appendChild(list);
   }
 
-  // ---------- Templates (UK spellings + Gear Bonus) ----------
+  // ---------- Templates ----------
   const TEMPLATES = {
     weapon_melee: [
       {k:'damage',  t:'text',   label:'Damage'},
@@ -1846,14 +1798,13 @@ ${css}
       {k:'traits',   t:'textarea',label:'Traits/Notes'}
     ],
     chemical: [
-  {k:'dose', t:'text', label:'Dose'},
-  {k:'duration', t:'text', label:'Duration'},
-  {k:'effects', t:'textarea', label:'Effects (+/− dice)'},
-  {k:'withdrawal', t:'textarea', label:'Withdrawal/Crash'},
-  {k:'addiction',  t:'text', label:'Addiction Rating'},
-  {k:'price',      t:'text', label:'Price'},
-],
-
+      {k:'dose',       t:'text',     label:'Dose'},
+      {k:'duration',   t:'text',     label:'Duration'},
+      {k:'effects',    t:'textarea', label:'Effects (+/− dice)'},
+      {k:'withdrawal', t:'textarea', label:'Withdrawal/Crash'},
+      {k:'addiction',  t:'text',     label:'Addiction Rating'},
+      {k:'price',      t:'text',     label:'Price'}
+    ],
     gear: [
       {k:'core',    t:'text',   label:'Core Stat'},
       {k:'diceMod', t:'number', label:'Gear Bonus'},
@@ -1862,26 +1813,24 @@ ${css}
     ],
   };
 
-function resolveTemplate(baseType, tags){
-  const t = (tags||[]).map(s=>String(s).toLowerCase());
-
-  if (baseType==='weapon'){
-    if (t.includes('ranged') || t.includes('firearm')) return 'weapon_ranged';
-    return 'weapon_melee';
+  function resolveTemplate(baseType, tags){
+    const t = (tags||[]).map(s=>String(s).toLowerCase());
+    if (baseType==='weapon'){
+      if (t.includes('ranged')||t.includes('firearm')) return 'weapon_ranged';
+      return 'weapon_melee';
+    }
+    if (baseType==='armor' || baseType==='armour') return 'armour';
+    if (baseType==='narcotic') return 'chemical';
+    return baseType || 'gear';
   }
-  if (baseType==='armor' || baseType==='armour') return 'armour';
-  if (baseType==='narcotic') return 'chemical'; // legacy → new
-
-  return baseType;
-}
 
   const uid = ()=> 'gc_'+Math.random().toString(36).slice(2,9);
 
   // ---------- Public API ----------
   window.spawnBlankGearCard = function(kind){
-    const type = (kind === 'armor') ? 'armour' 
-			: (kind === 'narcotic') ? 'chemical'
-			: (kind||'gear');
+    const type = (kind === 'armor') ? 'armour'
+               : (kind === 'narcotic') ? 'chemical'
+               : (kind||'gear');
     const data = { id: uid(), name:'', description:'', diceMod:0 };
     const el = createCardEl(type, data);
     list.appendChild(el);
@@ -1894,51 +1843,47 @@ function resolveTemplate(baseType, tags){
     list.appendChild(el);
     return el;
   };
-  
-// ---- Export all gear cards to a plain object array ----
-window.exportCharacterGear = function(){
-  const out = [];
-  list.querySelectorAll('.gear-card').forEach(card=>{
-    const item = {
-      id: card.dataset.cardId || null,
-      type: card.dataset.cardType || 'gear',
-      _locked: card.classList.contains('is-locked'),
-      _min: card.classList.contains('min'),
-      name: card.querySelector('.card-title')?.value || '',
-      description: card.querySelector('.description')?.value || ''
-    };
-    // collect all named inputs in the right-side fields
-    card.querySelectorAll('.fields-wrap input, .fields-wrap textarea, .fields-wrap select')
-      .forEach(el=>{
-        const k = el.name || el.getAttribute('name');
-        if (!k) return;
-        item[k] = (el.type === 'checkbox') ? !!el.checked : el.value;
-      });
-    out.push(item);
-  });
-  return out;
-};
 
-// ---- Import (replace current list with items) ----
-window.importCharacterGear = function(items){
-  list.innerHTML = '';
-  if (!Array.isArray(items)) return;
-  items.forEach(data=>{
-    const el = createCardEl(data.type || 'gear', data);
-    // restore collapsed/locked flags
-    if (data._min) el.classList.add('min');
-    if (data._locked) el.classList.add('is-locked');
-    list.appendChild(el);
-  });
-};
+  window.exportCharacterGear = function(){
+    const out = [];
+    list.querySelectorAll('.gear-card').forEach(card=>{
+      const item = {
+        id: card.dataset.cardId || null,
+        type: card.dataset.cardType || 'gear',
+        _locked: card.classList.contains('is-locked'),
+        _min: card.classList.contains('min'),
+        name: card.querySelector('.card-title')?.value || '',
+        description: card.querySelector('.description')?.value || ''
+      };
+      // collect all named inputs in the right-side fields (includes diceMod)
+      card.querySelectorAll('.fields-wrap input, .fields-wrap textarea, .fields-wrap select')
+        .forEach(el=>{
+          const k = el.name || el.getAttribute('name');
+          if (!k) return;
+          item[k] = (el.type === 'checkbox') ? !!el.checked : el.value;
+        });
+      // also read header Gear Bonus input in case template didn’t include it (safe to overwrite)
+      const headerGB = card.querySelector('.gb-input');
+      if (headerGB) item.diceMod = headerGB.value;
+      out.push(item);
+    });
+    return out;
+  };
 
-// ---- Clear everything (used when switching characters) ----
-window.clearGearCards = function(){
-  list.innerHTML = '';
-};
-  
+  window.importCharacterGear = function(items){
+    list.innerHTML = '';
+    if (!Array.isArray(items)) return;
+    items.forEach(data=>{
+      const el = createCardEl(data.type || 'gear', data);
+      if (data._min) el.classList.add('min');
+      if (data._locked) el.classList.add('is-locked');
+      list.appendChild(el);
+    });
+  };
 
-  // ---------- One-time DnD wiring on the list ----------
+  window.clearGearCards = function(){ list.innerHTML = ''; };
+
+  // ---------- DnD wiring on the list ----------
   if (!list.dataset.ddInit){
     list.dataset.ddInit = '1';
     list.addEventListener('dragover', (e)=>{
@@ -1966,7 +1911,7 @@ window.clearGearCards = function(){
     }, {offset: Number.NEGATIVE_INFINITY, element: null}).element;
   }
 
-  // ---------- Card builder (minimise + lock + handle-only drag) ----------
+  // ---------- Card builder (NEW HEADER LAYOUT) ----------
   function createCardEl(type, data){
     const id = data.id || uid();
     const templateKey = resolveTemplate(type, data.tags);
@@ -1975,59 +1920,63 @@ window.clearGearCards = function(){
     card.className = 'gear-card';
     card.dataset.cardId = id;
     card.dataset.cardType = type;
-    // IMPORTANT: not draggable by default; only via handle
-    // card.draggable will be toggled during handle mousedown
 
     // Header
     const header = document.createElement('div');
     header.className = 'card-header';
 
-    // Left: Gear Bonus badge
-    const meta = document.createElement('div');
-    meta.className = 'card-meta';
-    const metaLabel = document.createElement('span');
-    metaLabel.className = 'meta-label';
-    metaLabel.textContent = 'Gear Bonus:';
-    const metaVal = document.createElement('span');
-    metaVal.className = 'meta-val';
-    metaVal.textContent = String(data.diceMod ?? data.bonus ?? 0);
-    meta.append(metaLabel, metaVal);
-
-    // Middle: editable title
-    const title = document.createElement('input');
-    title.type = 'text';
-    title.value = data.name || data.title || '';
-    title.placeholder = 'Item Name';
-    title.className = 'card-title';
-
-    // Right controls: drag, minimise, lock, delete
+    // (1) Drag handle
     const dragHandle = document.createElement('button');
     dragHandle.className = 'drag-handle';
     dragHandle.type = 'button';
     dragHandle.title = 'Drag to reorder';
     dragHandle.textContent = '↕';
 
+    // (2) Title
+    const title = document.createElement('input');
+    title.type = 'text';
+    title.value = data.name || data.title || '';
+    title.placeholder = 'Item Name';
+    title.className = 'card-title';
+
+    // (3) Minimise
     const minBtn = document.createElement('button');
     minBtn.className = 'min-btn';
     minBtn.type = 'button';
     minBtn.title = 'Minimise / expand';
     minBtn.textContent = '–';
 
+    // (4) Lock
     const lockBtn = document.createElement('button');
     lockBtn.className = 'lock-btn';
     lockBtn.type = 'button';
     lockBtn.title = 'Lock / Unlock';
-    // use same art as Talents
     const setLockIcon = (locked)=> lockBtn.style.backgroundImage = `url('img/${locked ? 'lock.png' : 'lock_open.png'}')`;
     setLockIcon(!!data._locked);
 
-    const btnClose = document.createElement('button');
-    btnClose.className = 'close-btn';
-    btnClose.type = 'button';
-    btnClose.title = 'Remove';
-    btnClose.textContent = '×';
+    // (5) Gear Bonus (label + number input that acts like a button)
+    const gbWrap  = document.createElement('div');
+    gbWrap.className = 'gb-wrap';
+    const gbLabel = document.createElement('span');
+    gbLabel.className = 'gb-label';
+    gbLabel.textContent = 'Gear Bonus';
+    const gbInput = document.createElement('input');
+    gbInput.className = 'gb-input';
+    gbInput.type = 'number';
+    gbInput.name = 'diceMod';
+    gbInput.step = '1';
+    gbInput.value = (data.diceMod ?? data.bonus ?? 0);
 
-    header.append(meta, title, dragHandle, minBtn, lockBtn, btnClose);
+    // Click the number box → add to dice pool
+    gbInput.addEventListener('click', ()=>{
+      const val = parseInt(gbInput.value,10) || 0;
+      if (val && typeof window.changePool === 'function') window.changePool(+val);
+    });
+
+    gbWrap.append(gbLabel, gbInput);
+
+    // Assemble header in the required order
+    header.append(dragHandle, title, minBtn, lockBtn, gbWrap);
 
     // Body
     const body = document.createElement('div');
@@ -2046,6 +1995,8 @@ window.clearGearCards = function(){
     fieldsWrap.className = 'fields-wrap';
 
     (TEMPLATES[templateKey] || []).forEach(spec=>{
+      // We already have a header-level diceMod; skip duplicate field if spec.k === 'diceMod'
+      if (spec.k === 'diceMod') return;
       const label = document.createElement('label');
       label.textContent = spec.label;
 
@@ -2061,28 +2012,24 @@ window.clearGearCards = function(){
     right.appendChild(fieldsWrap);
     body.append(left, right);
 
-    // Footer
+    // Footer (ONLY Remove button now)
     const footer = document.createElement('div');
     footer.className = 'card-footer';
-    const btnAddDice = document.createElement('button');
-    btnAddDice.type = 'button';
-    btnAddDice.textContent = '+ Dice';
-    btnAddDice.title = 'Add Gear Bonus to pool';
-    btnAddDice.addEventListener('click', ()=>{
-      const val = currentGearBonus(card);
-      if (typeof window.changePool === 'function') window.changePool(+val||0);
-    });
-    footer.appendChild(btnAddDice);
+    const btnRemove = document.createElement('button');
+    btnRemove.className = 'remove-btn';
+    btnRemove.type = 'button';
+    btnRemove.textContent = 'Remove';
+    btnRemove.title = 'Remove this item';
+    btnRemove.addEventListener('click', ()=> card.remove());
+    footer.appendChild(btnRemove);
 
     // Assemble
     card.append(header, body, footer);
 
     // ----- Behaviour -----
-
-    // Minimise (button)
+    // Minimise
     minBtn.addEventListener('click', ()=>{
       card.classList.toggle('min');
-      // refit textarea when expanding
       if (!card.classList.contains('min')){
         requestAnimationFrame(()=>{
           desc.style.height = 'auto';
@@ -2091,67 +2038,48 @@ window.clearGearCards = function(){
       }
     });
 
-    // Also allow minimise by clicking empty header area
+    // Also allow minimise by clicking empty header area (not on controls)
     header.addEventListener('click', (e)=>{
-      const isControl = e.target === title || e.target === btnClose ||
-                        e.target === dragHandle || e.target === minBtn ||
-                        e.target === lockBtn || meta.contains(e.target);
+      const isControl = e.target === title || e.target === gbInput
+                     || e.target === dragHandle || e.target === minBtn
+                     || e.target === lockBtn   || gbWrap.contains(e.target);
       if (isControl) return;
       minBtn.click();
     });
 
-    // Lock toggle (disable/enable all inputs)
+    // Lock toggle
     lockBtn.addEventListener('click', ()=>{
       data._locked = !data._locked;
       applyLockState();
     });
 
     function applyLockState(){
-      setLockIcon(!!data._locked);
-      card.classList.toggle('is-locked', !!data._locked);
+      const locked = !!data._locked;
+      setLockIcon(locked);
+      card.classList.toggle('is-locked', locked);
+
+      // Disable inputs/selects/textarea but keep header buttons + remove clickable
       const controls = card.querySelectorAll('input, textarea, select, button');
       controls.forEach(el=>{
-        // keep drag/min/lock/delete clickable; disable the rest
-        const isHeaderCtl = (el===dragHandle || el===minBtn || el===lockBtn || el===btnClose);
-        if (isHeaderCtl) return;
-        if (el.tagName === 'BUTTON') el.disabled = !!data._locked;
-        else el.disabled = !!data._locked;
+        const isAlwaysOn = (el===dragHandle || el===minBtn || el===lockBtn || el===btnRemove);
+        if (isAlwaysOn) return;
+        if (el.tagName === 'BUTTON') el.disabled = locked;
+        else el.disabled = locked;
       });
-      // Extra: disable delete while locked
-      btnClose.disabled = !!data._locked;
     }
     applyLockState();
 
-    // Editable title → keep in data
+    // Title → keep in data
     title.addEventListener('input', ()=>{ data.name = title.value; });
 
-    // Close
-    btnClose.addEventListener('click', ()=>{ card.remove(); });
-
-    // Keep Gear Bonus badge in sync
-    function currentGearBonus(cardEl){
-      const dm = cardEl.querySelector('input[name="diceMod"]');
-      const bn = cardEl.querySelector('input[name="bonus"]');
-      return (dm?.value ?? bn?.value ?? 0);
-    }
-    function syncBonus(){ metaVal.textContent = String(currentGearBonus(card) || 0); }
-    card.addEventListener('input', (e)=>{
-      if (e.target.name === 'diceMod' || e.target.name === 'bonus') syncBonus();
-    });
-    syncBonus();
-
-    // ----- Handle-only drag fix -----
-    // We only allow drag when the handle is pressed.
+    // ----- Handle-only drag -----
     let allowDrag = false;
     dragHandle.addEventListener('mousedown', ()=>{
-      allowDrag = true;
-      card.setAttribute('draggable','true');
+      allowDrag = true; card.setAttribute('draggable','true');
     });
     window.addEventListener('mouseup', ()=>{
-      allowDrag = false;
-      card.removeAttribute('draggable');
+      allowDrag = false; card.removeAttribute('draggable');
     });
-
     card.addEventListener('dragstart', (e)=>{
       if (!allowDrag) { e.preventDefault(); return; }
       card.classList.add('dragging');
