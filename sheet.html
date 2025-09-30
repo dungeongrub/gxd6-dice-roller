@@ -498,10 +498,13 @@ button{
   flex-wrap:wrap;
 }
 #gearToolbar button{
-  border:1px solid #000; background:#fff;
-  padding:3px 6px; cursor:pointer;
+  border:1px solid #000; 
+  background:#fff;
+  padding:3px 6px; 
+  cursor:pointer;
   font:12px DominicanSmall,serif;
-  height:22px; line-height:16px;
+  height:28px; 
+  line-height:20px;
 }
 
 /* Cards area */
@@ -605,11 +608,57 @@ button{
 
 /* Drag feedback */
 .gear-card.dragging{ opacity:.6 }
-.gear-card.drop-target{ outline:2px dashed #0077ff }
+.gear-card.drop-target{ outline:2px dashed #0077ff 
+}
 
 /* Locked state */
 .gear-card.is-locked{ opacity:.96 }
-.gear-card.is-locked .card-title{ opacity:.85 }
+.gear-card.is-locked .card-title{ opacity:.85 
+}
+
+/* ENCUMBRANCE block — sits at the far right */
+.enc-block{
+  margin-left:auto;     /* ← pushes it to the right edge */
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  height:28px;          /* same as buttons */
+}
+
+/* Title centered above the two rows */
+.enc-title{
+  font:11px DominicanSmall, serif;
+  text-align:center;
+  line-height:12px;
+  margin-bottom:2px;
+}
+
+/* Each row: label + tiny number box */
+.enc-line{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  justify-content:center;
+  height:12px;          /* two rows fit under the title within 28px total */
+}
+
+/* Labels */
+.enc-label{
+  font:11px DominicanSmall, serif;
+}
+
+/* Tiny inputs */
+.enc-input{
+  width:17px;           /* your requested size */
+  height:16px;
+  text-align:center;
+  font-family:'DeutschGothic', monospace;
+  font-size:11px;
+  border:1px solid #000;
+  background:#fff;
+  padding:0;
+}
+
 </style>
 
 <!-- =============== END OF GEAR STYLES (INSIDE MAIN TAB) ===================== -->
@@ -619,8 +668,8 @@ button{
 /* Money panel */
 #moneyPanel{
   width:150px;
-  height:110px;          /* fixed height as requested */
-  margin-top:4px;        /* space below gear panel */
+  height:115px;
+  margin-top:2px;        /* space below gear panel */
   overflow:auto;         /* in case fonts/OS push it slightly */
 }
 
@@ -963,11 +1012,13 @@ button{
 
 <div class="enc-block">
   <div class="enc-title">Encumbrance</div>
-  <div class="enc-row">
-    <span class="enc-label">Max.</span>
-    <input id="encMax" class="enc-input" type="number" min="0" step="1" value="0" />
+  <div class="enc-line">
+    <span class="enc-label">Maximum</span>
+    <input id="encMax" class="enc-input" type="number" min="0" step="1" value="0">
+  </div>
+  <div class="enc-line">
     <span class="enc-label">Current</span>
-    <input id="encCurrent" class="enc-input" type="number" min="0" step="1" value="0" />
+    <input id="encCurrent" class="enc-input" type="number" min="0" step="1" value="0">
   </div>
 </div>
 </div>
