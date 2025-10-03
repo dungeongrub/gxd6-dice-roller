@@ -1,3 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GxD6 Character Sheet</title>
+
+  <!-- ===== Base Sheet Styles ===== -->
+  <style>
+/* === Fonts (for the sheet) === */
+@font-face { font-family: 'DominicanSmall'; src: url('fonts/DOMISC__.TTF'); font-display: swap; }
+@font-face { font-family: 'Dominican';      src: url('fonts/DOMINICA.TTF'); font-display: swap; }
+@font-face { font-family: 'DeutschGothic';  src: url('fonts/DeutschGothic.ttf'); font-display: swap; }
+@font-face { font-family: 'GokilNova';      src: url('fonts/Gokil-Nova.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'Gothics';        src: url('fonts/GOTHICS.ttf'); font-display: swap; }
+
+body{
+  font-family:'DominicanSmall', Georgia, serif;
+  background:#f5f5f5;
+  margin:0;
+  padding:20px;
+  color:black;
+}
+
+.sheet-container{ width:800px; margin:0 auto; min-width:800px; }
+
+input,select,textarea{
+  font-family:'Dominican', serif;
+  font-size:14px;
+  padding:2px 6px;
+  background:transparent;
+  border:none;
+}
+input[type="text"]{ font-family:'Dominican', serif; }
+
+input[type=number]{
+  font-family:'DeutschGothic', monospace;
+  font-size:16px;
+  text-align:center;
+  -moz-appearance:textfield;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{ -webkit-appearance:none; }
+
+button{
+  font-family:'DominicanSmall', serif;
+  padding:4px 6px;
+  cursor:pointer;
+}
+
+.top-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:20px;
+}
+.login-controls,.admin-controls{ display:flex; align-items:center; gap:10px; }
+
+/* === Attribute pip styles === */
+.pip-base,.pip-current{
+  width:20px; height:22px;
+  border:none;
+  background:transparent;
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
+}
+.pip-base input,.pip-current input{
+  width:20px; height:22px; font-size:20px;
+  border:none; background:transparent; text-align:center;
+  font-family:'DeutschGothic', monospace;
+  padding:0; margin:0;
+}
+.pip-base .lock-icon{
+  position:absolute; bottom:-10px; left:50%; transform:translateX(-50%);
+  width:14px; height:14px; cursor:pointer;
+}
+.trauma-controls{
+  position:absolute; top:0; right:-20px;
+  display:flex; flex-direction:column; gap:2px;
+}
+.trauma-controls button{
+  width:18px; height:18px; font-size:12px; font-weight:bold;
+  background:#e0e0e0; border:none; cursor:pointer; line-height:1; padding:0;
+}
+
+/* === Canvas === */
+.sheet-canvas{
+  position:relative;
+  width:800px; height:950px;
+  background:url("img/CharSheet_Block_Lengthened.jpg") no-repeat 0 0 / 100% 100%;
+  border:1px solid #000; margin-top:20px;
+}
+.abs{
+  position:absolute;
+  left:var(--x,0); top:var(--y,0);
+  width:var(--w,auto); height:var(--h,auto);
+  z-index:10;
+}
+/* Overlay text fields */
+.abs input[type="text"], .abs select{
+  font-family:'Dominican', serif;
+  font-size:12px;
+  background:transparent;
+  padding:2px 6px;
+  border:none;
+  box-sizing:border-box;
+  height:20px;
+}
+.abs input[type="number"]{
+  font-family:'DeutschGothic', monospace;
+  font-size:16px; text-align:center;
+  height:20px; padding:0 4px;
+}
+.abs input[type="number"]::-webkit-outer-spin-button,
+.abs input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; }
+
+/* Debug baseline outline when on */
+.canvas-debug .abs{ outline:1px dashed rgba(0,0,0,.25); }
+
+/* Tabs */
+.tabBtn{ background:#eee; border:1px solid #333; }
+.tabBtn.active{ background:#333; color:#fff; }
+
+/* === Skill UI bits === */
+.skill-num {
+  font-family: 'DeutschGothic', monospace;
+  font-size: 10px;   /* tiny numerals */
+  height: 15px;
+  width: 15px;
+  text-align: center;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+/* Pip checkbox (skill “key” dots) */
+.pip-check {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: transparent; cursor: pointer; display: inline-block;
+  padding: 0; margin: 0; line-height: 0; vertical-align: middle;
+}
+.pip-check:checked { background: white; }
+.pip-check:focus { outline: none; }
+
+/* Roll button overlay (uses roll_icon.png, shows '+') */
+.roll-btn{
+  width:20px; height:20px;
+  background:url("img/roll_icon.png") no-repeat center/contain;
+  border:none; cursor:pointer;
+  font-family:'DeutschGothic';
+  font-size:14px; font-weight:bold; color:black;
+  text-align:center; line-height:18px; padding:0;
+}
+.roll-btn:active{ transform:scale(0.9); }
+
+/* FINAL OVERRIDE for tiny skill boxes */
+#mainCanvas .skill-num {
+  font-size: 10px !important;
+  line-height: 1;
+  text-align: center;
+  padding: 0;
+}
+
+/* === Dice Roller mini UI === */
+.pool-mini {
+  width: 22px; height: 22px;
+  border: none; border-radius: 50%;
+  background: transparent; color: black;
+  font-family: 'DeutschGothic', monospace;
+  font-size: 10px; line-height: 22px; text-align: center;
+  cursor: pointer; padding: 0; margin: 0;
+}
+.pool-mini:active { transform: scale(0.95); }
+
+/* Dice pool field */
+#dicePool {
+  width: 40px; height: 20px;
+  font-family: 'DeutschGothic', monospace;
+  font-size: 14px; text-align: center;
+  background: transparent; border: none;
+}
+
+/* Dice grid: up to 20 dice (4×5) */
+#diceGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 26px);
+  grid-auto-rows: 26px;
+  gap: 3px;
+  width: 145px; height: 125px;
+}
+.die { width: 26px; height: 26px; opacity: 0; animation: dieFade .25s ease forwards; }
+@keyframes dieFade { to { opacity: 1; } }
+
+/* Tallies */
+.tally-num {
+  font-family: 'DeutschGothic', monospace;
+  font-size: 16px; width: 28px; text-align: center;
+  background: transparent; border: none;
+}
+#successCount { color: #0a8615; }
+#baneCount    { color: #b00020; }
+
+/* Icon buttons */
+.icon-btn-sm {
+  width: 24px; height: 24px; cursor: pointer;
+  transition: transform .15s ease;
+}
+.icon-btn-sm:active { transform: scale(0.9); }
+
+/* Tiny select for pushes */
+#pushesAllowed {
+  font-family: 'DominicanSmall';
+  font-size: 10px; height: 18px;
+  background: transparent; border: 1px solid transparent;
+}
+  </style>
+
+  <!-- Tab Main overlay + independent ticks/XP (all inside #tabMainWrap) -->
+  <style>
+    .tab-main-wrap { position: relative; width: 450px; margin: 0 auto; }
+    #tabMainBg { display:block; width:100%; height:auto; pointer-events:none; user-select:none; }
+
+    /* Make overlay wrappers hug content (no big panels) */
+    .overlay-field { background: transparent; display: inline-block; width: max-content; height: max-content; padding: 0; }
+
+    /* Specific field sizes */
+    #archetype1, #archetype2 { width:100px; height:20px; }
+    #profession1, #profession2 { width:140px; height:20px; }
+
+    /* XP number */
+    .xp-num {
+      width: 24px;
+      height: 15px;
+      font-size: 16px;
+      text-align: center;
+    }
+    .xp-btn {
+      width: 18px; height: 18px; font-size: 12px; font-weight: bold; line-height: 1; background: transparent; border: none; cursor: pointer; padding: 0;
+    }
+    .xp-btn:active { transform: scale(0.95); }
+
+    /* Independent tick styling */
+    #tick1, #tick2, #tick3, #tick4 { appearance:none; -webkit-appearance:none; width:12px; height:12px; border:1px solid #000; border-radius:2px; background:transparent; cursor:pointer; margin:0; padding:0; position:absolute; }
+    #tick1:checked::after, #tick2:checked::after, #tick3:checked::after, #tick4:checked::after { content: "×"; position: absolute; top: -2px; left: 1px; font-size: 14px; line-height: 12px; color: #000; }
+	
+	/* Add Talent button */
+#addTalentBtn{
+  padding:0;                 /* remove padding as requested */
+  margin-left:70px;          /* move 70px to the right */
+  border:1px solid #000;
+  border-radius:0;
+  background:#fff;
+  box-shadow:0 1px 4px #0002;
+  cursor:pointer;
+  }
+  
+  .panel { 
+  background: #fff8; 
+  border: 1px solid #2228; 
+  border-radius: 6px; 
+  padding: 8px; 
+  box-sizing: border-box; 
+}
+
+.panel-header{
+  font: 14px/1.2 'DominicanSmall', Georgia, serif;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin-bottom: 6px;
+}
+
+#wounds { overflow: visible; } /* allow textarea growth */
+
+.wounds-text{
+  width: 100%;
+  min-height: 64px;      /* starting height */
+  resize: none;          /* we auto-size instead */
+  border: none;
+  background: #ffff;
+  padding: 3px 4px;
+  font: 12px/1.35 'Dominican', Georgia, serif;
+  box-sizing: border-box;
+}
+  
+  </style>
+
+<style>
+  /* adjust the max-height to the space you actually have */
+  #woundsText{
+    box-sizing: border-box;
+    width: 100%;
+    max-height: 170px;      /* ← cap it */
+    overflow-y: auto;        /* ← scroll once capped */
+    resize: none;            /* optional (prevents manual resize) */
+  }
+</style>
+
+
+  <!-- ===== Unified Debugger (styles) ===== -->
+  <style>
+.debugger-panel { position: fixed; right: 12px; bottom: 12px; z-index: 1000000; background: #ffffff; color: #111; border: 1px solid #bbb; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 6px; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.15); user-select: none; min-width: 190px; }
+.debugger-panel .row { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+.debugger-panel input[type="text"], .debugger-panel input[type="number"], .debugger-panel button, .debugger-panel label { font: 9px/1.35 system-ui,system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+.debugger-panel button { border: 1px solid #bbb; background: #f6f6f6; cursor: pointer; }
+.debugger-panel .muted { opacity: .75; }
+.debug-tooltip,.debug-coord-hud { position: fixed; z-index: 999998; display: none; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 3px 5px; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; pointer-events: none; white-space: nowrap; }
+.debug-crosshair-x, .debug-crosshair-y { position: fixed; z-index: 999996; background: rgba(255,0,0,.85); display: none; pointer-events: none; }
+.debug-crosshair-x { height: 1px; left: 0; right: 0; }
+.debug-crosshair-y { width: 1px; top: 0; bottom: 0; }
+.debug-marquee { position: fixed; z-index: 999997; display: none; border: 1px dashed #0077ff; background: rgba(0,119,255,.12); pointer-events: none; }
+.debug-selected { outline: 2px solid #0077ff !important; box-shadow: 0 0 0 2px rgba(0,119,255,.2) inset; }
+.debug-outline  { outline:1px dotted rgba(0,0,0,.4) !important; }
+.debug-selected-hud { position: fixed; z-index: 999999; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px; padding: 2px 4px; font: 9px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; pointer-events: none; white-space: nowrap; }
+.debug-measure { position: fixed; z-index: 999997; display: none; border: 1px dashed #00aa55; background: rgba(0,170,85,.10); pointer-events: none; }
+.debug-measure-hud { position: fixed; z-index: 999998; display: none; background:#111; color:#fff; border:1px solid #444; border-radius:4px; padding:2px 4px; pointer-events:none; white-space:nowrap; }
+.debugger-panel.compact > :not(:first-child){ display: none; }
+  </style>
+
+<!-- ===================== TALENT STYLES (INSIDE MAIN TAB) ===================== -->
+<style>
+/* ===== Talents ===== */
+
+#talentsArea{
+  position:absolute;
+  left:0; top:100px;
+  width:450px;
+  margin:0 !important;
+  padding:0;
+}
+
+.talents-dropwrap{
+  width:450px;
+  height:250px;
+  border:1px dashed #0003;
+  background:transparent;
+  overflow:auto;
+  padding:10px 0 0 0;              /* no left/right padding */
+}
+
+.talents-panel{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding-top:10px;       /* only top spacing */
+  padding-left:0;
+}
+
+.talent-card{
+  display:flex;
+  flex-direction:column;
+  width:100%;
+  padding:2px 2px;
+  background:transparent;
+  border:1px solid #000;
+  border-radius:0;
+  box-shadow:0 2px 6px #0002;
+}
+
+/* Header row */
+.talent-header{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:4px 6px;
+}
+
+/* Title stays centered regardless of side controls */
+.talent-title{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+	width: min(30ch, calc(100% - 140px)); /* 30 chars wide, but never overflow the header */
+  font-family:'GokilNova','DominicanSmall',serif;
+  font-size:18px;
+  background:transparent;
+  border:none;
+  outline:none;
+  padding:0; margin:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-align:center;
+  cursor:pointer;
+}
+
+/* Right-hand controls */
+.talent-right{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-left:auto;
+}
+
+.talent-level-label{
+  font-family:'DominicanSmall',serif;
+  font-size:11px;
+  opacity:.9;
+}
+.talent-level{
+  width:44px;
+  height:18px;
+  text-align:center;
+  background:transparent;
+  border:1px solid #000;
+  padding:0 2px;
+  font-family:'DeutschGothic', monospace;
+  font-size:12px;
+}
+
+/* Circular bold delete button */
+.btn-delete{
+  width:22px;
+  height:22px;
+  border:1px solid #000;
+  border-radius:50%;
+  background:#fff;
+  font-weight:700;
+  line-height:20px;
+  text-align:center;
+  cursor:pointer;
+  padding:0;
+}
+
+/* Padlock icon inside header */
+.talent-lock{
+  width:14px;
+  height:14px;
+  cursor:pointer;
+  background-size:contain;
+  background-repeat:no-repeat;
+  border:none;
+  background:transparent;
+}
+
+/* Body */
+.talent-body{
+  display:flex;
+  flex-direction:column;
+  padding:6px;
+}
+
+.talent-desc{
+  width:100%;
+  background:transparent;
+  border:none;
+  border-bottom:1px solid #000;
+  padding:0;
+  margin:0;
+  outline:none;
+  font-family:'Gothics','Dominican',serif;
+  font-size:11px;
+  line-height:1.25;
+  resize:none;
+  min-height:18px;
+  overflow:hidden;
+}
+
+/* Minimized: hide body + right controls, keep centered title */
+.talent-card.min .talent-body,
+.talent-card.min .talent-right { display:none !important; }
+
+/* Talent lock icon (reuses base lock art) */
+.talent-lock {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  vertical-align: middle;
+  margin-left: 3px;
+}
+
+/* Make the delete button clearly disabled when locked */
+.btn-delete[disabled] {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+/* Optional: slight visual cue when locked */
+.talent-card.is-locked {
+  opacity: .95;
+}
+
+/* Optional hover lift */
+.talent-card:hover{ box-shadow:0 3px 8px #0003; }
+</style>
+<!-- =============== END OF TALENT STYLES (INSIDE MAIN TAB) ===================== -->
+
+<!-- =============== START OF GEAR STYLES (INSIDE MAIN TAB) ===================== -->
+<style id="gear-cards-css">
+/* ================= GEAR PANEL — Toolbar + Encumbrance (kept) ================= */
+#gearToolbar{ display:flex; align-items:center; gap:3px; margin-bottom:6px; flex-wrap:nowrap; }
+#gearToolbar button{ border:1px solid #000; background:#fff; padding:2px 2px; cursor:pointer; font:12px 'DominicanSmall',serif; height:26px; line-height:20px; }
+
+.enc-block{
+  margin-left:auto; width:170px; height:50px; border:1px solid #000; border-radius:2px; background:#fff;
+  box-sizing:border-box; padding:2px 2px; display:grid; grid-template-rows:14px 1fr 1fr;
+}
+.enc-title{ font:12px 'DominicanSmall',serif; text-align:center; line-height:14px; margin:0; }
+.enc-row{ display:flex; align-items:center; justify-content:center; gap:3px; height:14px; }
+.enc-cat{ font:10px 'DominicanSmall',serif; min-width:52px; text-align:right; }
+.enc-sub{ font:8px 'DominicanSmall',serif; opacity:.9; line-height:10px; }
+.enc-input{
+  width:22px; height:15px; text-align:center;
+  font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px;
+  border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
+}
+
+/* ================= GEAR CARDS (simplified) ================= */
+#gearPanelInner{ width:450px; height:350px; border:1px dashed #0003; background:transparent; overflow:auto; padding:6px 0 0 0; box-sizing:border-box; }
+.gear-list{ display:flex; flex-direction:column; gap:8px; padding-top:10px; padding-left:0; }
+
+.gear-card{ position:relative; width:100%; background:#fff; border:1px solid #000; border-radius:0; box-shadow:0 2px 6px rgba(0,0,0,.15); box-sizing:border-box; }
+.gear-card.min .card-body, .gear-card.min .card-footer{ display:none !important; }
+
+/* Header: Drag | Title | Min | Lock | Gear Bonus (stacked) */
+.card-header{ display:flex; align-items:center; gap:6px; justify-content:flex-start; padding:4px 6px; background:#f2f2f2; border-bottom:1px solid #000; user-select:none; }
+.drag-handle,.min-btn,.lock-btn{ border:1px solid #000; background:#fff; width:22px; height:22px; line-height:20px; padding:0; cursor:pointer; }
+.drag-handle{ cursor:grab; }
+.lock-btn{ background-position:center; background-repeat:no-repeat; background-size:contain; }
+
+.card-title{
+  flex:1 1 auto; min-width:0; border:none; background:transparent;
+  font-family:'GokilNova','DominicanSmall',serif; font-size:16px; text-align:center;
+  padding:0; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+/* Stacked "gear / bonus" label + tiny enc-sized input + dice icon */
+.gb-wrap{ display:flex; align-items:center; gap:4px; white-space:nowrap; }
+.gb-label{ display:flex; flex-direction:column; justify-content:center; }
+.gb-label span{ font:11px 'DominicanSmall',serif; text-transform:lowercase; line-height:10px; }
+.gb-roll{ width:18px; height:18px; cursor:pointer; }
+
+/* Body: rows then Description full width */
+.card-body{ display:flex; flex-direction:column; gap:8px; padding:8px; }
+.fields-rows{ display:flex; flex-direction:column; gap:6px; }
+.field-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.field-row label{ font:11px 'DominicanSmall',serif; }
+
+/* Use the exact Encumbrance size for these numbers */
+.ws-row input[type="number"], .gb-row input[type="number"], .gb-input-header{ composes: enc-input; } /* (comment only; actual class applied below) */
+.ws-row input[type="number"], .gb-row input[type="number"], .gb-input-header{ width:22px; height:15px; text-align:center; font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px; border:1px solid #000; background:#fff; padding:0; box-sizing:border-box; }
+
+.ws-row .slash{ font:11px 'DominicanSmall',serif; opacity:.9; }
+
+.card-body textarea.description{
+  width:100%; min-height:72px; border:1px dashed #bbb; background:transparent;
+  font-family:'Gothics','Dominican',serif; font-size:11px; resize:vertical; padding:4px; box-sizing:border-box;
+}
+
+/* Footer (Remove only) */
+.card-footer{ display:flex; gap:6px; justify-content:flex-end; padding:6px; border-top:1px solid #000; background:#fafafa; }
+.card-footer button{ border:1px solid #000; background:#fff; padding:2px 8px; cursor:pointer; font:12px 'DominicanSmall',serif; }
+
+/* Drag + lock visuals */
+.gear-card.dragging{ opacity:.6 }
+.gear-card.drop-target{ outline:2px dashed #0077ff }
+.gear-card.is-locked{ opacity:.96 }
+.gear-card.is-locked .card-title{ opacity:.85 }
+</style>
+
+
+<!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
+
+<style>
+/* === FINAL OVERRIDES: Encumbrance inputs match Money fields === */
+#panel-gear #gearToolbar .enc-block .enc-input{
+  width:22px !important;
+  height:15px !important;
+  font-size:12px !important;           /* same as Money fields */
+  line-height:15px !important;
+  text-align:center !important;
+  padding:0 !important;
+  border:1px solid #000 !important;
+  font-family:'DeutschGothic', monospace !important;
+  box-sizing:border-box !important;
+}
+</style>
+<!-- =============== END OF GEAR STYLES (INSIDE MAIN TAB) ===================== -->
+
+<!-- =============== MONEY STYLES (INSIDE MAIN TAB) ===================== -->
+<style id="money-panel-css">
+/* Bottom bar container inside the Gear panel */
+#gearBottomBar{
+  /* no positioning — it will flow under the cards area */
+  height:110px;
+  display:flex;
+  gap:6px;
+  align-items:stretch;
+  box-sizing:border-box;
+  margin-top:6px;   /* a little breathing room under the cards */
+}
+
+/* Money panel (fixed width on the left) */
+#moneyPanel{
+  width:150px;
+  height:100%;
+  border:1px solid #000;
+  border-radius:2px;
+  background:#fff;
+  box-sizing:border-box;
+  padding:4px;
+  overflow:auto;
+}
+
+#moneyPanel .money-grid{
+  display:grid;
+  grid-template-columns: 1fr 48px;  /* label | tiny number */
+  row-gap:2px;
+  column-gap:4px;
+}
+
+#moneyPanel label{
+  font: 11px/1.1 'DominicanSmall', Georgia, serif;
+  margin-top:1px;
+  white-space:nowrap;
+}
+
+#moneyPanel input[type="number"]{
+  width:22px;
+  height:15px;
+  text-align:center;
+  font-family:'DeutschGothic', monospace;
+  font-size:12px;               /* matches your Money fields */
+  border:1px solid #000;
+  padding:0;
+}
+
+/* Assets / Property / Vehicles (fills remaining width on the right) */
+#assetsPanel{
+  flex:1 1 auto;                /* take remaining space */
+  height:100%;
+  border:1px solid #000;
+  border-radius:2px;
+  background:#fff;
+  box-sizing:border-box;
+  padding:4px;
+  overflow:hidden;              /* keep tidy */
+}
+
+#assetsPanel .assets-header{
+  font: 11px 'DominicanSmall', serif;
+  margin-bottom:2px;
+  white-space:nowrap;
+}
+
+#assetsPanel textarea{
+  width:100%;
+  height:calc(100% - 16px);     /* leaves space for header */
+  border:none;
+  background:transparent;
+  resize:none;
+  font-family:Gothics, Dominican, serif; /* same as gear card descriptions */
+  font-size:11px;
+  line-height:1.3;
+  padding:2px;
+  box-sizing:border-box;
+  overflow:auto;
+}
+</style>
+<!-- =============== END OF MONEY STYLES (INSIDE MAIN TAB) ===================== -->
+
+</head>
+<body>
+
+<div class="sheet-container">
+
+  <!-- LOGIN FORM -->
+  <div id="loginForm" class="top-row">
+    <div class="login-controls">
+      <input id="email" type="email" placeholder="Email">
+      <input id="password" type="password" placeholder="Password">
+      <button onclick="signIn()">Sign In</button>
+      <button onclick="signUp()">Sign Up</button>
+    </div>
+  </div>
+
+  <!-- ADMIN CONTROLS -->
+  <div id="accountControls" class="top-row" style="display:none;">
+    <div class="admin-controls">
+      <button onclick="signOutUser()">Sign Out</button>
+      <button onclick="deleteAccount()">Delete Account</button>
+      <button onclick="saveCharacter()">Save</button>
+      <button onclick="loadCharacter()">Load</button>
+      <label>Saved
+        <select id="characterSelect"><option value="">--Select--</option></select>
+      </label>
+      <button onclick="deleteCharacter()">Delete Character</button>
+    </div>
+  </div>
+
+  <!-- === Main canvas === -->
+  <div class="sheet-canvas" id="mainCanvas">
+
+    <!-- Character Info -->
+    <input id="charName" class="abs" type="text" maxlength="40" style="--x:28px; --y:123px; --w:210px;" />
+    <input id="ageGroup" class="abs" type="text" maxlength="20" style="--x:262px; --y:123px; --w:90px;" />
+    <input id="gender"  class="abs" type="text" maxlength="20" style="--x:382px; --y:123px; --w:80px;" />
+    <input id="origin"  class="abs" type="text" maxlength="60" style="--x:482px; --y:123px; --w:250px;" />
+
+    <!-- Attributes -->
+    <span class="pip-base abs" style="--x:127px; --y:210px;">
+      <input id="brawn" type="number" min="1" max="5" value="1">
+      <img id="lock-brawn" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('brawn')">
+    </span>
+    <span class="pip-current abs" style="--x:191px; --y:210px;">
+      <input id="brawnCurrent" type="number" min="0" max="5" value="0">
+      <div class="trauma-controls">
+        <button onclick="stepUpField('brawnCurrent')">+</button>
+        <button onclick="stepDownField('brawnCurrent')">−</button>
+      </div>
+    </span>
+
+    <span class="pip-base abs" style="--x:127px; --y:345px;">
+      <input id="agility" type="number" min="1" max="5" value="1">
+      <img id="lock-agility" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('agility')">
+    </span>
+    <span class="pip-current abs" style="--x:191px; --y:345px;">
+      <input id="agilityCurrent" type="number" min="0" max="5" value="0">
+      <div class="trauma-controls">
+        <button onclick="stepUpField('agilityCurrent')">+</button>
+        <button onclick="stepDownField('agilityCurrent')">−</button>
+      </div>
+    </span>
+
+    <span class="pip-base abs" style="--x:127px; --y:480px;">
+      <input id="wits" type="number" min="1" max="5" value="1">
+      <img id="lock-wits" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('wits')">
+    </span>
+    <span class="pip-current abs" style="--x:191px; --y:480px;">
+      <input id="witsCurrent" type="number" min="0" max="5" value="0">
+      <div class="trauma-controls">
+        <button onclick="stepUpField('witsCurrent')">+</button>
+        <button onclick="stepDownField('witsCurrent')">−</button>
+      </div>
+    </span>
+
+    <span class="pip-base abs" style="--x:127px; --y:665px;">
+      <input id="will" type="number" min="1" max="5" value="1">
+      <img id="lock-will" class="lock-icon" src="img/lock_open.png" onclick="toggleLock('will')">
+    </span>
+    <span class="pip-current abs" style="--x:191px; --y:665px;">
+      <input id="willCurrent" type="number" min="0" max="5" value="0">
+      <div class="trauma-controls">
+        <button onclick="stepUpField('willCurrent')">+</button>
+        <button onclick="stepDownField('willCurrent')">−</button>
+      </div>
+    </span>
+
+    <!-- POWER POINTS (current) -->
+    <span class="pip-current abs" style="--x:284px; --y:244px;">
+      <input id="powerCurrent" type="number" min="0" max="99" value="0">
+      <div class="trauma-controls">
+        <button onclick="stepUpField('powerCurrent')">+</button>
+        <button onclick="stepDownField('powerCurrent')">−</button>
+      </div>
+    </span>
+
+    <!-- ===== BRAWN SKILLS ===== -->
+    <input id="endurance_key"   type="checkbox" class="abs pip-check" style="--x:41px; --y:252px;">
+    <input id="endurance_lvl"   type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:247px;">
+    <input id="endurance_mod"   type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:247px;">
+    <input id="endurance_total" type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:247px;">
+    <button id="endurance_roll" class="abs roll-btn" style="--x:212px; --y:250px;" onclick="addToDicePool('endurance_total')">+</button>
+
+    <input id="fight_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:277px;">
+    <input id="fight_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:272px;">
+    <input id="fight_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:272px;">
+    <input id="fight_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:272px;">
+    <button id="fight_roll"     class="abs roll-btn" style="--x:212px; --y:301px;" onclick="addToDicePool('fight_total')">+</button>
+
+    <input id="might_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:301px;">
+    <input id="might_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:297px;">
+    <input id="might_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:297px;">
+    <input id="might_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:297px;">
+    <button id="might_roll"     class="abs roll-btn" style="--x:212px; --y:275px;" onclick="addToDicePool('might_total')">+</button>
+
+    <!-- ===== AGILITY SKILLS ===== -->
+    <input id="marksmanship_key"   type="checkbox" class="abs pip-check" style="--x:41px; --y:387px;">
+    <input id="marksmanship_lvl"   type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:383px;">
+    <input id="marksmanship_mod"   type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:383px;">
+    <input id="marksmanship_total" type="number"   class="abs skill-num" readonly value="0" style="--x:196px; --y:382px;">
+    <button id="marksmanship_roll" class="abs roll-btn" style="--x:212px; --y:385px;" onclick="addToDicePool('marksmanship_total')">+</button>
+
+    <input id="mobility_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:412px;">
+    <input id="mobility_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:407px;">
+    <input id="mobility_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:407px;">
+    <input id="mobility_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:407px;">
+    <button id="mobility_roll"     class="abs roll-btn" style="--x:212px; --y:410px;" onclick="addToDicePool('mobility_total')">+</button>
+
+    <input id="precision_key"      type="checkbox" class="abs pip-check" style="--x:41px; --y:437px;">
+    <input id="precision_lvl"      type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:432px;">
+    <input id="precision_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:432px;">
+    <input id="precision_total"    type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:432px;">
+    <button id="precision_roll"    class="abs roll-btn" style="--x:212px; --y:435px;" onclick="addToDicePool('precision_total')">+</button>
+
+    <!-- ===== WITS SKILLS ===== -->
+    <input id="heal_key"           type="checkbox" class="abs pip-check" style="--x:41px; --y:521px;">
+    <input id="heal_lvl"           type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:517px;">
+    <input id="heal_mod"           type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:517px;">
+    <input id="heal_total"         type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:518px;">
+    <button id="heal_roll"         class="abs roll-btn" style="--x:212px; --y:519px;" onclick="addToDicePool('heal_total')">+</button>
+
+    <input id="insight_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:546px;">
+    <input id="insight_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:542px;">
+    <input id="insight_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:542px;">
+    <input id="insight_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:542px;">
+    <button id="insight_roll"      class="abs roll-btn" style="--x:212px; --y:544px;" onclick="addToDicePool('insight_total')">+</button>
+
+    <input id="logic_key"          type="checkbox" class="abs pip-check" style="--x:41px; --y:570px;">
+    <input id="logic_lvl"          type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:567px;">
+    <input id="logic_mod"          type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:567px;">
+    <input id="logic_total"        type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:567px;">
+    <button id="logic_roll"        class="abs roll-btn" style="--x:212px; --y:570px;" onclick="addToDicePool('logic_total')">+</button>
+
+    <input id="survival_key"       type="checkbox" class="abs pip-check" style="--x:41px; --y:596px;">
+    <input id="survival_lvl"       type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:593px;">
+    <input id="survival_mod"       type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:592px;">
+    <input id="survival_total"     type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:593px;">
+    <button id="survival_roll"     class="abs roll-btn" style="--x:212px; --y:594px;" onclick="addToDicePool('survival_total')">+</button>
+
+    <input id="vigilance_key"      type="checkbox" class="abs pip-check" style="--x:41px; --y:621px;">
+    <input id="vigilance_lvl"      type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:617px;">
+    <input id="vigilance_mod"      type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:617px;">
+    <input id="vigilance_total"    type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:617px;">
+    <button id="vigilance_roll"    class="abs roll-btn" style="--x:212px; --y:619px;" onclick="addToDicePool('vigilance_total')">+</button>
+
+    <!-- ===== WILL SKILLS ===== -->
+    <input id="inspire_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:691px;">
+    <input id="inspire_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:702px;">
+    <input id="inspire_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:703px;">
+    <input id="inspire_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:702px;">
+    <button id="inspire_roll"      class="abs roll-btn" style="--x:212px; --y:708px;" onclick="addToDicePool('inspire_total')">+</button>
+
+    <input id="manipulate_key"     type="checkbox" class="abs pip-check" style="--x:41px; --y:713px;">
+    <input id="manipulate_lvl"     type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:727px;">
+    <input id="manipulate_mod"     type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:727px;">
+    <input id="manipulate_total"   type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:727px;">
+    <button id="manipulate_roll"   class="abs roll-btn" style="--x:212px; --y:730px;" onclick="addToDicePool('manipulate_total')">+</button>
+
+    <input id="resolve_key"        type="checkbox" class="abs pip-check" style="--x:41px; --y:735px;">
+    <input id="resolve_lvl"        type="number"   class="abs skill-num" min="0"  max="5"  value="0" style="--x:137px; --y:752px;">
+    <input id="resolve_mod"        type="number"   class="abs skill-num" min="-5" max="5"  value="0" style="--x:167px; --y:752px;">
+    <input id="resolve_total"      type="number"   class="abs skill-num" readonly value="0" style="--x:197px; --y:751px;">
+    <button id="resolve_roll"      class="abs roll-btn" style="--x:212px; --y:755px;" onclick="addToDicePool('resolve_total')">+</button>
+
+    <!-- ===== Dice Roller UI ===== -->
+    <input id="dicePool" class="abs" type="number" min="0" max="20" value="0" style="--x:372px; --y:189px;">
+
+    <div id="poolBtns" class="abs" style="--x:368px; --y:220px; --w:125px; --h:75px;">
+      <div style="display:grid; grid-template-columns: repeat(5, 22px); grid-auto-rows:22px; gap:3px;">
+        <button class="pool-mini" onclick="changePool(+1)">+1</button>
+        <button class="pool-mini" onclick="changePool(+2)">+2</button>
+        <button class="pool-mini" onclick="changePool(+3)">+3</button>
+        <button class="pool-mini" onclick="changePool(+4)">+4</button>
+        <button class="pool-mini" onclick="changePool(+5)">+5</button>
+        <button class="pool-mini" onclick="changePool(+6)">+6</button>
+        <button class="pool-mini" onclick="changePool(+7)">+7</button>
+        <button class="pool-mini" onclick="changePool(+8)">+8</button>
+        <button class="pool-mini" onclick="changePool(+9)">+9</button>
+        <button class="pool-mini" onclick="changePool(+10)">+10</button>
+        <button class="pool-mini" onclick="changePool(-1)">-1</button>
+        <button class="pool-mini" onclick="changePool(-2)">-2</button>
+        <button class="pool-mini" onclick="changePool(-3)">-3</button>
+        <button class="pool-mini" onclick="changePool(-4)">-4</button>
+        <button class="pool-mini" onclick="changePool(-5)">-5</button>
+      </div>
+    </div>
+
+    <!-- Dice grid -->
+    <div id="diceGrid" class="abs" style="--x:590px; --y:190px;"></div>
+
+    <!-- Tallies -->
+    <div class="abs" style="--x:486px; --y:191px;">
+      <input id="successCount" class="tally-num" type="text" value="0" readonly>
+    </div>
+    <div class="abs" style="--x:557px; --y:191px;">
+      <input id="baneCount" class="tally-num" type="text" value="0" readonly>
+    </div>
+
+    <!-- Roll / Push / Pushes Allowed -->
+    <img src="img/roll_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:232px;" alt="Roll" onclick="rollDice()">
+    <img src="img/push_icon.png" class="abs icon-btn-sm" style="--x:540px; --y:268px;" alt="Push" onclick="pushRoll()">
+    <select id="pushesAllowed" class="abs" style="--x:537px; --y:293px; width:38px;" title="Pushes allowed">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="∞">∞</option>
+    </select>
+
+    <!-- Clear All -->
+    <img src="img/clear_icon.png" class="abs icon-btn-sm" style="--x:363px; --y:295px;" alt="Clear" onclick="clearAllDice()">
+
+    <!-- Tabs box -->
+    <div id="tabBox" class="abs" style="--x:278px; --y:331px; --w:440px; --h:430px; background:transparent; border:none; padding:5px;">
+      <div style="display:flex; gap:8px; margin-bottom:8px;">
+        <button type="button" class="tabBtn" data-tab="main"   onclick="showTab('main')">Main</button>
+        <button type="button" class="tabBtn" data-tab="combat" onclick="showTab('combat')">Combat</button>
+        <button type="button" class="tabBtn" data-tab="gear"   onclick="showTab('gear')">Gear</button>
+        <button type="button" class="tabBtn" data-tab="powers" onclick="showTab('powers')">Powers</button>
+      </div>
+
+      <!-- panel-main -->
+      <div id="panel-main" class="tabPanel" style="display:block;">
+        <div class="tab-main-wrap" id="tabMainWrap">
+          <img id="tabMainBg" src="img/tab_main.png" alt="Main Tab Background">
+
+          <div class="abs overlay-field" style="--x:7px; --y:25px;" data-dbg="Archetype 1">
+            <input id="archetype1" type="text" placeholder="Archetype 1">
+          </div>
+
+          <div class="abs overlay-field" style="--x:7px; --y:72px;" data-dbg="Archetype 2">
+            <input id="archetype2" type="text" placeholder="Archetype 2">
+          </div>
+
+          <div class="abs overlay-field" style="--x:125px; --y:25px;" data-dbg="Profession 1">
+            <input id="profession1" type="text" placeholder="Profession 1">
+          </div>
+
+          <div class="abs overlay-field" style="--x:125px; --y:72px;" data-dbg="Profession 2">
+            <input id="profession2" type="text" placeholder="Profession 2">
+          </div>
+
+          <!-- Independent XP controls -->
+          <button id="xpMinus" class="abs xp-btn" style="--x:300px; --y:75px;"  type="button" title="XP −1" onclick="stepXp(-1)">−</button>
+          <input  id="xp"      class="abs skill-num xp-num" style="--x:283px; --y:55px;" type="number" inputmode="numeric" min="0" step="1" value="0" title="XP">
+          <button id="xpPlus"  class="abs xp-btn" style="--x:273px; --y:75px;"  type="button" title="XP +1" onclick="stepXp(+1)">+</button>
+
+          <!-- Independent tick boxes -->
+          <input id="tick1" type="checkbox" class="abs" style="--x:333px; --y:37px;">
+          <input id="tick2" type="checkbox" class="abs" style="--x:333px; --y:53px;">
+          <input id="tick3" type="checkbox" class="abs" style="--x:333px; --y:69px;">
+          <input id="tick4" type="checkbox" class="abs" style="--x:333px; --y:86px;">
+
+          <!-- ===== Talents area (INSIDE main panel) ===== -->
+          <div id="talentsArea" class="abs" style="--x:0px; --y:100px; --w:450px; --h:250px;">
+            <div class="talents-header">
+              <button id="addTalentBtn" type="button" title="Add a Talent">+ Add Talent</button>
+            </div>
+            <div class="talents-dropwrap">
+              <section id="talentsPanel" class="talents-panel" aria-label="Character Talents" data-columns="2"></section>
+            </div>
+          </div>
+		
+		<!-- Wounds box: same width as Talents, auto-expands with content -->
+<div id="wounds" class="abs panel" 
+     style="--x:0px; --y:400px; width: 450px; min-height: 30px; max-height: 120px;"
+     data-label="MAIN: Wounds">
+  <div class="panel-header">Wounds</div>
+  <textarea id="woundsText" class="wounds-text" placeholder="Describe wounds, locations, penalties…"></textarea>
+</div>
+
+        </div><!-- /#tabMainWrap -->
+      </div><!-- /#panel-main -->
+
+<!-- COMBAT PANEL -->
+      <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
+
+<!--------------------------- GEAR PANEL ----------------------------->
+<div id="panel-gear" class="tabPanel" style="display:none; position:relative; min-height:380px;">
+
+  <!-- Toolbar -->
+  <div id="gearToolbar">
+    <button type="button" title="Add Weapon"
+            onclick="window.spawnBlankGearCard && spawnBlankGearCard('weapon')">+ Weapon</button>
+
+    <button type="button" title="Add Armour"
+            onclick="window.spawnBlankGearCard && spawnBlankGearCard('armor')">+ Armour</button>
+
+    <button type="button" title="Add Gear"
+            onclick="window.spawnBlankGearCard && spawnBlankGearCard('gear')">+ Gear</button>
+
+    <button type="button" title="Add Chemical"
+            onclick="window.spawnBlankGearCard && spawnBlankGearCard('chemical')">+ Chemical</button>
+
+    <!-- Encumbrance box (right side of toolbar) -->
+    <div class="enc-block">
+      <div class="enc-title">Encumbrance</div>
+
+      <div class="enc-row">
+        <span class="enc-cat">Weight</span>
+        <span class="enc-sub">Max.</span>
+        <input id="encWeightMax" class="enc-input" type="number" min="0" step="1" value="0">
+        <span class="enc-sub">Curr.</span>
+        <input id="encWeightCur" class="enc-input" type="number" min="0" step="1" value="0">
+      </div>
+
+      <div class="enc-row">
+        <span class="enc-cat">Stowage</span>
+        <span class="enc-sub">Max.</span>
+        <input id="encStowMax" class="enc-input" type="number" min="0" step="1" value="0">
+        <span class="enc-sub">Curr.</span>
+        <input id="encStowCur" class="enc-input" type="number" min="0" step="1" value="0">
+      </div>
+    </div>
+  </div><!-- /#gearToolbar -->
+
+  <!-- Gear cards area (required by the GearCards module) -->
+  <div id="gearPanelInner">
+    <section class="gear-list"></section>
+  </div>
+	
+<!-- Bottom bar: Money (left, fixed width) + Assets (right, fills) -->
+<div id="gearBottomBar">
+  <div id="moneyPanel">
+    <div class="money-grid">
+      <label for="moneyCrown">Crown (₵)</label>
+      <input id="moneyCrown" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+
+      <label for="moneyShilling">Shilling (ș)</label>
+      <input id="moneyShilling" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+
+      <label for="moneyPenny">Penny (ḍ)</label>
+      <input id="moneyPenny" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+
+      <label for="moneyFarthing">Farthing (ƒ)</label>
+      <input id="moneyFarthing" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+    </div>
+  </div>
+
+  <div id="assetsPanel">
+    <div class="assets-header">Assets, Property, Vehicles, etc.</div>
+    <textarea id="assetsText" placeholder="List holdings, property deeds, vehicles, investments…"></textarea>
+  </div>
+</div>
+
+
+</div>
+
+
+<!-- ------------------------- POWERS PANEL ---------------->
+      <div id="panel-powers" class="tabPanel" style="display:none;">Powers coming soon</div>
+    </div><!-- /#tabBox -->
+
+  </div><!-- /#mainCanvas -->
+</div><!-- /.sheet-container -->
+
+<!-- Scripts (tabs + small helpers) -->
+<script>
+/* Tabs */
+window.showTab = function(which){
+  document.querySelectorAll('.tabPanel').forEach(p=>p.style.display='none');
+  const active = document.getElementById('panel-'+which);
+  if(active) active.style.display='block';
+  document.querySelectorAll('.tabBtn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.tab===which);
+  });
+};
+
+/* Attribute lock toggle (by click on the padlock) */
+window.toggleLock = id => {
+  const field = document.getElementById(id);
+  const icon = document.getElementById(`lock-${id}`);
+  if (!field || !icon) return;
+  const locked = !field.disabled;
+  field.disabled = locked;
+  icon.src = locked ? 'img/lock.png' : 'img/lock_open.png';
+  field.style.opacity = locked ? 0.6 : 1;
+};
+
+/* Programmatic lock setter (used on load) */
+window.setLockState = (id, locked) => {
+  const field = document.getElementById(id);
+  const icon  = document.getElementById(`lock-${id}`);
+  if (!field || !icon) return;
+  field.disabled = !!locked;
+  icon.src = locked ? 'img/lock.png' : 'img/lock_open.png';
+  field.style.opacity = locked ? 0.6 : 1;
+};
+
+/* Tiny helpers for + / − buttons by the current-value pips */
+window.stepUpField   = id => { document.getElementById(id)?.stepUp();   };
+window.stepDownField = id => { document.getElementById(id)?.stepDown(); };
+</script>
+
+<script>
+/* Dice pool add from a skill total */
+function addToDicePool(totalId){
+  const totalEl = document.getElementById(totalId);
+  const add = parseInt(totalEl?.value,10) || 0;
+  if (add <= 0) return;
+  setPool(Math.min(20, getPool() + add));
+}
+
+/* XP helpers */
+function stepXp(delta){
+  const el = document.getElementById('xp');
+  const cur = parseInt(el.value || '0', 10) || 0;
+  el.value = Math.max(0, cur + delta);
+}
+</script>
+
+<script>
+  function limit3(el){
+    // enforce 0..999 and keep max 3 visible digits
+    let v = el.value.replace(/\D/g,'').slice(0,3);
+    el.value = v === '' ? '' : Math.min(999, parseInt(v,10));
+  }
+</script>
+
+
+<!-- Firebase / Firestore -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDVINPqS-nMiWEs7RvabEqKuuUrii2S2MM",
+  authDomain: "gxd6-character-sheet.firebaseapp.com",
+  projectId: "gxd6-character-sheet",
+  storageBucket: "gxd6-character-sheet.firebasestorage.app",
+  messagingSenderId: "761778638151",
+  appId: "1:761778638151:web:06a1d72423a7e980889062"
+};
+initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore();
+
+const loginFormEl=document.getElementById('loginForm');
+const accountControlsEl=document.getElementById('accountControls');
+const characterSelectEl=document.getElementById('characterSelect');
+
+onAuthStateChanged(auth,user=>{
+  if(user){
+    loginFormEl.style.display='none';
+    accountControlsEl.style.display='flex';
+    populateCharacterList(user.uid);
+  }else{
+    loginFormEl.style.display='flex';
+    accountControlsEl.style.display='none';
+    characterSelectEl.innerHTML='<option value="">--Select--</option>';
+  }
+});
+
+async function populateCharacterList(uid){
+  const snap=await getDocs(collection(db,'users',uid,'characters'));
+  characterSelectEl.innerHTML='<option value="">--Select--</option>';
+  snap.forEach(d=>{
+    const opt=document.createElement('option');opt.value=d.id;opt.text=d.id;characterSelectEl.appendChild(opt);
+  });
+}
+
+window.signUp=async()=>{
+  const em = document.getElementById('email').value.trim();
+  const pw = document.getElementById('password').value;
+  await createUserWithEmailAndPassword(auth,em,pw);
+  alert('Signed up!');
+};
+window.signIn=async()=>{
+  const em = document.getElementById('email').value.trim();
+  const pw = document.getElementById('password').value;
+  await signInWithEmailAndPassword(auth,em,pw);
+  alert('Signed in!');
+};
+window.signOutUser=async()=>{
+ await signOut(auth);
+   // optional UI cleanup
+  if (window.clearGearCards) window.clearGearCards();
+ alert('Signed out'); 
+ };
+
+window.deleteAccount=async()=>{
+  if(auth.currentUser && confirm('Delete account?')){
+    await deleteUser(auth.currentUser);
+    alert('Account deleted');
+  }
+};
+
+window.saveCharacter=async()=>{
+  const user=auth.currentUser;
+  const name=document.getElementById('charName').value.trim();
+  if(!user||!name) return alert('Sign in & name required');
+
+  const data={};
+  document.querySelectorAll('#mainCanvas input, #mainCanvas select, #tabBox input, #tabBox select, #tabBox textarea').forEach(el=>{
+    if(!el.id || el.id.startsWith('lock')) return;
+    data[el.id] = (el.type==='checkbox') ? el.checked : el.value;
+  });
+
+  // Persist talents separately
+  if(window.exportCharacterTalents){
+    data.__talents = window.exportCharacterTalents();
+  }
+  
+  // Persist gear cards
+if(window.exportCharacterGear){
+  data.__gear = window.exportCharacterGear();
+}
+
+// Persist attribute base lock states
+data.__attrLocks = {
+  brawn:   !!document.getElementById('brawn')?.disabled,
+  agility: !!document.getElementById('agility')?.disabled,
+  wits:    !!document.getElementById('wits')?.disabled,
+  will:    !!document.getElementById('will')?.disabled
+};
+
+  await setDoc(doc(db,'users',user.uid,'characters',name),data);
+  alert('Saved');
+  populateCharacterList(user.uid);
+};
+
+window.loadCharacter=async()=>{
+  const user=auth.currentUser;
+  if(!user) return alert('Sign in first');
+
+  const id=characterSelectEl.value || document.getElementById('charName').value.trim();
+  if(!id) return alert('Choose or type name');
+
+  const snap=await getDoc(doc(db,'users',user.uid,'characters',id));
+  if(!snap.exists()) return alert('Not found');
+
+  const data=snap.data();
+  Object.keys(data).forEach(k=>{
+    if(k==='__talents') return;
+    const el=document.getElementById(k);
+    if(el && !k.startsWith('lock')){
+      (el.type==='checkbox') ? el.checked=!!data[k] : el.value=(data[k] ?? '');
+    }
+  });
+
+  // >>> Clears the current talents UI/state) <<<
+  if (window.clearTalentsPanel) window.clearTalentsPanel();
+
+  document.getElementById('charName').value = id;
+  characterSelectEl.value = id;
+
+  if(window.importCharacterTalents){
+    window.importCharacterTalents(Array.isArray(data.__talents)? data.__talents : []);
+  }
+  
+  const locks = data.__attrLocks || {};
+  if (typeof window.setLockState === 'function') {
+    window.setLockState('brawn',   !!locks.brawn);
+    window.setLockState('agility', !!locks.agility);
+    window.setLockState('wits',    !!locks.wits);
+    window.setLockState('will',    !!locks.will);
+  }
+  
+ // Clear any previous gear cards and import fresh ones
+if (window.clearGearCards) window.clearGearCards();
+if (window.importCharacterGear){
+  window.importCharacterGear(Array.isArray(data.__gear) ? data.__gear : []);
+} 
+
+// --- Back-compat for old encumbrance keys (pre-Weight/Stowage split)
+if (!data.encWeightMax && data.encMax) {
+  const el = document.getElementById('encWeightMax');
+  if (el) el.value = data.encMax;
+}
+if (!data.encWeightCur && data.encCurrent) {
+  const el = document.getElementById('encWeightCur');
+  if (el) el.value = data.encCurrent;
+}
+
+  initAllSkillTotals();
+  alert('Loaded');
+};
+
+window.deleteCharacter=async()=>{
+  const user=auth.currentUser; const name=characterSelectEl.value;
+  if(!user||!name) return alert('Select a character');
+  if(confirm(`Delete "${name}"?`)){
+    await deleteDoc(doc(db,'users',user.uid,'characters',name));
+    alert('Deleted');
+    populateCharacterList(user.uid);
+  }
+};
+</script>
+
+<!-- Skill totals -->
+<script>
+function toNum(v){ const n = parseInt(v,10); return isNaN(n) ? 0 : n; }
+function setupSkillRow(attrCurrentId, baseId){
+  const attrEl  = document.getElementById(attrCurrentId);
+  const lvlEl   = document.getElementById(`${baseId}_lvl`);
+  const modEl   = document.getElementById(`${baseId}_mod`);
+  const totalEl = document.getElementById(`${baseId}_total`);
+  if(!attrEl || !lvlEl || !modEl || !totalEl) return;
+  const recalc = () => { totalEl.value = toNum(attrEl.value) + toNum(lvlEl.value) + toNum(modEl.value); };
+  ['input','change'].forEach(ev=>{
+    attrEl.addEventListener(ev,recalc);
+    lvlEl.addEventListener(ev,recalc);
+    modEl.addEventListener(ev,recalc);
+  });
+  recalc();
+}
+function initBrawnSkillTotals(){ setupSkillRow('brawnCurrent','endurance'); setupSkillRow('brawnCurrent','fight'); setupSkillRow('brawnCurrent','might'); }
+function initAgilitySkillTotals(){ setupSkillRow('agilityCurrent','marksmanship'); setupSkillRow('agilityCurrent','mobility'); setupSkillRow('agilityCurrent','precision'); }
+function initWitsSkillTotals(){ setupSkillRow('witsCurrent','heal'); setupSkillRow('witsCurrent','insight'); setupSkillRow('witsCurrent','logic'); setupSkillRow('witsCurrent','survival'); setupSkillRow('witsCurrent','vigilance'); }
+function initWillSkillTotals(){ setupSkillRow('willCurrent','inspire'); setupSkillRow('willCurrent','manipulate'); setupSkillRow('willCurrent','resolve'); }
+function initAllSkillTotals(){ initBrawnSkillTotals(); initAgilitySkillTotals(); initWitsSkillTotals(); initWillSkillTotals(); }
+
+document.addEventListener('DOMContentLoaded', initAllSkillTotals);
+</script>
+
+<!-- Dice Roller Logic -->
+<script>
+let diceValues = [];
+let pushCount  = 0;
+
+function getPool(){
+  return Math.max(0, Math.min(20, parseInt(document.getElementById('dicePool').value,10) || 0));
+}
+function setPool(n){
+  const v = Math.max(0, Math.min(20, n|0));
+  const el = document.getElementById('dicePool');
+  el.value = v;
+  return v;
+}
+function changePool(delta){ setPool(getPool() + delta); }
+
+function clearAllDice(){
+  diceValues.length = 0;
+  pushCount = 0;
+  document.getElementById('diceGrid').innerHTML = '';
+  document.getElementById('successCount').value = '0';
+  document.getElementById('baneCount').value    = '0';
+  setPool(0);
+}
+
+function rollDice(){
+  const pool = getPool();
+  if (pool <= 0) return;
+  pushCount = 0;
+  diceValues = Array.from({length: pool}, () => randD6());
+  animateDiceRoll();
+}
+
+function pushRoll(){
+  if (!diceValues.length) return;
+  const maxPush = document.getElementById('pushesAllowed').value;
+  if (maxPush !== '∞' && pushCount >= parseInt(maxPush,10)) return;
+
+  for (let i=0;i<diceValues.length;i++){
+    const d = diceValues[i];
+    if (d > 1 && d < 6) diceValues[i] = randD6();
+  }
+  pushCount++;
+  animateDiceRoll();
+}
+
+function animateDiceRoll(){
+  const grid = document.getElementById('diceGrid');
+  const flashes = 4;
+  let frame = 0;
+
+  const iv = setInterval(() => {
+    grid.innerHTML = '';
+    for (let i=0;i<diceValues.length && i<20;i++){
+      const show = (frame < flashes - 1) ? randD6() : diceValues[i];
+      grid.appendChild(renderDie(show));
+    }
+    frame++;
+    if (frame >= flashes){
+      clearInterval(iv);
+      updateTallies();
+    }
+  }, 110);
+}
+
+function randD6(){ return (Math.random()*6|0)+1; }
+function renderDie(v){
+  const img = document.createElement('img');
+  img.className = 'die';
+  if (v === 1)      img.src = 'img/Baned6.png';
+  else if (v === 6) img.src = 'img/Success_d6.png';
+  else              img.src = `img/${v}_d6.png`;
+  img.alt = String(v);
+  return img;
+}
+function updateTallies(){
+  const succ = diceValues.filter(d=>d===6).length;
+  const bane = diceValues.filter(d=>d===1).length;
+  document.getElementById('successCount').value = succ;
+  document.getElementById('baneCount').value    = bane;
+}
+</script>
+
+<!-- Unified Debugger (unchanged JS) -->
+<script>
+(()=>{
+  let TARGET_SELECTOR = '.abs';
+  let debugOn = false, hoverEnabled = false, marqueeActive = false, cursorMode = false, measureMode = false;
+  let selected = new Set();
+  let startX = 0, startY = 0;
+  let draggingEl = null, dragOffsetX = 0, dragOffsetY = 0;
+
+  const canvas = document.getElementById('mainCanvas');
+
+  const tooltip = document.createElement('div');
+  tooltip.className = 'debug-tooltip'; document.body.appendChild(tooltip);
+
+  const marquee = document.createElement('div');
+  marquee.className = 'debug-marquee'; document.body.appendChild(marquee);
+
+  const crossX = document.createElement('div');
+  crossX.className = 'debug-crosshair-x'; document.body.appendChild(crossX);
+  const crossY = document.createElement('div');
+  crossY.className = 'debug-crosshair-y'; document.body.appendChild(crossY);
+
+  const coordHUD = document.createElement('div');
+  coordHUD.className = 'debug-coord-hud'; coordHUD.textContent = 'X: 0  Y: 0';
+  document.body.appendChild(coordHUD);
+
+  const measureBox = document.createElement('div');
+  measureBox.className = 'debug-measure'; document.body.appendChild(measureBox);
+  const measureHUD = document.createElement('div');
+  measureHUD.className = 'debug-measure-hud'; measureHUD.textContent = '0 × 0';
+  document.body.appendChild(measureHUD);
+  let measureActive = false;
+
+  function getXY(el){
+    const x = parseFloat(el.style.getPropertyValue('--x')) || 0;
+    const y = parseFloat(el.style.getPropertyValue('--y')) || 0;
+    return [x,y];
+  }
+  function refreshSelectedHUD(){
+    document.querySelectorAll('.debug-selected-hud').forEach(n => n.remove());
+    if (!debugOn || !selected.size) return;
+    selected.forEach(el => {
+      const hud = document.createElement('div');
+      hud.className = 'debug-selected-hud';
+      const [x,y] = getXY(el);
+      hud.textContent = `${el.id ? '#'+el.id : el.tagName.toLowerCase()} (${Math.round(x)}, ${Math.round(y)})`;
+      const rect = el.getBoundingClientRect();
+      hud.style.left = Math.max(0, Math.min(window.innerWidth - 8, rect.left)) + 'px';
+      hud.style.top  = Math.max(0, rect.top - 14) + 'px';
+      document.body.appendChild(hud);
+    });
+  }
+
+  const panel = document.createElement('div');
+  panel.className = 'debugger-panel';
+  panel.innerHTML = `
+    <div class="row" style="justify-content:space-between">
+      <strong>Debugger</strong>
+      <label class="row" title="Enable/disable debugger">
+        <input id="dbg-toggle" type="checkbox"><span>On</span>
+      </label>
+    </div>
+
+    <div class="row"><span class="muted">Selector</span></div>
+    <input id="dbg-selector" type="text" value="${'.abs'}" title="CSS selector for debug targets">
+
+    <div class="row" style="justify-content:space-between; margin-top:6px">
+      <label class="row" title="Show crosshair + cursor coordinates">
+        <input id="dbg-cursor" type="checkbox" checked><span>Cursor mode</span>
+      </label>
+      <label class="row" title="Drag on canvas to measure W×H in px">
+        <input id="dbg-measure" type="checkbox"><span>Measure mode</span>
+      </label>
+    </div>
+    <div class="row"><span class="muted">D=toggle • C=cursor • Alt=tooltip • Shift+drag=marquee • Drag=move • Arrows=nudge • Ctrl=5px</span></div>
+
+    <hr style="border:none;border-top:1px solid #ddd;margin:8px 0" />
+
+    <div class="row">
+      <input id="dbg-left-x" class="grow" type="number" placeholder="Left X (px)">
+      <button id="dbg-align-left" type="button" title="Set all selected left to X">Align Left</button>
+    </div>
+    <div class="row">
+      <input id="dbg-top-y" class="grow" type="number" placeholder="Top Y (px)">
+      <button id="dbg-align-top" type="button" title="Set all selected top to Y">Align Top</button>
+    </div>
+
+    <div class="row">
+      <input id="dbg-center-x" class="grow" type="number" placeholder="Center X (px) — empty = use first">
+      <button id="dbg-center-x-btn" type="button" title="Center each selected at this X">Align Center X</button>
+    </div>
+    <div class="row">
+      <input id="dbg-center-y" class="grow" type="number" placeholder="Center Y (px) — empty = use first">
+      <button id="dbg-center-y-btn" type="button" title="Center each selected at this Y">Align Center Y</button>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <button id="dbg-clear" type="button" title="Clear selection">Clear selection</button>
+      <button id="dbg-log" type="button" title="Log selected coords to console">Log coords</button>
+    </div>
+
+    <hr style="border:none;border-top:1px solid #ddd;margin:8px 0" />
+
+    <div class="row" style="justify-content:space-between">
+      <button id="dbg-export" type="button" title="Download selected positions as JSON">Export JSON</button>
+      <button id="dbg-import" type="button" title="Import positions from JSON">Import JSON</button>
+      <button id="dbg-export-html" type="button" title="Download a <style> block you can paste">Export HTML</button>
+      <input id="dbg-file" type="file" accept="application/json" style="display:none">
+    </div>
+  `;
+  document.body.appendChild(panel);
+
+  (function(){
+    const headerRow = panel.querySelector('.row');
+    if (headerRow) headerRow.style.cursor = 'pointer';
+    function setCompact(on){ panel.classList.toggle('compact', !!on); }
+    setCompact(true);
+    headerRow && headerRow.addEventListener('click', function(e){
+      const tgt = e.target;
+      if (tgt && (tgt.id === 'dbg-toggle' || (tgt.closest && tgt.closest('#dbg-toggle')))) return;
+      setCompact(!panel.classList.contains('compact'));
+    });
+    const toggle = document.getElementById('dbg-toggle');
+    if (toggle){
+      toggle.addEventListener('change', function(){
+        setCompact(!toggle.checked);
+        debugOn = toggle.checked;
+        document.getElementById('dbg-cursor').checked = true;
+        setCursorMode(debugOn);
+        canvas.classList.toggle('canvas-debug', debugOn);
+        if (!debugOn) { hideTooltip(); clearSelection(); setMeasureMode(false); }
+        else { refreshSelectedHUD(); }
+      });
+      setCompact(!toggle.checked);
+    }
+  })();
+
+  const $ = sel => document.querySelector(sel);
+  const selectorEl = $('#dbg-selector');
+  const cursorEl   = $('#dbg-cursor');
+  const measureEl  = $('#dbg-measure');
+  const clearBtn   = $('#dbg-clear');
+  const logBtn     = $('#dbg-log');
+  const leftInput  = $('#dbg-left-x');
+  const topInput   = $('#dbg-top-y');
+  const centerXInp = $('#dbg-center-x');
+  const centerYInp = $('#dbg-center-y');
+  const alignLeft  = $('#dbg-align-left');
+  const alignTop   = $('#dbg-align-top');
+  const centerXBtn = $('#dbg-center-x-btn');
+  const centerYBtn = $('#dbg-center-y-btn');
+  const exportBtn  = $('#dbg-export');
+  const importBtn  = $('#dbg-import');
+  const exportHtmlBtn = $('#dbg-export-html');
+  const fileInput  = $('#dbg-file');
+
+  const inCanvas = el => canvas && canvas.contains(el);
+  const isTarget = el => !!(el && el.matches && el.matches(TARGET_SELECTOR) && inCanvas(el));
+
+  function setXY(el, x, y){
+    el.style.setProperty('--x', x + 'px');
+    el.style.setProperty('--y', y + 'px');
+    refreshSelectedHUD();
+  }
+  function clampToCanvas(el, x, y){
+    const maxX = canvas.clientWidth  - el.offsetWidth;
+    const maxY = canvas.clientHeight - el.offsetHeight;
+    return [ Math.max(0, Math.min(x, maxX)), Math.max(0, Math.min(y, maxY)) ];
+  }
+  function centerOnX(el, cx){
+    const r = el.getBoundingClientRect();
+    const parent = canvas.getBoundingClientRect();
+    const newLeft = Math.round(cx - (r.width/2) - parent.left);
+    const [nx] = clampToCanvas(el, newLeft, getXY(el)[1]);
+    setXY(el, nx, getXY(el)[1]);
+  }
+  function centerOnY(el, cy){
+    const r = el.getBoundingClientRect();
+    const parent = canvas.getBoundingClientRect();
+    const newTop = Math.round(cy - (r.height/2) - parent.top);
+    const [,ny] = clampToCanvas(el, getXY(el)[0], newTop);
+    setXY(el, getXY(el)[0], ny);
+  }
+
+  function labelFor(el) { const id = el.id ? `#${el.id}` : el.tagName.toLowerCase(); const [x,y] = getXY(el); return `${id} (${Math.round(x)}, ${Math.round(y)})`; }
+  function showTooltip(el, x, y) {
+    el.classList.add('debug-outline');
+    tooltip.textContent = labelFor(el);
+    const tx = Math.min(window.innerWidth - 8, (x ?? el.getBoundingClientRect().left) + 8);
+    const ty = Math.min(window.innerHeight - 8, (y ?? el.getBoundingClientRect().top) + 8);
+    tooltip.style.left = tx + 'px';
+    tooltip.style.top  = ty + 'px';
+    tooltip.style.display = 'block';
+  }
+  function hideTooltip() { tooltip.style.display = 'none'; document.querySelectorAll('.debug-outline').forEach(n => n.classList.remove('debug-outline')); }
+
+  function rectFromPoints(x1,y1,x2,y2){ const left = Math.min(x1,x2), top = Math.min(y1,y2); const width = Math.abs(x2-x1), height = Math.abs(y2-y1); return {left, top, width, height, right:left+width, bottom:top+height}; }
+  function intersects(a, b){ return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom); }
+  function pageRect(el){ const r = el.getBoundingClientRect(); return {left:r.left, top:r.top, right:r.right, bottom:r.bottom}; }
+
+  function clearSelection() { selected.forEach(el => el.classList.remove('debug-selected')); selected.clear(); refreshSelectedHUD(); }
+  function addToSelection(el) { if (!selected.has(el)) { selected.add(el); el.classList.add('debug-selected'); } refreshSelectedHUD(); }
+
+  function nudge(el, dx, dy) { const [x,y] = getXY(el); const [nx, ny] = clampToCanvas(el, x + dx, y + dy); setXY(el, nx, ny); }
+
+  function cssPath(el) { const parts = []; for (let node = el; node && node.nodeType === 1 && node !== canvas; node = node.parentElement) { let sel = node.tagName.toLowerCase(); if (node.id) { sel += `#${node.id}`; parts.unshift(sel); break; } let sibIndex = 1, sib = node; while ((sib = sib.previousElementSibling) && sib.tagName === node.tagName) sibIndex++; sel += `:nth-of-type(${sibIndex})`; parts.unshift(sel); } return parts.join(' > '); }
+  function keyFor(el){ return el.id ? `#${el.id}` : cssPath(el); }
+  function findByKey(key){ if (!key) return null; if (key.startsWith('#')) return canvas.querySelector(key); return canvas.querySelector(key); }
+
+  function exportSelection() { const items = [...selected].map(el => { const [left, top] = getXY(el); return { key: keyFor(el), left, top }; }); return { version: 1, items }; }
+  function importPositions(json) { const items = Array.isArray(json) ? json : (json?.items || []); const result = { applied: 0, total: items.length, unmatched: [] }; items.forEach(item => { const el = findByKey(item.key); if (!el) { result.unmatched.push(item.key || '(no key)'); return; } const [x,y] = clampToCanvas(el, item.left ?? 0, item.top ?? 0); setXY(el, x, y); result.applied++; }); return result; }
+
+  const $qs = sel => document.querySelector(sel);
+  selectorEl.addEventListener('change', () => { TARGET_SELECTOR = selectorEl.value.trim() || TARGET_SELECTOR; clearSelection(); });
+  cursorEl.addEventListener('change', () => setCursorMode(cursorEl.checked));
+  measureEl.addEventListener('change', () => setMeasureMode(measureEl.checked));
+  clearBtn.addEventListener('click', clearSelection);
+  logBtn.addEventListener('click', () => { if (!selected.size) return; console.table([...selected].map(el => ({ key:keyFor(el), x:getXY(el)[0], y:getXY(el)[1] }))); });
+  alignLeft.addEventListener('click', () => { const x = parseFloat(leftInput.value); if (Number.isNaN(x)) return; selected.forEach(el => setXY(el, clampToCanvas(el, x, getXY(el)[1])[0], getXY(el)[1])); });
+  alignTop.addEventListener('click', () => { const y = parseFloat(topInput.value); if (Number.isNaN(y)) return; selected.forEach(el => setXY(el, getXY(el)[0], clampToCanvas(el, getXY(el)[0], y)[1])); });
+  centerXBtn.addEventListener('click', () => { if (!selected.size) return; let cx = parseFloat(centerXInp.value); if (Number.isNaN(cx)) { const first = [...selected][0].getBoundingClientRect(); cx = Math.round(first.left + first.width/2); } selected.forEach(el => centerOnX(el, cx)); });
+  centerYBtn.addEventListener('click', () => { if (!selected.size) return; let cy = parseFloat(centerYInp.value); if (Number.isNaN(cy)) { const first = [...selected][0].getBoundingClientRect(); cy = Math.round(first.top + first.height/2); } selected.forEach(el => centerOnY(el, cy)); });
+
+  function currentCharName() { const n = document.getElementById('charName')?.value?.trim(); return n ? n.replace(/[^\w\-]+/g, '_') : 'positions'; }
+
+  exportBtn.addEventListener('click', () => { const data = exportSelection(); if (!data.items.length) { alert('Select at least one element to export.'); return; } const json = JSON.stringify(data, null, 2); const blob = new Blob([json], { type: 'application/json;charset=utf-8' }); const a = document.createElement('a'); const ts = new Date().toISOString().replace(/[:.]/g,'-'); a.href = URL.createObjectURL(blob); a.download = `${currentCharName()}-debug-positions-${ts}.json`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0); });
+
+  importBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => { const file = fileInput.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => { try { const json = JSON.parse(String(reader.result)); const res = importPositions(json); alert(`Import complete: ${res.applied}/${res.total} applied.\nUnmatched: ${res.unmatched.length}`); console.log('Unmatched keys:', res.unmatched); } catch (e) { alert('Invalid JSON file.'); console.error(e); } fileInput.value = ''; }; reader.readAsText(file); });
+
+  function selectorFor(el) { if (el.id) return `#${el.id}`; const parts = []; let node = el; while (node && node.nodeType === 1 && node !== canvas) { let sel = node.tagName.toLowerCase(); const parent = node.parentElement; if (node.id) { sel += `#${node.id}`; parts.unshift(sel); break; } const siblings = parent ? Array.from(parent.children).filter(n => n.tagName === node.tagName) : []; const idx = siblings.indexOf(node) + 1; sel += `:nth-of-type(${idx})`; parts.unshift(sel); node = parent; } return `#mainCanvas > ${parts.join(' > ')}`; }
+  function exportSelectedAsHTML() { const items = [...selected]; if (!items.length) { alert('Select at least one element to export.'); return; } let css = `/* Exported positions (${new Date().toISOString()}) */\n`; items.forEach(el => { const [x, y] = getXY(el); css += `${selectorFor(el)}{ --x:${Math.round(x)}px; --y:${Math.round(y)}px; }\n`; }); const htmlDoc =
+`<!doctype html>
+<html><head><meta charset="utf-8"><title>GxD6 Positions</title></head>
+<body>
+<style id="exported-positions">
+${css}
+</style>
+<!-- Paste the <style> block above into your main HTML (after base styles), or include as a separate CSS file -->
+</body></html>`; const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' }); const a = document.createElement('a'); const ts = new Date().toISOString().replace(/[:.]/g,'-'); a.href = URL.createObjectURL(blob); a.download = `${currentCharName()}-positions-${ts}.html`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0); }
+  exportHtmlBtn.addEventListener('click', exportSelectedAsHTML);
+
+  window.addEventListener('keydown', e => { if (e.key === 'd' || e.key === 'D') { if (document.activeElement && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return; const t = document.getElementById('dbg-toggle'); t.checked = !t.checked; t.dispatchEvent(new Event('change')); } if (e.key === 'c' || e.key === 'C') { const c = document.getElementById('dbg-cursor'); c.checked = !c.checked; setCursorMode(c.checked); } if (debugOn && e.altKey) hoverEnabled = true; });
+  window.addEventListener('keyup',   e => { if (debugOn && !e.altKey) { hoverEnabled = false; hideTooltip(); } });
+  window.addEventListener('scroll',  () => { if (debugOn) refreshSelectedHUD(); });
+  window.addEventListener('resize',  () => { if (debugOn) refreshSelectedHUD(); });
+
+  document.addEventListener('mouseover', e => { if (!debugOn || !hoverEnabled) return; const t = e.target.closest(TARGET_SELECTOR); if (isTarget(t)) showTooltip(t, e.clientX, e.clientY); }, {capture:true});
+  document.addEventListener('mousemove', e => { if (!debugOn || !hoverEnabled || tooltip.style.display !== 'block') return; tooltip.style.left = Math.min(window.innerWidth - 8, e.clientX + 8) + 'px'; tooltip.style.top  = Math.min(window.innerHeight - 8, e.clientY + 8) + 'px'; });
+  document.addEventListener('mouseout', e => { if (!debugOn || !hoverEnabled) return; const t = e.target.closest(TARGET_SELECTOR); if (isTarget(t)) hideTooltip(); }, {capture:true});
+
+  canvas.addEventListener('mousedown', e => { if (!debugOn || !e.shiftKey || measureMode) return; marqueeActive = true; startX = e.clientX; startY = e.clientY; Object.assign(marquee.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' }); e.preventDefault(); });
+  window.addEventListener('mousemove', e => { if (!debugOn || !marqueeActive) return; const box = rectFromPoints(startX, startY, e.clientX, e.clientY); Object.assign(marquee.style, { left:box.left+'px', top:box.top+'px', width:box.width+'px', height:box.height+'px' }); clearSelection(); canvas.querySelectorAll(TARGET_SELECTOR).forEach(el => { const r = pageRect(el); if (intersects(box, r)) addToSelection(el); }); });
+  window.addEventListener('mouseup', () => { if (!debugOn || !marqueeActive) return; marqueeActive = false; marquee.style.display = 'none'; });
+
+  function setMeasureMode(on){ measureMode = !!on; if (!measureMode){ measureActive=false; measureBox.style.display='none'; measureHUD.style.display='none'; } }
+  canvas.addEventListener('mousedown', e => { if (!debugOn || !measureMode) return; const t = e.target.closest(TARGET_SELECTOR); if (t) return; measureActive = true; startX = e.clientX; startY = e.clientY; Object.assign(measureBox.style, { left:startX+'px', top:startY+'px', width:'0px', height:'0px', display:'block' }); measureHUD.style.display = 'block'; e.preventDefault(); });
+  window.addEventListener('mousemove', e => { if (!debugOn || !measureMode || !measureActive) return; let x2 = e.clientX, y2 = e.clientY; if (e.ctrlKey){ const snap = v => Math.round(v / 5) * 5; x2 = snap(x2); y2 = snap(y2); } const box = rectFromPoints(startX, startY, x2, y2); Object.assign(measureBox.style, { left:box.left+'px', top:box.top+'px', width:box.width+'px', height:box.height+'px' }); measureHUD.textContent = `${box.width} × ${box.height}px`; measureHUD.style.left = (box.left + box.width + 8) + 'px'; measureHUD.style.top  = (box.top - 2) + 'px'; });
+  window.addEventListener('mouseup', () => { if (!debugOn || !measureMode || !measureActive) return; measureActive = false; measureBox.style.display = 'none'; measureHUD.style.display = 'none'; });
+
+  let selectedBeforeDrag = null;
+  canvas.addEventListener('mousedown', e => {
+    if (!debugOn || e.shiftKey || measureMode) return;
+    const t = e.target.closest(TARGET_SELECTOR);
+    if (!isTarget(t)) return;
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) return;
+    if (!selected.has(t)) { clearSelection(); addToSelection(t); }
+    selectedBeforeDrag = t;
+    draggingEl = t;
+    const [x,y] = getXY(t);
+    const crect = canvas.getBoundingClientRect();
+    dragOffsetX = e.clientX - (crect.left + x);
+    dragOffsetY = e.clientY - (crect.top  + y);
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!debugOn || !draggingEl) return;
+    const crect = canvas.getBoundingClientRect();
+    let nx = e.clientX - crect.left - dragOffsetX;
+    let ny = e.clientY - crect.top  - dragOffsetY;
+    [nx, ny] = clampToCanvas(draggingEl, nx, ny);
+    setXY(draggingEl, nx, ny);
+  });
+  window.addEventListener('mouseup', () => { draggingEl = null; selectedBeforeDrag = null; });
+
+  document.addEventListener('click', e => { if (!debugOn || e.shiftKey || measureMode) return; const t = e.target.closest(TARGET_SELECTOR); if (!isTarget(t)) return; clearSelection(); addToSelection(t); }, true);
+
+  function setCursorMode(on) { cursorMode = !!on; const disp = on && debugOn ? 'block' : 'none'; crossX.style.display = disp; crossY.style.display = disp; coordHUD.style.display = disp; }
+  window.addEventListener('mousemove', e => { if (!debugOn || !cursorMode) return; const x = e.clientX, y = e.clientY; crossX.style.top = y + 'px'; crossY.style.left = x + 'px'; coordHUD.style.left = (x + 10) + 'px'; coordHUD.style.top  = (y + 10) + 'px'; coordHUD.textContent = `X: ${x}   Y: ${y}`; });
+})();
+</script>
+
+<!-- ===================== TALENT CARDS ===================== -->
+<script>
+(() => {
+  const panel = document.getElementById('talentsPanel');
+  const addBtn = document.getElementById('addTalentBtn');
+  if (!panel || !addBtn) { console.warn('[TALENTS] containers missing'); return; }
+
+  // In-memory state (no localStorage cache)
+  let charTalents = [];
+
+  // Build one card
+  function buildCard(t) {
+    const card = h('article', { class: 'talent-card' + (t._min ? ' min' : ''), 'data-id': t.id });
+
+    const header = h('div', { class: 'talent-header', title: 'Click empty header to minimize/expand' });
+    const title  = h('input', { class: 'talent-title', type: 'text', placeholder: 'Talent Name', value: t.name || '' });
+
+    const right  = h('div', { class: 'talent-right' });
+    const lvlLbl = h('span', { class: 'talent-level-label' }, 'Level');
+    const level  = h('select', { class: 'talent-level' });
+    ['-','1','2','3'].forEach(v => level.appendChild(h('option', { value: v, selected: String(t.level || '-') === v ? true : null }, v)));
+    const btnDel  = h('button', { class: 'btn-delete', type: 'button', title: 'Delete' }, 'X');
+    const btnLock = h('button', { class: 'talent-lock', type: 'button', title: 'Lock/Unlock' });
+
+    right.append(lvlLbl, level, btnDel, btnLock);
+    header.append(title, right);
+
+    const body = h('div', { class: 'talent-body' });
+    const desc = h('textarea', { class: 'talent-desc', placeholder: 'Description…' }, t.desc || '');
+    body.append(desc);
+
+    card.append(header, body);
+
+    function applyLock() {
+      const locked = !!t._locked;
+      title.disabled = locked;
+      level.disabled = locked;
+      desc.disabled  = locked;
+      btnDel.disabled = locked;
+      btnLock.style.backgroundImage = `url('img/${locked ? 'lock.png' : 'lock_open.png'}')`;
+      card.classList.toggle('is-locked', locked);
+    }
+
+    title.addEventListener('input',  () => { t.name  = title.value; });
+    level.addEventListener('change', () => { t.level = level.value; });
+    autosize(desc);
+    desc.addEventListener('input',   () => { t.desc  = desc.value; });
+
+    btnDel.addEventListener('click', () => {
+      const i = charTalents.findIndex(x => x.id === t.id);
+      if (i > -1) { charTalents.splice(i, 1); renderPanel(); }
+    });
+
+    btnLock.addEventListener('click', () => { t._locked = !t._locked; applyLock(); });
+
+    header.addEventListener('click', (e) => {
+      if (e.target === title || right.contains(e.target)) return;
+      card.classList.toggle('min');
+      t._min = card.classList.contains('min');
+      if (!t._min) requestAnimationFrame(() => fitTextarea(desc));
+    });
+
+    applyLock();
+    return card;
+  }
+
+  // Render the whole panel from state
+  function renderPanel() {
+    panel.innerHTML = '';
+    charTalents.forEach(t => panel.appendChild(buildCard(t)));
+  }
+
+  // Add button
+  addBtn.addEventListener('click', () => {
+    const t = { id: uid(), name: 'New Talent', level: '-', desc: '', _min: false, _locked: false };
+    charTalents.push(t);
+    renderPanel();
+  });
+
+  // Public API used by your Save/Load code
+  window.exportCharacterTalents = function () {
+    return charTalents.map(t => ({
+      id: t.id,
+      name: String(t.name || ''),
+      level: String(t.level || '-'),
+      desc: String(t.desc || ''),
+      _min: !!t._min,
+      _locked: !!t._locked
+    }));
+  };
+
+  window.importCharacterTalents = function (list) {
+    charTalents = Array.isArray(list) ? list.map(sanitize) : [];
+    renderPanel();
+  };
+
+  window.clearTalentsPanel = function () {
+    charTalents = [];
+    renderPanel();
+  };
+
+  // Helpers
+  function sanitize(t) {
+    return {
+      id: t.id || uid(),
+      name: String(t.name || ''),
+      level: String(t.level || '-'),
+      desc: String(t.desc || ''),
+      _min: !!t._min,
+      _locked: !!t._locked
+    };
+  }
+  function uid() { return 't_' + Math.random().toString(36).slice(2, 9); }
+  function h(tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    if (attrs) for (const [k, v] of Object.entries(attrs)) {
+      if (v === null || v === undefined || v === false) continue;
+      if (v === true) el.setAttribute(k, ''); else el.setAttribute(k, String(v));
+    }
+    for (const k of kids) {
+      if (k == null) continue;
+      if (typeof k === 'string' || typeof k === 'number') el.appendChild(document.createTextNode(k));
+      else el.appendChild(k);
+    }
+    return el;
+  }
+  function autosize(el){ const fit=()=>{ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }; queueMicrotask(fit); el.addEventListener('input', fit); }
+  function fitTextarea(el){ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }
+
+  // Start empty
+  renderPanel();
+})();
+</script>
+
 <script id="gear-cards-module">
 (function GearCardsModule(){
   'use strict';
@@ -315,3 +2121,9 @@
 
 })();
 </script>
+
+
+
+<!-- Close body + html -->
+</body>
+</html>
