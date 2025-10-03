@@ -524,7 +524,7 @@ button{
 }
 
 .enc-title{
-  font:12px 'DominicanSmall', serif;
+  font:12px 'DominicanSmall', serif;   /* headline a bit larger */
   text-align:center;
   line-height:14px;
   margin:0;
@@ -534,32 +534,38 @@ button{
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:4px;
+  gap:3px;
   height:14px;
 }
 
+/* Category labels (Weight / Stowage) */
 .enc-cat{
   font:10px 'DominicanSmall', serif;
   min-width:52px;
   text-align:right;
 }
 
+/* Small inline labels (Max. / Curr.) */
 .enc-sub{
-  font:10px 'DominicanSmall', serif;
+  font:8px 'DominicanSmall', serif;    /* smaller now */
   opacity:.9;
+  line-height:10px;
 }
 
+/* Tiny number inputs */
 .enc-input{
-  width:12px;
-  height:12px;
+  width:18px;
+  height:14px;
   text-align:center;
   font-family:'DeutschGothic', monospace;
-  font-size:10px;
-  line-height:14px;
+  font-size:9px;                       /* smaller text */
+  line-height:12px;
   border:1px solid #000;
   background:#fff;
   padding:0;
+  box-sizing:border-box;
 }
+
 
 /* ===================CARDS area */
 #gearPanelInner{
@@ -1016,45 +1022,26 @@ button{
           onclick="window.spawnBlankGearCard && spawnBlankGearCard('chemical')">+ Chemical</button>
 
   <!-- Encumbrance box -->
-   <!-- Encumbrance (compact box on the right of the toolbar) -->
-  <div class="enc-block">
-    <div class="enc-title">Encumbrance</div>
+  
+<div class="enc-block">
+  <div class="enc-title">Encumbrance</div>
 
-    <div class="enc-row">
-      <span class="enc-label">Weight&nbsp;Max.</span>
-      <input id="encWeightMax" class="enc-input" type="number" min="0" step="1" />
-      <span class="enc-label">Curr.</span>
-      <input id="encWeightCur" class="enc-input" type="number" min="0" step="1" />
-    </div>
+  <div class="enc-row">
+    <span class="enc-cat">Weight</span>
+    <span class="enc-sub">Max.</span>
+    <input id="encWeightMax" class="enc-input" type="number" min="0" step="1" value="0">
+    <span class="enc-sub">Curr.</span>
+    <input id="encWeightCur" class="enc-input" type="number" min="0" step="1" value="0">
+  </div>
 
-    <div class="enc-row">
-      <span class="enc-label">Stowage&nbsp;Max.</span>
-      <input id="encStowMax" class="enc-input" type="number" min="0" step="1" />
-      <span class="enc-label">Curr.</span>
-      <input id="encStowCur" class="enc-input" type="number" min="0" step="1" />
-    </div>
+  <div class="enc-row">
+    <span class="enc-cat">Stowage</span>
+    <span class="enc-sub">Max.</span>
+    <input id="encStowMax" class="enc-input" type="number" min="0" step="1" value="0">
+    <span class="enc-sub">Curr.</span>
+    <input id="encStowCur" class="enc-input" type="number" min="0" step="1" value="0">
   </div>
 </div>
-
-
-<!-- Cards will render inside this inner panel -->
-<div id="gearPanelInner" aria-label="Gear Cards Area"></div>
-
-<!-- Money panel sits directly UNDER the gear cards -->
-<div id="moneyPanel" class="panel" data-label="GEAR: Money">
-  <div class="panel-header">Money</div>
-  <div class="money-grid">
-    <label for="moneyCrown">Crown (₵)</label>
-    <input id="moneyCrown" type="number" min="0" max="999" inputmode="numeric" placeholder="0" oninput="limit3(this)">
-    <label for="moneyShilling">Shilling (ș)</label>
-    <input id="moneyShilling" type="number" min="0" max="999" inputmode="numeric" placeholder="0" oninput="limit3(this)">
-    <label for="moneyPenny">Penny (ḍ)</label>
-    <input id="moneyPenny" type="number" min="0" max="999" inputmode="numeric" placeholder="0" oninput="limit3(this)">
-    <label for="moneyFarthing">Farthing (ƒ)</label>
-    <input id="moneyFarthing" type="number" min="0" max="999" inputmode="numeric" placeholder="0" oninput="limit3(this)">
-  </div>
-</div>
-
 </div>
 
       <div id="panel-powers" class="tabPanel" style="display:none;">Powers coming soon</div>
