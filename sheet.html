@@ -509,57 +509,59 @@ button{
   line-height:20px;
 }
 
-/* Encumbrance box (fixed size, top-aligned) */
+/* --- ENCUMBRANCE box (right aligned) --- */
 .enc-block{
-  margin-left:auto;       /* push to right edge */
-  width:110px;            /* trimmed a bit to fit */
-  height:42px;            /* shorter so it stays inline */
-  border:none;
-  border-radius:0px;
+  margin-left:auto;
+  width:170px;
+  height:50px;
+  border:1px solid #000;
+  border-radius:2px;
   background:#fff;
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-start;
-  align-items:center;
-  padding:2px 2px;        /* small padding */
   box-sizing:border-box;
+  padding:2px 4px;
+  display:grid;
+  grid-template-rows: 14px 1fr 1fr;
 }
 
-/* Title larger */
 .enc-title{
   font:12px 'DominicanSmall', serif;
   text-align:center;
   line-height:12px;
-  margin-bottom:2px;
+  margin:0;
 }
 
-/* Row for Max./Current */
-.enc-line{
+.enc-row{
   display:flex;
   align-items:center;
-  gap:4px;
   justify-content:center;
+  gap:4px;
+  height:16px;
 }
 
-/* Smaller labels */
-.enc-label{
+.enc-cat{
+  font:11px 'DominicanSmall', serif;
+  min-width:52px;
+  text-align:right;
+}
+
+.enc-sub{
   font:10px 'DominicanSmall', serif;
+  opacity:.9;
 }
 
-/* Inputs: force override to Money size */
 .enc-input{
-  width:15px !important;
-  height:16px !important;
+  width:16px;
+  height:16px;
   text-align:center;
-  font-family:'DeutschGothic', monospace !important;
-  font-size:11px !important;      /* smaller, matches Money */
+  font-family:'DeutschGothic', monospace;
+  font-size:10px;
+  line-height:16px;
   border:1px solid #000;
   background:#fff;
   padding:0;
-  line-height:1;
 }
 
-/* Cards area */
+/* ===================CARDS area */
 #gearPanelInner{
   width:450px;
   height:350px;
@@ -1013,16 +1015,26 @@ button{
   <button type="button" title="Add Chemical"
           onclick="window.spawnBlankGearCard && spawnBlankGearCard('chemical')">+ Chemical</button>
 
-  <!-- Encumbrance box (fixed 120×50, right-aligned) -->
-<div class="enc-block">
-  <div class="enc-title">Encumbrance</div>
-  <div class="enc-line">
-    <span class="enc-label">Max.</span>
-    <input id="encMax" class="enc-input" type="number" min="0" step="1" value="0" />
-    <span class="enc-label">Current</span>
-    <input id="encCurrent" class="enc-input" type="number" min="0" step="1" value="0" />
+  <!-- Encumbrance box -->
+  <div class="enc-block">
+    <div class="enc-title">Encumbrance</div>
+
+    <div class="enc-row">
+      <span class="enc-cat">Weight</span>
+      <span class="enc-sub">Max.</span>
+      <input id="encWeightMax" class="enc-input" type="number" min="0" step="1" value="0">
+      <span class="enc-sub">Curr.</span>
+      <input id="encWeightCurrent" class="enc-input" type="number" min="0" step="1" value="0">
+    </div>
+
+    <div class="enc-row">
+      <span class="enc-cat">Stowage</span>
+      <span class="enc-sub">Max.</span>
+      <input id="encStowageMax" class="enc-input" type="number" min="0" step="1" value="0">
+      <span class="enc-sub">Curr.</span>
+      <input id="encStowageCurrent" class="enc-input" type="number" min="0" step="1" value="0">
+    </div>
   </div>
-</div>
 </div>
 
 
