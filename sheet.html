@@ -487,11 +487,12 @@ button{
 </style>
 <!-- =============== END OF TALENT STYLES (INSIDE MAIN TAB) ===================== -->
 
+<!-- =============== START OF GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 <style id="gear-cards-css">
-/* ================= GEAR PANEL — Toolbar + Encumbrance (restored) ================= */
+/* ================= GEAR PANEL — Toolbar + Encumbrance (kept as you had) ================= */
 #gearToolbar{
   display:flex;
-  align-items:center;     /* keep all items aligned */
+  align-items:center;
   gap:3px;
   margin-bottom:6px;
   flex-wrap:nowrap;
@@ -502,129 +503,104 @@ button{
   padding:2px 2px;
   cursor:pointer;
   font:12px DominicanSmall,serif;
-  height:26px;            /* your original size */
+  height:26px;
   line-height:20px;
 }
-
-/* Encumbrance box */
 .enc-block{
   margin-left:auto;
-  width:170px;
-  height:50px;
-  border:1px solid #000;
-  border-radius:2px;
-  background:#fff;
-  box-sizing:border-box;
-  padding:2px 2px;
-  display:grid;
-  grid-template-rows: 14px 1fr 1fr;
+  width:170px; height:50px;
+  border:1px solid #000; border-radius:2px; background:#fff;
+  box-sizing:border-box; padding:2px 2px;
+  display:grid; grid-template-rows: 14px 1fr 1fr;
 }
-.enc-title{
-  font:12px 'DominicanSmall', serif;
-  text-align:center;
-  line-height:14px;
-  margin:0;
-}
-.enc-row{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:3px;
-  height:14px;
-}
-.enc-cat{  font:10px 'DominicanSmall', serif; min-width:52px; text-align:right; }
-.enc-sub{  font:8px  'DominicanSmall', serif; opacity:.9; line-height:10px; }
+.enc-title{ font:12px 'DominicanSmall', serif; text-align:center; line-height:14px; margin:0; }
+.enc-row{ display:flex; align-items:center; justify-content:center; gap:3px; height:14px; }
+.enc-cat{ font:10px 'DominicanSmall', serif; min-width:52px; text-align:right; }
+.enc-sub{ font:8px 'DominicanSmall', serif; opacity:.9; line-height:10px; }
+/* This is the “Weight Max” look you asked to match */
 .enc-input{
-  width:18px; height:15px; text-align:center;
+  width:22px; height:15px; text-align:center;
   font-family:'DeutschGothic', monospace; font-size:12px; line-height:12px;
-  border:none; background:#fff; padding:0; box-sizing:border-box;
+  border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
 }
 
-/* ================= GEAR PANEL — Cards only (new/refined) ================= */
+/* ================= GEAR PANEL — Cards (simplified layout) ================= */
 #gearPanelInner{
-  width:450px;
-  height:350px;
+  width:450px; height:350px;
   border:1px dashed #0003;
-  background:transparent;
-  overflow:auto;
-  padding:6px 0 0 0;      /* leaves space for toolbar */
-  box-sizing:border-box;
+  background:transparent; overflow:auto;
+  padding:6px 0 0 0; box-sizing:border-box;
 }
+.gear-list{ display:flex; flex-direction:column; gap:8px; padding-top:10px; padding-left:0; }
 
-/* Stack like Talents */
-.gear-list{
-  display:flex; flex-direction:column;
-  gap:8px; padding-top:10px; padding-left:0;
-}
-
-/* Card shell */
+/* Card */
 .gear-card{
   position:relative; width:100%;
   background:#fff; border:1px solid #000; border-radius:0;
-  box-shadow:0 2px 6px rgba(0,0,0,.15);
-  box-sizing:border-box;
+  box-shadow:0 2px 6px rgba(0,0,0,.15); box-sizing:border-box;
 }
 .gear-card.min .card-body,
 .gear-card.min .card-footer{ display:none !important; }
 
-/* Header: Drag | Item Name | Minimise | Lock | Gear Bonus */
+/* Header: Drag | Title | Min | Lock | Gear Bonus */
 .card-header{
   display:flex; align-items:center; gap:8px;
   justify-content:flex-start;
   padding:4px 6px; background:#f2f2f2;
   border-bottom:1px solid #000; user-select:none;
 }
-.drag-handle,
-.min-btn,
-.lock-btn{
+.drag-handle,.min-btn,.lock-btn{
   border:1px solid #000; background:#fff;
-  width:22px; height:22px; line-height:20px;
-  padding:0; cursor:pointer;
+  width:22px; height:22px; line-height:20px; padding:0; cursor:pointer;
 }
 .drag-handle{ cursor:grab; }
 .lock-btn{ background-position:center; background-repeat:no-repeat; background-size:contain; }
 
-/* Title — closer to Talent look */
 .card-title{
-  flex:1 1 auto; min-width:0;
-  border:none; background:transparent;
-  font-family:'GokilNova','DominicanSmall',serif;
-  font-size:16px;
-  text-align:center;
-  padding:0; margin:0;
-  text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
+  flex:1 1 auto; min-width:0; border:none; background:transparent;
+  font-family:'GokilNova','DominicanSmall',serif; font-size:16px;
+  text-align:center; padding:0; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
-
-/* Gear Bonus control (acts like quick add to pool) */
 .gb-wrap{ display:flex; align-items:center; gap:4px; white-space:nowrap; }
 .gb-label{ font:11px 'DominicanSmall',serif; opacity:.9; }
 .gb-input{
-  width:44px; height:22px;
-  text-align:center;
-  font-family:'DeutschGothic', monospace;
-  font-size:12px;
-  border:1px solid #000; background:#fff;
-  padding:0; cursor:pointer;
+  width:44px; height:22px; text-align:center;
+  font-family:'DeutschGothic', monospace; font-size:12px;
+  border:1px solid #000; background:#fff; padding:0; cursor:pointer;
 }
 
-/* Body: Description | Right fields */
-.card-body{ display:grid; grid-template-columns:2fr 1fr; gap:8px; padding:8px; }
+/* Body now = vertical stack: rows of (label + field) then Description full width */
+.card-body{ display:flex; flex-direction:column; gap:8px; padding:8px; }
+
+/* Rows for fields */
+.fields-rows{ display:flex; flex-direction:column; gap:6px; }
+
+/* One row */
+.field-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.field-row label{ font:11px 'DominicanSmall',serif; }
+
+/* Text inputs in rows */
+.field-row input[type="text"], .field-row textarea{
+  border:1px solid #bbb; background:#fff;
+  font:12px 'Dominican',serif; padding:2px 4px; flex:1 1 auto; box-sizing:border-box;
+}
+
+/* Number inputs in rows — match Encumbrance Weight Max look/size */
+.card-num{
+  width:22px; height:15px; text-align:center;
+  font-family:'DeutschGothic', monospace; font-size:12px; line-height:12px;
+  border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
+}
+
+/* The W / S special row */
+.ws-row .slash{ font:11px 'DominicanSmall',serif; opacity:.9; }
+
+/* Description at the bottom, full width */
 .card-body textarea.description{
   width:100%; min-height:72px;
   border:1px dashed #bbb; background:transparent;
   font-family:'Gothics','Dominican',serif; font-size:11px;
-  resize:vertical; padding:4px;
-}
-
-/* Right fields grid (labels small, inputs compact) */
-.fields-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px; }
-.fields-wrap label{ font:11px 'DominicanSmall',serif; }
-.fields-wrap input,.fields-wrap textarea{
-  width:100%; border:1px solid #bbb; background:#fff;
-  font:12px 'Dominican',serif; padding:2px 4px; box-sizing:border-box;
-}
-.fields-wrap textarea{
-  min-height:48px; font:11px 'Gothics','Dominican',serif; resize:vertical; padding:3px; grid-column:1 / span 2;
+  resize:vertical; padding:4px; box-sizing:border-box;
 }
 
 /* Footer */
@@ -633,21 +609,18 @@ button{
   padding:6px; border-top:1px solid #000; background:#fafafa;
 }
 .card-footer button{
-  border:1px solid #000; background:#fff;
-  padding:2px 8px; cursor:pointer;
+  border:1px solid #000; background:#fff; padding:2px 8px; cursor:pointer;
   font:12px 'DominicanSmall',serif;
 }
 
-/* Drag feedback + lock visuals */
+/* Drag + lock visuals */
 .gear-card.dragging{ opacity:.6 }
 .gear-card.drop-target{ outline:2px dashed #0077ff }
 .gear-card.is-locked{ opacity:.96 }
 .gear-card.is-locked .card-title{ opacity:.85 }
 </style>
 
-
 <!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
-
 
 <style>
 /* === FINAL OVERRIDES: Encumbrance inputs match Money fields === */
@@ -1906,26 +1879,23 @@ ${css}
     panel.appendChild(list);
   }
 
-  // ---------- Templates ----------
+  // ---------- Templates (remove Core Stat + Weight everywhere) ----------
   const TEMPLATES = {
     weapon_melee: [
       {k:'damage',  t:'text',     label:'Damage'},
       {k:'reach',   t:'text',     label:'Reach/Grip'},
-      {k:'weight',  t:'number',   label:'Weight'},
       {k:'traits',  t:'textarea', label:'Traits/Notes'}
     ],
     weapon_ranged: [
       {k:'damage',  t:'text',     label:'Damage'},
       {k:'range',   t:'text',     label:'Range Bands'},
       {k:'ammo',    t:'text',     label:'Ammo/Reload'},
-      {k:'weight',  t:'number',   label:'Weight'},
       {k:'traits',  t:'textarea', label:'Traits/Notes'}
     ],
     armour: [
       {k:'coverage', t:'text',     label:'Coverage'},
       {k:'armor',    t:'number',   label:'Armour Value'},
       {k:'penalty',  t:'text',     label:'Penalties'},
-      {k:'weight',   t:'number',   label:'Weight'},
       {k:'traits',   t:'textarea', label:'Traits/Notes'}
     ],
     chemical: [
@@ -1937,9 +1907,7 @@ ${css}
       {k:'price',      t:'text',     label:'Price'}
     ],
     gear: [
-      {k:'core',    t:'text',     label:'Core Stat'},
-      {k:'weight',  t:'number',   label:'Weight'},
-      {k:'traits',  t:'textarea', label:'Traits/Notes'}
+      {k:'traits',   t:'textarea', label:'Traits/Notes'}
     ],
   };
 
@@ -1961,7 +1929,7 @@ ${css}
     const type = (kind === 'armor') ? 'armour'
                : (kind === 'narcotic') ? 'chemical'
                : (kind||'gear');
-    const data = { id: uid(), name:'', description:'', diceMod:0 };
+    const data = { id: uid(), name:'', description:'', diceMod:0, weight:0, stow:0 };
     const el = createCardEl(type, data);
     list.appendChild(el);
     return el;
@@ -1986,11 +1954,11 @@ ${css}
         description: card.querySelector('.description')?.value || '',
         diceMod: card.querySelector('.gb-input')?.value || 0
       };
-      card.querySelectorAll('.fields-wrap input, .fields-wrap textarea, .fields-wrap select')
+      // collect values from the rows
+      card.querySelectorAll('.fields-rows input, .fields-rows textarea, .fields-rows select')
         .forEach(el=>{
           const k = el.name || el.getAttribute('name');
           if (!k) return;
-          if (k === 'diceMod') return; // header holds diceMod
           item[k] = (el.type === 'checkbox') ? !!el.checked : el.value;
         });
       out.push(item);
@@ -2037,7 +2005,7 @@ ${css}
     }, {offset: Number.NEGATIVE_INFINITY, element: null}).element;
   }
 
-  // ---------- Card builder (Header: Drag | Title | Min | Lock | Gear Bonus) ----------
+  // ---------- Card builder (rows + Description at base) ----------
   function createCardEl(type, data){
     const id = data.id || uid();
     const templateKey = resolveTemplate(type, data.tags);
@@ -2062,10 +2030,9 @@ ${css}
     const gbWrap  = div('gb-wrap');
     const gbLabel = span('gb-label','Gear Bonus');
     const gbInput = input('number','gb-input', (data.diceMod ?? data.bonus ?? 0));
-    gbInput.name = 'diceMod';
-    gbInput.step = '1';
+    gbInput.name = 'diceMod'; gbInput.step = '1';
 
-    // Clicking the number adds to dice pool (quick add)
+    // Quick add to dice pool
     gbInput.addEventListener('click', ()=>{
       const v = parseInt(gbInput.value,10) || 0;
       if (v && typeof window.changePool === 'function') window.changePool(+v);
@@ -2076,34 +2043,49 @@ ${css}
 
     // Body
     const body = div('card-body');
-    const left = document.createElement('div');
-    const right = document.createElement('div');
+    const rows = div('fields-rows');
 
+    // Build rows from template (no 'core', no 'weight')
+    (TEMPLATES[templateKey] || []).forEach(spec=>{
+      const row = div('field-row');
+      const label = document.createElement('label');
+      label.textContent = spec.label;
+
+      let control;
+      if (spec.t === 'textarea'){
+        control = document.createElement('textarea');
+        control.rows = 2;
+      }else{
+        control = document.createElement('input');
+        control.type = spec.t;
+        if (spec.t === 'number') control.classList.add('card-num'); // match encumbrance size/font
+      }
+      control.name = spec.k;
+      control.value = data[spec.k] ?? '';
+
+      row.append(label, control);
+      rows.appendChild(row);
+    });
+
+    // Add the W / S combined row (replaces old Weight field)
+    const wsRow = div('field-row ws-row');
+    const wLabel = document.createElement('label'); wLabel.textContent = 'W';
+    const wNum   = document.createElement('input'); wNum.type='number'; wNum.name='weight';
+    wNum.value = data.weight ?? 0; wNum.className = 'card-num';
+    const slash  = document.createElement('span');  slash.className='slash'; slash.textContent = '/';
+    const sLabel = document.createElement('label'); sLabel.textContent = 'S';
+    const sNum   = document.createElement('input'); sNum.type='number'; sNum.name='stow';
+    sNum.value = data.stow ?? 0; sNum.className = 'card-num';
+    wsRow.append(wLabel, wNum, slash, sLabel, sNum);
+    rows.appendChild(wsRow);
+
+    // Description at the base, full width
     const desc = document.createElement('textarea');
     desc.className = 'description';
     desc.placeholder = 'Description…';
     desc.value = data.description || '';
-    left.appendChild(desc);
 
-    const fieldsWrap = div('fields-wrap');
-    (TEMPLATES[templateKey] || []).forEach(spec=>{
-      const label = document.createElement('label');
-      label.textContent = spec.label;
-
-      const control = (spec.t === 'textarea')
-        ? document.createElement('textarea')
-        : document.createElement('input');
-
-      if (spec.t !== 'textarea') control.type = spec.t;
-      control.name = spec.k;
-      control.value = data[spec.k] ?? '';
-
-      fieldsWrap.append(label, control);
-    });
-    right.appendChild(fieldsWrap);
-    body.append(left, right);
-
-    // Footer — explicit Add-to-Pool button (plus Remove)
+    // Footer (Add-to-Pool + Remove)
     const footer = div('card-footer');
     const addPoolBtn = document.createElement('button');
     addPoolBtn.type='button';
@@ -2122,6 +2104,8 @@ ${css}
 
     footer.append(addPoolBtn, btnRemove);
 
+    // Assemble
+    body.append(rows, desc);
     card.append(header, body, footer);
 
     // Behaviour
@@ -2154,7 +2138,7 @@ ${css}
       card.classList.toggle('is-locked', locked);
       const controls = card.querySelectorAll('input, textarea, select, button');
       controls.forEach(el=>{
-        const keep = (el===dragHandle || el===minBtn || el===lockBtn || el===btnRemove);
+        const keep = (el===dragHandle || el===minBtn || el===lockBtn || el===btnRemove || el===addPoolBtn);
         if (keep) return;
         el.disabled = locked;
       });
@@ -2197,7 +2181,6 @@ ${css}
 
 })();
 </script>
-
 
 <!-- Close body + html -->
 </body>
