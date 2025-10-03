@@ -1016,23 +1016,22 @@ button{
           onclick="window.spawnBlankGearCard && spawnBlankGearCard('chemical')">+ Chemical</button>
 
   <!-- Encumbrance box -->
+   <!-- Encumbrance (compact box on the right of the toolbar) -->
   <div class="enc-block">
     <div class="enc-title">Encumbrance</div>
 
-    <div class="enc-row">
-      <span class="enc-cat">Weight</span>
-      <span class="enc-sub">Max.</span>
-      <input id="encWeightMax" class="enc-input" type="number" min="0" step="1" value="0">
-      <span class="enc-sub">Curr.</span>
-      <input id="encWeightCurrent" class="enc-input" type="number" min="0" step="1" value="0">
+    <div class="enc-line">
+      <span class="enc-label">Weight&nbsp;Max.</span>
+      <input id="encWeightMax" class="enc-input" type="number" min="0" step="1" />
+      <span class="enc-label">Curr.</span>
+      <input id="encWeightCur" class="enc-input" type="number" min="0" step="1" />
     </div>
 
-    <div class="enc-row">
-      <span class="enc-cat">Stowage</span>
-      <span class="enc-sub">Max.</span>
-      <input id="encStowageMax" class="enc-input" type="number" min="0" step="1" value="0">
-      <span class="enc-sub">Curr.</span>
-      <input id="encStowageCurrent" class="enc-input" type="number" min="0" step="1" value="0">
+    <div class="enc-line">
+      <span class="enc-label">Stowage&nbsp;Max.</span>
+      <input id="encStowMax" class="enc-input" type="number" min="0" step="1" />
+      <span class="enc-label">Curr.</span>
+      <input id="encStowCur" class="enc-input" type="number" min="0" step="1" />
     </div>
   </div>
 </div>
@@ -1272,6 +1271,16 @@ if (window.clearGearCards) window.clearGearCards();
 if (window.importCharacterGear){
   window.importCharacterGear(Array.isArray(data.__gear) ? data.__gear : []);
 } 
+
+// --- Back-compat for old encumbrance keys (pre-Weight/Stowage split)
+if (!data.encWeightMax && data.encMax) {
+  const el = document.getElementById('encWeightMax');
+  if (el) el.value = data.encMax;
+}
+if (!data.encWeightCur && data.encCurrent) {
+  const el = document.getElementById('encWeightCur');
+  if (el) el.value = data.encCurrent;
+}
 
   initAllSkillTotals();
   alert('Loaded');
