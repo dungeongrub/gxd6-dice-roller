@@ -487,18 +487,67 @@ button{
 </style>
 <!-- =============== END OF TALENT STYLES (INSIDE MAIN TAB) ===================== -->
 
-
 <style id="gear-cards-css">
-/* === GEAR: Cards only (Toolbar/Encumbrance untouched) === */
+/* ================= GEAR PANEL — Toolbar + Encumbrance (restored) ================= */
+#gearToolbar{
+  display:flex;
+  align-items:center;     /* keep all items aligned */
+  gap:3px;
+  margin-bottom:6px;
+  flex-wrap:nowrap;
+}
+#gearToolbar button{
+  border:1px solid #000;
+  background:#fff;
+  padding:2px 2px;
+  cursor:pointer;
+  font:12px DominicanSmall,serif;
+  height:26px;            /* your original size */
+  line-height:20px;
+}
 
-/* Cards container */
+/* Encumbrance box */
+.enc-block{
+  margin-left:auto;
+  width:170px;
+  height:50px;
+  border:1px solid #000;
+  border-radius:2px;
+  background:#fff;
+  box-sizing:border-box;
+  padding:2px 2px;
+  display:grid;
+  grid-template-rows: 14px 1fr 1fr;
+}
+.enc-title{
+  font:12px 'DominicanSmall', serif;
+  text-align:center;
+  line-height:14px;
+  margin:0;
+}
+.enc-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  height:14px;
+}
+.enc-cat{  font:10px 'DominicanSmall', serif; min-width:52px; text-align:right; }
+.enc-sub{  font:8px  'DominicanSmall', serif; opacity:.9; line-height:10px; }
+.enc-input{
+  width:18px; height:15px; text-align:center;
+  font-family:'DeutschGothic', monospace; font-size:12px; line-height:12px;
+  border:none; background:#fff; padding:0; box-sizing:border-box;
+}
+
+/* ================= GEAR PANEL — Cards only (new/refined) ================= */
 #gearPanelInner{
   width:450px;
   height:350px;
   border:1px dashed #0003;
   background:transparent;
   overflow:auto;
-  padding:6px 0 0 0;
+  padding:6px 0 0 0;      /* leaves space for toolbar */
   box-sizing:border-box;
 }
 
@@ -535,18 +584,18 @@ button{
 .drag-handle{ cursor:grab; }
 .lock-btn{ background-position:center; background-repeat:no-repeat; background-size:contain; }
 
-/* Title — match Talent styling more closely */
+/* Title — closer to Talent look */
 .card-title{
   flex:1 1 auto; min-width:0;
   border:none; background:transparent;
-  font-family:'GokilNova','DominicanSmall',serif; 
+  font-family:'GokilNova','DominicanSmall',serif;
   font-size:16px;
   text-align:center;
   padding:0; margin:0;
   text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
 }
 
-/* Gear Bonus control (acts like a quick “add to pool”) */
+/* Gear Bonus control (acts like quick add to pool) */
 .gb-wrap{ display:flex; align-items:center; gap:4px; white-space:nowrap; }
 .gb-label{ font:11px 'DominicanSmall',serif; opacity:.9; }
 .gb-input{
@@ -574,9 +623,11 @@ button{
   width:100%; border:1px solid #bbb; background:#fff;
   font:12px 'Dominican',serif; padding:2px 4px; box-sizing:border-box;
 }
-.fields-wrap textarea{ min-height:48px; font:11px 'Gothics','Dominican',serif; resize:vertical; padding:3px; grid-column:1 / span 2; }
+.fields-wrap textarea{
+  min-height:48px; font:11px 'Gothics','Dominican',serif; resize:vertical; padding:3px; grid-column:1 / span 2;
+}
 
-/* Footer — aligned with Talent tone */
+/* Footer */
 .card-footer{
   display:flex; gap:6px; justify-content:flex-end;
   padding:6px; border-top:1px solid #000; background:#fafafa;
@@ -593,6 +644,7 @@ button{
 .gear-card.is-locked{ opacity:.96 }
 .gear-card.is-locked .card-title{ opacity:.85 }
 </style>
+
 
 <!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 
