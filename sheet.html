@@ -560,7 +560,7 @@ button{
   font-family:'DeutschGothic', monospace;
   font-size:12px;                       /* smaller text */
   line-height:12px;
-  border:none
+  border:none;
   background:#fff;
   padding:0;
   box-sizing:border-box;
@@ -674,8 +674,8 @@ button{
 
 </style>
 
-/* === FINAL OVERRIDES: Encumbrance inputs match Money fields === */
 <style>
+/* === FINAL OVERRIDES: Encumbrance inputs match Money fields === */
 #panel-gear #gearToolbar .enc-block .enc-input{
   width:22px !important;
   height:15px !important;
@@ -691,7 +691,7 @@ button{
 <!-- =============== END OF GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 
 <!-- =============== MONEY STYLES (INSIDE MAIN TAB) ===================== -->
-style id="money-panel-css">
+<style id="money-panel-css">
 /* Bottom bar container inside the Gear panel */
 #gearBottomBar{
   position:absolute;
@@ -1111,29 +1111,30 @@ style id="money-panel-css">
     <section class="gear-list"></section>
   </div>
 	
-<!-- Money panel -->
-<div id="moneyPanel">
-  <div class="money-grid">
-    <label for="moneyCrown">Crown (₵)</label>
-    <input id="moneyCrown" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+<!-- Bottom bar: Money (left, fixed width) + Assets (right, fills) -->
+<div id="gearBottomBar">
+  <div id="moneyPanel">
+    <div class="money-grid">
+      <label for="moneyCrown">Crown (₵)</label>
+      <input id="moneyCrown" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
 
-    <label for="moneyShilling">Shilling (ș)</label>
-    <input id="moneyShilling" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+      <label for="moneyShilling">Shilling (ș)</label>
+      <input id="moneyShilling" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
 
-    <label for="moneyPenny">Penny (ḍ)</label>
-    <input id="moneyPenny" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+      <label for="moneyPenny">Penny (ḍ)</label>
+      <input id="moneyPenny" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
 
-    <label for="moneyFarthing">Farthing (ƒ)</label>
-    <input id="moneyFarthing" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+      <label for="moneyFarthing">Farthing (ƒ)</label>
+      <input id="moneyFarthing" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+    </div>
   </div>
+
+  <div id="assetsPanel">
+    <div class="assets-header">Assets, Property, Vehicles, etc.</div>
+    <textarea id="assetsText" placeholder="List holdings, property deeds, vehicles, investments…"></textarea>
   </div>
-  
-  <!-- Assets/Property panel (to the right of Money) -->
-<div id="assetsPanel">
-  <div class="assets-header">Assets, Property, Vehicles, etc.</div>
-  <textarea id="assetsText" placeholder="List holdings, property deeds, vehicles, investments…" ></textarea>
 </div>
-</div>
+
 
 </div>
 
