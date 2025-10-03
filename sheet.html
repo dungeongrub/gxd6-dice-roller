@@ -487,104 +487,28 @@ button{
 </style>
 <!-- =============== END OF TALENT STYLES (INSIDE MAIN TAB) ===================== -->
 
-<!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
+
 <style id="gear-cards-css">
-/* =============== GEAR STYLES (INSIDE MAIN TAB) ===================== */
+/* === GEAR: Cards only (Toolbar/Encumbrance untouched) === */
 
-/* Toolbar */
-#gearToolbar{
-  display:flex;
-  align-items:center;     /* keep all items aligned */
-  gap:3px;
-  margin-bottom:6px;
-  flex-wrap:nowrap;
-}
-#gearToolbar button{
-  border:1px solid #000;
-  background:#fff;
-  padding:2px 2px;
-  cursor:pointer;
-  font:12px DominicanSmall,serif;
-  height:26px;            /* slightly slimmer so box fits */
-  line-height:20px;
-}
-
-/* --- ENCUMBRANCE box (right aligned) --- */
-.enc-block{
-  margin-left:auto;
-  width:170px;
-  height:50px;
-  border:1px solid #000;
-  border-radius:2px;
-  background:#fff;
-  box-sizing:border-box;
-  padding:2px 2px;
-  display:grid;
-  grid-template-rows: 14px 1fr 1fr;
-}
-
-.enc-title{
-  font:12px 'DominicanSmall', serif;   /* headline a bit larger */
-  text-align:center;
-  line-height:14px;
-  margin:0;
-}
-
-.enc-row{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:3px;
-  height:14px;
-}
-
-/* Category labels (Weight / Stowage) */
-.enc-cat{
-  font:10px 'DominicanSmall', serif;
-  min-width:52px;
-  text-align:right;
-}
-
-/* Small inline labels (Max. / Curr.) */
-.enc-sub{
-  font:8px 'DominicanSmall', serif;    /* smaller now */
-  opacity:.9;
-  line-height:10px;
-}
-
-/* Tiny number inputs */
-.enc-input{
-  width:18px;
-  height:15px;
-  text-align:center;
-  font-family:'DeutschGothic', monospace;
-  font-size:12px;                       /* smaller text */
-  line-height:12px;
-  border:none;
-  background:#fff;
-  padding:0;
-  box-sizing:border-box;
-}
-
-
-/* ===================CARDS area */
+/* Cards container */
 #gearPanelInner{
   width:450px;
   height:350px;
   border:1px dashed #0003;
   background:transparent;
   overflow:auto;
-  padding:6px 0 0 0;      /* slightly less top padding so enc box fits */
+  padding:6px 0 0 0;
   box-sizing:border-box;
 }
 
-/* Stacked list */
+/* Stack like Talents */
 .gear-list{
   display:flex; flex-direction:column;
   gap:8px; padding-top:10px; padding-left:0;
 }
 
-/* Cards fill width */
+/* Card shell */
 .gear-card{
   position:relative; width:100%;
   background:#fff; border:1px solid #000; border-radius:0;
@@ -594,7 +518,7 @@ button{
 .gear-card.min .card-body,
 .gear-card.min .card-footer{ display:none !important; }
 
-/* Header (order: drag | title | min | lock | Gear Bonus) */
+/* Header: Drag | Item Name | Minimise | Lock | Gear Bonus */
 .card-header{
   display:flex; align-items:center; gap:8px;
   justify-content:flex-start;
@@ -611,18 +535,20 @@ button{
 .drag-handle{ cursor:grab; }
 .lock-btn{ background-position:center; background-repeat:no-repeat; background-size:contain; }
 
-/* Title in middle */
+/* Title — match Talent styling more closely */
 .card-title{
   flex:1 1 auto; min-width:0;
   border:none; background:transparent;
-  font-family:DominicanSmall,serif; font-size:14px;
-  font-variant: small-caps;
+  font-family:'GokilNova','DominicanSmall',serif; 
+  font-size:16px;
   text-align:center;
+  padding:0; margin:0;
+  text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
 }
 
-/* Gear Bonus (right side of header) */
+/* Gear Bonus control (acts like a quick “add to pool”) */
 .gb-wrap{ display:flex; align-items:center; gap:4px; white-space:nowrap; }
-.gb-label{ font:11px DominicanSmall,serif; opacity:.9; }
+.gb-label{ font:11px 'DominicanSmall',serif; opacity:.9; }
 .gb-input{
   width:44px; height:22px;
   text-align:center;
@@ -632,45 +558,44 @@ button{
   padding:0; cursor:pointer;
 }
 
-/* Body */
+/* Body: Description | Right fields */
 .card-body{ display:grid; grid-template-columns:2fr 1fr; gap:8px; padding:8px; }
 .card-body textarea.description{
   width:100%; min-height:72px;
   border:1px dashed #bbb; background:transparent;
-  font-family:Gothics,Dominican,serif; font-size:11px;
+  font-family:'Gothics','Dominican',serif; font-size:11px;
   resize:vertical; padding:4px;
 }
 
-/* Right fields grid */
+/* Right fields grid (labels small, inputs compact) */
 .fields-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:6px; }
-.fields-wrap label{ font:11px DominicanSmall,serif; }
+.fields-wrap label{ font:11px 'DominicanSmall',serif; }
 .fields-wrap input,.fields-wrap textarea{
   width:100%; border:1px solid #bbb; background:#fff;
-  font:12px Dominican,serif; padding:2px 4px; box-sizing:border-box;
+  font:12px 'Dominican',serif; padding:2px 4px; box-sizing:border-box;
 }
-.fields-wrap textarea{ min-height:48px; font:11px Gothics,Dominican,serif; resize:vertical; padding:3px; }
+.fields-wrap textarea{ min-height:48px; font:11px 'Gothics','Dominican',serif; resize:vertical; padding:3px; grid-column:1 / span 2; }
 
-/* Footer (Remove button only) */
+/* Footer — aligned with Talent tone */
 .card-footer{
   display:flex; gap:6px; justify-content:flex-end;
   padding:6px; border-top:1px solid #000; background:#fafafa;
 }
-.card-footer .remove-btn{
+.card-footer button{
   border:1px solid #000; background:#fff;
   padding:2px 8px; cursor:pointer;
-  font:12px DominicanSmall,serif;
+  font:12px 'DominicanSmall',serif;
 }
 
-/* Drag feedback */
+/* Drag feedback + lock visuals */
 .gear-card.dragging{ opacity:.6 }
 .gear-card.drop-target{ outline:2px dashed #0077ff }
-
-/* Locked state */
 .gear-card.is-locked{ opacity:.96 }
 .gear-card.is-locked .card-title{ opacity:.85 }
-
-
 </style>
+
+<!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
+
 
 <style>
 /* === FINAL OVERRIDES: Encumbrance inputs match Money fields === */
@@ -1932,26 +1857,24 @@ ${css}
   // ---------- Templates ----------
   const TEMPLATES = {
     weapon_melee: [
-      {k:'damage',  t:'text',   label:'Damage'},
-      {k:'reach',   t:'text',   label:'Reach/Grip'},
-      {k:'diceMod', t:'number', label:'Gear Bonus'},
-      {k:'weight',  t:'number', label:'Weight'},
-      {k:'traits',  t:'textarea',label:'Traits/Notes'}
+      {k:'damage',  t:'text',     label:'Damage'},
+      {k:'reach',   t:'text',     label:'Reach/Grip'},
+      {k:'weight',  t:'number',   label:'Weight'},
+      {k:'traits',  t:'textarea', label:'Traits/Notes'}
     ],
     weapon_ranged: [
-      {k:'damage',  t:'text',   label:'Damage'},
-      {k:'range',   t:'text',   label:'Range Bands'},
-      {k:'ammo',    t:'text',   label:'Ammo/Reload'},
-      {k:'diceMod', t:'number', label:'Gear Bonus'},
-      {k:'weight',  t:'number', label:'Weight'},
-      {k:'traits',  t:'textarea',label:'Traits/Notes'}
+      {k:'damage',  t:'text',     label:'Damage'},
+      {k:'range',   t:'text',     label:'Range Bands'},
+      {k:'ammo',    t:'text',     label:'Ammo/Reload'},
+      {k:'weight',  t:'number',   label:'Weight'},
+      {k:'traits',  t:'textarea', label:'Traits/Notes'}
     ],
     armour: [
-      {k:'coverage', t:'text',   label:'Coverage'},
-      {k:'armor',    t:'number', label:'Armour Value'},
-      {k:'penalty',  t:'text',   label:'Penalties'},
-      {k:'weight',   t:'number', label:'Weight'},
-      {k:'traits',   t:'textarea',label:'Traits/Notes'}
+      {k:'coverage', t:'text',     label:'Coverage'},
+      {k:'armor',    t:'number',   label:'Armour Value'},
+      {k:'penalty',  t:'text',     label:'Penalties'},
+      {k:'weight',   t:'number',   label:'Weight'},
+      {k:'traits',   t:'textarea', label:'Traits/Notes'}
     ],
     chemical: [
       {k:'dose',       t:'text',     label:'Dose'},
@@ -1962,10 +1885,9 @@ ${css}
       {k:'price',      t:'text',     label:'Price'}
     ],
     gear: [
-      {k:'core',    t:'text',   label:'Core Stat'},
-      {k:'diceMod', t:'number', label:'Gear Bonus'},
-      {k:'weight',  t:'number', label:'Weight'},
-      {k:'traits',  t:'textarea',label:'Traits/Notes'}
+      {k:'core',    t:'text',     label:'Core Stat'},
+      {k:'weight',  t:'number',   label:'Weight'},
+      {k:'traits',  t:'textarea', label:'Traits/Notes'}
     ],
   };
 
@@ -2009,18 +1931,16 @@ ${css}
         _locked: card.classList.contains('is-locked'),
         _min: card.classList.contains('min'),
         name: card.querySelector('.card-title')?.value || '',
-        description: card.querySelector('.description')?.value || ''
+        description: card.querySelector('.description')?.value || '',
+        diceMod: card.querySelector('.gb-input')?.value || 0
       };
-      // collect all named inputs in the right-side fields (includes diceMod)
       card.querySelectorAll('.fields-wrap input, .fields-wrap textarea, .fields-wrap select')
         .forEach(el=>{
           const k = el.name || el.getAttribute('name');
           if (!k) return;
+          if (k === 'diceMod') return; // header holds diceMod
           item[k] = (el.type === 'checkbox') ? !!el.checked : el.value;
         });
-      // also read header Gear Bonus input in case template didn’t include it (safe to overwrite)
-      const headerGB = card.querySelector('.gb-input');
-      if (headerGB) item.diceMod = headerGB.value;
       out.push(item);
     });
     return out;
@@ -2039,7 +1959,7 @@ ${css}
 
   window.clearGearCards = function(){ list.innerHTML = ''; };
 
-  // ---------- DnD wiring on the list ----------
+  // ---------- Drag & drop re-order ----------
   if (!list.dataset.ddInit){
     list.dataset.ddInit = '1';
     list.addEventListener('dragover', (e)=>{
@@ -2054,9 +1974,7 @@ ${css}
     });
     list.addEventListener('drop', ()=> clearDropTargets());
   }
-  function clearDropTargets(){
-    list.querySelectorAll('.drop-target').forEach(n=>n.classList.remove('drop-target'));
-  }
+  function clearDropTargets(){ list.querySelectorAll('.drop-target').forEach(n=>n.classList.remove('drop-target')); }
   function getCardAfterY(container, y){
     const cards = [...container.querySelectorAll('.gear-card:not(.dragging)')];
     return cards.reduce((closest, child)=>{
@@ -2067,7 +1985,7 @@ ${css}
     }, {offset: Number.NEGATIVE_INFINITY, element: null}).element;
   }
 
-  // ---------- Card builder (NEW HEADER LAYOUT) ----------
+  // ---------- Card builder (Header: Drag | Title | Min | Lock | Gear Bonus) ----------
   function createCardEl(type, data){
     const id = data.id || uid();
     const templateKey = resolveTemplate(type, data.tags);
@@ -2081,63 +1999,31 @@ ${css}
     const header = document.createElement('div');
     header.className = 'card-header';
 
-    // (1) Drag handle
-    const dragHandle = document.createElement('button');
-    dragHandle.className = 'drag-handle';
-    dragHandle.type = 'button';
-    dragHandle.title = 'Drag to reorder';
-    dragHandle.textContent = '↕';
+    const dragHandle = button('drag-handle','↕','Drag to reorder');
+    const title      = input('text','card-title', data.name || data.title || '', 'Item Name');
 
-    // (2) Title
-    const title = document.createElement('input');
-    title.type = 'text';
-    title.value = data.name || data.title || '';
-    title.placeholder = 'Item Name';
-    title.className = 'card-title';
-
-    // (3) Minimise
-    const minBtn = document.createElement('button');
-    minBtn.className = 'min-btn';
-    minBtn.type = 'button';
-    minBtn.title = 'Minimise / expand';
-    minBtn.textContent = '–';
-
-    // (4) Lock
-    const lockBtn = document.createElement('button');
-    lockBtn.className = 'lock-btn';
-    lockBtn.type = 'button';
-    lockBtn.title = 'Lock / Unlock';
+    const minBtn  = button('min-btn','–','Minimise / expand');
+    const lockBtn = button('lock-btn','','Lock / Unlock');
     const setLockIcon = (locked)=> lockBtn.style.backgroundImage = `url('img/${locked ? 'lock.png' : 'lock_open.png'}')`;
     setLockIcon(!!data._locked);
 
-    // (5) Gear Bonus (label + number input that acts like a button)
-    const gbWrap  = document.createElement('div');
-    gbWrap.className = 'gb-wrap';
-    const gbLabel = document.createElement('span');
-    gbLabel.className = 'gb-label';
-    gbLabel.textContent = 'Gear Bonus';
-    const gbInput = document.createElement('input');
-    gbInput.className = 'gb-input';
-    gbInput.type = 'number';
+    const gbWrap  = div('gb-wrap');
+    const gbLabel = span('gb-label','Gear Bonus');
+    const gbInput = input('number','gb-input', (data.diceMod ?? data.bonus ?? 0));
     gbInput.name = 'diceMod';
     gbInput.step = '1';
-    gbInput.value = (data.diceMod ?? data.bonus ?? 0);
 
-    // Click the number box → add to dice pool
+    // Clicking the number adds to dice pool (quick add)
     gbInput.addEventListener('click', ()=>{
-      const val = parseInt(gbInput.value,10) || 0;
-      if (val && typeof window.changePool === 'function') window.changePool(+val);
+      const v = parseInt(gbInput.value,10) || 0;
+      if (v && typeof window.changePool === 'function') window.changePool(+v);
     });
 
     gbWrap.append(gbLabel, gbInput);
-
-    // Assemble header in the required order
     header.append(dragHandle, title, minBtn, lockBtn, gbWrap);
 
     // Body
-    const body = document.createElement('div');
-    body.className = 'card-body';
-
+    const body = div('card-body');
     const left = document.createElement('div');
     const right = document.createElement('div');
 
@@ -2147,43 +2033,46 @@ ${css}
     desc.value = data.description || '';
     left.appendChild(desc);
 
-    const fieldsWrap = document.createElement('div');
-    fieldsWrap.className = 'fields-wrap';
-
+    const fieldsWrap = div('fields-wrap');
     (TEMPLATES[templateKey] || []).forEach(spec=>{
-      // We already have a header-level diceMod; skip duplicate field if spec.k === 'diceMod'
-      if (spec.k === 'diceMod') return;
       const label = document.createElement('label');
       label.textContent = spec.label;
 
-      const input = (spec.t === 'textarea')
+      const control = (spec.t === 'textarea')
         ? document.createElement('textarea')
         : document.createElement('input');
-      if (spec.t !== 'textarea') input.type = spec.t;
-      input.name = spec.k;
-      input.value = data[spec.k] ?? '';
-      fieldsWrap.append(label, input);
-    });
 
+      if (spec.t !== 'textarea') control.type = spec.t;
+      control.name = spec.k;
+      control.value = data[spec.k] ?? '';
+
+      fieldsWrap.append(label, control);
+    });
     right.appendChild(fieldsWrap);
     body.append(left, right);
 
-    // Footer (ONLY Remove button now)
-    const footer = document.createElement('div');
-    footer.className = 'card-footer';
+    // Footer — explicit Add-to-Pool button (plus Remove)
+    const footer = div('card-footer');
+    const addPoolBtn = document.createElement('button');
+    addPoolBtn.type='button';
+    addPoolBtn.textContent = '➕ Add Gear Bonus to Pool';
+    addPoolBtn.title = 'Add this card’s Gear Bonus to the dice pool';
+    addPoolBtn.addEventListener('click', ()=>{
+      const v = parseInt(gbInput.value,10) || 0;
+      if (v && typeof window.changePool === 'function') window.changePool(+v);
+    });
+
     const btnRemove = document.createElement('button');
-    btnRemove.className = 'remove-btn';
-    btnRemove.type = 'button';
+    btnRemove.type='button';
     btnRemove.textContent = 'Remove';
     btnRemove.title = 'Remove this item';
     btnRemove.addEventListener('click', ()=> card.remove());
-    footer.appendChild(btnRemove);
 
-    // Assemble
+    footer.append(addPoolBtn, btnRemove);
+
     card.append(header, body, footer);
 
-    // ----- Behaviour -----
-    // Minimise
+    // Behaviour
     minBtn.addEventListener('click', ()=>{
       card.classList.toggle('min');
       if (!card.classList.contains('min')){
@@ -2194,7 +2083,6 @@ ${css}
       }
     });
 
-    // Also allow minimise by clicking empty header area (not on controls)
     header.addEventListener('click', (e)=>{
       const isControl = e.target === title || e.target === gbInput
                      || e.target === dragHandle || e.target === minBtn
@@ -2203,7 +2091,6 @@ ${css}
       minBtn.click();
     });
 
-    // Lock toggle
     lockBtn.addEventListener('click', ()=>{
       data._locked = !data._locked;
       applyLockState();
@@ -2213,29 +2100,23 @@ ${css}
       const locked = !!data._locked;
       setLockIcon(locked);
       card.classList.toggle('is-locked', locked);
-
-      // Disable inputs/selects/textarea but keep header buttons + remove clickable
       const controls = card.querySelectorAll('input, textarea, select, button');
       controls.forEach(el=>{
-        const isAlwaysOn = (el===dragHandle || el===minBtn || el===lockBtn || el===btnRemove);
-        if (isAlwaysOn) return;
-        if (el.tagName === 'BUTTON') el.disabled = locked;
-        else el.disabled = locked;
+        const keep = (el===dragHandle || el===minBtn || el===lockBtn || el===btnRemove);
+        if (keep) return;
+        el.disabled = locked;
       });
+      btnRemove.disabled = locked;
+      addPoolBtn.disabled = locked;
     }
     applyLockState();
 
-    // Title → keep in data
     title.addEventListener('input', ()=>{ data.name = title.value; });
 
-    // ----- Handle-only drag -----
+    // Handle-only drag
     let allowDrag = false;
-    dragHandle.addEventListener('mousedown', ()=>{
-      allowDrag = true; card.setAttribute('draggable','true');
-    });
-    window.addEventListener('mouseup', ()=>{
-      allowDrag = false; card.removeAttribute('draggable');
-    });
+    dragHandle.addEventListener('mousedown', ()=>{ allowDrag = true; card.setAttribute('draggable','true'); });
+    window.addEventListener('mouseup', ()=>{ allowDrag = false; card.removeAttribute('draggable'); });
     card.addEventListener('dragstart', (e)=>{
       if (!allowDrag) { e.preventDefault(); return; }
       card.classList.add('dragging');
@@ -2250,8 +2131,21 @@ ${css}
     return card;
   }
 
+  // ---- small DOM helpers ----
+  function div(cls){ const n=document.createElement('div'); n.className=cls; return n; }
+  function span(cls,txt){ const n=document.createElement('span'); n.className=cls; n.textContent=txt; return n; }
+  function input(type,cls,val,ph){
+    const n=document.createElement('input'); n.type=type; if(cls) n.className=cls;
+    if(val!=null) n.value=val; if(ph) n.placeholder=ph; return n;
+  }
+  function button(cls,txt,title){
+    const n=document.createElement('button'); if(cls) n.className=cls; n.type='button';
+    if(txt!=null) n.textContent=txt; if(title) n.title=title; return n;
+  }
+
 })();
 </script>
+
 
 <!-- Close body + html -->
 </body>
