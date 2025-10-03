@@ -1005,45 +1005,69 @@ button{
       <div id="panel-combat" class="tabPanel" style="display:none;">Combat coming soon</div>
 
 <!--------------------------- GEAR PANEL ----------------------------->
-
 <div id="panel-gear" class="tabPanel" style="display:none; position:relative; min-height:380px;">
 
-<div id="gearToolbar">
-  <button type="button" title="Add Weapon"
-          onclick="window.spawnBlankGearCard && spawnBlankGearCard('weapon')">+ Weapon</button>
+  <!-- Toolbar -->
+  <div id="gearToolbar">
+    <button type="button" title="Add Weapon"
+            onclick="window.spawnBlankGearCard && spawnBlankGearCard('weapon')">+ Weapon</button>
 
-  <button type="button" title="Add Armour"
-          onclick="window.spawnBlankGearCard && spawnBlankGearCard('armor')">+ Armour</button>
+    <button type="button" title="Add Armour"
+            onclick="window.spawnBlankGearCard && spawnBlankGearCard('armor')">+ Armour</button>
 
-  <button type="button" title="Add Gear"
-          onclick="window.spawnBlankGearCard && spawnBlankGearCard('gear')">+ Gear</button>
+    <button type="button" title="Add Gear"
+            onclick="window.spawnBlankGearCard && spawnBlankGearCard('gear')">+ Gear</button>
 
-  <button type="button" title="Add Chemical"
-          onclick="window.spawnBlankGearCard && spawnBlankGearCard('chemical')">+ Chemical</button>
+    <button type="button" title="Add Chemical"
+            onclick="window.spawnBlankGearCard && spawnBlankGearCard('chemical')">+ Chemical</button>
 
-  <!-- Encumbrance box -->
-  
-<div class="enc-block">
-  <div class="enc-title">Encumbrance</div>
+    <!-- Encumbrance box (right side of toolbar) -->
+    <div class="enc-block">
+      <div class="enc-title">Encumbrance</div>
 
-  <div class="enc-row">
-    <span class="enc-cat">Weight</span>
-    <span class="enc-sub">Max.</span>
-    <input id="encWeightMax" class="enc-input" type="number" min="0" step="1" value="0">
-    <span class="enc-sub">Curr.</span>
-    <input id="encWeightCur" class="enc-input" type="number" min="0" step="1" value="0">
+      <div class="enc-row">
+        <span class="enc-cat">Weight</span>
+        <span class="enc-sub">Max.</span>
+        <input id="encWeightMax" class="enc-input" type="number" min="0" step="1" value="0">
+        <span class="enc-sub">Curr.</span>
+        <input id="encWeightCur" class="enc-input" type="number" min="0" step="1" value="0">
+      </div>
+
+      <div class="enc-row">
+        <span class="enc-cat">Stowage</span>
+        <span class="enc-sub">Max.</span>
+        <input id="encStowMax" class="enc-input" type="number" min="0" step="1" value="0">
+        <span class="enc-sub">Curr.</span>
+        <input id="encStowCur" class="enc-input" type="number" min="0" step="1" value="0">
+      </div>
+    </div>
+  </div><!-- /#gearToolbar -->
+
+  <!-- Gear cards area (required by the GearCards module) -->
+  <div id="gearPanelInner">
+    <section class="gear-list"></section>
   </div>
+	
+<!-- Money panel -->
+<div id="moneyPanel">
+  <div class="money-grid">
+    <label for="moneyCrown">Crown (₵)</label>
+    <input id="moneyCrown" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
 
-  <div class="enc-row">
-    <span class="enc-cat">Stowage</span>
-    <span class="enc-sub">Max.</span>
-    <input id="encStowMax" class="enc-input" type="number" min="0" step="1" value="0">
-    <span class="enc-sub">Curr.</span>
-    <input id="encStowCur" class="enc-input" type="number" min="0" step="1" value="0">
+    <label for="moneyShilling">Shilling (ș)</label>
+    <input id="moneyShilling" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+
+    <label for="moneyPenny">Penny (ḍ)</label>
+    <input id="moneyPenny" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+
+    <label for="moneyFarthing">Farthing (ƒ)</label>
+    <input id="moneyFarthing" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
   </div>
 </div>
 </div>
 
+
+<!-- ------------------------- POWERS PANEL ---------------->
       <div id="panel-powers" class="tabPanel" style="display:none;">Powers coming soon</div>
     </div><!-- /#tabBox -->
 
