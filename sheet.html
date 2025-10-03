@@ -669,8 +669,6 @@ button{
 .gear-card.is-locked{ opacity:.96 }
 .gear-card.is-locked .card-title{ opacity:.85 }
 
-/* keep list clear of the bottom bar */
-#gearPanelInner{ padding-bottom:130px; }
 
 </style>
 
@@ -694,13 +692,13 @@ button{
 <style id="money-panel-css">
 /* Bottom bar container inside the Gear panel */
 #gearBottomBar{
-  position:absolute;
-  left:0; right:0; bottom:0;
-  height:120px;                /* shared height for both panels */
+  /* no positioning — it will flow under the cards area */
+  height:120px;
   display:flex;
   gap:6px;
   align-items:stretch;
   box-sizing:border-box;
+  margin-top:6px;   /* a little breathing room under the cards */
 }
 
 /* Money panel (fixed width on the left) */
