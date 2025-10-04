@@ -418,6 +418,7 @@ button{
 .enc-row{ display:flex; align-items:center; justify-content:center; gap:3px; height:14px; }
 .enc-cat{ font:10px 'DominicanSmall',serif; min-width:52px; text-align:right; }
 .enc-sub{ font:8px 'DominicanSmall',serif; opacity:.9; line-height:10px; }
+
 /* Encumbrance-sized number look (reference) */
 .enc-input{
   width:22px; height:15px; text-align:center;
@@ -446,7 +447,7 @@ button{
 
 /* XS numeric (exactly 10px wide) */
 .enc-input-xs{
-  width:10px;
+  width:15px;
   height:15px;
   text-align:center;
   font-family:'DeutschGothic', monospace;
@@ -2045,6 +2046,37 @@ if (templateKey.startsWith('weapon_')) stackWrap.append(dmgRow);
     const body=mkDiv('card-body');
     const rows=mkDiv('fields-rows');
 
+// ---------- Line 1: Skill · Type · Grip ----------
+const metaRow = mkDiv('field-row');
+
+// Skill
+const skillLbl = document.createElement('label'); skillLbl.textContent = 'Skill';
+const skillSel = document.createElement('select'); skillSel.name = 'skill'; skillSel.className = 'enc-select';
+['Fight','Marksmanship','Other'].forEach(v => {
+  const o = document.createElement('option'); o.value = v; o.textContent = v; skillSel.appendChild(o);
+});
+skillSel.value = data.skill || 'Fight';
+
+// Type (weapon class)
+const classLbl = document.createElement('label'); classLbl.textContent = 'Type';
+const classSel = document.createElement('select'); classSel.name = 'wpnClass'; classSel.className = 'enc-select';
+['Bludgeon','Blade','Firearm','Projectile','Static','Thrown'].forEach(v => {
+  const o = document.createElement('option'); o.value = v; o.textContent = v; classSel.appendChild(o);
+});
+classSel.value = data.wpnClass || 'Bludgeon';
+
+// Grip
+const gripLbl = document.createElement('label'); gripLbl.textContent = 'Grip';
+const gripSel = document.createElement('select'); gripSel.name = 'grip'; gripSel.className = 'enc-select';
+['1 hand','2 hands'].forEach(v => {
+  const o = document.createElement('option'); o.value = v; o.textContent = v; gripSel.appendChild(o);
+});
+gripSel.value = data.grip || '1 hand';
+
+metaRow.append(skillLbl, skillSel, classLbl, classSel, gripLbl, gripSel);
+rows.appendChild(metaRow);
+
+
     (TEMPLATES[templateKey]||[]).forEach(spec=>{
       const row=mkDiv('field-row');
       const label=document.createElement('label'); label.textContent=spec.label;
@@ -2074,7 +2106,11 @@ const dmgBody      = document.createElement('input'); dmgBody.type='number'; dmg
 
 // Free text "type" (compact text field)
 const typeFreeLabel = document.createElement('label'); typeFreeLabel.textContent = 'type';
-const typeFree      = document.createElement('input'); typeFree.type='text'; typeFree.name='wpnTypeText'; typeFree.value = (data.wpnTypeText || ''); typeFree.className='enc-text';
+const typeFree      = document.createElement('input'); typeFree.type='text';
+typeFree.name = 'damageType';                                     // new key
+typeFree.value = (data.damageType ?? data.wpnTypeText ?? '');     // back-compat
+typeFree.className = 'enc-text';
+
 
 wsRow.append(
   wLabel, wNum, slash, sLabel, sNum,
