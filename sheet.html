@@ -406,10 +406,12 @@ button{
 
 <!-- =============== START OF GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 <style id="gear-cards-css">
-/* ================= GEAR PANEL — Toolbar + Encumbrance (kept) ================= */
+/* =================== GEAR TOOLBAR + ENCUMBRANCE =================== */
+#gearPanelInner{ width:450px; height:350px; border:1px dashed #0003; background:transparent; overflow:auto; padding:6px 0 0 0; box-sizing:border-box; }
 #gearToolbar{ display:flex; align-items:center; gap:3px; margin-bottom:6px; flex-wrap:nowrap; }
 #gearToolbar button{ border:1px solid #000; background:#fff; padding:2px 2px; cursor:pointer; font:12px 'DominicanSmall',serif; height:26px; line-height:20px; }
 
+/* Encumbrance mini panel */
 .enc-block{
   margin-left:auto; width:170px; height:50px; border:1px solid #000; border-radius:2px; background:#fff;
   box-sizing:border-box; padding:2px 2px; display:grid; grid-template-rows:14px 1fr 1fr;
@@ -419,56 +421,44 @@ button{
 .enc-cat{ font:10px 'DominicanSmall',serif; min-width:52px; text-align:right; }
 .enc-sub{ font:8px 'DominicanSmall',serif; opacity:.9; line-height:10px; }
 
-/* Encumbrance-sized number look (reference) */
+/* Shared compact controls (match money look) */
 .enc-input{
   width:22px; height:15px; text-align:center;
   font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px;
   border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
 }
-/* compact text/select to sit with Money/Encumbrance look */
 .enc-text{
-  height:15px;
-  font: 11px 'DominicanSmall', serif;
-  border:1px solid #000;
-  background:#fff;
-  padding:0 4px;
-  box-sizing:border-box;
+  height:15px; font:11px 'DominicanSmall',serif;
+  border:1px solid #000; background:#fff; padding:0 4px; box-sizing:border-box;
 }
 .enc-select{
-  height:15px;
-  font-family:'DeutschGothic', monospace;
-  font-size:12px;
-  line-height:12px;
-  border:1px solid #000;
-  background:#fff;
-  padding:0 2px;
-  box-sizing:border-box;
+  height:15px; font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px;
+  border:1px solid #000; background:#fff; padding:0 2px; box-sizing:border-box;
 }
 
-/* XS numeric (exactly 10px wide) */
+/* Extra-small numeric for Shots/Reload */
 .enc-input-xs{
-  width:15px;
-  height:15px;
-  text-align:center;
+  width:16px;                 /* small but not cramped */
+  height:15px; text-align:center;
   font-family:'DeutschGothic', monospace;
-  font-size:10px;
-  line-height:12px;
-  border:1px solid #000;
-  background:#fff;
-  padding:0;
-  box-sizing:border-box;
+  font-size:10px; line-height:12px;
+  border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
 }
 
-
-/* ================= GEAR CARDS ================= */
-#gearPanelInner{ width:450px; height:350px; border:1px dashed #0003; background:transparent; overflow:auto; padding:6px 0 0 0; box-sizing:border-box; }
+/* ========================= GEAR CARDS ========================= */
 .gear-list{ display:flex; flex-direction:column; gap:8px; padding-top:10px; padding-left:0; }
-
-.gear-card{ position:relative; width:100%; background:#fff; border:1px solid #000; border-radius:0; box-shadow:0 2px 6px rgba(0,0,0,.15); box-sizing:border-box; }
+.gear-card{
+  position:relative; width:100%;
+  background:#fff; border:1px solid #000; border-radius:0;
+  box-shadow:0 2px 6px rgba(0,0,0,.15); box-sizing:border-box;
+}
 .gear-card.min .card-body, .gear-card.min .card-footer{ display:none !important; }
 
-/* -------- Header layout: drag | title | [stack of rows] | [min over lock] -------- */
-.card-header{ display:flex; align-items:center; gap:6px; justify-content:flex-start; padding:4px 6px; background:#f2f2f2; border-bottom:1px solid #000; user-select:none; }
+/* ---------- Header: drag | title | stacked rows | [min over lock] ---------- */
+.card-header{
+  display:flex; align-items:center; gap:6px; justify-content:flex-start;
+  padding:4px 6px; background:#f2f2f2; border-bottom:1px solid #000; user-select:none;
+}
 .drag-handle{ border:1px solid #000; background:#fff; width:22px; height:22px; line-height:20px; padding:0; cursor:grab; }
 .card-title{
   flex:1 1 auto; min-width:0; border:none; background:transparent;
@@ -477,127 +467,75 @@ button{
 }
 .hdr-right{ margin-left:auto; display:flex; align-items:flex-start; gap:8px; }
 
-/* 15×15 header controls (everything except drag + title) */
+/* 15×15 header controls */
 .hdr-15{ width:15px; height:15px; box-sizing:border-box; }
 .hdr-btn{ border:1px solid #000; background:#fff; padding:0; cursor:pointer; line-height:13px; text-align:center; }
 
-/* Two header rows: 1) Gear Bon. [field][roll]  2) damage [field] */
-.stack-wrap{ display:flex; flex-direction:column; gap:2px; }
+/* Two compact header rows (Gear Bonus, Damage) */
+.stack-wrap{ display:flex; flex-direction:column; gap:0; }
 .hdr-row{ display:flex; align-items:center; gap:3px; }
-.hdr-label{ display:flex; flex-direction:column; font:11px 'DominicanSmall',serif; text-transform:lowercase; line-height:10px; }
-
-/* Make Gear Bonus + Damage inputs match Money fields (size & font) */
-/* Match Encumbrance “Curr.” fields exactly */
-.gb-input-header, .dmg-input-header{
-  width:22px !important;
-  height:15px !important;
-  text-align:center !important;
-  font-family:'DeutschGothic', monospace !important;
-  font-size:12px !important;
-  line-height:15px !important;
-  border:1px solid #000 !important;
-  background:#fff !important;
-  padding:0 !important;
-  box-sizing:border-box !important;
-}
-
-/* Overlap the dice but keep it mostly outside the field */
-.gb-wrap{ position:relative; display:inline-block; margin-right:8px; } /* slight spacing from next control */
-.gb-wrap .gb-input-header{ display:block; }
-.gb-wrap .gb-roll{
-  position:absolute;
-  top:50%;
-  right:-10px;  /* ← move further right so it doesn't cover the number */
-  transform:translateY(-50%);
-  pointer-events:auto;
-}
-
-/* Make header labels single line & compact */
 .hdr-label{
-  display:inline-block;        /* was flex/column */
-  white-space:nowrap;
-  font:11px 'DominicanSmall',serif;
-  text-transform:lowercase;
-  line-height:10px;
+  display:inline-block; white-space:nowrap;
+  font:11px 'DominicanSmall',serif; text-transform:lowercase; line-height:10px;
 }
 
-/* Tighten vertical spacing between header rows */
-.stack-wrap{ display:flex; flex-direction:column; gap:0; } /* was gap:2px */
+/* Header inputs (match encumbrance sizing) */
+.gb-input-header, .dmg-input-header{
+  width:22px !important; height:15px !important; text-align:center !important;
+  font-family:'DeutschGothic', monospace !important; font-size:12px !important; line-height:15px !important;
+  border:1px solid #000 !important; background:#fff !important; padding:0 !important; box-sizing:border-box !important;
+}
 
-
-/* Roll button + press animation (15×15) */
+/* Gear Bonus roll icon overlaps slightly to the right */
+.gb-wrap{ position:relative; display:inline-block; margin-right:8px; }
 .gb-roll{ width:15px; height:15px; cursor:pointer; transform-origin:center; }
 .gb-roll.is-animating{ animation: gb-press 300ms ease; }
 @keyframes gb-press{
   0%{ transform:scale(1) rotate(0deg); }
   30%{ transform:scale(0.9) rotate(-10deg); }
   70%{ transform:scale(1.1) rotate(12deg); }
-  100%{ transform:scale(1) rotate(0deg); }
+  100%{ transform:scale(1) rotate(0); }
 }
 
-/* Minimise stacked over Lock (far right) */
+/* Minimise stacked over Lock */
 .mm-wrap{ display:flex; flex-direction:column; gap:2px; }
 .lock-btn{ background-position:center; background-repeat:no-repeat; background-size:contain; }
 
-/* -------- Body -------- */
+/* ---------- Body ---------- */
 .card-body{ display:flex; flex-direction:column; gap:8px; padding:8px; }
-.fields-rows{ display:flex; flex-direction:column; gap:6px; }
+
+/* Three lines (uniform gaps) */
+.fields-rows{ display:flex; flex-direction:column; gap:6px; }  /* ← uniform 1↔2↔3 spacing */
 .field-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 .field-row label{ font:11px 'DominicanSmall',serif; }
 
-/* Use Money sizing for W/S and body Gear Bonus */
-.ws-row input[type="number"], .gb-row input[type="number"].enc-input{
-  width:22px; height:15px; text-align:center;
-  font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px;
-  border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
-}
-.ws-row .slash{ font:11px 'DominicanSmall',serif; opacity:.9; }
+/* Line 1: Skill · Type · Grip (no special sizing needed beyond enc-select) */
 
-/* Description */
+/* Line 2: W/S · Gear Bonus · damage · type(text) */
+#panel-gear .gear-card .ws-row input[name="damageType"]{
+  width:120px;                        /* narrower so it stays on the same line */
+}
+
+/* Line 3: Reach/Range · Shots · Reload(AP) (XS numeric fields) */
+/* (Shots/Reload get .enc-input-xs in markup) */
+
+/* Description area */
 .card-body textarea.description{
   width:100%; min-height:72px; border:1px dashed #bbb; background:transparent;
   font-family:'Gothics','Dominican',serif; font-size:11px; resize:vertical; padding:4px; box-sizing:border-box;
 }
 
-/* Footer (Remove only) */
+/* Footer */
 .card-footer{ display:flex; gap:6px; justify-content:flex-end; padding:6px; border-top:1px solid #000; background:#fafafa; }
 .card-footer button{ border:1px solid #000; background:#fff; padding:2px 8px; cursor:pointer; font:12px 'DominicanSmall',serif; }
 
-/* Visuals */
-.gear-card.dragging{ opacity:.6 }
-.gear-card.drop-target{ outline:2px dashed #0077ff }
-.gear-card.is-locked{ opacity:.96 }
-.gear-card.is-locked .card-title{ opacity:.85 }
-
-/* --- Spacing tweaks --- */
-
-/* Expand gap between Line 1 (Skill/Type/Grip) and Line 2 (W/S • GB • Damage • type) */
-#panel-gear .gear-card .fields-rows .field-row:first-child + .ws-row {
-  margin-top: 10px; /* +4px over the 6px row gap */
-}
-
-/* Tighten gap between Line 2 and Line 3 even more */
-#panel-gear .gear-card .ws-row + .rr-row {
-  margin-top: -8px; /* was -4px */
-}
-
-/* --- XS number inputs (Shots / Reload) --- */
-/* Make them a touch wider and force the smaller font so the global input[type=number] rule can't override */
-#panel-gear .gear-card .rr-row .enc-input-xs {
-  width: 20px;          /* was 15px (previously “10px” intent) */
-  height: 15px;
-  text-align: center;
-  font-family: 'DeutschGothic', monospace;
-  font-size: 10px !important;  /* override the global 16px */
-  line-height: 12px;
-  padding: 0 2px;
-  border: 1px solid #000;
-  background: #fff;
-  box-sizing: border-box;
-}
-
-
+/* Visual states */
+.gear-card.dragging{ opacity:.6; }
+.gear-card.drop-target{ outline:2px dashed #0077ff; }
+.gear-card.is-locked{ opacity:.96; }
+.gear-card.is-locked .card-title{ opacity:.85; }
 </style>
+
 
 <!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 
