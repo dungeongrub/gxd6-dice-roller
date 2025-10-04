@@ -320,171 +320,78 @@ button{
 
 <!-- ===================== TALENT STYLES (INSIDE MAIN TAB) ===================== -->
 <style>
-/* ===== Talents ===== */
-
+/* ===== Talents area (unchanged container sizes) ===== */
 #talentsArea{
-  position:absolute;
-  left:0; top:100px;
-  width:450px;
-  margin:0 !important;
-  padding:0;
+  position:absolute; left:0; top:100px; width:450px; margin:0 !important; padding:0;
 }
-
 .talents-dropwrap{
-  width:450px;
-  height:250px;
-  border:1px dashed #0003;
-  background:transparent;
-  overflow:auto;
-  padding:10px 0 0 0;              /* no left/right padding */
+  width:450px; height:250px; border:1px dashed #0003; background:transparent; overflow:auto; padding-top:10px;
 }
+.talents-panel{ display:flex; flex-direction:column; gap:8px; padding-left:0; }
 
-.talents-panel{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  padding-top:10px;       /* only top spacing */
-  padding-left:0;
-}
-
+/* ===== Talent cards — match Gear look ===== */
 .talent-card{
-  display:flex;
-  flex-direction:column;
-  width:100%;
-  padding:2px 2px;
-  background:transparent;
-  border:1px solid #000;
-  border-radius:0;
-  box-shadow:0 2px 6px #0002;
+  display:flex; flex-direction:column; width:100%;
+  background:#fff; border:1px solid #000; border-radius:0;
+  box-shadow:0 2px 6px rgba(0,0,0,.15);
+}
+.talent-card.min .talent-body, .talent-card.min .card-footer{ display:none !important; }
+
+/* Use the same header pieces as Gear */
+.talent-card .card-header{
+  display:flex; align-items:center; gap:6px; justify-content:flex-start;
+  padding:4px 6px; background:#f2f2f2; border-bottom:1px solid #000; user-select:none;
+}
+.talent-card .drag-handle,
+.talent-card .min-btn,
+.talent-card .lock-btn{
+  border:1px solid #000; background:#fff; width:22px; height:22px; line-height:20px; padding:0; cursor:pointer;
+}
+.talent-card .drag-handle{ cursor:grab; }
+.talent-card .lock-btn{ background-position:center; background-repeat:no-repeat; background-size:contain; }
+
+.talent-card .card-title{
+  flex:1 1 auto; min-width:0; border:none; background:transparent;
+  font-family:'GokilNova','DominicanSmall',serif; font-size:16px; text-align:center;
+  padding:0; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
-/* Header row */
-.talent-header{
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:4px 6px;
+/* Level control at top-right (replaces Gear Bonus area) */
+.lvl-wrap{ display:flex; align-items:center; gap:6px; white-space:nowrap; margin-left:auto; }
+.lvl-label{ font:11px 'DominicanSmall',serif; text-transform:lowercase; line-height:10px; }
+.lvl-select{
+  width:44px; height:18px; text-align:center; padding:0 2px;
+  font-family:'DeutschGothic', monospace; font-size:12px; background:#fff; border:1px solid #000;
 }
 
-/* Title stays centered regardless of side controls */
-.talent-title{
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-	width: min(30ch, calc(100% - 140px)); /* 30 chars wide, but never overflow the header */
-  font-family:'GokilNova','DominicanSmall',serif;
-  font-size:18px;
-  background:transparent;
-  border:none;
-  outline:none;
-  padding:0; margin:0;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  text-align:center;
-  cursor:pointer;
+/* Body (only description) */
+.talent-body{ display:flex; flex-direction:column; padding:8px; }
+.talent-body textarea.description{
+  width:100%; min-height:72px; border:1px dashed #bbb; background:transparent;
+  font-family:'Gothics','Dominican',serif; font-size:11px; resize:vertical; padding:4px; box-sizing:border-box;
 }
 
-/* Right-hand controls */
-.talent-right{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  margin-left:auto;
+/* Footer (Remove only) */
+.talent-card .card-footer{
+  display:flex; gap:6px; justify-content:flex-end;
+  padding:6px; border-top:1px solid #000; background:#fafafa;
+}
+.talent-card .card-footer .remove-btn{
+  border:1px solid #000; background:#fff; padding:2px 8px; cursor:pointer; font:12px 'DominicanSmall',serif;
 }
 
-.talent-level-label{
-  font-family:'DominicanSmall',serif;
-  font-size:11px;
-  opacity:.9;
-}
-.talent-level{
-  width:44px;
-  height:18px;
-  text-align:center;
-  background:transparent;
-  border:1px solid #000;
-  padding:0 2px;
-  font-family:'DeutschGothic', monospace;
-  font-size:12px;
-}
-
-/* Circular bold delete button */
-.btn-delete{
-  width:22px;
-  height:22px;
-  border:1px solid #000;
-  border-radius:50%;
-  background:#fff;
-  font-weight:700;
-  line-height:20px;
-  text-align:center;
-  cursor:pointer;
-  padding:0;
-}
-
-/* Padlock icon inside header */
-.talent-lock{
-  width:14px;
-  height:14px;
-  cursor:pointer;
-  background-size:contain;
-  background-repeat:no-repeat;
-  border:none;
-  background:transparent;
-}
-
-/* Body */
-.talent-body{
-  display:flex;
-  flex-direction:column;
-  padding:6px;
-}
-
-.talent-desc{
-  width:100%;
-  background:transparent;
-  border:none;
-  border-bottom:1px solid #000;
-  padding:0;
-  margin:0;
-  outline:none;
-  font-family:'Gothics','Dominican',serif;
-  font-size:11px;
-  line-height:1.25;
-  resize:none;
-  min-height:18px;
-  overflow:hidden;
-}
-
-/* Minimized: hide body + right controls, keep centered title */
-.talent-card.min .talent-body,
-.talent-card.min .talent-right { display:none !important; }
-
-/* Talent lock icon (reuses base lock art) */
-.talent-lock {
-  width: 14px;
-  height: 14px;
-  cursor: pointer;
-  vertical-align: middle;
-  margin-left: 3px;
-}
-
-/* Make the delete button clearly disabled when locked */
-.btn-delete[disabled] {
-  opacity: .4;
-  cursor: not-allowed;
-}
-
-/* Optional: slight visual cue when locked */
-.talent-card.is-locked {
-  opacity: .95;
-}
-
-/* Optional hover lift */
+/* Lock & hover */
+.talent-card.is-locked{ opacity:.96; }
 .talent-card:hover{ box-shadow:0 3px 8px #0003; }
+
+/* Drag feedback */
+.talent-card.dragging{ opacity:.6 }
+.talent-card.drop-target{ outline:2px dashed #0077ff }
+
+/* Disabled look for Remove when locked (same as Gear logic we’ll apply) */
+.talent-card .card-footer .remove-btn[disabled]{ opacity:.4; cursor:not-allowed; }
 </style>
+
 <!-- =============== END OF TALENT STYLES (INSIDE MAIN TAB) ===================== -->
 
 <!-- =============== START OF GEAR STYLES (INSIDE MAIN TAB) ===================== -->
@@ -1692,132 +1599,171 @@ ${css}
   const addBtn = document.getElementById('addTalentBtn');
   if (!panel || !addBtn) { console.warn('[TALENTS] containers missing'); return; }
 
-  // In-memory state (no localStorage cache)
   let charTalents = [];
 
-  // Build one card
-  function buildCard(t) {
-    const card = h('article', { class: 'talent-card' + (t._min ? ' min' : ''), 'data-id': t.id });
+  // ----- Public API (save/load uses these) -----
+  window.exportCharacterTalents = () =>
+    charTalents.map(t => ({
+      id: t.id, name: String(t.name||''), level: String(t.level||'-'),
+      desc: String(t.desc||''), _min: !!t._min, _locked: !!t._locked
+    }));
 
-    const header = h('div', { class: 'talent-header', title: 'Click empty header to minimize/expand' });
-    const title  = h('input', { class: 'talent-title', type: 'text', placeholder: 'Talent Name', value: t.name || '' });
+  window.importCharacterTalents = (list) => {
+    charTalents = Array.isArray(list) ? list.map(sanitize) : [];
+    renderPanel();
+  };
 
-    const right  = h('div', { class: 'talent-right' });
-    const lvlLbl = h('span', { class: 'talent-level-label' }, 'Level');
-    const level  = h('select', { class: 'talent-level' });
-    ['-','1','2','3'].forEach(v => level.appendChild(h('option', { value: v, selected: String(t.level || '-') === v ? true : null }, v)));
-    const btnDel  = h('button', { class: 'btn-delete', type: 'button', title: 'Delete' }, 'X');
-    const btnLock = h('button', { class: 'talent-lock', type: 'button', title: 'Lock/Unlock' });
+  window.clearTalentsPanel = () => { charTalents = []; renderPanel(); };
 
-    right.append(lvlLbl, level, btnDel, btnLock);
-    header.append(title, right);
-
-    const body = h('div', { class: 'talent-body' });
-    const desc = h('textarea', { class: 'talent-desc', placeholder: 'Description…' }, t.desc || '');
-    body.append(desc);
-
-    card.append(header, body);
-
-    function applyLock() {
-      const locked = !!t._locked;
-      title.disabled = locked;
-      level.disabled = locked;
-      desc.disabled  = locked;
-      btnDel.disabled = locked;
-      btnLock.style.backgroundImage = `url('img/${locked ? 'lock.png' : 'lock_open.png'}')`;
-      card.classList.toggle('is-locked', locked);
-    }
-
-    title.addEventListener('input',  () => { t.name  = title.value; });
-    level.addEventListener('change', () => { t.level = level.value; });
-    autosize(desc);
-    desc.addEventListener('input',   () => { t.desc  = desc.value; });
-
-    btnDel.addEventListener('click', () => {
-      const i = charTalents.findIndex(x => x.id === t.id);
-      if (i > -1) { charTalents.splice(i, 1); renderPanel(); }
-    });
-
-    btnLock.addEventListener('click', () => { t._locked = !t._locked; applyLock(); });
-
-    header.addEventListener('click', (e) => {
-      if (e.target === title || right.contains(e.target)) return;
-      card.classList.toggle('min');
-      t._min = card.classList.contains('min');
-      if (!t._min) requestAnimationFrame(() => fitTextarea(desc));
-    });
-
-    applyLock();
-    return card;
-  }
-
-  // Render the whole panel from state
-  function renderPanel() {
-    panel.innerHTML = '';
-    charTalents.forEach(t => panel.appendChild(buildCard(t)));
-  }
-
-  // Add button
+  // ----- Add button -----
   addBtn.addEventListener('click', () => {
     const t = { id: uid(), name: 'New Talent', level: '-', desc: '', _min: false, _locked: false };
     charTalents.push(t);
     renderPanel();
   });
 
-  // Public API used by your Save/Load code
-  window.exportCharacterTalents = function () {
-    return charTalents.map(t => ({
-      id: t.id,
-      name: String(t.name || ''),
-      level: String(t.level || '-'),
-      desc: String(t.desc || ''),
-      _min: !!t._min,
-      _locked: !!t._locked
-    }));
-  };
-
-  window.importCharacterTalents = function (list) {
-    charTalents = Array.isArray(list) ? list.map(sanitize) : [];
-    renderPanel();
-  };
-
-  window.clearTalentsPanel = function () {
-    charTalents = [];
-    renderPanel();
-  };
-
-  // Helpers
-  function sanitize(t) {
-    return {
-      id: t.id || uid(),
-      name: String(t.name || ''),
-      level: String(t.level || '-'),
-      desc: String(t.desc || ''),
-      _min: !!t._min,
-      _locked: !!t._locked
-    };
+  // ----- Drag & drop reorder (handle-only) -----
+  if (!panel.dataset.ddInit){
+    panel.dataset.ddInit = '1';
+    panel.addEventListener('dragover', (e)=>{
+      e.preventDefault();
+      const after = getCardAfterY(panel, e.clientY);
+      const dragging = panel.querySelector('.talent-card.dragging');
+      if (!dragging) return;
+      if (after == null) panel.appendChild(dragging);
+      else panel.insertBefore(dragging, after);
+      clearDropTargets();
+      (after || dragging)?.classList.add('drop-target');
+    });
+    panel.addEventListener('drop', ()=> clearDropTargets());
   }
-  function uid() { return 't_' + Math.random().toString(36).slice(2, 9); }
-  function h(tag, attrs, ...kids) {
-    const el = document.createElement(tag);
-    if (attrs) for (const [k, v] of Object.entries(attrs)) {
-      if (v === null || v === undefined || v === false) continue;
-      if (v === true) el.setAttribute(k, ''); else el.setAttribute(k, String(v));
-    }
-    for (const k of kids) {
-      if (k == null) continue;
-      if (typeof k === 'string' || typeof k === 'number') el.appendChild(document.createTextNode(k));
-      else el.appendChild(k);
-    }
-    return el;
+  function clearDropTargets(){ panel.querySelectorAll('.drop-target').forEach(n=>n.classList.remove('drop-target')); }
+  function getCardAfterY(container, y){
+    const cards = [...container.querySelectorAll('.talent-card:not(.dragging)')];
+    return cards.reduce((closest, child)=>{
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height/2;
+      if (offset < 0 && offset > closest.offset) return {offset, element:child};
+      return closest;
+    }, {offset: Number.NEGATIVE_INFINITY, element: null}).element;
   }
-  function autosize(el){ const fit=()=>{ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }; queueMicrotask(fit); el.addEventListener('input', fit); }
-  function fitTextarea(el){ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }
 
-  // Start empty
+  // ----- Render -----
+  function renderPanel(){
+    panel.innerHTML = '';
+    charTalents.forEach(t => panel.appendChild(buildCard(t)));
+  }
+
+  // ----- Build one card (Gear-like header) -----
+  function buildCard(t) {
+    const card = el('article', { class: 'talent-card' + (t._min ? ' min' : ''), 'data-id': t.id });
+
+    // Header: drag | title | min | lock | (level @ top-right)
+    const header  = el('div', { class: 'card-header', title: 'Click empty header to minimise/expand' });
+    const dragH   = btn('drag-handle', '↕', 'Drag to reorder');
+    const title   = el('input', { class: 'card-title', type: 'text', placeholder: 'Talent Name', value: t.name || '' });
+    const minBtn  = btn('min-btn', '–', 'Minimise / expand');
+    const lockBtn = btn('lock-btn', '', 'Lock / Unlock');
+    const lvlWrap = el('div', { class: 'lvl-wrap' });
+    const lvlLbl  = el('span', { class: 'lvl-label' }, 'level');
+    const level   = sel('lvl-select', ['-','1','2','3'], String(t.level||'-'));
+
+    // lock icon
+    setLockIcon(lockBtn, !!t._locked);
+
+    lvlWrap.append(lvlLbl, level);
+    header.append(dragH, title, minBtn, lockBtn, lvlWrap);
+
+    // Body: description only
+    const body = el('div', { class: 'talent-body' });
+    const desc = el('textarea', { class: 'description', placeholder: 'Description…' }, t.desc || '');
+    autosize(desc);
+    body.append(desc);
+
+    // Footer: Remove only
+    const footer = el('div', { class: 'card-footer' });
+    const btnRemove = el('button', { class: 'remove-btn', type: 'button', title: 'Remove this talent' }, 'Remove');
+    footer.append(btnRemove);
+
+    // Assemble
+    card.append(header, body, footer);
+
+    // ----- Behaviour -----
+    // Title/level/desc bindings
+    title.addEventListener('input',  () => { t.name  = title.value; });
+    level.addEventListener('change', () => { t.level = level.value; });
+    desc .addEventListener('input',  () => { t.desc  = desc.value;  });
+
+    // Minimise (button + empty header click)
+    minBtn.addEventListener('click', () => toggleMin(card, t, desc));
+    header.addEventListener('click', (e) => {
+      const isCtl = e.target===title || e.target===dragH || e.target===minBtn || e.target===lockBtn || lvlWrap.contains(e.target);
+      if (!isCtl) toggleMin(card, t, desc);
+    });
+
+    // Lock
+    lockBtn.addEventListener('click', () => { t._locked = !t._locked; applyLock(); });
+    function applyLock(){
+      const locked = !!t._locked;
+      setLockIcon(lockBtn, locked);
+      card.classList.toggle('is-locked', locked);
+      // Disable inputs (but keep drag/min/lock usable). Also disable Remove like Gear.
+      [title, level, desc, btnRemove].forEach(el => el.disabled = locked);
+    }
+    applyLock();
+
+    // Remove
+    btnRemove.addEventListener('click', () => {
+      const i = charTalents.findIndex(x => x.id === t.id);
+      if (i > -1) { charTalents.splice(i, 1); renderPanel(); }
+    });
+
+    // Handle-only drag
+    let allowDrag = false;
+    dragH.addEventListener('mousedown', ()=>{ allowDrag = true; card.setAttribute('draggable','true'); });
+    window.addEventListener('mouseup', ()=>{ allowDrag = false; card.removeAttribute('draggable'); });
+    card.addEventListener('dragstart', (e)=>{
+      if (!allowDrag) { e.preventDefault(); return; }
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', t.id); } catch {}
+    });
+    card.addEventListener('dragend', ()=>{ card.classList.remove('dragging'); clearDropTargets(); });
+
+    return card;
+  }
+
+  function toggleMin(card, t, desc){
+    card.classList.toggle('min');
+    t._min = card.classList.contains('min');
+    if (!t._min) requestAnimationFrame(()=> fitTextarea(desc));
+  }
+
+  // ----- Helpers -----
+  function sanitize(t){
+    return { id: t.id||uid(), name:String(t.name||''), level:String(t.level||'-'), desc:String(t.desc||''), _min:!!t._min, _locked:!!t._locked };
+  }
+  function uid(){ return 't_' + Math.random().toString(36).slice(2, 9); }
+
+  function el(tag, attrs, txt){
+    const n = document.createElement(tag);
+    if (attrs) for (const [k,v] of Object.entries(attrs)){ if (v===false||v==null) continue; if (v===true) n.setAttribute(k,''); else n.setAttribute(k,String(v)); }
+    if (txt!=null) n.appendChild(document.createTextNode(txt));
+    return n;
+  }
+  function btn(cls, text, title){ const b = el('button', { class: cls, type: 'button', title }); b.textContent = text; return b; }
+  function sel(cls, opts, selected){
+    const s = el('select', { class: cls }); opts.forEach(v => s.appendChild(el('option', { value: v, selected: (v===selected) }, v))); return s;
+  }
+  function setLockIcon(btn, locked){ btn.style.backgroundImage = `url('img/${locked ? 'lock.png' : 'lock_open.png'}')`; }
+  function autosize(ta){ const fit=()=>{ ta.style.height='auto'; ta.style.height=(ta.scrollHeight+2)+'px'; }; queueMicrotask(fit); ta.addEventListener('input', fit); }
+  function fitTextarea(ta){ ta.style.height='auto'; ta.style.height=(ta.scrollHeight+2)+'px'; }
+
+  // Start
   renderPanel();
 })();
 </script>
+
 <script id="gear-cards-module">
 (function GearCardsModule(){
   'use strict';
