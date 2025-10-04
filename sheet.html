@@ -408,6 +408,7 @@ button{
 .enc-row{ display:flex; align-items:center; justify-content:center; gap:3px; height:14px; }
 .enc-cat{ font:10px 'DominicanSmall',serif; min-width:52px; text-align:right; }
 .enc-sub{ font:8px 'DominicanSmall',serif; opacity:.9; line-height:10px; }
+/* Encumbrance-sized number look (reference) */
 .enc-input{
   width:22px; height:15px; text-align:center;
   font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px;
@@ -421,7 +422,7 @@ button{
 .gear-card{ position:relative; width:100%; background:#fff; border:1px solid #000; border-radius:0; box-shadow:0 2px 6px rgba(0,0,0,.15); box-sizing:border-box; }
 .gear-card.min .card-body, .gear-card.min .card-footer{ display:none !important; }
 
-/* -------- Header layout (drag | title |  right cluster ) -------- */
+/* -------- Header layout: drag | title | [stack of rows] | [min over lock] -------- */
 .card-header{ display:flex; align-items:center; gap:6px; justify-content:flex-start; padding:4px 6px; background:#f2f2f2; border-bottom:1px solid #000; user-select:none; }
 .drag-handle{ border:1px solid #000; background:#fff; width:22px; height:22px; line-height:20px; padding:0; cursor:grab; }
 .card-title{
@@ -435,20 +436,19 @@ button{
 .hdr-15{ width:15px; height:15px; box-sizing:border-box; }
 .hdr-btn{ border:1px solid #000; background:#fff; padding:0; cursor:pointer; line-height:13px; text-align:center; }
 
-/* Minimise stacked over Lock (far right) */
-.mm-wrap{ display:flex; flex-direction:column; gap:2px; }
-.min-btn.hdr-15, .lock-btn.hdr-15{ }
-.lock-btn{ background-position:center; background-repeat:no-repeat; background-size:contain; }
+/* Two header rows: 1) Gear Bon. [field][roll]  2) damage [field] */
+.stack-wrap{ display:flex; flex-direction:column; gap:2px; }
+.hdr-row{ display:flex; align-items:center; gap:3px; }
+.hdr-label{ display:flex; flex-direction:column; font:11px 'DominicanSmall',serif; text-transform:lowercase; line-height:10px; }
 
-/* Gear Bonus cluster (left of Min/Lock) */
-.gb-wrap{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; }
-.gb-label{ display:flex; flex-direction:column; line-height:10px; }
-.gb-label span{ font:11px 'DominicanSmall',serif; text-transform:lowercase; }
-.gb-row{ display:flex; align-items:center; gap:3px; }
-.gb-input-header{
-  width:15px; height:15px; text-align:center; padding:0;
-  border:1px solid #000; background:#fff; font-family:'DeutschGothic',monospace; font-size:10px; line-height:13px; box-sizing:border-box;
+/* Make Gear Bonus + Damage inputs match Money fields (size & font) */
+.gb-input-header, .dmg-input-header{
+  width:22px; height:15px; text-align:center;
+  font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px;
+  border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
 }
+
+/* Roll button + press animation (15×15) */
 .gb-roll{ width:15px; height:15px; cursor:pointer; transform-origin:center; }
 .gb-roll.is-animating{ animation: gb-press 300ms ease; }
 @keyframes gb-press{
@@ -458,13 +458,9 @@ button{
   100%{ transform:scale(1) rotate(0deg); }
 }
 
-/* Optional DAMAGE mini stack (weapons only) */
-.dmg-wrap{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; }
-.dmg-wrap .dmg-label{ font:11px 'DominicanSmall',serif; line-height:10px; text-transform:lowercase; }
-.dmg-input-header{
-  width:15px; height:15px; text-align:center; padding:0;
-  border:1px solid #000; background:#fff; font-family:'DeutschGothic',monospace; font-size:10px; line-height:13px; box-sizing:border-box;
-}
+/* Minimise stacked over Lock (far right) */
+.mm-wrap{ display:flex; flex-direction:column; gap:2px; }
+.lock-btn{ background-position:center; background-repeat:no-repeat; background-size:contain; }
 
 /* -------- Body -------- */
 .card-body{ display:flex; flex-direction:column; gap:8px; padding:8px; }
@@ -472,7 +468,7 @@ button{
 .field-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 .field-row label{ font:11px 'DominicanSmall',serif; }
 
-/* Encumbrance-sized numbers in BODY (W/S etc.) */
+/* Use Money sizing for W/S and body Gear Bonus */
 .ws-row input[type="number"], .gb-row input[type="number"].enc-input{
   width:22px; height:15px; text-align:center;
   font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px;
@@ -496,6 +492,7 @@ button{
 .gear-card.is-locked{ opacity:.96 }
 .gear-card.is-locked .card-title{ opacity:.85 }
 </style>
+
 
 
 <!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
@@ -1789,7 +1786,7 @@ ${css}
   let list = panel.querySelector('.gear-list');
   if(!list){ list = document.createElement('section'); list.className = 'gear-list'; panel.appendChild(list); }
 
-  // ---------- Templates (weapon damage now number) ----------
+  // ---------- Templates ----------
   const TEMPLATES = {
     weapon_melee:  [{k:'damage',t:'number',label:'Damage'},{k:'reach',t:'text',label:'Reach/Grip'}],
     weapon_ranged: [{k:'damage',t:'number',label:'Damage'},{k:'range',t:'text',label:'Range Bands'},{k:'ammo',t:'text',label:'Ammo/Reload'}],
@@ -1806,7 +1803,7 @@ ${css}
   }
   const uid=()=> 'gc_'+Math.random().toString(36).slice(2,9);
 
-  // ---------- Encumbrance auto-sum (kept) ----------
+  // ---------- Encumbrance auto-sum ----------
   const num = v => { const n = parseFloat(v); return Number.isFinite(n) ? Math.max(0, n) : 0; };
   function recalcEncumbrance(){
     let w=0, s=0;
@@ -1897,23 +1894,24 @@ ${css}
     const card=document.createElement('article');
     card.className='gear-card'; card.dataset.cardId=id; card.dataset.cardType=type;
 
-    // ----- Header -----
+    // ----- Header: drag | title | [stack rows] | [min over lock] -----
     const header=mkDiv('card-header');
 
-    const dragHandle=mkBtn('drag-handle','↕','Drag to reorder');  // (kept at 22×22)
+    const dragHandle=mkBtn('drag-handle','↕','Drag to reorder');  // 22×22
     const title=mkInput('text','card-title',data.name||data.title||'','Item Name');
 
     const hdrRight = mkDiv('hdr-right');
 
-    // Gear Bonus mini stack
-    const gbWrap=mkDiv('gb-wrap');
-    const gbLabel=document.createElement('div'); gbLabel.className='gb-label';
-    gbLabel.append(mkSpan('gear'), mkSpan('bon.'));
-    const gbRow=mkDiv('gb-row');
+    // --- two separate rows ---
+    const stackWrap = mkDiv('stack-wrap');
+
+    // Row 1: Gear Bon. (label / field / roll)
+    const gbRow = mkDiv('hdr-row gb-row');
+    const gbLabel = mkDiv('hdr-label'); gbLabel.append(mkSpan('gear'), mkSpan('bon.'));
     const gbHeader=document.createElement('input');
     gbHeader.type='number'; gbHeader.name='diceMod';
     gbHeader.value=(data.diceMod ?? data.bonus ?? 0);
-    gbHeader.className='gb-input-header';
+    gbHeader.className='gb-input-header';   // Money look via CSS
     const gbRoll=document.createElement('img');
     gbRoll.src='img/roll_icon.png'; gbRoll.alt='Roll'; gbRoll.className='gb-roll hdr-15';
     gbRoll.title='Add Gear Bonus to dice pool';
@@ -1923,21 +1921,20 @@ ${css}
       const v=parseInt(gbHeader.value,10)||0;
       if(v && typeof window.changePool==='function') window.changePool(+v);
     });
-    gbRow.append(gbHeader, gbRoll);
-    gbWrap.append(gbLabel, gbRow);
+    gbRow.append(gbLabel, gbHeader, gbRoll);
 
-    // Weapon-only DAMAGE mini stack under Gear Bonus
+    // Row 2: Damage (label / field) — weapons only
     let dmgHeader=null;
+    const dmgRow = mkDiv('hdr-row dmg-row');
+    const dmgLabel = mkDiv('hdr-label'); dmgLabel.textContent='damage';
     if (templateKey.startsWith('weapon_')){
-      const dmgWrap=mkDiv('dmg-wrap');
-      const dmgLbl=document.createElement('div'); dmgLbl.className='dmg-label'; dmgLbl.textContent='damage';
       dmgHeader=document.createElement('input');
       dmgHeader.type='number'; dmgHeader.className='dmg-input-header'; dmgHeader.value=(data.damage ?? 0);
-      dmgWrap.append(dmgLbl, dmgHeader);
-      gbWrap.append(dmgWrap);
+      dmgRow.append(dmgLabel, dmgHeader);
     }
 
-    // Min over Lock cluster (far right)
+    stackWrap.append(gbRow, dmgRow);
+    // Min over Lock stack
     const mmWrap = mkDiv('mm-wrap');
     const minBtn = mkBtn('min-btn hdr-btn hdr-15','–','Minimise / expand');
     const lockBtn= mkBtn('lock-btn hdr-btn hdr-15','','Lock / Unlock');
@@ -1945,7 +1942,7 @@ ${css}
     setLockIcon(!!data._locked);
     mmWrap.append(minBtn, lockBtn);
 
-    hdrRight.append(gbWrap, mmWrap);
+    hdrRight.append(stackWrap, mmWrap);
     header.append(dragHandle, title, hdrRight);
 
     // ----- Body -----
@@ -1989,7 +1986,8 @@ ${css}
     const syncFromHeader=()=>{ const v=gbHeader.value; gbBody.value=v; data.diceMod=v; };
     const syncFromBody  =()=>{ const v=gbBody.value;   gbHeader.value=v; data.diceMod=v; };
     gbHeader.addEventListener('input',syncFromHeader);
-    gbBody  .addEventListener('input',syncFromBody);
+    const gbBody = rows.querySelector('input[name="diceMod"]');
+    if (gbBody) gbBody.addEventListener('input',syncFromBody);
 
     // Weapon damage header <-> body sync (if present)
     const dmgBody = rows.querySelector('input[name="damage"]');
