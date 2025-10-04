@@ -342,11 +342,21 @@ button{
   display:flex; align-items:center; gap:6px; justify-content:flex-start;
   padding:4px 6px; background:#f2f2f2; border-bottom:1px solid #000; user-select:none;
 }
-.talent-card .drag-handle,
+/* Drag stays larger */
+.talent-card .drag-handle{
+  border:1px solid #000; background:#fff; width:22px; height:22px; line-height:20px; padding:0; cursor:grab;
+}
+/* Min/Lock are 15×15 like Gear */
 .talent-card .min-btn,
 .talent-card .lock-btn{
-  border:1px solid #000; background:#fff; width:22px; height:22px; line-height:20px; padding:0; cursor:pointer;
+  border:1px solid #000; background:#fff; width:15px; height:15px; line-height:13px; padding:0; cursor:pointer;
 }
+.talent-card .lock-btn{ background-position:center; background-repeat:no-repeat; background-size:contain; }
+
+/* Stack Min over Lock at far right */
+.talent-card .mm-wrap{ display:flex; flex-direction:column; gap:2px; }
+.talent-card .hdr-right{ margin-left:auto; display:flex; align-items:flex-start; gap:8px; }
+
 .talent-card .drag-handle{ cursor:grab; }
 .talent-card .lock-btn{ background-position:center; background-repeat:no-repeat; background-size:contain; }
 
@@ -1670,21 +1680,28 @@ ${css}
   function buildCard(t) {
     const card = el('article', { class: 'talent-card' + (t._min ? ' min' : ''), 'data-id': t.id });
 
-    // Header: drag | title | min | lock | (level @ top-right)
-    const header  = el('div', { class: 'card-header', title: 'Click empty header to minimise/expand' });
-    const dragH   = btn('drag-handle', '↕', 'Drag to reorder');
-    const title   = el('input', { class: 'card-title', type: 'text', placeholder: 'Talent Name', value: t.name || '' });
-    const minBtn  = btn('min-btn', '–', 'Minimise / expand');
-    const lockBtn = btn('lock-btn', '', 'Lock / Unlock');
-    const lvlWrap = el('div', { class: 'lvl-wrap' });
-    const lvlLbl  = el('span', { class: 'lvl-label' }, 'level');
-    const level   = sel('lvl-select', ['-','1','2','3'], String(t.level||'-'));
+    // Header
+const header  = el('div', { class: 'card-header', title: 'Click empty header to minimise/expand' });
+const dragH   = btn('drag-handle', '↕', 'Drag to reorder');
+const title   = el('input', { class: 'card-title', type: 'text', placeholder: 'Talent Name', value: t.name || '' });
 
-    // lock icon
-    setLockIcon(lockBtn, !!t._locked);
+const lvlWrap = el('div', { class: 'lvl-wrap' });
+const lvlLbl  = el('span', { class: 'lvl-label' }, 'level');
+const level   = sel('lvl-select', ['-','1','2','3'], String(t.level||'-'));
+lvlWrap.append(lvlLbl, level);
 
-    lvlWrap.append(lvlLbl, level);
-    header.append(dragH, title, minBtn, lockBtn, lvlWrap);
+const minBtn  = btn('min-btn', '–', 'Minimise / expand');
+const lockBtn = btn('lock-btn', '', 'Lock / Unlock');
+setLockIcon(lockBtn, !!t._locked);
+
+const mmWrap  = el('div', { class: 'mm-wrap' });
+mmWrap.append(minBtn, lockBtn);
+
+const hdrRight = el('div', { class: 'hdr-right' });
+hdrRight.append(lvlWrap, mmWrap);
+
+header.append(dragH, title, hdrRight);
+
 
     // Body: description only
     const body = el('div', { class: 'talent-body' });
@@ -1933,7 +1950,8 @@ ${css}
       dmgRow.append(dmgLabel, dmgHeader);
     }
 
-    stackWrap.append(gbRow, dmgRow);
+    stackWrap.append(gbRow);
+if (templateKey.startsWith('weapon_')) stackWrap.append(dmgRow);
     // Min over Lock stack
     const mmWrap = mkDiv('mm-wrap');
     const minBtn = mkBtn('min-btn hdr-btn hdr-15','–','Minimise / expand');
@@ -1965,9 +1983,16 @@ ${css}
     const slash=document.createElement('span'); slash.className='slash'; slash.textContent='/';
     const sLabel=document.createElement('label'); sLabel.textContent='S';
     const sNum=document.createElement('input'); sNum.type='number'; sNum.name='stow'; sNum.value=data.stow ?? 0; sNum.className='enc-input';
-    const gbBodyLabel=document.createElement('label'); gbBodyLabel.textContent='Gear Bonus';
-    const gbBody=document.createElement('input'); gbBody.type='number'; gbBody.name='diceMod'; gbBody.value=(data.diceMod ?? 0); gbBody.className='enc-input';
-    wsRow.append(wLabel,wNum,slash,sLabel,sNum,gbBodyLabel,gbBody);
+	
+const gbBodyLabel=document.createElement('label'); gbBodyLabel.textContent='Gear Bonus';
+const gbBodyInput=document.createElement('input');
+gbBodyInput.type='number';
+gbBodyInput.name='diceMod';
+gbBodyInput.value=(data.diceMod ?? 0);
+gbBodyInput.className='enc-input';
+wsRow.append(wLabel,wNum,slash,sLabel,sNum,gbBodyLabel,gbBodyInput);
+
+	
     rows.appendChild(wsRow);
 
     // Description
@@ -1983,11 +2008,11 @@ ${css}
 
     // ----- Behaviour -----
     // Sync Gear Bonus header <-> body
-    const syncFromHeader=()=>{ const v=gbHeader.value; gbBody.value=v; data.diceMod=v; };
-    const syncFromBody  =()=>{ const v=gbBody.value;   gbHeader.value=v; data.diceMod=v; };
-    gbHeader.addEventListener('input',syncFromHeader);
-    const gbBody = rows.querySelector('input[name="diceMod"]');
-    if (gbBody) gbBody.addEventListener('input',syncFromBody);
+const syncFromHeader=()=>{ const v=gbHeader.value; gbBodyInput.value=v; data.diceMod=v; };
+const syncFromBody  =()=>{ const v=gbBodyInput.value; gbHeader.value=v; data.diceMod=v; };
+gbHeader.addEventListener('input',syncFromHeader);
+gbBodyInput.addEventListener('input',syncFromBody);
+ 
 
     // Weapon damage header <-> body sync (if present)
     const dmgBody = rows.querySelector('input[name="damage"]');
