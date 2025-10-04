@@ -452,11 +452,30 @@ button{
 .hdr-label{ display:flex; flex-direction:column; font:11px 'DominicanSmall',serif; text-transform:lowercase; line-height:10px; }
 
 /* Make Gear Bonus + Damage inputs match Money fields (size & font) */
+/* Match Encumbrance “Curr.” fields exactly */
 .gb-input-header, .dmg-input-header{
-  width:22px; height:15px; text-align:center;
-  font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px;
-  border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
+  width:22px !important;
+  height:15px !important;
+  text-align:center !important;
+  font-family:'DeutschGothic', monospace !important;
+  font-size:12px !important;
+  line-height:15px !important;
+  border:1px solid #000 !important;
+  background:#fff !important;
+  padding:0 !important;
+  box-sizing:border-box !important;
 }
+
+/* Dice overlaps the field a smidge */
+.gb-wrap{ position:relative; display:inline-block; }
+.gb-wrap .gb-input-header{ display:block; }
+.gb-wrap .gb-roll{
+  position:absolute;
+  top:50%;
+  right:-3px;              /* adjust overlap here (−2 to −4px) */
+  transform:translateY(-50%);
+}
+
 
 /* Roll button + press animation (15×15) */
 .gb-roll{ width:15px; height:15px; cursor:pointer; transform-origin:center; }
@@ -1922,31 +1941,42 @@ header.append(dragH, title, hdrRight);
     // --- two separate rows ---
     const stackWrap = mkDiv('stack-wrap');
 
-    // Row 1: Gear Bon. (label / field / roll)
-    const gbRow = mkDiv('hdr-row gb-row');
-    const gbLabel = mkDiv('hdr-label'); gbLabel.append(mkSpan('gear'), mkSpan('bon.'));
-    const gbHeader=document.createElement('input');
-    gbHeader.type='number'; gbHeader.name='diceMod';
-    gbHeader.value=(data.diceMod ?? data.bonus ?? 0);
-    gbHeader.className='gb-input-header';   // Money look via CSS
-    const gbRoll=document.createElement('img');
-    gbRoll.src='img/roll_icon.png'; gbRoll.alt='Roll'; gbRoll.className='gb-roll hdr-15';
-    gbRoll.title='Add Gear Bonus to dice pool';
-    gbRoll.addEventListener('click',()=>{
-      gbRoll.classList.remove('is-animating'); void gbRoll.offsetWidth; gbRoll.classList.add('is-animating');
-      gbRoll.addEventListener('animationend',()=>gbRoll.classList.remove('is-animating'),{once:true});
-      const v=parseInt(gbHeader.value,10)||0;
-      if(v && typeof window.changePool==='function') window.changePool(+v);
-    });
-    gbRow.append(gbLabel, gbHeader, gbRoll);
+// Row 1: Gear Bonus (label / field + overlapping roll)
+const gbRow = mkDiv('hdr-row gb-row');
+const gbLabel = mkDiv('hdr-label'); gbLabel.append(mkSpan('gear'), mkSpan('bonus'));
+
+const gbHeader=document.createElement('input');
+gbHeader.type='number'; gbHeader.name='diceMod';
+gbHeader.value=(data.diceMod ?? data.bonus ?? 0);
+gbHeader.className='gb-input-header enc-input'; // match Encumbrance fields
+
+const gbRoll=document.createElement('img');
+gbRoll.src='img/roll_icon.png'; gbRoll.alt='Roll'; gbRoll.className='gb-roll hdr-15';
+gbRoll.title='Add Gear Bonus to dice pool';
+
+const gbWrap = mkDiv('gb-wrap');         // lets the dice overlap the field
+gbWrap.append(gbHeader, gbRoll);
+
+gbRow.append(gbLabel, gbWrap);
+
+gbRoll.addEventListener('click',()=>{
+  gbRoll.classList.remove('is-animating'); void gbRoll.offsetWidth; gbRoll.classList.add('is-animating');
+  gbRoll.addEventListener('animationend',()=>gbRoll.classList.remove('is-animating'),{once:true});
+  const v=parseInt(gbHeader.value,10)||0;
+  if(v && typeof window.changePool==='function') window.changePool(+v);
+});
+
 
     // Row 2: Damage (label / field) — weapons only
     let dmgHeader=null;
     const dmgRow = mkDiv('hdr-row dmg-row');
     const dmgLabel = mkDiv('hdr-label'); dmgLabel.textContent='damage';
     if (templateKey.startsWith('weapon_')){
-      dmgHeader=document.createElement('input');
-      dmgHeader.type='number'; dmgHeader.className='dmg-input-header'; dmgHeader.value=(data.damage ?? 0);
+	
+	dmgHeader=document.createElement('input');
+dmgHeader.type='number';
+dmgHeader.className='dmg-input-header enc-input'; // match Encumbrance fields
+dmgHeader.value=(data.damage ?? 0);
       dmgRow.append(dmgLabel, dmgHeader);
     }
 
