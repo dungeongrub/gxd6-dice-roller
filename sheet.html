@@ -1870,13 +1870,14 @@ header.append(dragH, title, hdrRight);
   if(!list){ list = document.createElement('section'); list.className = 'gear-list'; panel.appendChild(list); }
 
   // ---------- Templates ----------
-  const TEMPLATES = {
-    weapon_melee:  [{k:'damage',t:'number',label:'Damage'},{k:'reach',t:'text',label:'Reach/Grip'}],
-    weapon_ranged: [{k:'damage',t:'number',label:'Damage'},{k:'range',t:'text',label:'Range Bands'},{k:'ammo',t:'text',label:'Ammo/Reload'}],
-    armour:        [{k:'coverage',t:'text',label:'Coverage'},{k:'armor',t:'number',label:'Armour Value'},{k:'penalty',t:'text',label:'Penalties'}],
-    chemical:      [{k:'dose',t:'text',label:'Dose'},{k:'duration',t:'text',label:'Duration'},{k:'effects',t:'textarea',label:'Effects (+/− dice)'},{k:'withdrawal',t:'textarea',label:'Withdrawal/Crash'},{k:'addiction',t:'text',label:'Addiction Rating'},{k:'price',t:'text',label:'Price'}],
-    gear:          []
-  };
+const TEMPLATES = {
+  weapon_melee:  [],      // we render standardized rows below
+  weapon_ranged: [],
+  armour:        [{k:'coverage',t:'text',label:'Coverage'},{k:'armor',t:'number',label:'Armour Value'},{k:'penalty',t:'text',label:'Penalties'}],
+  chemical:      [{k:'dose',t:'text',label:'Dose'},{k:'duration',t:'text',label:'Duration'},{k:'effects',t:'textarea',label:'Effects (+/− dice)'},{k:'withdrawal',t:'textarea',label:'Withdrawal/Crash'},{k:'addiction',t:'text',label:'Addiction Rating'},{k:'price',t:'text',label:'Price'}],
+  gear:          []
+};
+
   function resolveTemplate(baseType,tags){
     const t=(tags||[]).map(s=>String(s).toLowerCase());
     if(baseType==='weapon'){ if(t.includes('ranged')||t.includes('firearm')) return 'weapon_ranged'; return 'weapon_melee'; }
@@ -2134,23 +2135,6 @@ rows.appendChild(rrRow);
 
     body.append(rows,desc); card.append(header,body,footer);
 
-    // ----- Behaviour -----
-    // Sync Gear Bonus header <-> body
-const syncFromHeader=()=>{ const v=gbHeader.value; gbBodyInput.value=v; data.diceMod=v; };
-const syncFromBody  =()=>{ const v=gbBodyInput.value; gbHeader.value=v; data.diceMod=v; };
-gbHeader.addEventListener('input',syncFromHeader);
-gbBodyInput.addEventListener('input',syncFromBody);
- 
-
-    // Weapon damage header <-> body sync (if present)
-    const dmgBody = rows.querySelector('input[name="damage"]');
-    if (dmgHeader && dmgBody){
-      const syncDmgHdr = ()=>{ dmgBody.value = dmgHeader.value; data.damage = dmgHeader.value; };
-      const syncDmgBody= ()=>{ dmgHeader.value = dmgBody.value; data.damage = dmgBody.value; };
-      dmgHeader.addEventListener('input', syncDmgHdr);
-      dmgBody  .addEventListener('input', syncDmgBody);
-    }
-
     // Encumbrance wiring
     [wNum,sNum].forEach(el=> el.addEventListener('input', recalcEncumbrance));
 
@@ -2201,10 +2185,8 @@ gbBodyInput.addEventListener('input',syncFromBody);
   function mkDiv(cls){ const n=document.createElement('div'); n.className=cls; return n; }
   function mkSpan(txt){ const n=document.createElement('span'); n.textContent=txt; return n; }
   function mkInput(type,cls,val,ph){ const n=document.createElement('input'); n.type=type; if(cls) n.className=cls; if(val!=null) n.value=val; if(ph) n.placeholder=ph; return n; }
-  function mkBtn(cls,txt,title){ const n=document.createElement('button'); if(cls) n.className=cls; n.type='button'; if(txt!=null) n.textContent=txt; if(title) n.title=title; return n; }
-
-  // Initial calc
-  recalcEncumbrance();
+  function mkBtn(cls,txt,title){ const n=document.createElement('button'); if(cls) n.className=cls; n.type='button'; if(txt!=null) n.textContent=txt; if(title) n.title=title; return n; 
+  }
 
 })();
 </script>
