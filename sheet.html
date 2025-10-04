@@ -424,6 +424,40 @@ button{
   font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px;
   border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
 }
+/* compact text/select to sit with Money/Encumbrance look */
+.enc-text{
+  height:15px;
+  font: 11px 'DominicanSmall', serif;
+  border:1px solid #000;
+  background:#fff;
+  padding:0 4px;
+  box-sizing:border-box;
+}
+.enc-select{
+  height:15px;
+  font-family:'DeutschGothic', monospace;
+  font-size:12px;
+  line-height:12px;
+  border:1px solid #000;
+  background:#fff;
+  padding:0 2px;
+  box-sizing:border-box;
+}
+
+/* XS numeric (exactly 10px wide) */
+.enc-input-xs{
+  width:10px;
+  height:15px;
+  text-align:center;
+  font-family:'DeutschGothic', monospace;
+  font-size:12px;
+  line-height:12px;
+  border:1px solid #000;
+  background:#fff;
+  padding:0;
+  box-sizing:border-box;
+}
+
 
 /* ================= GEAR CARDS ================= */
 #gearPanelInner{ width:450px; height:350px; border:1px dashed #0003; background:transparent; overflow:auto; padding:6px 0 0 0; box-sizing:border-box; }
@@ -2019,24 +2053,75 @@ if (templateKey.startsWith('weapon_')) stackWrap.append(dmgRow);
       row.append(label,control); rows.appendChild(row);
     });
 
-    // W / S row + inline Gear Bonus (body)
-    const wsRow=mkDiv('field-row ws-row');
-    const wLabel=document.createElement('label'); wLabel.textContent='W';
-    const wNum=document.createElement('input'); wNum.type='number'; wNum.name='weight'; wNum.value=data.weight ?? 0; wNum.className='enc-input';
-    const slash=document.createElement('span'); slash.className='slash'; slash.textContent='/';
-    const sLabel=document.createElement('label'); sLabel.textContent='S';
-    const sNum=document.createElement('input'); sNum.type='number'; sNum.name='stow'; sNum.value=data.stow ?? 0; sNum.className='enc-input';
-	
-const gbBodyLabel=document.createElement('label'); gbBodyLabel.textContent='Gear Bonus';
-const gbBodyInput=document.createElement('input');
-gbBodyInput.type='number';
-gbBodyInput.name='diceMod';
-gbBodyInput.value=(data.diceMod ?? 0);
-gbBodyInput.className='enc-input';
-wsRow.append(wLabel,wNum,slash,sLabel,sNum,gbBodyLabel,gbBodyInput);
+// ---------- Line 2: W/S + Gear Bonus + Damage + type(text) ----------
+const wsRow = mkDiv('field-row ws-row');
 
-	
-    rows.appendChild(wsRow);
+// W / S (Money/Encumbrance look)
+const wLabel = document.createElement('label'); wLabel.textContent = 'W';
+const wNum   = document.createElement('input'); wNum.type='number'; wNum.name='weight'; wNum.value = data.weight ?? 0; wNum.className='enc-input';
+const slash  = document.createElement('span');  slash.className='slash'; slash.textContent='/';
+const sLabel = document.createElement('label'); sLabel.textContent = 'S';
+const sNum   = document.createElement('input'); sNum.type='number'; sNum.name='stow';   sNum.value = data.stow   ?? 0; sNum.className='enc-input';
+
+// Gear Bonus (inline, same tiny look)
+const gbBodyLabel = document.createElement('label'); gbBodyLabel.textContent = 'Gear Bonus';
+const gbBody      = document.createElement('input'); gbBody.type='number'; gbBody.name='diceMod'; gbBody.value = (data.diceMod ?? 0); gbBody.className='enc-input';
+
+// Damage (inline, tiny number like Money/Encumbrance)
+const dmgBodyLabel = document.createElement('label'); dmgBodyLabel.textContent = 'damage';
+const dmgBody      = document.createElement('input'); dmgBody.type='number'; dmgBody.name='damage'; dmgBody.value = (data.damage ?? 0); dmgBody.className='enc-input';
+
+// Free text "type" (compact text field)
+const typeFreeLabel = document.createElement('label'); typeFreeLabel.textContent = 'type';
+const typeFree      = document.createElement('input'); typeFree.type='text'; typeFree.name='wpnTypeText'; typeFree.value = (data.wpnTypeText || ''); typeFree.className='enc-text';
+
+wsRow.append(
+  wLabel, wNum, slash, sLabel, sNum,
+  gbBodyLabel, gbBody,
+  dmgBodyLabel, dmgBody,
+  typeFreeLabel, typeFree
+);
+rows.appendChild(wsRow);
+
+// keep encumbrance live
+[wNum, sNum].forEach(el => el.addEventListener('input', recalcEncumbrance));
+
+// link header Damage <-> body Damage (if header exists)
+if (dmgHeader) {
+  const syncDmgHdr  = () => { dmgBody.value = dmgHeader.value; data.damage = dmgHeader.value; };
+  const syncDmgBody = () => { dmgHeader.value = dmgBody.value;  data.damage = dmgBody.value;  };
+  dmgHeader.addEventListener('input', syncDmgHdr);
+  dmgBody  .addEventListener('input', syncDmgBody);
+}
+
+// link header Gear Bonus <-> body Gear Bonus
+const syncFromHeader = () => { const v = gbHeader.value; gbBody.value = v; data.diceMod = v; };
+const syncFromBody   = () => { const v = gbBody.value;   gbHeader.value = v; data.diceMod = v; };
+gbHeader.addEventListener('input', syncFromHeader);
+gbBody  .addEventListener('input', syncFromBody);
+
+
+// ---------- Line 3: Reach/Range + Shots + Reload (AP) ----------
+const rrRow = mkDiv('field-row rr-row');
+
+// Reach/Range dropdown (compact)
+const rrLbl = document.createElement('label'); rrLbl.textContent = 'Reach/Range';
+const rrSel = document.createElement('select'); rrSel.name='reachRange'; rrSel.className='enc-select';
+['Close','Short','Medium','Long'].forEach(v=>{
+  const o = document.createElement('option'); o.value=v; o.textContent=v; rrSel.appendChild(o);
+});
+rrSel.value = data.reachRange || 'Close';
+
+// Shots (10px wide number)
+const shotsLbl = document.createElement('label'); shotsLbl.textContent = 'Shots';
+const shotsNum = document.createElement('input'); shotsNum.type='number'; shotsNum.name='shots'; shotsNum.value = (data.shots ?? 0); shotsNum.className='enc-input-xs';
+
+// Reload (AP) (10px wide number)
+const reloadLbl = document.createElement('label'); reloadLbl.textContent = 'Reload (AP)';
+const reloadNum = document.createElement('input'); reloadNum.type='number'; reloadNum.name='reloadAP'; reloadNum.value = (data.reloadAP ?? 0); reloadNum.className='enc-input-xs';
+
+rrRow.append(rrLbl, rrSel, shotsLbl, shotsNum, reloadLbl, reloadNum);
+rows.appendChild(rrRow);
 
     // Description
     const desc=document.createElement('textarea'); desc.className='description'; desc.placeholder='Description…'; desc.value=data.description || '';
