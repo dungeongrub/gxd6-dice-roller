@@ -569,12 +569,35 @@ button{
 .gear-card.is-locked{ opacity:.96 }
 .gear-card.is-locked .card-title{ opacity:.85 }
 
-/* Tighten the space between Line 2 (ws-row) and Line 3 (rr-row) only */
-#panel-gear .gear-card .ws-row + .rr-row { margin-top: -4px; }
+/* --- Spacing tweaks --- */
+
+/* Expand gap between Line 1 (Skill/Type/Grip) and Line 2 (W/S • GB • Damage • type) */
+#panel-gear .gear-card .fields-rows .field-row:first-child + .ws-row {
+  margin-top: 10px; /* +4px over the 6px row gap */
+}
+
+/* Tighten gap between Line 2 and Line 3 even more */
+#panel-gear .gear-card .ws-row + .rr-row {
+  margin-top: -8px; /* was -4px */
+}
+
+/* --- XS number inputs (Shots / Reload) --- */
+/* Make them a touch wider and force the smaller font so the global input[type=number] rule can't override */
+#panel-gear .gear-card .rr-row .enc-input-xs {
+  width: 20px;          /* was 15px (previously “10px” intent) */
+  height: 15px;
+  text-align: center;
+  font-family: 'DeutschGothic', monospace;
+  font-size: 10px !important;  /* override the global 16px */
+  line-height: 12px;
+  padding: 0 2px;
+  border: 1px solid #000;
+  background: #fff;
+  box-sizing: border-box;
+}
+
 
 </style>
-
-
 
 <!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 
