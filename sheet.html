@@ -489,7 +489,7 @@ button{
 
 <!-- =============== START OF GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 <style id="gear-cards-css">
-/* ================= GEAR PANEL — Toolbar + Encumbrance (kept) ================= */
+/* ================= GEAR PANEL — Toolbar + Encumbrance ================= */
 #gearToolbar{ display:flex; align-items:center; gap:3px; margin-bottom:6px; flex-wrap:nowrap; }
 #gearToolbar button{ border:1px solid #000; background:#fff; padding:2px 2px; cursor:pointer; font:12px 'DominicanSmall',serif; height:26px; line-height:20px; }
 
@@ -526,11 +526,20 @@ button{
   padding:0; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
-/* Stacked "gear / bonus" label + tiny enc-sized input + dice icon */
+/* Stacked "gear / bonus" label + enc-sized input + dice icon (rollable) */
 .gb-wrap{ display:flex; align-items:center; gap:4px; white-space:nowrap; }
 .gb-label{ display:flex; flex-direction:column; justify-content:center; }
 .gb-label span{ font:11px 'DominicanSmall',serif; text-transform:lowercase; line-height:10px; }
-.gb-roll{ width:18px; height:18px; cursor:pointer; }
+
+/* Dice button + press animation */
+.gb-roll{ width:18px; height:18px; cursor:pointer; transform-origin:center; }
+.gb-roll.is-animating{ animation: gb-press 300ms ease; }
+@keyframes gb-press{
+  0%{ transform:scale(1) rotate(0deg); }
+  30%{ transform:scale(0.9) rotate(-10deg); }
+  70%{ transform:scale(1.1) rotate(12deg); }
+  100%{ transform:scale(1) rotate(0deg); }
+}
 
 /* Body: rows then Description full width */
 .card-body{ display:flex; flex-direction:column; gap:8px; padding:8px; }
@@ -538,12 +547,18 @@ button{
 .field-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 .field-row label{ font:11px 'DominicanSmall',serif; }
 
-/* Use the exact Encumbrance size for these numbers */
-.ws-row input[type="number"], .gb-row input[type="number"], .gb-input-header{ composes: enc-input; } /* (comment only; actual class applied below) */
-.ws-row input[type="number"], .gb-row input[type="number"], .gb-input-header{ width:22px; height:15px; text-align:center; font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px; border:1px solid #000; background:#fff; padding:0; box-sizing:border-box; }
+/* Use Encumbrance sizing for all these number fields */
+.ws-row input[type="number"], .gb-input-header{ /* same as .enc-input (cloned here to be robust) */
+  width:22px; height:15px; text-align:center;
+  font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px;
+  border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
+}
 
+/* Inline bits in W/S row */
 .ws-row .slash{ font:11px 'DominicanSmall',serif; opacity:.9; }
+.ws-row .gb-inline-label{ font:11px 'DominicanSmall',serif; margin-left:6px; }
 
+/* Description at the bottom */
 .card-body textarea.description{
   width:100%; min-height:72px; border:1px dashed #bbb; background:transparent;
   font-family:'Gothics','Dominican',serif; font-size:11px; resize:vertical; padding:4px; box-sizing:border-box;
@@ -1803,326 +1818,246 @@ ${css}
   renderPanel();
 })();
 </script>
-
 <script id="gear-cards-module">
 (function GearCardsModule(){
   'use strict';
 
   // ---------- Panel & list ----------
-  const panel = document.getElementById('gearPanelInner')
-             || document.querySelector('#panel-gear #gearPanelInner');
+  const panel = document.getElementById('gearPanelInner') || document.querySelector('#panel-gear #gearPanelInner');
   if(!panel){ console.warn('[GearCards] #gearPanelInner not found.'); return; }
 
   let list = panel.querySelector('.gear-list');
-  if(!list){
-    list = document.createElement('section');
-    list.className = 'gear-list';
-    panel.appendChild(list);
-  }
+  if(!list){ list = document.createElement('section'); list.className = 'gear-list'; panel.appendChild(list); }
 
-  // ---------- Templates (removed Traits/Notes everywhere) ----------
+  // ---------- Templates (Traits/Notes removed) ----------
   const TEMPLATES = {
-    weapon_melee: [
-      {k:'damage',  t:'text',     label:'Damage'},
-      {k:'reach',   t:'text',     label:'Reach/Grip'}
-    ],
-    weapon_ranged: [
-      {k:'damage',  t:'text',     label:'Damage'},
-      {k:'range',   t:'text',     label:'Range Bands'},
-      {k:'ammo',    t:'text',     label:'Ammo/Reload'}
-    ],
-    armour: [
-      {k:'coverage', t:'text',     label:'Coverage'},
-      {k:'armor',    t:'number',   label:'Armour Value'},
-      {k:'penalty',  t:'text',     label:'Penalties'}
-    ],
-    chemical: [
-      {k:'dose',       t:'text',     label:'Dose'},
-      {k:'duration',   t:'text',     label:'Duration'},
-      {k:'effects',    t:'textarea', label:'Effects (+/− dice)'},
-      {k:'withdrawal', t:'textarea', label:'Withdrawal/Crash'},
-      {k:'addiction',  t:'text',     label:'Addiction Rating'},
-      {k:'price',      t:'text',     label:'Price'}
-    ],
-    gear: [
-      /* plain gear now only uses W/S + Gear Bonus + Description */
-    ],
+    weapon_melee:  [{k:'damage',t:'text',label:'Damage'},{k:'reach',t:'text',label:'Reach/Grip'}],
+    weapon_ranged: [{k:'damage',t:'text',label:'Damage'},{k:'range',t:'text',label:'Range Bands'},{k:'ammo',t:'text',label:'Ammo/Reload'}],
+    armour:        [{k:'coverage',t:'text',label:'Coverage'},{k:'armor',t:'number',label:'Armour Value'},{k:'penalty',t:'text',label:'Penalties'}],
+    chemical:      [{k:'dose',t:'text',label:'Dose'},{k:'duration',t:'text',label:'Duration'},{k:'effects',t:'textarea',label:'Effects (+/− dice)'},{k:'withdrawal',t:'textarea',label:'Withdrawal/Crash'},{k:'addiction',t:'text',label:'Addiction Rating'},{k:'price',t:'text',label:'Price'}],
+    gear:          []
   };
 
-  function resolveTemplate(baseType, tags){
-    const t = (tags||[]).map(s=>String(s).toLowerCase());
-    if (baseType==='weapon'){
-      if (t.includes('ranged')||t.includes('firearm')) return 'weapon_ranged';
-      return 'weapon_melee';
-    }
-    if (baseType==='armor' || baseType==='armour') return 'armour';
-    if (baseType==='narcotic') return 'chemical';
-    return baseType || 'gear';
+  function resolveTemplate(baseType,tags){
+    const t=(tags||[]).map(s=>String(s).toLowerCase());
+    if(baseType==='weapon'){ if(t.includes('ranged')||t.includes('firearm')) return 'weapon_ranged'; return 'weapon_melee'; }
+    if(baseType==='armor'||baseType==='armour') return 'armour';
+    if(baseType==='narcotic') return 'chemical';
+    return baseType||'gear';
   }
-
-  const uid = ()=> 'gc_'+Math.random().toString(36).slice(2,9);
+  const uid=()=> 'gc_'+Math.random().toString(36).slice(2,9);
 
   // ---------- Public API ----------
-  window.spawnBlankGearCard = function(kind){
-    const type = (kind === 'armor') ? 'armour'
-               : (kind === 'narcotic') ? 'chemical'
-               : (kind||'gear');
-    const data = { id: uid(), name:'', description:'', diceMod:0, weight:0, stow:0 };
-    const el = createCardEl(type, data);
-    list.appendChild(el);
-    return el;
+  window.spawnBlankGearCard=function(kind){
+    const type=(kind==='armor')?'armour':(kind==='narcotic')?'chemical':(kind||'gear');
+    const data={ id:uid(), name:'', description:'', diceMod:0, weight:0, stow:0 };
+    const el=createCardEl(type,data); list.appendChild(el); return el;
   };
-
-  window.spawnGearCardFromLibrary = function(item){
-    const type = resolveTemplate(item.type || 'gear', item.tags);
-    const el = createCardEl(type, item || {});
-    list.appendChild(el);
-    return el;
+  window.spawnGearCardFromLibrary=function(item){
+    const type=resolveTemplate(item.type||'gear',item.tags); const el=createCardEl(type,item||{}); list.appendChild(el); return el;
   };
-
-  window.exportCharacterGear = function(){
-    const out = [];
-    list.querySelectorAll('.gear-card').forEach(card=>{
-      const item = {
-        id: card.dataset.cardId || null,
-        type: card.dataset.cardType || 'gear',
-        _locked: card.classList.contains('is-locked'),
-        _min: card.classList.contains('min'),
-        name: card.querySelector('.card-title')?.value || '',
-        description: card.querySelector('.description')?.value || '',
-        diceMod: card.querySelector('.gb-input-header')?.value || 0,
-        weight:  card.querySelector('input[name="weight"]')?.value ?? 0,
-        stow:    card.querySelector('input[name="stow"]')?.value ?? 0
+  window.exportCharacterGear=function(){
+    const out=[]; list.querySelectorAll('.gear-card').forEach(card=>{
+      const item={
+        id:card.dataset.cardId||null,
+        type:card.dataset.cardType||'gear',
+        _locked:card.classList.contains('is-locked'),
+        _min:card.classList.contains('min'),
+        name:card.querySelector('.card-title')?.value||'',
+        description:card.querySelector('.description')?.value||'',
+        diceMod:card.querySelector('.gb-input-header')?.value||0,
+        weight: card.querySelector('input[name="weight"]')?.value ?? 0,
+        stow:   card.querySelector('input[name="stow"]')?.value   ?? 0
       };
-      // include any template-specific values (no Traits fields anymore)
-      card.querySelectorAll('.fields-rows input[name]:not([name="weight"]):not([name="stow"]), .fields-rows textarea[name], .fields-rows select[name]')
-        .forEach(el=>{
-          const k = el.name; if (!k) return;
-          item[k] = (el.type === 'checkbox') ? !!el.checked : el.value;
-        });
+      card.querySelectorAll('.fields-rows [name]:not([name="weight"]):not([name="stow"])').forEach(el=>{
+        const k=el.name; if(!k) return; item[k]=(el.type==='checkbox')?!!el.checked:el.value;
+      });
       out.push(item);
-    });
-    return out;
+    }); return out;
   };
-
-  window.importCharacterGear = function(items){
-    list.innerHTML = '';
-    if (!Array.isArray(items)) return;
-    items.forEach(data=>{
-      const el = createCardEl(data.type || 'gear', data);
-      if (data._min) el.classList.add('min');
-      if (data._locked) el.classList.add('is-locked');
-      list.appendChild(el);
-    });
+  window.importCharacterGear=function(items){
+    list.innerHTML=''; if(!Array.isArray(items)) return;
+    items.forEach(data=>{ const el=createCardEl(data.type||'gear',data); if(data._min) el.classList.add('min'); if(data._locked) el.classList.add('is-locked'); list.appendChild(el); });
   };
+  window.clearGearCards=function(){ list.innerHTML=''; };
 
-  window.clearGearCards = function(){ list.innerHTML = ''; };
-
-  // ---------- Drag & drop re-order ----------
-  if (!list.dataset.ddInit){
-    list.dataset.ddInit = '1';
-    list.addEventListener('dragover', (e)=>{
+  // ---------- DnD ----------
+  if(!list.dataset.ddInit){
+    list.dataset.ddInit='1';
+    list.addEventListener('dragover',e=>{
       e.preventDefault();
-      const after = getCardAfterY(list, e.clientY);
-      const dragging = list.querySelector('.gear-card.dragging');
-      if (!dragging) return;
-      if (after == null) list.appendChild(dragging);
-      else list.insertBefore(dragging, after);
-      clearDropTargets();
-      (after || dragging)?.classList.add('drop-target');
+      const after=getCardAfterY(list,e.clientY);
+      const dragging=list.querySelector('.gear-card.dragging');
+      if(!dragging) return;
+      if(after==null) list.appendChild(dragging); else list.insertBefore(dragging,after);
+      clearDropTargets(); (after||dragging)?.classList.add('drop-target');
     });
-    list.addEventListener('drop', ()=> clearDropTargets());
+    list.addEventListener('drop',()=>clearDropTargets());
   }
   function clearDropTargets(){ list.querySelectorAll('.drop-target').forEach(n=>n.classList.remove('drop-target')); }
-  function getCardAfterY(container, y){
-    const cards = [...container.querySelectorAll('.gear-card:not(.dragging)')];
-    return cards.reduce((closest, child)=>{
-      const box = child.getBoundingClientRect();
-      const offset = y - box.top - box.height/2;
-      if (offset < 0 && offset > closest.offset) return {offset, element:child};
+  function getCardAfterY(container,y){
+    const cards=[...container.querySelectorAll('.gear-card:not(.dragging)')];
+    return cards.reduce((closest,child)=>{
+      const box=child.getBoundingClientRect(); const offset=y-box.top-box.height/2;
+      if(offset<0&&offset>closest.offset) return {offset,element:child};
       return closest;
-    }, {offset: Number.NEGATIVE_INFINITY, element: null}).element;
+    },{offset:Number.NEGATIVE_INFINITY,element:null}).element;
   }
 
   // ---------- Card builder ----------
-  function createCardEl(type, data){
-    const id = data.id || uid();
-    const templateKey = resolveTemplate(type, data.tags);
+  function createCardEl(type,data){
+    const id=data.id||uid(); const templateKey=resolveTemplate(type,data.tags);
 
-    const card = document.createElement('article');
-    card.className = 'gear-card';
-    card.dataset.cardId = id;
-    card.dataset.cardType = type;
+    const card=document.createElement('article');
+    card.className='gear-card'; card.dataset.cardId=id; card.dataset.cardType=type;
 
     // Header
-    const header = document.createElement('div');
-    header.className = 'card-header';
-
-    const dragHandle = btn('drag-handle','↕','Drag to reorder');
-    const title      = inp('text','card-title', data.name || data.title || '', 'Item Name');
-
-    const minBtn  = btn('min-btn','–','Minimise / expand');
-    const lockBtn = btn('lock-btn','','Lock / Unlock');
-    const setLockIcon = (locked)=> lockBtn.style.backgroundImage = `url('img/${locked ? 'lock.png' : 'lock_open.png'}')`;
+    const header=mkDiv('card-header');
+    const dragHandle=mkBtn('drag-handle','↕','Drag to reorder');
+    const title=mkInput('text','card-title',data.name||data.title||'','Item Name');
+    const minBtn=mkBtn('min-btn','–','Minimise / expand');
+    const lockBtn=mkBtn('lock-btn','','Lock / Unlock');
+    const setLockIcon=(locked)=> lockBtn.style.backgroundImage=`url('img/${locked?'lock.png':'lock_open.png'}')`;
     setLockIcon(!!data._locked);
 
-    // Gear Bonus (stacked label + tiny enc-sized number + dice icon)
-    const gbWrap  = div('gb-wrap');
-    const gbLabel = document.createElement('div'); gbLabel.className='gb-label';
-    gbLabel.append(span(null,'gear'), span(null,'bonus'));
+    // Gear Bonus in header (stacked label + enc-sized number + dice)
+    const gbWrap=mkDiv('gb-wrap');
+    const gbLabel=document.createElement('div'); gbLabel.className='gb-label';
+    gbLabel.append(mkSpan('gear'), mkSpan('bonus'));
 
-    const gbHeader = document.createElement('input');
+    const gbHeader=document.createElement('input');
     gbHeader.type='number'; gbHeader.name='diceMod';
-    gbHeader.value = (data.diceMod ?? data.bonus ?? 0);
-    gbHeader.className = 'enc-input gb-input gb-input-header'; // exact encumbrance size
+    gbHeader.value=(data.diceMod ?? data.bonus ?? 0);
+    gbHeader.className='gb-input-header'; // uses enc size via CSS
 
-    const gbRoll = document.createElement('img');
-    gbRoll.src = 'img/roll_icon.png'; gbRoll.alt='Roll';
-    gbRoll.className='gb-roll';
-    gbRoll.title='Roll gear bonus (add to dice pool)';
-    gbRoll.addEventListener('click', ()=>{
-      const v = parseInt(gbHeader.value,10) || 0;
-      if (v && typeof window.changePool === 'function') window.changePool(+v);
+    const gbRoll=document.createElement('img');
+    gbRoll.src='img/roll_icon.png'; gbRoll.alt='Roll'; gbRoll.className='gb-roll';
+    gbRoll.title='Add Gear Bonus to dice pool';
+    gbRoll.addEventListener('click',()=>{
+      // Press animation
+      gbRoll.classList.remove('is-animating'); // restart if double-clicked quickly
+      void gbRoll.offsetWidth; // reflow to reset animation
+      gbRoll.classList.add('is-animating');
+      gbRoll.addEventListener('animationend',()=>gbRoll.classList.remove('is-animating'),{once:true});
+
+      const v=parseInt(gbHeader.value,10)||0;
+      if(v && typeof window.changePool==='function') window.changePool(+v);
     });
 
     gbWrap.append(gbLabel, gbHeader, gbRoll);
     header.append(dragHandle, title, minBtn, lockBtn, gbWrap);
 
     // Body
-    const body = div('card-body');
-    const rows = div('fields-rows');
+    const body=mkDiv('card-body');
+    const rows=mkDiv('fields-rows');
 
     // Template rows (no Traits)
-    (TEMPLATES[templateKey] || []).forEach(spec=>{
-      const row = div('field-row');
-      const label = document.createElement('label'); label.textContent = spec.label;
+    (TEMPLATES[templateKey]||[]).forEach(spec=>{
+      const row=mkDiv('field-row');
+      const label=document.createElement('label'); label.textContent=spec.label;
       let control;
-      if (spec.t === 'textarea'){ control = document.createElement('textarea'); control.rows = 2; }
-      else { control = document.createElement('input'); control.type = spec.t; }
-      control.name = spec.k; control.value = data[spec.k] ?? '';
-      row.append(label, control); rows.appendChild(row);
+      if(spec.t==='textarea'){ control=document.createElement('textarea'); control.rows=2; }
+      else { control=document.createElement('input'); control.type=spec.t; }
+      control.name=spec.k; control.value=data[spec.k] ?? '';
+      row.append(label,control); rows.appendChild(row);
     });
 
-    // W / S row — BOTH inputs use Encumbrance size (so they are small)
-    const wsRow = div('field-row ws-row');
-    const wLabel = document.createElement('label'); wLabel.textContent = 'W';
-    const wNum   = document.createElement('input'); wNum.type='number'; wNum.name='weight';
-    wNum.value = data.weight ?? 0; wNum.className = 'enc-input';
-    const slash  = document.createElement('span');  slash.className='slash'; slash.textContent = '/';
-    const sLabel = document.createElement('label'); sLabel.textContent = 'S';
-    const sNum   = document.createElement('input'); sNum.type='number'; sNum.name='stow';
-    sNum.value = data.stow ?? 0; sNum.className = 'enc-input';
-    wsRow.append(wLabel, wNum, slash, sLabel, sNum);
+    // W / S row — and inline Gear Bonus (same line)
+    const wsRow=mkDiv('field-row ws-row');
+    const wLabel=document.createElement('label'); wLabel.textContent='W';
+    const wNum=document.createElement('input'); wNum.type='number'; wNum.name='weight'; wNum.value=data.weight ?? 0;
+    wNum.className='enc-input';
+
+    const slash=document.createElement('span'); slash.className='slash'; slash.textContent='/';
+
+    const sLabel=document.createElement('label'); sLabel.textContent='S';
+    const sNum=document.createElement('input'); sNum.type='number'; sNum.name='stow'; sNum.value=data.stow ?? 0;
+    sNum.className='enc-input';
+
+    const gbBodyLabel=document.createElement('label'); gbBodyLabel.className='gb-inline-label'; gbBodyLabel.textContent='Gear Bonus';
+    const gbBody=document.createElement('input'); gbBody.type='number'; gbBody.name='diceMod';
+    gbBody.value=(data.diceMod ?? 0); gbBody.className='enc-input';
+
+    wsRow.append(wLabel,wNum,slash,sLabel,sNum,gbBodyLabel,gbBody);
     rows.appendChild(wsRow);
 
-    // Gear Bonus row (editable, stays in sync with header)
-    const gbRow = div('field-row gb-row');
-    const gbBodyLabel = document.createElement('label'); gbBodyLabel.textContent = 'Gear Bonus';
-    const gbBody = document.createElement('input'); gbBody.type='number'; gbBody.name='diceMod';
-    gbBody.value = (data.diceMod ?? 0); gbBody.className='enc-input gb-input gb-input-body';
-    gbRow.append(gbBodyLabel, gbBody);
-    rows.appendChild(gbRow);
-
-    // Description at the base
-    const desc = document.createElement('textarea');
-    desc.className = 'description';
-    desc.placeholder = 'Description…';
-    desc.value = data.description || '';
+    // Description at base
+    const desc=document.createElement('textarea');
+    desc.className='description'; desc.placeholder='Description…'; desc.value=data.description || '';
 
     // Footer (Remove only)
-    const footer = div('card-footer');
-    const btnRemove = document.createElement('button');
-    btnRemove.type='button'; btnRemove.textContent='Remove'; btnRemove.title='Remove this item';
-    btnRemove.addEventListener('click', ()=> card.remove());
+    const footer=mkDiv('card-footer');
+    const btnRemove=document.createElement('button'); btnRemove.type='button'; btnRemove.textContent='Remove'; btnRemove.title='Remove this item';
+    btnRemove.addEventListener('click',()=>card.remove());
     footer.append(btnRemove);
 
     // Assemble
-    body.append(rows, desc);
-    card.append(header, body, footer);
+    body.append(rows,desc); card.append(header,body,footer);
 
     // Behaviour
     // Sync header/body Gear Bonus both ways
-    function syncFromHeader(){
-      const v = gbHeader.value; gbBody.value = v; data.diceMod = v;
-    }
-    function syncFromBody(){
-      const v = gbBody.value; gbHeader.value = v; data.diceMod = v;
-    }
-    gbHeader.addEventListener('input', syncFromHeader);
-    gbBody.addEventListener('input', syncFromBody);
+    const syncFromHeader=()=>{ const v=gbHeader.value; gbBody.value=v; data.diceMod=v; };
+    const syncFromBody  =()=>{ const v=gbBody.value;   gbHeader.value=v; data.diceMod=v; };
+    gbHeader.addEventListener('input',syncFromHeader);
+    gbBody.addEventListener('input',syncFromBody);
 
     // Minimise
     minBtn.addEventListener('click', ()=>{
       card.classList.toggle('min');
-      if (!card.classList.contains('min')){
-        requestAnimationFrame(()=>{
-          desc.style.height = 'auto';
-          desc.style.height = (desc.scrollHeight + 2) + 'px';
-        });
+      if(!card.classList.contains('min')){
+        requestAnimationFrame(()=>{ desc.style.height='auto'; desc.style.height=(desc.scrollHeight+2)+'px'; });
       }
     });
-
-    // Minimise by clicking empty header area
-    header.addEventListener('click', (e)=>{
-      const isControl = e.target === title || e.target === gbHeader || e.target === gbRoll
-                     || e.target === dragHandle || e.target === minBtn
-                     || e.target === lockBtn   || gbWrap.contains(e.target);
-      if (isControl) return;
-      minBtn.click();
+    header.addEventListener('click',(e)=>{
+      const isCtl = e.target===title || e.target===gbHeader || e.target===gbRoll
+                 || e.target===dragHandle || e.target===minBtn || e.target===lockBtn
+                 || gbWrap.contains(e.target);
+      if(!isCtl) minBtn.click();
     });
 
-    // Lock
-    lockBtn.addEventListener('click', ()=>{
-      data._locked = !data._locked;
-      applyLockState();
-    });
-
+    // Lock — keep dice button usable even when locked
     function applyLockState(){
-      const locked = !!data._locked;
+      const locked=!!data._locked;
       setLockIcon(locked);
-      card.classList.toggle('is-locked', locked);
-      const controls = card.querySelectorAll('input, textarea, select, button');
-      controls.forEach(el=>{
-        const keep = (el===dragHandle || el===minBtn || el===lockBtn || el===btnRemove || el===gbRoll);
-        if (keep) return;
-        el.disabled = locked;
+      card.classList.toggle('is-locked',locked);
+
+      card.querySelectorAll('input, textarea, select, button').forEach(el=>{
+        const keep=(el===dragHandle||el===minBtn||el===lockBtn||el===btnRemove); // gbRoll intentionally NOT disabled
+        if(keep) return;
+        el.disabled=locked;                      // inputs/fields can lock
       });
-      btnRemove.disabled = locked;
-      gbRoll.style.pointerEvents = locked ? 'none' : 'auto';
-      gbRoll.style.opacity = locked ? .6 : 1;
+      btnRemove.disabled=locked;
+      // Do NOT disable or dim gbRoll:
+      gbRoll.style.pointerEvents='auto';
+      gbRoll.style.opacity='1';
     }
+    lockBtn.addEventListener('click',()=>{ data._locked=!data._locked; applyLockState(); });
     applyLockState();
 
-    title.addEventListener('input', ()=>{ data.name = title.value; });
+    title.addEventListener('input',()=>{ data.name=title.value; });
 
     // Handle-only drag
-    let allowDrag = false;
-    dragHandle.addEventListener('mousedown', ()=>{ allowDrag = true; card.setAttribute('draggable','true'); });
-    window.addEventListener('mouseup', ()=>{ allowDrag = false; card.removeAttribute('draggable'); });
-    card.addEventListener('dragstart', (e)=>{
-      if (!allowDrag) { e.preventDefault(); return; }
-      card.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-      try { e.dataTransfer.setData('text/plain', id); } catch {}
+    let allowDrag=false;
+    dragHandle.addEventListener('mousedown',()=>{ allowDrag=true; card.setAttribute('draggable','true'); });
+    window.addEventListener('mouseup',()=>{ allowDrag=false; card.removeAttribute('draggable'); });
+    card.addEventListener('dragstart',e=>{
+      if(!allowDrag){ e.preventDefault(); return; }
+      card.classList.add('dragging'); e.dataTransfer.effectAllowed='move';
+      try{ e.dataTransfer.setData('text/plain',id); }catch{}
     });
-    card.addEventListener('dragend', ()=>{
-      card.classList.remove('dragging');
-      clearDropTargets();
-    });
+    card.addEventListener('dragend',()=>{ card.classList.remove('dragging'); clearDropTargets(); });
 
     return card;
   }
 
-  // ---- helpers ----
-  function div(cls){ const n=document.createElement('div'); n.className=cls; return n; }
-  function span(cls,txt){ const n=document.createElement('span'); if(cls) n.className=cls; n.textContent=txt; return n; }
-  function inp(type,cls,val,ph){ const n=document.createElement('input'); n.type=type; if(cls) n.className=cls; if(val!=null) n.value=val; if(ph) n.placeholder=ph; return n; }
-  function btn(cls,txt,title){ const n=document.createElement('button'); if(cls) n.className=cls; n.type='button'; if(txt!=null) n.textContent=txt; if(title) n.title=title; return n; }
+  // ---- helpers (safe names) ----
+  function mkDiv(cls){ const n=document.createElement('div'); n.className=cls; return n; }
+  function mkSpan(txt){ const n=document.createElement('span'); n.textContent=txt; return n; }
+  function mkInput(type,cls,val,ph){ const n=document.createElement('input'); n.type=type; if(cls) n.className=cls; if(val!=null) n.value=val; if(ph) n.placeholder=ph; return n; }
+  function mkBtn(cls,txt,title){ const n=document.createElement('button'); if(cls) n.className=cls; n.type='button'; if(txt!=null) n.textContent=txt; if(title) n.title=title; return n; }
 
 })();
 </script>
-
-
 
 <!-- Close body + html -->
 </body>
