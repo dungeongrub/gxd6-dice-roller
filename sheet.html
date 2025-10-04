@@ -466,15 +466,28 @@ button{
   box-sizing:border-box !important;
 }
 
-/* Dice overlaps the field a smidge */
-.gb-wrap{ position:relative; display:inline-block; }
+/* Overlap the dice but keep it mostly outside the field */
+.gb-wrap{ position:relative; display:inline-block; margin-right:8px; } /* slight spacing from next control */
 .gb-wrap .gb-input-header{ display:block; }
 .gb-wrap .gb-roll{
   position:absolute;
   top:50%;
-  right:-3px;              /* adjust overlap here (−2 to −4px) */
+  right:-10px;  /* ← move further right so it doesn't cover the number */
   transform:translateY(-50%);
+  pointer-events:auto;
 }
+
+/* Make header labels single line & compact */
+.hdr-label{
+  display:inline-block;        /* was flex/column */
+  white-space:nowrap;
+  font:11px 'DominicanSmall',serif;
+  text-transform:lowercase;
+  line-height:10px;
+}
+
+/* Tighten vertical spacing between header rows */
+.stack-wrap{ display:flex; flex-direction:column; gap:0; } /* was gap:2px */
 
 
 /* Roll button + press animation (15×15) */
@@ -1943,7 +1956,7 @@ header.append(dragH, title, hdrRight);
 
 // Row 1: Gear Bonus (label / field + overlapping roll)
 const gbRow = mkDiv('hdr-row gb-row');
-const gbLabel = mkDiv('hdr-label'); gbLabel.append(mkSpan('gear'), mkSpan('bonus'));
+const gbLabel = mkDiv('hdr-label'); gbLabel.textContent = 'Gear Bonus';
 
 const gbHeader=document.createElement('input');
 gbHeader.type='number'; gbHeader.name='diceMod';
