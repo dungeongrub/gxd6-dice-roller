@@ -1793,14 +1793,37 @@ ${css}
   }
   const uid=()=> 'gc_'+Math.random().toString(36).slice(2,9);
 
+  // ---------- Encumbrance auto-sum ----------
+  const num = v => { const n = parseFloat(v); return Number.isFinite(n) ? Math.max(0, n) : 0; };
+  function recalcEncumbrance(){
+    let w=0, s=0;
+    list.querySelectorAll('input[name="weight"]').forEach(el=> w += num(el.value));
+    list.querySelectorAll('input[name="stow"]').forEach(el=>   s += num(el.value));
+    const wCur = document.getElementById('encWeightCur');
+    const sCur = document.getElementById('encStowCur');
+    if (wCur) wCur.value = Math.round(w);
+    if (sCur) sCur.value = Math.round(s);
+  }
+  // Expose in case you ever want to call it elsewhere
+  window.recalcEncumbrance = recalcEncumbrance;
+
+  function wireEncListeners(card){
+    const w = card.querySelector('input[name="weight"]');
+    const s = card.querySelector('input[name="stow"]');
+    [w,s].forEach(el => el && el.addEventListener('input', recalcEncumbrance));
+  }
+
   // ---------- Public API ----------
   window.spawnBlankGearCard=function(kind){
     const type=(kind==='armor')?'armour':(kind==='narcotic')?'chemical':(kind||'gear');
     const data={ id:uid(), name:'', description:'', diceMod:0, weight:0, stow:0 };
-    const el=createCardEl(type,data); list.appendChild(el); return el;
+    const el=createCardEl(type,data); list.appendChild(el);
+    wireEncListeners(el); recalcEncumbrance();
+    return el;
   };
   window.spawnGearCardFromLibrary=function(item){
-    const type=resolveTemplate(item.type||'gear',item.tags); const el=createCardEl(type,item||{}); list.appendChild(el); return el;
+    const type=resolveTemplate(item.type||'gear',item.tags); const el=createCardEl(type,item||{});
+    list.appendChild(el); wireEncListeners(el); recalcEncumbrance(); return el;
   };
   window.exportCharacterGear=function(){
     const out=[]; list.querySelectorAll('.gear-card').forEach(card=>{
@@ -1822,10 +1845,17 @@ ${css}
     }); return out;
   };
   window.importCharacterGear=function(items){
-    list.innerHTML=''; if(!Array.isArray(items)) return;
-    items.forEach(data=>{ const el=createCardEl(data.type||'gear',data); if(data._min) el.classList.add('min'); if(data._locked) el.classList.add('is-locked'); list.appendChild(el); });
+    list.innerHTML=''; if(!Array.isArray(items)) { recalcEncumbrance(); return; }
+    items.forEach(data=>{
+      const el=createCardEl(data.type||'gear',data);
+      if(data._min) el.classList.add('min');
+      if(data._locked) el.classList.add('is-locked');
+      list.appendChild(el);
+      wireEncListeners(el);
+    });
+    recalcEncumbrance();
   };
-  window.clearGearCards=function(){ list.innerHTML=''; };
+  window.clearGearCards=function(){ list.innerHTML=''; recalcEncumbrance(); };
 
   // ---------- DnD ----------
   if(!list.dataset.ddInit){
@@ -1881,11 +1911,10 @@ ${css}
     gbRoll.title='Add Gear Bonus to dice pool';
     gbRoll.addEventListener('click',()=>{
       // Press animation
-      gbRoll.classList.remove('is-animating'); // restart if double-clicked quickly
-      void gbRoll.offsetWidth; // reflow to reset animation
+      gbRoll.classList.remove('is-animating');
+      void gbRoll.offsetWidth;
       gbRoll.classList.add('is-animating');
       gbRoll.addEventListener('animationend',()=>gbRoll.classList.remove('is-animating'),{once:true});
-
       const v=parseInt(gbHeader.value,10)||0;
       if(v && typeof window.changePool==='function') window.changePool(+v);
     });
@@ -1934,7 +1963,7 @@ ${css}
     // Footer (Remove only)
     const footer=mkDiv('card-footer');
     const btnRemove=document.createElement('button'); btnRemove.type='button'; btnRemove.textContent='Remove'; btnRemove.title='Remove this item';
-    btnRemove.addEventListener('click',()=>card.remove());
+    btnRemove.addEventListener('click',()=>{ card.remove(); recalcEncumbrance(); });
     footer.append(btnRemove);
 
     // Assemble
@@ -1946,6 +1975,9 @@ ${css}
     const syncFromBody  =()=>{ const v=gbBody.value;   gbHeader.value=v; data.diceMod=v; };
     gbHeader.addEventListener('input',syncFromHeader);
     gbBody.addEventListener('input',syncFromBody);
+
+    // Also wire W/S change listeners for encumbrance totals
+    [wNum,sNum].forEach(el=> el.addEventListener('input', recalcEncumbrance));
 
     // Minimise
     minBtn.addEventListener('click', ()=>{
@@ -1970,10 +2002,10 @@ ${css}
       card.querySelectorAll('input, textarea, select, button').forEach(el=>{
         const keep=(el===dragHandle||el===minBtn||el===lockBtn||el===btnRemove); // gbRoll intentionally NOT disabled
         if(keep) return;
-        el.disabled=locked;                      // inputs/fields can lock
+        el.disabled=locked;
       });
       btnRemove.disabled=locked;
-      // Do NOT disable or dim gbRoll:
+      // do not disable or dim gbRoll
       gbRoll.style.pointerEvents='auto';
       gbRoll.style.opacity='1';
     }
@@ -2002,8 +2034,12 @@ ${css}
   function mkInput(type,cls,val,ph){ const n=document.createElement('input'); n.type=type; if(cls) n.className=cls; if(val!=null) n.value=val; if(ph) n.placeholder=ph; return n; }
   function mkBtn(cls,txt,title){ const n=document.createElement('button'); if(cls) n.className=cls; n.type='button'; if(txt!=null) n.textContent=txt; if(title) n.title=title; return n; }
 
+  // Initial calc (in case there are preloaded cards)
+  recalcEncumbrance();
+
 })();
 </script>
+
 
 <!-- Close body + html -->
 </body>
