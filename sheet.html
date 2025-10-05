@@ -447,7 +447,7 @@ button{
 
 /* Compact text fields (+2px height as requested) */
 .enc-text{
-  height:17px;                         /* +2px vs before */
+  height:17px;                         /* +2px vs earlier */
   font: 11px 'Dominican', serif;       /* text uses Dominican */
   border:1px solid #000; background:#fff;
   padding:0 4px; box-sizing:border-box;
@@ -460,11 +460,23 @@ button{
   padding:0 2px; box-sizing:border-box;
 }
 
-/* Make Damage Type 15px narrower so it stays on one line */
+/* Damage Type 15px narrower so it stays on one line */
 #panel-gear .gear-card .ws-row input[name="damageType"]{
   width:110px;               /* ~15px narrower */
   min-width:90px;
 }
+
+/* ================= Boxed field layout ================= */
+.field-row{ display:flex; align-items:center; flex-wrap:wrap; gap:6px; } /* base gap between rows */
+.field-row.boxed{ gap:2px; } /* gaps between boxes: 2px */
+.field-box{
+  display:inline-flex; align-items:center;
+  border:1px solid #000; padding:0; gap:2px; /* zero padding, tiny internal gap */
+}
+.field-box > label{ margin:0; padding:0; font:11px 'DominicanSmall',serif; }
+.field-box > input[type="number"]{ margin:0; }
+.field-box > input[type="text"]{ margin:0; }
+.field-box > select{ margin:0; }
 
 /* ================= GEAR CARDS ================= */
 #gearPanelInner{
@@ -529,11 +541,10 @@ button{
 
 /* -------- Body -------- */
 .card-body{ display:flex; flex-direction:column; gap:8px; padding:8px; }
-.fields-rows{ display:flex; flex-direction:column; gap:6px; }      /* uniform 6px gap */
-.field-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.fields-rows{ display:flex; flex-direction:column; gap:6px; }
 .field-row label{ font:11px 'DominicanSmall',serif; }
 
-/* W/S row */
+/* W/S row (legacy fallback) */
 .ws-row input[type="number"]{
   width:22px; height:15px; text-align:center;
   font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px;
@@ -561,6 +572,7 @@ button{
 .gear-card.is-locked{ opacity:.96 }
 .gear-card.is-locked .card-title{ opacity:.85 }
 </style>
+
 
 <!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 
@@ -1864,18 +1876,23 @@ header.append(dragH, title, hdrRight);
   const uid = () => 'gc_'+Math.random().toString(36).slice(2,9);
   const num = v => { const n = parseFloat(v); return Number.isFinite(n) ? Math.max(0, n) : 0; };
 
-  function mkDiv(cls){ const n=document.createElement('div'); n.className=cls; return n; }
-  function mkInput(type,cls,val,ph){ const n=document.createElement('input'); n.type=type; if(cls) n.className=cls; if(val!=null) n.value=val; if(ph) n.placeholder=ph; return n; }
-  function mkBtn(cls,txt,title){ const n=document.createElement('button'); if(cls) n.className=cls; n.type='button'; if(txt!=null) n.textContent=txt; if(title) n.title=title; return n; }
-  function mkLabel(txt){ const n=document.createElement('label'); n.textContent = txt; return n; }
-  function mkSelect(cls, values, selected){
-    const s = document.createElement('select'); if (cls) s.className = cls;
+  const mkDiv = (cls)=>{ const n=document.createElement('div'); n.className=cls; return n; };
+  const mkInput=(type,cls,val,ph)=>{ const n=document.createElement('input'); n.type=type; if(cls) n.className=cls; if(val!=null) n.value=val; if(ph) n.placeholder=ph; return n; };
+  const mkBtn  =(cls,txt,title)=>{ const n=document.createElement('button'); if(cls) n.className=cls; n.type='button'; if(txt!=null) n.textContent=txt; if(title) n.title=title; return n; };
+  const mkLabel=(txt)=>{ const n=document.createElement('label'); n.textContent=txt; return n; };
+  const mkSelect=(cls, values, selected)=>{
+    const s=document.createElement('select'); if(cls) s.className=cls;
     values.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; s.appendChild(o); });
     s.value = selected ?? values[0];
     return s;
-  }
-
-  function setLockIcon(btn, locked){ btn.style.backgroundImage = `url('img/${locked?'lock.png':'lock_open.png'}')`; }
+  };
+  const box = (labelTxt, controlEl, extraClass) => {
+    const b = mkDiv('field-box' + (extraClass ? (' '+extraClass) : ''));
+    const lab = mkLabel(labelTxt);
+    b.append(lab, controlEl);
+    return b;
+  };
+  const setLockIcon=(btn,locked)=> btn.style.backgroundImage=`url('img/${locked?'lock.png':'lock_open.png'}')`;
 
   // Encumbrance auto-sum (W & S across all cards)
   function recalcEncumbrance(){
@@ -1911,15 +1928,11 @@ header.append(dragH, title, hdrRight);
       const gbLabel = mkDiv('hdr-label'); gbLabel.textContent = 'Gear Bonus';
       gbHeader = mkInput('number','gb-input-header enc-input', (data.diceMod ?? 0));
       gbHeader.name = 'diceMod';
-
       gbRoll = document.createElement('img');
       gbRoll.src='img/roll_icon.png'; gbRoll.alt='Roll'; gbRoll.className='gb-roll hdr-15';
       gbRoll.title='Add Gear Bonus to dice pool';
-
-      const gbWrap = mkDiv('gb-wrap');
-      gbWrap.append(gbHeader, gbRoll);
-      gbRow.append(gbLabel, gbWrap);
-      stackWrap.append(gbRow);
+      const gbWrap = mkDiv('gb-wrap'); gbWrap.append(gbHeader, gbRoll);
+      gbRow.append(gbLabel, gbWrap); stackWrap.append(gbRow);
 
       gbRoll.addEventListener('click',()=>{
         gbRoll.classList.remove('is-animating'); void gbRoll.offsetWidth; gbRoll.classList.add('is-animating');
@@ -1936,8 +1949,7 @@ header.append(dragH, title, hdrRight);
       const dmgLabel = mkDiv('hdr-label'); dmgLabel.textContent='damage';
       dmgHeader = mkInput('number','dmg-input-header enc-input',(data.damage ?? 0));
       dmgHeader.name = 'damage';
-      dmgRow.append(dmgLabel, dmgHeader);
-      stackWrap.append(dmgRow);
+      dmgRow.append(dmgLabel, dmgHeader); stackWrap.append(dmgRow);
     }
 
     // Minimise/Lock
@@ -1958,8 +1970,7 @@ header.append(dragH, title, hdrRight);
     const btnRemove = document.createElement('button'); btnRemove.type='button'; btnRemove.textContent='Remove'; btnRemove.title='Remove this item';
     footer.append(btnRemove);
 
-    body.append(rows, desc);
-    card.append(header, body, footer);
+    body.append(rows, desc); card.append(header, body, footer);
 
     // Minimise behaviour (button + empty header click)
     minBtn.addEventListener('click', ()=>{
@@ -2006,35 +2017,32 @@ header.append(dragH, title, hdrRight);
     return { card, header, body, rows, footer, gbHeader, gbRoll, dmgHeader, title };
   }
 
-  // ---------- Shared rows ----------
-  function buildWSRow(data, options){
-    const wsRow = mkDiv('field-row ws-row');
+  // ---------- Shared rows (boxed) ----------
+  function buildWSRowBoxed(data, options){
+    const row = mkDiv('field-row boxed');
 
-    const wLabel = mkLabel('W');
-    const wNum   = mkInput('number','enc-input', data.weight ?? 0); wNum.name='weight';
-    const slash  = document.createElement('span'); slash.className='slash'; slash.textContent='/';
-    const sLabel = mkLabel('S');
-    const sNum   = mkInput('number','enc-input', data.stow   ?? 0); sNum.name='stow';
-
-    wsRow.append(wLabel, wNum, slash, sLabel, sNum);
+    const wNum = mkInput('number','enc-input', data.weight ?? 0); wNum.name='weight';
+    const sNum = mkInput('number','enc-input', data.stow   ?? 0); sNum.name='stow';
+    row.append(
+      box('W', wNum),
+      box('S', sNum)
+    );
 
     if (options?.inlineGearBonus){
-      const gbLabel = mkLabel('Gear Bonus');
-      const gbBody  = mkInput('number','enc-input', data.diceMod ?? 0); gbBody.name='diceMod';
-      wsRow.append(gbLabel, gbBody);
-      if (options.headerGb){ // keep header <-> body in sync
+      const gbBody = mkInput('number','enc-input', data.diceMod ?? 0); gbBody.name='diceMod';
+      row.append( box('Gear Bonus', gbBody) );
+      if (options.headerGb){
         const hb = options.headerGb;
-        const syncFromHeader = () => { const v = hb.value; gbBody.value = v; data.diceMod = v; };
-        const syncFromBody   = () => { const v = gbBody.value; hb.value = v; data.diceMod = v; };
+        const syncFromHeader = () => { const v=hb.value; gbBody.value=v; data.diceMod=v; };
+        const syncFromBody   = () => { const v=gbBody.value; hb.value=v; data.diceMod=v; };
         hb.addEventListener('input', syncFromHeader);
         gbBody.addEventListener('input', syncFromBody);
       }
     }
 
     if (options?.inlineDamage){
-      const dmgLbl = mkLabel('damage');
       const dmgBody = mkInput('number','enc-input', data.damage ?? 0); dmgBody.name='damage';
-      wsRow.append(dmgLbl, dmgBody);
+      row.append( box('damage', dmgBody) );
       if (options.headerDmg){
         const hd = options.headerDmg;
         const syncDmgHdr  = () => { dmgBody.value = hd.value; data.damage = hd.value; };
@@ -2045,65 +2053,62 @@ header.append(dragH, title, hdrRight);
     }
 
     if (options?.damageTypeText){
-      const typeLbl = mkLabel('type:');
       const typeTxt = mkInput('text','enc-text', data.damageType ?? data.wpnTypeText ?? ''); typeTxt.name='damageType';
-      wsRow.append(typeLbl, typeTxt);
+      row.append( box('type:', typeTxt) );
     }
 
-    // keep encumbrance live
     [wNum, sNum].forEach(el => el.addEventListener('input', recalcEncumbrance));
-    return wsRow;
+    return row;
   }
 
   // ---------- Individual card builders ----------
   function createWeaponCard(data){
     const s = createBaseCardSkeleton('weapon', data, { headerGearBonus:true, headerDamage:true });
 
-    // Line 1: Skill · Type · Grip
-    const metaRow = mkDiv('field-row');
-    const skillLbl = mkLabel('Skill:');
+    // Line 1: Skill · Type · Grip (boxed)
+    const metaRow = mkDiv('field-row boxed');
     const skillSel = mkSelect('enc-select', ['Fight','Marksmanship','Other'], data.skill || 'Fight'); skillSel.name='skill';
-
-    const classLbl = mkLabel('Type:');
     const classSel = mkSelect('enc-select', ['Bludgeon','Blade','Firearm','Projectile','Static','Thrown'], data.wpnClass || 'Bludgeon'); classSel.name='wpnClass';
-
-    const gripLbl  = mkLabel('Grip:');
     const gripSel  = mkSelect('enc-select', ['1 hand','2 hands'], data.grip || '1 hand'); gripSel.name='grip';
-
-    metaRow.append(skillLbl,skillSel, classLbl,classSel, gripLbl,gripSel);
+    metaRow.append(
+      box('Skill:', skillSel),
+      box('Type:',  classSel),
+      box('Grip:',  gripSel)
+    );
     s.rows.appendChild(metaRow);
 
-    // Line 2: W/S + Gear Bonus + Damage + Damage Type (text)
-    const wsRow = buildWSRow(data, {
+    // Line 2: W/S + Gear Bonus + Damage + Damage Type (boxed)
+    const wsRow = buildWSRowBoxed(data, {
       inlineGearBonus:true, inlineDamage:true, damageTypeText:true,
       headerGb: s.gbHeader, headerDmg: s.dmgHeader
     });
     s.rows.appendChild(wsRow);
 
-    // Line 3: Reach/Range + (conditionally) Shots + Reload(AP)
-    const rrRow = mkDiv('field-row rr-row');
-    const rrLbl = mkLabel('Reach/Range');
-    const rrSel = mkSelect('enc-select', ['Close','Short','Medium','Long'], data.reachRange || 'Close'); rrSel.name='reachRange';
-    rrRow.append(rrLbl, rrSel);
+    // Line 3: Reach/Range + Shots + Reload(AP) (boxed)
+    const rrRow = mkDiv('field-row boxed rr-row');
 
-    // Shots + Reload (tiny numeric) containers
-    const shotsLbl  = mkLabel('Shots');
+    const rrSel = mkSelect('enc-select', ['Close','Short','Medium','Long'], data.reachRange || 'Close'); rrSel.name='reachRange';
     const shotsNum  = mkInput('number','enc-input-xs', data.shots ?? 0); shotsNum.name='shots';
-    const reloadLbl = mkLabel('Reload (AP)');
     const reloadNum = mkInput('number','enc-input-xs', data.reloadAP ?? 0); reloadNum.name='reloadAP';
 
-    // Inline style "belt-and-braces" so globals cannot upsize these
+    // inline "belt & braces" tiny sizing so globals can’t upsize
     const tinyCss = 'width:15px;height:15px;font-family:DeutschGothic,monospace;font-size:10px;line-height:12px;padding:0;border:1px solid #000;box-sizing:border-box;';
     shotsNum.style.cssText  = tinyCss;
     reloadNum.style.cssText = tinyCss;
 
-    rrRow.append(shotsLbl, shotsNum, reloadLbl, reloadNum);
+    // boxed elements
+    const reachBox  = box('Reach/Range', rrSel);
+    const shotsBox  = box('Shots',       shotsNum);
+    const reloadBox = box('Reload (AP)', reloadNum);
+
+    rrRow.append(reachBox, shotsBox, reloadBox);
     s.rows.appendChild(rrRow);
 
     // Show Shots/Reload only for ranged classes
     function setRangedVisibility(){
       const ranged = ['Firearm','Projectile'].includes(classSel.value);
-      [shotsLbl, shotsNum, reloadLbl, reloadNum].forEach(el => el.style.display = ranged ? '' : 'none');
+      shotsBox.style.display  = ranged ? 'inline-flex' : 'none';
+      reloadBox.style.display = ranged ? 'inline-flex' : 'none';
     }
     setRangedVisibility();
     classSel.addEventListener('change', setRangedVisibility);
@@ -2114,16 +2119,16 @@ header.append(dragH, title, hdrRight);
   function createArmourCard(data){
     const s = createBaseCardSkeleton('armour', data, { headerGearBonus:false, headerDamage:false });
 
-    // Line 1: Coverage, Armour Value, Penalties
-    const r1 = mkDiv('field-row');
-    const covLbl = mkLabel('Coverage'); const cov = mkInput('text','enc-text', data.coverage||''); cov.name='coverage';
-    const avLbl  = mkLabel('Armour Value'); const av = mkInput('number','enc-input', data.armor ?? data.armour ?? 0); av.name='armor';
-    const penLbl = mkLabel('Penalties'); const pen = mkInput('text','enc-text', data.penalty||''); pen.name='penalty';
-    r1.append(covLbl,cov, avLbl,av, penLbl,pen);
+    // Line 1: Coverage, Armour Value, Penalties (boxed)
+    const r1 = mkDiv('field-row boxed');
+    const cov = mkInput('text','enc-text', data.coverage||''); cov.name='coverage';
+    const av  = mkInput('number','enc-input', data.armor ?? data.armour ?? 0); av.name='armor';
+    const pen = mkInput('text','enc-text', data.penalty||''); pen.name='penalty';
+    r1.append( box('Coverage', cov), box('Armour Value', av), box('Penalties', pen) );
     s.rows.appendChild(r1);
 
-    // Line 2: W/S only
-    const wsRow = buildWSRow(data, { inlineGearBonus:false, inlineDamage:false });
+    // Line 2: W/S only (boxed)
+    const wsRow = buildWSRowBoxed(data, { inlineGearBonus:false, inlineDamage:false });
     s.rows.appendChild(wsRow);
 
     return s.card;
@@ -2132,8 +2137,8 @@ header.append(dragH, title, hdrRight);
   function createGearCard(data){
     const s = createBaseCardSkeleton('gear', data, { headerGearBonus:true, headerDamage:false });
 
-    // Line 1: W/S + Gear Bonus (only)
-    const wsRow = buildWSRow(data, { inlineGearBonus:true, inlineDamage:false, headerGb:s.gbHeader });
+    // Line 1: W/S + Gear Bonus (boxed)
+    const wsRow = buildWSRowBoxed(data, { inlineGearBonus:true, inlineDamage:false, headerGb:s.gbHeader });
     s.rows.appendChild(wsRow);
 
     return s.card;
@@ -2142,33 +2147,34 @@ header.append(dragH, title, hdrRight);
   function createChemicalCard(data){
     const s = createBaseCardSkeleton('chemical', data, { headerGearBonus:false, headerDamage:false });
 
-    // Line 1: W/S (chemicals still carry weight/stow)
-    const wsRow = buildWSRow(data, { inlineGearBonus:false, inlineDamage:false });
+    // Line 1: W/S (boxed)
+    const wsRow = buildWSRowBoxed(data, { inlineGearBonus:false, inlineDamage:false });
     s.rows.appendChild(wsRow);
 
-    // Line 2+: specific fields
-    const r2 = mkDiv('field-row');
-    r2.append(mkLabel('Dose'), mkInput('text','enc-text', data.dose||'')); r2.lastChild.name='dose';
-    r2.append(mkLabel('Duration'), mkInput('text','enc-text', data.duration||'')); r2.lastChild.name='duration';
+    // Line 2: Dose / Duration (boxed)
+    const r2 = mkDiv('field-row boxed');
+    const dose = mkInput('text','enc-text', data.dose||''); dose.name='dose';
+    const dur  = mkInput('text','enc-text', data.duration||''); dur.name='duration';
+    r2.append( box('Dose', dose), box('Duration', dur) );
     s.rows.appendChild(r2);
 
+    // Line 3+: multi-line fields (not boxed)
     const r3 = mkDiv('field-row');
     r3.append(mkLabel('Effects (+/− dice)'));
     const eff = document.createElement('textarea'); eff.rows=2; eff.value=data.effects||''; eff.name='effects';
     eff.style.width='100%'; eff.style.fontFamily="Gothics, Dominican, serif"; eff.style.fontSize='11px';
-    r3.append(eff);
-    s.rows.appendChild(r3);
+    r3.append(eff); s.rows.appendChild(r3);
 
     const r4 = mkDiv('field-row');
     r4.append(mkLabel('Withdrawal/Crash'));
     const wd = document.createElement('textarea'); wd.rows=2; wd.value=data.withdrawal||''; wd.name='withdrawal';
     wd.style.width='100%'; wd.style.fontFamily="Gothics, Dominican, serif"; wd.style.fontSize='11px';
-    r4.append(wd);
-    s.rows.appendChild(r4);
+    r4.append(wd); s.rows.appendChild(r4);
 
-    const r5 = mkDiv('field-row');
-    r5.append(mkLabel('Addiction Rating'), mkInput('text','enc-text', data.addiction||'')); r5.lastChild.name='addiction';
-    r5.append(mkLabel('Price'), mkInput('text','enc-text', data.price||'')); r5.lastChild.name='price';
+    const r5 = mkDiv('field-row boxed');
+    const add = mkInput('text','enc-text', data.addiction||''); add.name='addiction';
+    const price = mkInput('text','enc-text', data.price||'');  price.name='price';
+    r5.append( box('Addiction Rating', add), box('Price', price) );
     s.rows.appendChild(r5);
 
     return s.card;
@@ -2190,7 +2196,7 @@ header.append(dragH, title, hdrRight);
     return el;
   };
 
-  // Export: collect common + all named fields present on each card
+  // Export: collect per-card fields
   window.exportCharacterGear = function(){
     const out=[]; list.querySelectorAll('.gear-card').forEach(card=>{
       const item={
@@ -2201,7 +2207,6 @@ header.append(dragH, title, hdrRight);
         name:card.querySelector('.card-title')?.value||'',
         description:card.querySelector('.description')?.value||'',
       };
-      // Grab all named inputs/selects/textareas in this card
       card.querySelectorAll('.card-body [name], .card-header [name]').forEach(el=>{
         const k = el.name; if(!k) return;
         item[k] = (el.type==='checkbox') ? !!el.checked : el.value;
@@ -2210,7 +2215,7 @@ header.append(dragH, title, hdrRight);
     }); return out;
   };
 
-  // Import by type → build the right card, then feed values into matching [name] fields
+  // Import
   window.importCharacterGear = function(items){
     list.innerHTML='';
     if(!Array.isArray(items)){ recalcEncumbrance(); return; }
@@ -2222,11 +2227,9 @@ header.append(dragH, title, hdrRight);
       else if (t==='chemical' || t==='narcotic')                     el = createChemicalCard(data);
       else                                                           el = createGearCard(data);
 
-      // apply lock/min
       if (data._min)    el.classList.add('min');
       if (data._locked) el.classList.add('is-locked');
 
-      // populate fields by name
       el.querySelectorAll('[name]').forEach(ctrl=>{
         const k = ctrl.name;
         if (Object.prototype.hasOwnProperty.call(data,k)){
