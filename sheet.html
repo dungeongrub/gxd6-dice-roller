@@ -407,58 +407,75 @@ button{
 <!-- =============== START OF GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 <style id="gear-cards-css">
 /* ================= GEAR PANEL — Toolbar + Encumbrance ================= */
-#gearPanelInner{ width:450px; height:350px; border:1px dashed #0003; background:transparent; overflow:auto; padding:6px 0 0 0; box-sizing:border-box; }
-#gearToolbar{ display:flex; align-items:center; gap:3px; margin-bottom:6px; flex-wrap:nowrap; }
-#gearToolbar button{ border:1px solid #000; background:#fff; padding:0px 0px; cursor:pointer; font:12px 'DominicanSmall',serif; height:26px; line-height:20px; }
+#gearToolbar{
+  display:flex; align-items:center; gap:3px; margin-bottom:6px; flex-wrap:nowrap;
+}
+#gearToolbar button{
+  border:1px solid #000; background:#fff; padding:2px 2px; cursor:pointer;
+  font:12px 'DominicanSmall',serif; height:26px; line-height:20px;
+}
 
 .enc-block{
   margin-left:auto; width:170px; height:50px; border:1px solid #000; border-radius:2px; background:#fff;
-  box-sizing:border-box; padding:0px 0px; display:grid; grid-template-rows:14px 1fr 1fr;
+  box-sizing:border-box; padding:2px 2px; display:grid; grid-template-rows:14px 1fr 1fr;
 }
 .enc-title{ font:12px 'DominicanSmall',serif; text-align:center; line-height:14px; margin:0; }
 .enc-row{ display:flex; align-items:center; justify-content:center; gap:3px; height:14px; }
 .enc-cat{ font:10px 'DominicanSmall',serif; min-width:52px; text-align:right; }
 .enc-sub{ font:8px 'DominicanSmall',serif; opacity:.9; line-height:10px; }
 
-/* Compact field look (with !important to beat global input[type=number]) */
-#panel-gear .enc-input{
-  width:22px !important; height:15px !important; text-align:center !important;
-  font-family:'DeutschGothic',monospace !important; font-size:12px !important; line-height:12px !important;
-  border:1px solid #000 !important; background:#fff !important; padding:0 !important; box-sizing:border-box !important;
+/* ===== Input looks (Money/Encumbrance match) ===== */
+.enc-input{
+  width:22px; height:15px; text-align:center;
+  font-family:'DeutschGothic', monospace; font-size:12px; line-height:12px;
+  border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
 }
-#panel-gear .enc-text{
-  height:15px !important; font:11px 'DominicanSmall',serif !important;
-  border:1px solid #000 !important; background:#fff !important; padding:0 4px !important; box-sizing:border-box !important;
+/* Tiny numeric (Shots / Reload) */
+.enc-input-xs{
+  width:15px; height:15px; text-align:center;
+  font-family:'DeutschGothic', monospace; font-size:10px; line-height:12px;
+  border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
 }
-#panel-gear .enc-select{
-  height:15px !important; 
-  font-family:'Dominican',serif !important; 
-  font-size:11px !important; 
-  line-height:12px !important;
-  border:1px solid #000 !important; 
-  background:#fff !important; 
-  padding:0 2px !important; 
-  box-sizing:border-box !important;
+/* Compact text fields (e.g., damage type) — +2px height per request */
+.enc-text{
+  height:17px;                         /* was 15px */
+  font: 11px 'Dominican', serif;       /* text uses Dominican */
+  border:1px solid #000; background:#fff;
+  padding:0 4px; box-sizing:border-box;
+}
+/* Selects should display text in Dominican (not Deutsch) */
+.enc-select{
+  height:15px;
+  font: 11px 'Dominican', serif;       /* force text font */
+  border:1px solid #000; background:#fff;
+  padding:0 2px; box-sizing:border-box;
 }
 
-/* XS numerics for Shots / Reload (smaller font) */
-#panel-gear .enc-input-xs{
-  width:16px !important; height:15px !important; text-align:center !important;
-  font-family:'DeutschGothic',monospace !important; font-size:10px !important; line-height:12px !important;
-  border:1px solid #000 !important; background:#fff !important; padding:0 !important; box-sizing:border-box !important;
+/* Make Damage Type 15px narrower so it stays on the same line */
+#panel-gear .gear-card .ws-row input[name="damageType"]{
+  width:110px;               /* adjust as needed; 15px narrower than prior */
+  min-width:90px;
 }
 
-/* ============================ GEAR CARDS ============================= */
+/* ================= GEAR CARDS ================= */
+#gearPanelInner{
+  width:450px; height:350px; border:1px dashed #0003; background:transparent; overflow:auto;
+  padding:6px 0 0 0; box-sizing:border-box;
+}
 .gear-list{ display:flex; flex-direction:column; gap:8px; padding-top:10px; padding-left:0; }
+
 .gear-card{
   position:relative; width:100%;
-  background:#fff; border:1px solid #000; border-radius:0;
-  box-shadow:0 2px 6px rgba(0,0,0,.15); box-sizing:border-box;
+  background:#fff; border:1px solid #000; border-radius:0; box-shadow:0 2px 6px rgba(0,0,0,.15);
+  box-sizing:border-box;
 }
 .gear-card.min .card-body, .gear-card.min .card-footer{ display:none !important; }
 
-/* -------- Header layout: drag | title | [stack of rows] | [min over lock] -------- */
-.card-header{ display:flex; align-items:center; gap:6px; justify-content:flex-start; padding:4px 6px; background:#f2f2f2; border-bottom:1px solid #000; user-select:none; }
+/* -------- Header layout: drag | title | [stack rows] | [min over lock] -------- */
+.card-header{
+  display:flex; align-items:center; gap:6px; justify-content:flex-start;
+  padding:4px 6px; background:#f2f2f2; border-bottom:1px solid #000; user-select:none;
+}
 .drag-handle{ border:1px solid #000; background:#fff; width:22px; height:22px; line-height:20px; padding:0; cursor:grab; }
 .card-title{
   flex:1 1 auto; min-width:0; border:none; background:transparent;
@@ -466,26 +483,36 @@ button{
   padding:0; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .hdr-right{ margin-left:auto; display:flex; align-items:flex-start; gap:8px; }
+
+/* 15×15 header controls (everything except drag + title) */
 .hdr-15{ width:15px; height:15px; box-sizing:border-box; }
 .hdr-btn{ border:1px solid #000; background:#fff; padding:0; cursor:pointer; line-height:13px; text-align:center; }
 
-/* Two compact header rows (Gear Bonus, Damage) */
-.stack-wrap{ display:flex; flex-direction:column; gap:0; }
+/* Two header rows: 1) Gear Bon. [field][roll]  2) (weapons only) damage [field] */
+.stack-wrap{ display:flex; flex-direction:column; gap:2px; }
 .hdr-row{ display:flex; align-items:center; gap:3px; }
 .hdr-label{ display:inline-block; white-space:nowrap; font:11px 'DominicanSmall',serif; text-transform:lowercase; line-height:10px; }
 
-/* Header inputs (already compact; keep !) */
+/* Header fields look like Money/Encumbrance */
 .gb-input-header, .dmg-input-header{
   width:22px !important; height:15px !important; text-align:center !important;
   font-family:'DeutschGothic', monospace !important; font-size:12px !important; line-height:15px !important;
   border:1px solid #000 !important; background:#fff !important; padding:0 !important; box-sizing:border-box !important;
 }
-
-/* Gear Bonus roll icon overlaps slightly to the right */
+/* Dice icon overlaps the Gear Bonus field a bit */
 .gb-wrap{ position:relative; display:inline-block; margin-right:8px; }
-.gb-roll{ width:15px; height:15px; cursor:pointer; transform-origin:center; }
+.gb-wrap .gb-input-header{ display:block; }
+.gb-wrap .gb-roll{
+  position:absolute; top:50%; right:-10px; transform:translateY(-50%); pointer-events:auto;
+  width:15px; height:15px; cursor:pointer; transform-origin:center;
+}
 .gb-roll.is-animating{ animation: gb-press 300ms ease; }
-@keyframes gb-press{ 0%{ transform:scale(1) rotate(0); } 30%{ transform:scale(.9) rotate(-10deg); } 70%{ transform:scale(1.1) rotate(12deg); } 100%{ transform:scale(1) rotate(0); } }
+@keyframes gb-press{
+  0%{ transform:scale(1) rotate(0deg); }
+  30%{ transform:scale(0.9) rotate(-10deg); }
+  70%{ transform:scale(1.1) rotate(12deg); }
+  100%{ transform:scale(1) rotate(0deg); }
+}
 
 /* Minimise stacked over Lock (far right) */
 .mm-wrap{ display:flex; flex-direction:column; gap:2px; }
@@ -493,16 +520,17 @@ button{
 
 /* -------- Body -------- */
 .card-body{ display:flex; flex-direction:column; gap:8px; padding:8px; }
-
-/* Three lines (uniform gaps) */
-.fields-rows{ display:flex; flex-direction:column; gap:6px; }  /* uniform 1↔2↔3 spacing */
+.fields-rows{ display:flex; flex-direction:column; gap:6px; }      /* uniform vertical gaps */
 .field-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 .field-row label{ font:11px 'DominicanSmall',serif; }
 
-/* Line 2: W/S · Gear Bonus · damage · type(text) — make type 15px narrower */
-#panel-gear .gear-card .ws-row input[name="damageType"]{
-  width:100px !important;   /* was ~120px → now 20px narrower */
+/* W/S row (Money/Encumbrance look for numeric) */
+.ws-row input[type="number"]{
+  width:22px; height:15px; text-align:center;
+  font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px;
+  border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
 }
+.ws-row .slash{ font:11px 'DominicanSmall',serif; opacity:.9; }
 
 /* Description */
 .card-body textarea.description{
@@ -510,17 +538,22 @@ button{
   font-family:'Gothics','Dominican',serif; font-size:11px; resize:vertical; padding:4px; box-sizing:border-box;
 }
 
-/* Footer */
-.card-footer{ display:flex; gap:6px; justify-content:flex-end; padding:6px; border-top:1px solid #000; background:#fafafa; }
-.card-footer button{ border:1px solid #000; background:#fff; padding:2px 8px; cursor:pointer; font:12px 'DominicanSmall',serif; }
+/* Footer (Remove only) */
+.card-footer{
+  display:flex; gap:6px; justify-content:flex-end; padding:6px; border-top:1px solid #000; background:#fafafa;
+}
+.card-footer button{
+  border:1px solid #000; background:#fff; padding:2px 8px; cursor:pointer; font:12px 'DominicanSmall',serif;
+}
 
 /* Visuals */
-.gear-card.dragging{ opacity:.6; }
-.gear-card.drop-target{ outline:2px dashed #0077ff; }
-.gear-card.is-locked{ opacity:.96; }
-.gear-card.is-locked .card-title{ opacity:.85; }
-</style>
+.gear-card.dragging{ opacity:.6 }
+.gear-card.drop-target{ outline:2px dashed #0077ff }
+.gear-card.is-locked{ opacity:.96 }
+.gear-card.is-locked .card-title{ opacity:.85 }
 
+/* (Keep gaps uniform — no special negative margins between rows) */
+</style>
 
 
 <!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
@@ -1815,22 +1848,33 @@ header.append(dragH, title, hdrRight);
 (function GearCardsModule(){
   'use strict';
 
-  // ---------- Panel & list ----------
+  /* ---------- Panel & list ---------- */
   const panel = document.getElementById('gearPanelInner') || document.querySelector('#panel-gear #gearPanelInner');
   if(!panel){ console.warn('[GearCards] #gearPanelInner not found.'); return; }
   let list = panel.querySelector('.gear-list');
   if(!list){ list = document.createElement('section'); list.className = 'gear-list'; panel.appendChild(list); }
 
-  // ---------- Templates ----------
-const TEMPLATES = {
-  weapon_melee:  [],      // we render standardized rows below
-  weapon_ranged: [],
-  armour:        [{k:'coverage',t:'text',label:'Coverage'},{k:'armor',t:'number',label:'Armour Value'},{k:'penalty',t:'text',label:'Penalties'}],
-  chemical:      [{k:'dose',t:'text',label:'Dose'},{k:'duration',t:'text',label:'Duration'},{k:'effects',t:'textarea',label:'Effects (+/− dice)'},{k:'withdrawal',t:'textarea',label:'Withdrawal/Crash'},{k:'addiction',t:'text',label:'Addiction Rating'},{k:'price',t:'text',label:'Price'}],
-  gear:          []
-};
+  /* ---------- Templates ---------- */
+  const TEMPLATES = {
+    weapon_melee:  [],  // standardized rows are built in code below
+    weapon_ranged: [],
+    armour:        [
+      {k:'coverage', t:'text',    label:'Coverage'},
+      {k:'armor',    t:'number',  label:'Armour Value'},
+      {k:'penalty',  t:'text',    label:'Penalties'}
+    ],
+    chemical:      [
+      {k:'dose',       t:'text',     label:'Dose'},
+      {k:'duration',   t:'text',     label:'Duration'},
+      {k:'effects',    t:'textarea', label:'Effects (+/− dice)'},
+      {k:'withdrawal', t:'textarea', label:'Withdrawal/Crash'},
+      {k:'addiction',  t:'text',     label:'Addiction Rating'},
+      {k:'price',      t:'text',     label:'Price'}
+    ],
+    gear:          []
+  };
 
-  function resolveTemplate(baseType,tags){
+  function resolveTemplate(baseType, tags){
     const t=(tags||[]).map(s=>String(s).toLowerCase());
     if(baseType==='weapon'){ if(t.includes('ranged')||t.includes('firearm')) return 'weapon_ranged'; return 'weapon_melee'; }
     if(baseType==='armor'||baseType==='armour') return 'armour';
@@ -1839,7 +1883,7 @@ const TEMPLATES = {
   }
   const uid=()=> 'gc_'+Math.random().toString(36).slice(2,9);
 
-  // ---------- Encumbrance auto-sum ----------
+  /* ---------- Encumbrance auto-sum ---------- */
   const num = v => { const n = parseFloat(v); return Number.isFinite(n) ? Math.max(0, n) : 0; };
   function recalcEncumbrance(){
     let w=0, s=0;
@@ -1857,7 +1901,7 @@ const TEMPLATES = {
     [w,s].forEach(el => el && el.addEventListener('input', recalcEncumbrance));
   }
 
-  // ---------- Public API ----------
+  /* ---------- Public API ---------- */
   window.spawnBlankGearCard=function(kind){
     const type=(kind==='armor')?'armour':(kind==='narcotic')?'chemical':(kind||'gear');
     const data={ id:uid(), name:'', description:'', diceMod:0, weight:0, stow:0, damage:0 };
@@ -1886,10 +1930,12 @@ const TEMPLATES = {
         const k=el.name; if(!k) return; item[k]=(el.type==='checkbox')?!!el.checked:el.value;
       });
       out.push(item);
-    }); return out;
+    });
+    return out;
   };
   window.importCharacterGear=function(items){
-    list.innerHTML=''; if(!Array.isArray(items)) { recalcEncumbrance(); return; }
+    list.innerHTML='';
+    if(!Array.isArray(items)) { recalcEncumbrance(); return; }
     items.forEach(data=>{
       const el=createCardEl(data.type||'gear',data);
       if(data._min) el.classList.add('min');
@@ -1900,7 +1946,7 @@ const TEMPLATES = {
   };
   window.clearGearCards=function(){ list.innerHTML=''; recalcEncumbrance(); };
 
-  // ---------- DnD ----------
+  /* ---------- DnD ---------- */
   if(!list.dataset.ddInit){
     list.dataset.ddInit='1';
     list.addEventListener('dragover',e=>{
@@ -1923,14 +1969,15 @@ const TEMPLATES = {
     },{offset:Number.NEGATIVE_INFINITY,element:null}).element;
   }
 
-  // ---------- Card builder ----------
+  /* ---------- Card builder ---------- */
   function createCardEl(type,data){
     const id=data.id||uid(); const templateKey=resolveTemplate(type,data.tags);
+    const isWeapon = templateKey.startsWith('weapon_');
 
     const card=document.createElement('article');
     card.className='gear-card'; card.dataset.cardId=id; card.dataset.cardType=type;
 
-    // ----- Header: drag | title | [stack rows] | [min over lock] -----
+    /* ----- Header: drag | title | [stack rows] | [min over lock] ----- */
     const header=mkDiv('card-header');
 
     const dragHandle=mkBtn('drag-handle','↕','Drag to reorder');  // 22×22
@@ -1938,51 +1985,49 @@ const TEMPLATES = {
 
     const hdrRight = mkDiv('hdr-right');
 
-    // --- two separate rows ---
+    // Stack two rows on the right
     const stackWrap = mkDiv('stack-wrap');
 
-// Row 1: Gear Bonus (label / field + overlapping roll)
-const gbRow = mkDiv('hdr-row gb-row');
-const gbLabel = mkDiv('hdr-label'); gbLabel.textContent = 'Gear Bonus';
+    // Row 1: Gear Bonus (label / field + overlapping roll)
+    const gbRow = mkDiv('hdr-row gb-row');
+    const gbLabel = mkDiv('hdr-label'); gbLabel.textContent = 'Gear Bonus';
 
-const gbHeader=document.createElement('input');
-gbHeader.type='number'; gbHeader.name='diceMod';
-gbHeader.value=(data.diceMod ?? data.bonus ?? 0);
-gbHeader.className='gb-input-header enc-input'; // match Encumbrance fields
+    const gbHeader=document.createElement('input');
+    gbHeader.type='number'; gbHeader.name='diceMod';
+    gbHeader.value=(data.diceMod ?? data.bonus ?? 0);
+    gbHeader.className='gb-input-header enc-input'; // match Money/Encumbrance look
 
-const gbRoll=document.createElement('img');
-gbRoll.src='img/roll_icon.png'; gbRoll.alt='Roll'; gbRoll.className='gb-roll hdr-15';
-gbRoll.title='Add Gear Bonus to dice pool';
+    const gbRoll=document.createElement('img');
+    gbRoll.src='img/roll_icon.png'; gbRoll.alt='Roll'; gbRoll.className='gb-roll hdr-15';
+    gbRoll.title='Add Gear Bonus to dice pool';
 
-const gbWrap = mkDiv('gb-wrap');         // lets the dice overlap the field
-gbWrap.append(gbHeader, gbRoll);
+    const gbWrap = mkDiv('gb-wrap');
+    gbWrap.append(gbHeader, gbRoll);
+    gbRow.append(gbLabel, gbWrap);
 
-gbRow.append(gbLabel, gbWrap);
+    gbRoll.addEventListener('click',()=>{
+      gbRoll.classList.remove('is-animating'); void gbRoll.offsetWidth; gbRoll.classList.add('is-animating');
+      gbRoll.addEventListener('animationend',()=>gbRoll.classList.remove('is-animating'),{once:true});
+      const v=parseInt(gbHeader.value,10)||0;
+      if(v && typeof window.changePool==='function') window.changePool(+v);
+    });
 
-gbRoll.addEventListener('click',()=>{
-  gbRoll.classList.remove('is-animating'); void gbRoll.offsetWidth; gbRoll.classList.add('is-animating');
-  gbRoll.addEventListener('animationend',()=>gbRoll.classList.remove('is-animating'),{once:true});
-  const v=parseInt(gbHeader.value,10)||0;
-  if(v && typeof window.changePool==='function') window.changePool(+v);
-});
-
-
-    // Row 2: Damage (label / field) — weapons only
+    // Row 2: Damage (header) — WEAPONS ONLY
     let dmgHeader=null;
-    const dmgRow = mkDiv('hdr-row dmg-row');
-    const dmgLabel = mkDiv('hdr-label'); dmgLabel.textContent='damage';
-    if (templateKey.startsWith('weapon_')){
-	
-	dmgHeader=document.createElement('input');
-dmgHeader.type='number';
-dmgHeader.className='dmg-input-header enc-input'; // match Encumbrance fields
-dmgHeader.value=(data.damage ?? 0);
+    if (isWeapon){
+      const dmgRow = mkDiv('hdr-row dmg-row');
+      const dmgLabel = mkDiv('hdr-label'); dmgLabel.textContent='damage';
+      dmgHeader=document.createElement('input');
+      dmgHeader.type='number';
+      dmgHeader.className='dmg-input-header enc-input';
+      dmgHeader.value=(data.damage ?? 0);
       dmgRow.append(dmgLabel, dmgHeader);
+      stackWrap.append(gbRow, dmgRow);
+    } else {
+      stackWrap.append(gbRow);
     }
 
-    stackWrap.append(gbRow);
-if (templateKey.startsWith('weapon_')) stackWrap.append(dmgRow);
-    // Min over Lock stack
+    // Minimise/Lock stack
     const mmWrap = mkDiv('mm-wrap');
     const minBtn = mkBtn('min-btn hdr-btn hdr-15','–','Minimise / expand');
     const lockBtn= mkBtn('lock-btn hdr-btn hdr-15','','Lock / Unlock');
@@ -1993,41 +2038,43 @@ if (templateKey.startsWith('weapon_')) stackWrap.append(dmgRow);
     hdrRight.append(stackWrap, mmWrap);
     header.append(dragHandle, title, hdrRight);
 
-    // ----- Body -----
+    /* ----- Body ----- */
     const body=mkDiv('card-body');
     const rows=mkDiv('fields-rows');
 
-// ---------- Line 1: Skill · Type · Grip ----------
-const metaRow = mkDiv('field-row');
+    // (A) Line 1: Skill · Type · Grip — WEAPONS ONLY
+    if (isWeapon) {
+      const metaRow = mkDiv('field-row');
 
-// Skill
-const skillLbl = document.createElement('label'); skillLbl.textContent = 'Skill:';
-const skillSel = document.createElement('select'); skillSel.name = 'skill'; skillSel.className = 'enc-select';
-['Fight','Marksmanship','Other'].forEach(v => {
-  const o = document.createElement('option'); o.value = v; o.textContent = v; skillSel.appendChild(o);
-});
-skillSel.value = data.skill || 'Fight';
+      // Skill
+      const skillLbl = document.createElement('label'); skillLbl.textContent = 'Skill:';
+      const skillSel = document.createElement('select'); skillSel.name = 'skill'; skillSel.className = 'enc-select';
+      ['Fight','Marksmanship','Other'].forEach(v => {
+        const o = document.createElement('option'); o.value = v; o.textContent = v; skillSel.appendChild(o);
+      });
+      skillSel.value = data.skill || 'Fight';
 
-// Type (weapon class)
-const classLbl = document.createElement('label'); classLbl.textContent = 'Type:';
-const classSel = document.createElement('select'); classSel.name = 'wpnClass'; classSel.className = 'enc-select';
-['Bludgeon','Blade','Firearm','Projectile','Static','Thrown'].forEach(v => {
-  const o = document.createElement('option'); o.value = v; o.textContent = v; classSel.appendChild(o);
-});
-classSel.value = data.wpnClass || 'Bludgeon';
+      // Type (weapon class)
+      const classLbl = document.createElement('label'); classLbl.textContent = 'Type:';
+      const classSel = document.createElement('select'); classSel.name = 'wpnClass'; classSel.className = 'enc-select';
+      ['Bludgeon','Blade','Firearm','Projectile','Static','Thrown'].forEach(v => {
+        const o = document.createElement('option'); o.value = v; o.textContent = v; classSel.appendChild(o);
+      });
+      classSel.value = data.wpnClass || 'Bludgeon';
 
-// Grip
-const gripLbl = document.createElement('label'); gripLbl.textContent = 'Grip:';
-const gripSel = document.createElement('select'); gripSel.name = 'grip'; gripSel.className = 'enc-select';
-['1 hand','2 hands'].forEach(v => {
-  const o = document.createElement('option'); o.value = v; o.textContent = v; gripSel.appendChild(o);
-});
-gripSel.value = data.grip || '1 hand';
+      // Grip
+      const gripLbl = document.createElement('label'); gripLbl.textContent = 'Grip:';
+      const gripSel = document.createElement('select'); gripSel.name = 'grip'; gripSel.className = 'enc-select';
+      ['1 hand','2 hands'].forEach(v => {
+        const o = document.createElement('option'); o.value = v; o.textContent = v; gripSel.appendChild(o);
+      });
+      gripSel.value = data.grip || '1 hand';
 
-metaRow.append(skillLbl, skillSel, classLbl, classSel, gripLbl, gripSel);
-rows.appendChild(metaRow);
+      metaRow.append(skillLbl, skillSel, classLbl, classSel, gripLbl, gripSel);
+      rows.appendChild(metaRow);
+    }
 
-
+    // (B) Template-specific rows (armour/chemical/etc.)
     (TEMPLATES[templateKey]||[]).forEach(spec=>{
       const row=mkDiv('field-row');
       const label=document.createElement('label'); label.textContent=spec.label;
@@ -2037,79 +2084,79 @@ rows.appendChild(metaRow);
       row.append(label,control); rows.appendChild(row);
     });
 
-// ---------- Line 2: W/S + Gear Bonus + Damage + type(text) ----------
-const wsRow = mkDiv('field-row ws-row');
+    // (C) Line 2: W/S + Gear Bonus — and (WEAPONS ONLY) Damage + Damage Type
+    const wsRow = mkDiv('field-row ws-row');
 
-// W / S (Money/Encumbrance look)
-const wLabel = document.createElement('label'); wLabel.textContent = 'W';
-const wNum   = document.createElement('input'); wNum.type='number'; wNum.name='weight'; wNum.value = data.weight ?? 0; wNum.className='enc-input';
-const slash  = document.createElement('span');  slash.className='slash'; slash.textContent='/';
-const sLabel = document.createElement('label'); sLabel.textContent = 'S';
-const sNum   = document.createElement('input'); sNum.type='number'; sNum.name='stow';   sNum.value = data.stow   ?? 0; sNum.className='enc-input';
+    // W / S
+    const wLabel = document.createElement('label'); wLabel.textContent = 'W';
+    const wNum   = document.createElement('input'); wNum.type='number'; wNum.name='weight'; wNum.value = data.weight ?? 0; wNum.className='enc-input';
+    const slash  = document.createElement('span');  slash.className='slash'; slash.textContent='/';
+    const sLabel = document.createElement('label'); sLabel.textContent = 'S';
+    const sNum   = document.createElement('input'); sNum.type='number'; sNum.name='stow';   sNum.value = data.stow   ?? 0; sNum.className='enc-input';
 
-// Gear Bonus (inline, same tiny look)
-const gbBodyLabel = document.createElement('label'); gbBodyLabel.textContent = 'Gear Bonus';
-const gbBody      = document.createElement('input'); gbBody.type='number'; gbBody.name='diceMod'; gbBody.value = (data.diceMod ?? 0); gbBody.className='enc-input';
+    // Body Gear Bonus
+    const gbBodyLabel = document.createElement('label'); gbBodyLabel.textContent = 'Gear Bonus';
+    const gbBody      = document.createElement('input'); gbBody.type='number'; gbBody.name='diceMod';
+    gbBody.value = (data.diceMod ?? 0); gbBody.className='enc-input';
 
-// Damage (inline, tiny number like Money/Encumbrance)
-const dmgBodyLabel = document.createElement('label'); dmgBodyLabel.textContent = 'damage';
-const dmgBody      = document.createElement('input'); dmgBody.type='number'; dmgBody.name='damage'; dmgBody.value = (data.damage ?? 0); dmgBody.className='enc-input';
+    wsRow.append(wLabel, wNum, slash, sLabel, sNum, gbBodyLabel, gbBody);
 
-// Free text "type" (compact text field)
-const typeFreeLabel = document.createElement('label'); typeFreeLabel.textContent = 'type:';
-const typeFree      = document.createElement('input'); typeFree.type='text';
-typeFree.name = 'damageType';                                     // new key
-typeFree.value = (data.damageType ?? data.wpnTypeText ?? '');     // back-compat
-typeFree.className = 'enc-text';
+    if (isWeapon) {
+      // Damage + Damage Type (free text)
+      const dmgBodyLabel = document.createElement('label'); dmgBodyLabel.textContent = 'damage';
+      const dmgBody      = document.createElement('input'); dmgBody.type='number'; dmgBody.name='damage';
+      dmgBody.value = (data.damage ?? 0); dmgBody.className='enc-input';
 
+      const typeFreeLabel = document.createElement('label'); typeFreeLabel.textContent = 'type:';
+      const typeFree      = document.createElement('input'); typeFree.type='text';
+      typeFree.name = 'damageType';
+      typeFree.value = (data.damageType ?? data.wpnTypeText ?? '');
+      typeFree.className = 'enc-text';
 
-wsRow.append(
-  wLabel, wNum, slash, sLabel, sNum,
-  gbBodyLabel, gbBody,
-  dmgBodyLabel, dmgBody,
-  typeFreeLabel, typeFree
-);
-rows.appendChild(wsRow);
+      wsRow.append(dmgBodyLabel, dmgBody, typeFreeLabel, typeFree);
 
-// keep encumbrance live
-[wNum, sNum].forEach(el => el.addEventListener('input', recalcEncumbrance));
+      // link header Damage <-> body Damage
+      if (dmgHeader) {
+        const syncDmgHdr  = () => { dmgBody.value = dmgHeader.value; data.damage = dmgHeader.value; };
+        const syncDmgBody = () => { dmgHeader.value = dmgBody.value;  data.damage = dmgBody.value;  };
+        dmgHeader.addEventListener('input', syncDmgHdr);
+        dmgBody  .addEventListener('input', syncDmgBody);
+      }
+    }
 
-// link header Damage <-> body Damage (if header exists)
-if (dmgHeader) {
-  const syncDmgHdr  = () => { dmgBody.value = dmgHeader.value; data.damage = dmgHeader.value; };
-  const syncDmgBody = () => { dmgHeader.value = dmgBody.value;  data.damage = dmgBody.value;  };
-  dmgHeader.addEventListener('input', syncDmgHdr);
-  dmgBody  .addEventListener('input', syncDmgBody);
-}
+    // link header Gear Bonus <-> body Gear Bonus
+    const syncFromHeader = () => { const v = gbHeader.value; gbBody.value = v; data.diceMod = v; };
+    const syncFromBody   = () => { const v = gbBody.value;   gbHeader.value = v; data.diceMod = v; };
+    gbHeader.addEventListener('input', syncFromHeader);
+    gbBody  .addEventListener('input', syncFromBody);
 
-// link header Gear Bonus <-> body Gear Bonus
-const syncFromHeader = () => { const v = gbHeader.value; gbBody.value = v; data.diceMod = v; };
-const syncFromBody   = () => { const v = gbBody.value;   gbHeader.value = v; data.diceMod = v; };
-gbHeader.addEventListener('input', syncFromHeader);
-gbBody  .addEventListener('input', syncFromBody);
+    rows.appendChild(wsRow);
 
+    // keep encumbrance live
+    [wNum, sNum].forEach(el => el.addEventListener('input', recalcEncumbrance));
 
-// ---------- Line 3: Reach/Range + Shots + Reload (AP) ----------
-const rrRow = mkDiv('field-row rr-row');
+    // (D) Line 3: Reach/Range + Shots + Reload — WEAPONS ONLY
+    if (isWeapon) {
+      const rrRow = mkDiv('field-row rr-row');
 
-// Reach/Range dropdown (compact)
-const rrLbl = document.createElement('label'); rrLbl.textContent = 'Reach/Range';
-const rrSel = document.createElement('select'); rrSel.name='reachRange'; rrSel.className='enc-select';
-['Close','Short','Medium','Long'].forEach(v=>{
-  const o = document.createElement('option'); o.value=v; o.textContent=v; rrSel.appendChild(o);
-});
-rrSel.value = data.reachRange || 'Close';
+      const rrLbl = document.createElement('label'); rrLbl.textContent = 'Reach/Range';
+      const rrSel = document.createElement('select'); rrSel.name='reachRange'; rrSel.className='enc-select';
+      ['Close','Short','Medium','Long'].forEach(v=>{
+        const o = document.createElement('option'); o.value=v; o.textContent=v; rrSel.appendChild(o);
+      });
+      rrSel.value = data.reachRange || 'Close';
 
-// Shots (10px wide number)
-const shotsLbl = document.createElement('label'); shotsLbl.textContent = 'Shots';
-const shotsNum = document.createElement('input'); shotsNum.type='number'; shotsNum.name='shots'; shotsNum.value = (data.shots ?? 0); shotsNum.className='enc-input-xs';
+      const shotsLbl = document.createElement('label'); shotsLbl.textContent = 'Shots';
+      const shotsNum = document.createElement('input'); shotsNum.type='number'; shotsNum.name='shots';
+      shotsNum.value = (data.shots ?? 0); shotsNum.className='enc-input-xs';
 
-// Reload (AP) (10px wide number)
-const reloadLbl = document.createElement('label'); reloadLbl.textContent = 'Reload (AP)';
-const reloadNum = document.createElement('input'); reloadNum.type='number'; reloadNum.name='reloadAP'; reloadNum.value = (data.reloadAP ?? 0); reloadNum.className='enc-input-xs';
+      const reloadLbl = document.createElement('label'); reloadLbl.textContent = 'Reload (AP)';
+      const reloadNum = document.createElement('input'); reloadNum.type='number'; reloadNum.name='reloadAP';
+      reloadNum.value = (data.reloadAP ?? 0); reloadNum.className='enc-input-xs';
 
-rrRow.append(rrLbl, rrSel, shotsLbl, shotsNum, reloadLbl, reloadNum);
-rows.appendChild(rrRow);
+      rrRow.append(rrLbl, rrSel, shotsLbl, shotsNum, reloadLbl, reloadNum);
+      rows.appendChild(rrRow);
+    }
 
     // Description
     const desc=document.createElement('textarea'); desc.className='description'; desc.placeholder='Description…'; desc.value=data.description || '';
@@ -2121,9 +2168,6 @@ rows.appendChild(rrRow);
     footer.append(btnRemove);
 
     body.append(rows,desc); card.append(header,body,footer);
-
-    // Encumbrance wiring
-    [wNum,sNum].forEach(el=> el.addEventListener('input', recalcEncumbrance));
 
     // Minimise (button + empty header click)
     minBtn.addEventListener('click', ()=>{
@@ -2161,19 +2205,18 @@ rows.appendChild(rrRow);
     window.addEventListener('mouseup',()=>{ allowDrag=false; card.removeAttribute('draggable'); });
     card.addEventListener('dragstart',e=>{
       if(!allowDrag){ e.preventDefault(); return; }
-      card.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; try{ e.dataTransfer.setData('text/plain',id); }catch{}
+      card.classList.add('dragging'); e.dataTransfer.effectAllowed='move';
+      try{ e.dataTransfer.setData('text/plain',id); }catch{}
     });
     card.addEventListener('dragend',()=>{ card.classList.remove('dragging'); clearDropTargets(); });
 
     return card;
   }
 
-  // ---- helpers ----
+  /* ---- helpers ---- */
   function mkDiv(cls){ const n=document.createElement('div'); n.className=cls; return n; }
-  function mkSpan(txt){ const n=document.createElement('span'); n.textContent=txt; return n; }
   function mkInput(type,cls,val,ph){ const n=document.createElement('input'); n.type=type; if(cls) n.className=cls; if(val!=null) n.value=val; if(ph) n.placeholder=ph; return n; }
-  function mkBtn(cls,txt,title){ const n=document.createElement('button'); if(cls) n.className=cls; n.type='button'; if(txt!=null) n.textContent=txt; if(title) n.title=title; return n; 
-  }
+  function mkBtn(cls,txt,title){ const n=document.createElement('button'); if(cls) n.className=cls; n.type='button'; if(txt!=null) n.textContent=txt; if(title) n.title=title; return n; }
 
 })();
 </script>
