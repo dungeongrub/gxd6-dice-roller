@@ -424,7 +424,7 @@ button{
 .enc-cat{ font:10px 'DominicanSmall',serif; min-width:52px; text-align:right; }
 .enc-sub{ font:8px 'DominicanSmall',serif; opacity:.9; line-height:10px; }
 
-/* ===== Input looks (Money/Encumbrance match) ===== */
+/* ===== Input looks (matches Money/Encumbrance) ===== */
 .enc-input{
   width:22px; height:15px; text-align:center;
   font-family:'DeutschGothic', monospace; font-size:12px; line-height:12px;
@@ -436,38 +436,33 @@ button{
   font-family:'DeutschGothic', monospace; font-size:10px; line-height:12px;
   border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
 }
-/* Keep Shots/Reload tiny even if a global input[type=number] sets bigger fonts */
+/* HARD override to keep Shots/Reload tiny against global input[type=number] rules */
 #panel-gear .gear-card .rr-row input.enc-input-xs,
 #panel-gear .gear-card .rr-row input[name="shots"],
 #panel-gear .gear-card .rr-row input[name="reloadAP"]{
-  width:15px !important;
-  height:15px !important;
-  font-family:'DeutschGothic', monospace !important;
-  font-size:10px !important;
-  line-height:12px !important;
-  padding:0 !important;
-  border:1px solid #000 !important;
-  box-sizing:border-box !important;
+  width:15px !important; height:15px !important;
+  font-family:'DeutschGothic', monospace !important; font-size:10px !important; line-height:12px !important;
+  padding:0 !important; border:1px solid #000 !important; box-sizing:border-box !important;
 }
 
 /* Compact text fields (+2px height as requested) */
 .enc-text{
-  height:17px;                         /* was 15px */
+  height:17px;                         /* +2px vs before */
   font: 11px 'Dominican', serif;       /* text uses Dominican */
   border:1px solid #000; background:#fff;
   padding:0 4px; box-sizing:border-box;
 }
-/* Selects: ensure Dominican for text, not Deutsch */
+/* Selects: ensure Dominican for text */
 .enc-select{
   height:15px;
-  font: 11px 'Dominican', serif;
+  font: 11px 'Dominican', serif;       /* text uses Dominican */
   border:1px solid #000; background:#fff;
   padding:0 2px; box-sizing:border-box;
 }
 
-/* Make Damage Type 15px narrower so it stays on the same line */
+/* Make Damage Type 15px narrower so it stays on one line */
 #panel-gear .gear-card .ws-row input[name="damageType"]{
-  width:110px;               /* ~15px narrower than before */
+  width:110px;               /* ~15px narrower */
   min-width:90px;
 }
 
@@ -485,7 +480,7 @@ button{
 }
 .gear-card.min .card-body, .gear-card.min .card-footer{ display:none !important; }
 
-/* -------- Header layout: drag | title | [stack rows] | [min over lock] -------- */
+/* -------- Header: drag | title | [stack] | [min over lock] -------- */
 .card-header{
   display:flex; align-items:center; gap:6px; justify-content:flex-start;
   padding:4px 6px; background:#f2f2f2; border-bottom:1px solid #000; user-select:none;
@@ -498,11 +493,11 @@ button{
 }
 .hdr-right{ margin-left:auto; display:flex; align-items:flex-start; gap:8px; }
 
-/* 15×15 header controls (everything except drag + title) */
+/* 15×15 header controls */
 .hdr-15{ width:15px; height:15px; box-sizing:border-box; }
 .hdr-btn{ border:1px solid #000; background:#fff; padding:0; cursor:pointer; line-height:13px; text-align:center; }
 
-/* Two header rows: 1) Gear Bon. [field][roll]  2) (weapons only) damage [field] */
+/* Header stack */
 .stack-wrap{ display:flex; flex-direction:column; gap:2px; }
 .hdr-row{ display:flex; align-items:center; gap:3px; }
 .hdr-label{ display:inline-block; white-space:nowrap; font:11px 'DominicanSmall',serif; text-transform:lowercase; line-height:10px; }
@@ -534,11 +529,11 @@ button{
 
 /* -------- Body -------- */
 .card-body{ display:flex; flex-direction:column; gap:8px; padding:8px; }
-.fields-rows{ display:flex; flex-direction:column; gap:6px; }      /* uniform vertical gaps */
+.fields-rows{ display:flex; flex-direction:column; gap:6px; }      /* uniform 6px gap */
 .field-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 .field-row label{ font:11px 'DominicanSmall',serif; }
 
-/* W/S row (Money/Encumbrance look for numeric) */
+/* W/S row */
 .ws-row input[type="number"]{
   width:22px; height:15px; text-align:center;
   font-family:'DeutschGothic',monospace; font-size:12px; line-height:12px;
@@ -552,7 +547,7 @@ button{
   font-family:'Gothics','Dominican',serif; font-size:11px; resize:vertical; padding:4px; box-sizing:border-box;
 }
 
-/* Footer (Remove only) */
+/* Footer */
 .card-footer{
   display:flex; gap:6px; justify-content:flex-end; padding:6px; border-top:1px solid #000; background:#fafafa;
 }
@@ -566,7 +561,6 @@ button{
 .gear-card.is-locked{ opacity:.96 }
 .gear-card.is-locked .card-title{ opacity:.85 }
 </style>
-
 
 <!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 
@@ -1857,46 +1851,33 @@ header.append(dragH, title, hdrRight);
 </script>
 
 <script id="gear-cards-module">
-(function GearCardsModule(){
+(function GearCardsModuleRefactor(){
   'use strict';
 
-  /* ---------- Panel & list ---------- */
+  // ---------- Panel & list ----------
   const panel = document.getElementById('gearPanelInner') || document.querySelector('#panel-gear #gearPanelInner');
   if(!panel){ console.warn('[GearCards] #gearPanelInner not found.'); return; }
   let list = panel.querySelector('.gear-list');
   if(!list){ list = document.createElement('section'); list.className = 'gear-list'; panel.appendChild(list); }
 
-  /* ---------- Templates ---------- */
-  const TEMPLATES = {
-    weapon_melee:  [],  // standardized rows are built in code below
-    weapon_ranged: [],
-    armour:        [
-      {k:'coverage', t:'text',    label:'Coverage'},
-      {k:'armor',    t:'number',  label:'Armour Value'},
-      {k:'penalty',  t:'text',    label:'Penalties'}
-    ],
-    chemical:      [
-      {k:'dose',       t:'text',     label:'Dose'},
-      {k:'duration',   t:'text',     label:'Duration'},
-      {k:'effects',    t:'textarea', label:'Effects (+/− dice)'},
-      {k:'withdrawal', t:'textarea', label:'Withdrawal/Crash'},
-      {k:'addiction',  t:'text',     label:'Addiction Rating'},
-      {k:'price',      t:'text',     label:'Price'}
-    ],
-    gear:          []
-  };
-
-  function resolveTemplate(baseType, tags){
-    const t=(tags||[]).map(s=>String(s).toLowerCase());
-    if(baseType==='weapon'){ if(t.includes('ranged')||t.includes('firearm')) return 'weapon_ranged'; return 'weapon_melee'; }
-    if(baseType==='armor'||baseType==='armour') return 'armour';
-    if(baseType==='narcotic') return 'chemical';
-    return baseType||'gear';
-  }
-  const uid=()=> 'gc_'+Math.random().toString(36).slice(2,9);
-
-  /* ---------- Encumbrance auto-sum ---------- */
+  // ---------- Shared helpers ----------
+  const uid = () => 'gc_'+Math.random().toString(36).slice(2,9);
   const num = v => { const n = parseFloat(v); return Number.isFinite(n) ? Math.max(0, n) : 0; };
+
+  function mkDiv(cls){ const n=document.createElement('div'); n.className=cls; return n; }
+  function mkInput(type,cls,val,ph){ const n=document.createElement('input'); n.type=type; if(cls) n.className=cls; if(val!=null) n.value=val; if(ph) n.placeholder=ph; return n; }
+  function mkBtn(cls,txt,title){ const n=document.createElement('button'); if(cls) n.className=cls; n.type='button'; if(txt!=null) n.textContent=txt; if(title) n.title=title; return n; }
+  function mkLabel(txt){ const n=document.createElement('label'); n.textContent = txt; return n; }
+  function mkSelect(cls, values, selected){
+    const s = document.createElement('select'); if (cls) s.className = cls;
+    values.forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; s.appendChild(o); });
+    s.value = selected ?? values[0];
+    return s;
+  }
+
+  function setLockIcon(btn, locked){ btn.style.backgroundImage = `url('img/${locked?'lock.png':'lock_open.png'}')`; }
+
+  // Encumbrance auto-sum (W & S across all cards)
   function recalcEncumbrance(){
     let w=0, s=0;
     list.querySelectorAll('input[name="weight"]').forEach(el=> w += num(el.value));
@@ -1907,23 +1888,310 @@ header.append(dragH, title, hdrRight);
     if (sCur) sCur.value = Math.round(s);
   }
   window.recalcEncumbrance = recalcEncumbrance;
-  function wireEncListeners(card){
-    const w = card.querySelector('input[name="weight"]');
-    const s = card.querySelector('input[name="stow"]');
-    [w,s].forEach(el => el && el.addEventListener('input', recalcEncumbrance));
+
+  // ---------- Base Card Skeleton ----------
+  function createBaseCardSkeleton(type, data, opts){
+    const card = document.createElement('article');
+    card.className = 'gear-card';
+    card.dataset.cardId = data.id || uid();
+    card.dataset.cardType = type;
+
+    // Header
+    const header = mkDiv('card-header');
+    const dragHandle = mkBtn('drag-handle','↕','Drag to reorder');
+    const title = mkInput('text','card-title', data.name || data.title || '', 'Item Name');
+
+    const hdrRight = mkDiv('hdr-right');
+    const stackWrap = mkDiv('stack-wrap');
+
+    // Optional: Gear Bonus in header
+    let gbHeader = null, gbRoll = null;
+    if (opts.headerGearBonus !== false){
+      const gbRow = mkDiv('hdr-row');
+      const gbLabel = mkDiv('hdr-label'); gbLabel.textContent = 'Gear Bonus';
+      gbHeader = mkInput('number','gb-input-header enc-input', (data.diceMod ?? 0));
+      gbHeader.name = 'diceMod';
+
+      gbRoll = document.createElement('img');
+      gbRoll.src='img/roll_icon.png'; gbRoll.alt='Roll'; gbRoll.className='gb-roll hdr-15';
+      gbRoll.title='Add Gear Bonus to dice pool';
+
+      const gbWrap = mkDiv('gb-wrap');
+      gbWrap.append(gbHeader, gbRoll);
+      gbRow.append(gbLabel, gbWrap);
+      stackWrap.append(gbRow);
+
+      gbRoll.addEventListener('click',()=>{
+        gbRoll.classList.remove('is-animating'); void gbRoll.offsetWidth; gbRoll.classList.add('is-animating');
+        gbRoll.addEventListener('animationend',()=>gbRoll.classList.remove('is-animating'),{once:true});
+        const v=parseInt(gbHeader.value,10)||0;
+        if(v && typeof window.changePool==='function') window.changePool(+v);
+      });
+    }
+
+    // Optional: Damage field in header (Weapons only)
+    let dmgHeader = null;
+    if (opts.headerDamage === true){
+      const dmgRow = mkDiv('hdr-row');
+      const dmgLabel = mkDiv('hdr-label'); dmgLabel.textContent='damage';
+      dmgHeader = mkInput('number','dmg-input-header enc-input',(data.damage ?? 0));
+      dmgHeader.name = 'damage';
+      dmgRow.append(dmgLabel, dmgHeader);
+      stackWrap.append(dmgRow);
+    }
+
+    // Minimise/Lock
+    const mmWrap = mkDiv('mm-wrap');
+    const minBtn = mkBtn('min-btn hdr-btn hdr-15','–','Minimise / expand');
+    const lockBtn= mkBtn('lock-btn hdr-btn hdr-15','', 'Lock / Unlock');
+    setLockIcon(lockBtn, !!data._locked);
+    mmWrap.append(minBtn, lockBtn);
+
+    hdrRight.append(stackWrap, mmWrap);
+    header.append(dragHandle, title, hdrRight);
+
+    // Body + Footer
+    const body = mkDiv('card-body');
+    const rows = mkDiv('fields-rows');
+    const desc = document.createElement('textarea'); desc.className='description'; desc.placeholder='Description…'; desc.value=data.description||'';
+    const footer = mkDiv('card-footer');
+    const btnRemove = document.createElement('button'); btnRemove.type='button'; btnRemove.textContent='Remove'; btnRemove.title='Remove this item';
+    footer.append(btnRemove);
+
+    body.append(rows, desc);
+    card.append(header, body, footer);
+
+    // Minimise behaviour (button + empty header click)
+    minBtn.addEventListener('click', ()=>{
+      card.classList.toggle('min');
+      if(!card.classList.contains('min')){
+        requestAnimationFrame(()=>{ desc.style.height='auto'; desc.style.height=(desc.scrollHeight+2)+'px'; });
+      }
+    });
+    header.addEventListener('click',(e)=>{
+      const isCtl = e.target===title || e.target===dragHandle || e.target===minBtn || e.target===lockBtn || hdrRight.contains(e.target);
+      if(!isCtl) minBtn.click();
+    });
+
+    // Lock behaviour (keep dice clickable)
+    function applyLockState(){
+      const locked=!!data._locked; setLockIcon(lockBtn, locked); card.classList.toggle('is-locked',locked);
+      card.querySelectorAll('input, textarea, select, button').forEach(el=>{
+        const keep=(el===dragHandle||el===minBtn||el===lockBtn||el===btnRemove);
+        if(keep) return;
+        el.disabled=locked;
+      });
+      btnRemove.disabled=locked;
+      if (gbRoll){ gbRoll.style.pointerEvents='auto'; gbRoll.style.opacity='1'; }
+    }
+    lockBtn.addEventListener('click',()=>{ data._locked=!data._locked; applyLockState(); });
+    applyLockState();
+
+    // Remove
+    btnRemove.addEventListener('click',()=>{ card.remove(); recalcEncumbrance(); });
+
+    // Drag handle only
+    let allowDrag=false;
+    dragHandle.addEventListener('mousedown',()=>{ allowDrag=true; card.setAttribute('draggable','true'); });
+    window.addEventListener('mouseup',()=>{ allowDrag=false; card.removeAttribute('draggable'); });
+    card.addEventListener('dragstart',e=>{
+      if(!allowDrag){ e.preventDefault(); return; }
+      card.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; try{ e.dataTransfer.setData('text/plain',card.dataset.cardId); }catch{}
+    });
+    card.addEventListener('dragend',()=>{ card.classList.remove('dragging'); list.querySelectorAll('.drop-target').forEach(n=>n.classList.remove('drop-target')); });
+
+    // Title binding
+    title.addEventListener('input',()=>{ data.name=title.value; });
+
+    return { card, header, body, rows, footer, gbHeader, gbRoll, dmgHeader, title };
   }
 
-  /* ---------- Public API ---------- */
-  window.spawnBlankGearCard=function(kind){
-    const type=(kind==='armor')?'armour':(kind==='narcotic')?'chemical':(kind||'gear');
-    const data={ id:uid(), name:'', description:'', diceMod:0, weight:0, stow:0, damage:0 };
-    const el=createCardEl(type,data); list.appendChild(el); wireEncListeners(el); recalcEncumbrance(); return el;
+  // ---------- Shared rows ----------
+  function buildWSRow(data, options){
+    const wsRow = mkDiv('field-row ws-row');
+
+    const wLabel = mkLabel('W');
+    const wNum   = mkInput('number','enc-input', data.weight ?? 0); wNum.name='weight';
+    const slash  = document.createElement('span'); slash.className='slash'; slash.textContent='/';
+    const sLabel = mkLabel('S');
+    const sNum   = mkInput('number','enc-input', data.stow   ?? 0); sNum.name='stow';
+
+    wsRow.append(wLabel, wNum, slash, sLabel, sNum);
+
+    if (options?.inlineGearBonus){
+      const gbLabel = mkLabel('Gear Bonus');
+      const gbBody  = mkInput('number','enc-input', data.diceMod ?? 0); gbBody.name='diceMod';
+      wsRow.append(gbLabel, gbBody);
+      if (options.headerGb){ // keep header <-> body in sync
+        const hb = options.headerGb;
+        const syncFromHeader = () => { const v = hb.value; gbBody.value = v; data.diceMod = v; };
+        const syncFromBody   = () => { const v = gbBody.value; hb.value = v; data.diceMod = v; };
+        hb.addEventListener('input', syncFromHeader);
+        gbBody.addEventListener('input', syncFromBody);
+      }
+    }
+
+    if (options?.inlineDamage){
+      const dmgLbl = mkLabel('damage');
+      const dmgBody = mkInput('number','enc-input', data.damage ?? 0); dmgBody.name='damage';
+      wsRow.append(dmgLbl, dmgBody);
+      if (options.headerDmg){
+        const hd = options.headerDmg;
+        const syncDmgHdr  = () => { dmgBody.value = hd.value; data.damage = hd.value; };
+        const syncDmgBody = () => { hd.value = dmgBody.value; data.damage = dmgBody.value; };
+        hd.addEventListener('input', syncDmgHdr);
+        dmgBody.addEventListener('input', syncDmgBody);
+      }
+    }
+
+    if (options?.damageTypeText){
+      const typeLbl = mkLabel('type:');
+      const typeTxt = mkInput('text','enc-text', data.damageType ?? data.wpnTypeText ?? ''); typeTxt.name='damageType';
+      wsRow.append(typeLbl, typeTxt);
+    }
+
+    // keep encumbrance live
+    [wNum, sNum].forEach(el => el.addEventListener('input', recalcEncumbrance));
+    return wsRow;
+  }
+
+  // ---------- Individual card builders ----------
+  function createWeaponCard(data){
+    const s = createBaseCardSkeleton('weapon', data, { headerGearBonus:true, headerDamage:true });
+
+    // Line 1: Skill · Type · Grip
+    const metaRow = mkDiv('field-row');
+    const skillLbl = mkLabel('Skill:');
+    const skillSel = mkSelect('enc-select', ['Fight','Marksmanship','Other'], data.skill || 'Fight'); skillSel.name='skill';
+
+    const classLbl = mkLabel('Type:');
+    const classSel = mkSelect('enc-select', ['Bludgeon','Blade','Firearm','Projectile','Static','Thrown'], data.wpnClass || 'Bludgeon'); classSel.name='wpnClass';
+
+    const gripLbl  = mkLabel('Grip:');
+    const gripSel  = mkSelect('enc-select', ['1 hand','2 hands'], data.grip || '1 hand'); gripSel.name='grip';
+
+    metaRow.append(skillLbl,skillSel, classLbl,classSel, gripLbl,gripSel);
+    s.rows.appendChild(metaRow);
+
+    // Line 2: W/S + Gear Bonus + Damage + Damage Type (text)
+    const wsRow = buildWSRow(data, {
+      inlineGearBonus:true, inlineDamage:true, damageTypeText:true,
+      headerGb: s.gbHeader, headerDmg: s.dmgHeader
+    });
+    s.rows.appendChild(wsRow);
+
+    // Line 3: Reach/Range + (conditionally) Shots + Reload(AP)
+    const rrRow = mkDiv('field-row rr-row');
+    const rrLbl = mkLabel('Reach/Range');
+    const rrSel = mkSelect('enc-select', ['Close','Short','Medium','Long'], data.reachRange || 'Close'); rrSel.name='reachRange';
+    rrRow.append(rrLbl, rrSel);
+
+    // Shots + Reload (tiny numeric) containers
+    const shotsLbl  = mkLabel('Shots');
+    const shotsNum  = mkInput('number','enc-input-xs', data.shots ?? 0); shotsNum.name='shots';
+    const reloadLbl = mkLabel('Reload (AP)');
+    const reloadNum = mkInput('number','enc-input-xs', data.reloadAP ?? 0); reloadNum.name='reloadAP';
+
+    // Inline style "belt-and-braces" so globals cannot upsize these
+    const tinyCss = 'width:15px;height:15px;font-family:DeutschGothic,monospace;font-size:10px;line-height:12px;padding:0;border:1px solid #000;box-sizing:border-box;';
+    shotsNum.style.cssText  = tinyCss;
+    reloadNum.style.cssText = tinyCss;
+
+    rrRow.append(shotsLbl, shotsNum, reloadLbl, reloadNum);
+    s.rows.appendChild(rrRow);
+
+    // Show Shots/Reload only for ranged classes
+    function setRangedVisibility(){
+      const ranged = ['Firearm','Projectile'].includes(classSel.value);
+      [shotsLbl, shotsNum, reloadLbl, reloadNum].forEach(el => el.style.display = ranged ? '' : 'none');
+    }
+    setRangedVisibility();
+    classSel.addEventListener('change', setRangedVisibility);
+
+    return s.card;
+  }
+
+  function createArmourCard(data){
+    const s = createBaseCardSkeleton('armour', data, { headerGearBonus:false, headerDamage:false });
+
+    // Line 1: Coverage, Armour Value, Penalties
+    const r1 = mkDiv('field-row');
+    const covLbl = mkLabel('Coverage'); const cov = mkInput('text','enc-text', data.coverage||''); cov.name='coverage';
+    const avLbl  = mkLabel('Armour Value'); const av = mkInput('number','enc-input', data.armor ?? data.armour ?? 0); av.name='armor';
+    const penLbl = mkLabel('Penalties'); const pen = mkInput('text','enc-text', data.penalty||''); pen.name='penalty';
+    r1.append(covLbl,cov, avLbl,av, penLbl,pen);
+    s.rows.appendChild(r1);
+
+    // Line 2: W/S only
+    const wsRow = buildWSRow(data, { inlineGearBonus:false, inlineDamage:false });
+    s.rows.appendChild(wsRow);
+
+    return s.card;
+  }
+
+  function createGearCard(data){
+    const s = createBaseCardSkeleton('gear', data, { headerGearBonus:true, headerDamage:false });
+
+    // Line 1: W/S + Gear Bonus (only)
+    const wsRow = buildWSRow(data, { inlineGearBonus:true, inlineDamage:false, headerGb:s.gbHeader });
+    s.rows.appendChild(wsRow);
+
+    return s.card;
+  }
+
+  function createChemicalCard(data){
+    const s = createBaseCardSkeleton('chemical', data, { headerGearBonus:false, headerDamage:false });
+
+    // Line 1: W/S (chemicals still carry weight/stow)
+    const wsRow = buildWSRow(data, { inlineGearBonus:false, inlineDamage:false });
+    s.rows.appendChild(wsRow);
+
+    // Line 2+: specific fields
+    const r2 = mkDiv('field-row');
+    r2.append(mkLabel('Dose'), mkInput('text','enc-text', data.dose||'')); r2.lastChild.name='dose';
+    r2.append(mkLabel('Duration'), mkInput('text','enc-text', data.duration||'')); r2.lastChild.name='duration';
+    s.rows.appendChild(r2);
+
+    const r3 = mkDiv('field-row');
+    r3.append(mkLabel('Effects (+/− dice)'));
+    const eff = document.createElement('textarea'); eff.rows=2; eff.value=data.effects||''; eff.name='effects';
+    eff.style.width='100%'; eff.style.fontFamily="Gothics, Dominican, serif"; eff.style.fontSize='11px';
+    r3.append(eff);
+    s.rows.appendChild(r3);
+
+    const r4 = mkDiv('field-row');
+    r4.append(mkLabel('Withdrawal/Crash'));
+    const wd = document.createElement('textarea'); wd.rows=2; wd.value=data.withdrawal||''; wd.name='withdrawal';
+    wd.style.width='100%'; wd.style.fontFamily="Gothics, Dominican, serif"; wd.style.fontSize='11px';
+    r4.append(wd);
+    s.rows.appendChild(r4);
+
+    const r5 = mkDiv('field-row');
+    r5.append(mkLabel('Addiction Rating'), mkInput('text','enc-text', data.addiction||'')); r5.lastChild.name='addiction';
+    r5.append(mkLabel('Price'), mkInput('text','enc-text', data.price||'')); r5.lastChild.name='price';
+    s.rows.appendChild(r5);
+
+    return s.card;
+  }
+
+  // ---------- Public API ----------
+  window.spawnBlankGearCard = function(kind){
+    const type = (kind==='armor') ? 'armour' : (kind || 'gear');
+    let el;
+    const base = { id: uid(), name:'', description:'', diceMod:0, weight:0, stow:0, damage:0 };
+
+    if (type === 'weapon')       el = createWeaponCard(base);
+    else if (type === 'armour')  el = createArmourCard(base);
+    else if (type === 'chemical')el = createChemicalCard(base);
+    else                         el = createGearCard(base);
+
+    list.appendChild(el);
+    recalcEncumbrance();
+    return el;
   };
-  window.spawnGearCardFromLibrary=function(item){
-    const type=resolveTemplate(item.type||'gear',item.tags);
-    const el=createCardEl(type,item||{}); list.appendChild(el); wireEncListeners(el); recalcEncumbrance(); return el;
-  };
-  window.exportCharacterGear=function(){
+
+  // Export: collect common + all named fields present on each card
+  window.exportCharacterGear = function(){
     const out=[]; list.querySelectorAll('.gear-card').forEach(card=>{
       const item={
         id:card.dataset.cardId||null,
@@ -1932,33 +2200,50 @@ header.append(dragH, title, hdrRight);
         _min:card.classList.contains('min'),
         name:card.querySelector('.card-title')?.value||'',
         description:card.querySelector('.description')?.value||'',
-        diceMod:card.querySelector('.gb-input-header')?.value||0,
-        weight: card.querySelector('input[name="weight"]')?.value ?? 0,
-        stow:   card.querySelector('input[name="stow"]')?.value   ?? 0
       };
-      const dmgHdr = card.querySelector('.dmg-input-header');
-      if (dmgHdr) item.damage = dmgHdr.value || 0;
-      card.querySelectorAll('.fields-rows [name]:not([name="weight"]):not([name="stow"])').forEach(el=>{
-        const k=el.name; if(!k) return; item[k]=(el.type==='checkbox')?!!el.checked:el.value;
+      // Grab all named inputs/selects/textareas in this card
+      card.querySelectorAll('.card-body [name], .card-header [name]').forEach(el=>{
+        const k = el.name; if(!k) return;
+        item[k] = (el.type==='checkbox') ? !!el.checked : el.value;
       });
       out.push(item);
-    });
-    return out;
+    }); return out;
   };
-  window.importCharacterGear=function(items){
+
+  // Import by type → build the right card, then feed values into matching [name] fields
+  window.importCharacterGear = function(items){
     list.innerHTML='';
-    if(!Array.isArray(items)) { recalcEncumbrance(); return; }
+    if(!Array.isArray(items)){ recalcEncumbrance(); return; }
     items.forEach(data=>{
-      const el=createCardEl(data.type||'gear',data);
-      if(data._min) el.classList.add('min');
-      if(data._locked) el.classList.add('is-locked');
-      list.appendChild(el); wireEncListeners(el);
+      let el;
+      const t = (data.type||'gear').toLowerCase();
+      if (t==='weapon' || t==='weapon_melee' || t==='weapon_ranged') el = createWeaponCard(data);
+      else if (t==='armour' || t==='armor')                          el = createArmourCard(data);
+      else if (t==='chemical' || t==='narcotic')                     el = createChemicalCard(data);
+      else                                                           el = createGearCard(data);
+
+      // apply lock/min
+      if (data._min)    el.classList.add('min');
+      if (data._locked) el.classList.add('is-locked');
+
+      // populate fields by name
+      el.querySelectorAll('[name]').forEach(ctrl=>{
+        const k = ctrl.name;
+        if (Object.prototype.hasOwnProperty.call(data,k)){
+          if (ctrl.type==='checkbox') ctrl.checked = !!data[k];
+          else ctrl.value = (data[k] ?? '');
+        }
+      });
+
+      list.appendChild(el);
     });
     recalcEncumbrance();
   };
-  window.clearGearCards=function(){ list.innerHTML=''; recalcEncumbrance(); };
 
-  /* ---------- DnD ---------- */
+  // Clear all
+  window.clearGearCards = function(){ list.innerHTML=''; recalcEncumbrance(); };
+
+  // ---------- Drag & drop reorder on list ----------
   if(!list.dataset.ddInit){
     list.dataset.ddInit='1';
     list.addEventListener('dragover',e=>{
@@ -1967,11 +2252,11 @@ header.append(dragH, title, hdrRight);
       const dragging=list.querySelector('.gear-card.dragging');
       if(!dragging) return;
       if(after==null) list.appendChild(dragging); else list.insertBefore(dragging,after);
-      clearDropTargets(); (after||dragging)?.classList.add('drop-target');
+      list.querySelectorAll('.drop-target').forEach(n=>n.classList.remove('drop-target'));
+      (after||dragging)?.classList.add('drop-target');
     });
-    list.addEventListener('drop',()=>clearDropTargets());
+    list.addEventListener('drop',()=> list.querySelectorAll('.drop-target').forEach(n=>n.classList.remove('drop-target')));
   }
-  function clearDropTargets(){ list.querySelectorAll('.drop-target').forEach(n=>n.classList.remove('drop-target')); }
   function getCardAfterY(container,y){
     const cards=[...container.querySelectorAll('.gear-card:not(.dragging)')];
     return cards.reduce((closest,child)=>{
@@ -1980,255 +2265,6 @@ header.append(dragH, title, hdrRight);
       return closest;
     },{offset:Number.NEGATIVE_INFINITY,element:null}).element;
   }
-
-  /* ---------- Card builder ---------- */
-  function createCardEl(type,data){
-    const id=data.id||uid(); const templateKey=resolveTemplate(type,data.tags);
-    const isWeapon = templateKey.startsWith('weapon_');
-
-    const card=document.createElement('article');
-    card.className='gear-card'; card.dataset.cardId=id; card.dataset.cardType=type;
-
-    /* ----- Header: drag | title | [stack rows] | [min over lock] ----- */
-    const header=mkDiv('card-header');
-
-    const dragHandle=mkBtn('drag-handle','↕','Drag to reorder');  // 22×22
-    const title=mkInput('text','card-title',data.name||data.title||'','Item Name');
-
-    const hdrRight = mkDiv('hdr-right');
-
-    // Stack two rows on the right
-    const stackWrap = mkDiv('stack-wrap');
-
-    // Row 1: Gear Bonus (label / field + overlapping roll)
-    const gbRow = mkDiv('hdr-row gb-row');
-    const gbLabel = mkDiv('hdr-label'); gbLabel.textContent = 'Gear Bonus';
-
-    const gbHeader=document.createElement('input');
-    gbHeader.type='number'; gbHeader.name='diceMod';
-    gbHeader.value=(data.diceMod ?? data.bonus ?? 0);
-    gbHeader.className='gb-input-header enc-input'; // match Money/Encumbrance look
-
-    const gbRoll=document.createElement('img');
-    gbRoll.src='img/roll_icon.png'; gbRoll.alt='Roll'; gbRoll.className='gb-roll hdr-15';
-    gbRoll.title='Add Gear Bonus to dice pool';
-
-    const gbWrap = mkDiv('gb-wrap');
-    gbWrap.append(gbHeader, gbRoll);
-    gbRow.append(gbLabel, gbWrap);
-
-    gbRoll.addEventListener('click',()=>{
-      gbRoll.classList.remove('is-animating'); void gbRoll.offsetWidth; gbRoll.classList.add('is-animating');
-      gbRoll.addEventListener('animationend',()=>gbRoll.classList.remove('is-animating'),{once:true});
-      const v=parseInt(gbHeader.value,10)||0;
-      if(v && typeof window.changePool==='function') window.changePool(+v);
-    });
-
-    // Row 2: Damage (header) — WEAPONS ONLY
-    let dmgHeader=null;
-    if (isWeapon){
-      const dmgRow = mkDiv('hdr-row dmg-row');
-      const dmgLabel = mkDiv('hdr-label'); dmgLabel.textContent='damage';
-      dmgHeader=document.createElement('input');
-      dmgHeader.type='number';
-      dmgHeader.className='dmg-input-header enc-input';
-      dmgHeader.value=(data.damage ?? 0);
-      dmgRow.append(dmgLabel, dmgHeader);
-      stackWrap.append(gbRow, dmgRow);
-    } else {
-      stackWrap.append(gbRow);
-    }
-
-    // Minimise/Lock stack
-    const mmWrap = mkDiv('mm-wrap');
-    const minBtn = mkBtn('min-btn hdr-btn hdr-15','–','Minimise / expand');
-    const lockBtn= mkBtn('lock-btn hdr-btn hdr-15','','Lock / Unlock');
-    const setLockIcon=(locked)=> lockBtn.style.backgroundImage=`url('img/${locked?'lock.png':'lock_open.png'}')`;
-    setLockIcon(!!data._locked);
-    mmWrap.append(minBtn, lockBtn);
-
-    hdrRight.append(stackWrap, mmWrap);
-    header.append(dragHandle, title, hdrRight);
-
-    /* ----- Body ----- */
-    const body=mkDiv('card-body');
-    const rows=mkDiv('fields-rows');
-
-    // (A) Line 1: Skill · Type · Grip — WEAPONS ONLY
-    if (isWeapon) {
-      const metaRow = mkDiv('field-row');
-
-      // Skill
-      const skillLbl = document.createElement('label'); skillLbl.textContent = 'Skill:';
-      const skillSel = document.createElement('select'); skillSel.name = 'skill'; skillSel.className = 'enc-select';
-      ['Fight','Marksmanship','Other'].forEach(v => {
-        const o = document.createElement('option'); o.value = v; o.textContent = v; skillSel.appendChild(o);
-      });
-      skillSel.value = data.skill || 'Fight';
-
-      // Type (weapon class)
-      const classLbl = document.createElement('label'); classLbl.textContent = 'Type:';
-      const classSel = document.createElement('select'); classSel.name = 'wpnClass'; classSel.className = 'enc-select';
-      ['Bludgeon','Blade','Firearm','Projectile','Static','Thrown'].forEach(v => {
-        const o = document.createElement('option'); o.value = v; o.textContent = v; classSel.appendChild(o);
-      });
-      classSel.value = data.wpnClass || 'Bludgeon';
-
-      // Grip
-      const gripLbl = document.createElement('label'); gripLbl.textContent = 'Grip:';
-      const gripSel = document.createElement('select'); gripSel.name = 'grip'; gripSel.className = 'enc-select';
-      ['1 hand','2 hands'].forEach(v => {
-        const o = document.createElement('option'); o.value = v; o.textContent = v; gripSel.appendChild(o);
-      });
-      gripSel.value = data.grip || '1 hand';
-
-      metaRow.append(skillLbl, skillSel, classLbl, classSel, gripLbl, gripSel);
-      rows.appendChild(metaRow);
-    }
-
-    // (B) Template-specific rows (armour/chemical/etc.)
-    (TEMPLATES[templateKey]||[]).forEach(spec=>{
-      const row=mkDiv('field-row');
-      const label=document.createElement('label'); label.textContent=spec.label;
-      let control; if(spec.t==='textarea'){ control=document.createElement('textarea'); control.rows=2; }
-      else { control=document.createElement('input'); control.type=spec.t; }
-      control.name=spec.k; control.value=data[spec.k] ?? '';
-      row.append(label,control); rows.appendChild(row);
-    });
-
-    // (C) Line 2: W/S + Gear Bonus — and (WEAPONS ONLY) Damage + Damage Type
-    const wsRow = mkDiv('field-row ws-row');
-
-    // W / S
-    const wLabel = document.createElement('label'); wLabel.textContent = 'W';
-    const wNum   = document.createElement('input'); wNum.type='number'; wNum.name='weight'; wNum.value = data.weight ?? 0; wNum.className='enc-input';
-    const slash  = document.createElement('span');  slash.className='slash'; slash.textContent='/';
-    const sLabel = document.createElement('label'); sLabel.textContent = 'S';
-    const sNum   = document.createElement('input'); sNum.type='number'; sNum.name='stow';   sNum.value = data.stow   ?? 0; sNum.className='enc-input';
-
-    // Body Gear Bonus
-    const gbBodyLabel = document.createElement('label'); gbBodyLabel.textContent = 'Gear Bonus';
-    const gbBody      = document.createElement('input'); gbBody.type='number'; gbBody.name='diceMod';
-    gbBody.value = (data.diceMod ?? 0); gbBody.className='enc-input';
-
-    wsRow.append(wLabel, wNum, slash, sLabel, sNum, gbBodyLabel, gbBody);
-
-    if (isWeapon) {
-      // Damage + Damage Type (free text)
-      const dmgBodyLabel = document.createElement('label'); dmgBodyLabel.textContent = 'damage';
-      const dmgBody      = document.createElement('input'); dmgBody.type='number'; dmgBody.name='damage';
-      dmgBody.value = (data.damage ?? 0); dmgBody.className='enc-input';
-
-      const typeFreeLabel = document.createElement('label'); typeFreeLabel.textContent = 'type:';
-      const typeFree      = document.createElement('input'); typeFree.type='text';
-      typeFree.name = 'damageType';
-      typeFree.value = (data.damageType ?? data.wpnTypeText ?? '');
-      typeFree.className = 'enc-text';
-
-      wsRow.append(dmgBodyLabel, dmgBody, typeFreeLabel, typeFree);
-
-      // link header Damage <-> body Damage
-      if (dmgHeader) {
-        const syncDmgHdr  = () => { dmgBody.value = dmgHeader.value; data.damage = dmgHeader.value; };
-        const syncDmgBody = () => { dmgHeader.value = dmgBody.value;  data.damage = dmgBody.value;  };
-        dmgHeader.addEventListener('input', syncDmgHdr);
-        dmgBody  .addEventListener('input', syncDmgBody);
-      }
-    }
-
-    // link header Gear Bonus <-> body Gear Bonus
-    const syncFromHeader = () => { const v = gbHeader.value; gbBody.value = v; data.diceMod = v; };
-    const syncFromBody   = () => { const v = gbBody.value;   gbHeader.value = v; data.diceMod = v; };
-    gbHeader.addEventListener('input', syncFromHeader);
-    gbBody  .addEventListener('input', syncFromBody);
-
-    rows.appendChild(wsRow);
-
-    // keep encumbrance live
-    [wNum, sNum].forEach(el => el.addEventListener('input', recalcEncumbrance));
-
-    // (D) Line 3: Reach/Range + Shots + Reload — WEAPONS ONLY
-    if (isWeapon) {
-      const rrRow = mkDiv('field-row rr-row');
-
-      const rrLbl = document.createElement('label'); rrLbl.textContent = 'Reach/Range';
-      const rrSel = document.createElement('select'); rrSel.name='reachRange'; rrSel.className='enc-select';
-      ['Close','Short','Medium','Long'].forEach(v=>{
-        const o = document.createElement('option'); o.value=v; o.textContent=v; rrSel.appendChild(o);
-      });
-      rrSel.value = data.reachRange || 'Close';
-
-      const shotsLbl = document.createElement('label'); shotsLbl.textContent = 'Shots';
-      const shotsNum = document.createElement('input'); shotsNum.type='number'; shotsNum.name='shots';
-      shotsNum.value = (data.shots ?? 0); shotsNum.className='enc-input-xs';
-
-      const reloadLbl = document.createElement('label'); reloadLbl.textContent = 'Reload (AP)';
-      const reloadNum = document.createElement('input'); reloadNum.type='number'; reloadNum.name='reloadAP';
-      reloadNum.value = (data.reloadAP ?? 0); reloadNum.className='enc-input-xs';
-
-      rrRow.append(rrLbl, rrSel, shotsLbl, shotsNum, reloadLbl, reloadNum);
-      rows.appendChild(rrRow);
-    }
-
-    // Description
-    const desc=document.createElement('textarea'); desc.className='description'; desc.placeholder='Description…'; desc.value=data.description || '';
-
-    // Footer
-    const footer=mkDiv('card-footer');
-    const btnRemove=document.createElement('button'); btnRemove.type='button'; btnRemove.textContent='Remove'; btnRemove.title='Remove this item';
-    btnRemove.addEventListener('click',()=>{ card.remove(); recalcEncumbrance(); });
-    footer.append(btnRemove);
-
-    body.append(rows,desc); card.append(header,body,footer);
-
-    // Minimise (button + empty header click)
-    minBtn.addEventListener('click', ()=>{
-      card.classList.toggle('min');
-      if(!card.classList.contains('min')){
-        requestAnimationFrame(()=>{ desc.style.height='auto'; desc.style.height=(desc.scrollHeight+2)+'px'; });
-      }
-    });
-    header.addEventListener('click',(e)=>{
-      const isCtl = e.target===title || e.target===gbHeader || e.target===gbRoll
-                 || e.target===dragHandle || e.target===minBtn || e.target===lockBtn
-                 || hdrRight.contains(e.target);
-      if(!isCtl) minBtn.click();
-    });
-
-    // Lock (keep dice button usable)
-    function applyLockState(){
-      const locked=!!data._locked; setLockIcon(locked); card.classList.toggle('is-locked',locked);
-      card.querySelectorAll('input, textarea, select, button').forEach(el=>{
-        const keep=(el===dragHandle||el===minBtn||el===lockBtn||el===btnRemove);
-        if(keep) return;
-        el.disabled=locked;
-      });
-      btnRemove.disabled=locked;
-      gbRoll.style.pointerEvents='auto'; gbRoll.style.opacity='1';
-    }
-    lockBtn.addEventListener('click',()=>{ data._locked=!data._locked; applyLockState(); });
-    applyLockState();
-
-    title.addEventListener('input',()=>{ data.name=title.value; });
-
-    // Drag handle only
-    let allowDrag=false;
-    dragHandle.addEventListener('mousedown',()=>{ allowDrag=true; card.setAttribute('draggable','true'); });
-    window.addEventListener('mouseup',()=>{ allowDrag=false; card.removeAttribute('draggable'); });
-    card.addEventListener('dragstart',e=>{
-      if(!allowDrag){ e.preventDefault(); return; }
-      card.classList.add('dragging'); e.dataTransfer.effectAllowed='move';
-      try{ e.dataTransfer.setData('text/plain',id); }catch{}
-    });
-    card.addEventListener('dragend',()=>{ card.classList.remove('dragging'); clearDropTargets(); });
-
-    return card;
-  }
-
-  /* ---- helpers ---- */
-  function mkDiv(cls){ const n=document.createElement('div'); n.className=cls; return n; }
-  function mkInput(type,cls,val,ph){ const n=document.createElement('input'); n.type=type; if(cls) n.className=cls; if(val!=null) n.value=val; if(ph) n.placeholder=ph; return n; }
-  function mkBtn(cls,txt,title){ const n=document.createElement('button'); if(cls) n.className=cls; n.type='button'; if(txt!=null) n.textContent=txt; if(title) n.title=title; return n; }
 
 })();
 </script>
