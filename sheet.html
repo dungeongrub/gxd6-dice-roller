@@ -436,24 +436,38 @@ button{
   font-family:'DeutschGothic', monospace; font-size:10px; line-height:12px;
   border:1px solid #000; background:#fff; padding:0; box-sizing:border-box;
 }
-/* Compact text fields (e.g., damage type) — +2px height per request */
+/* Keep Shots/Reload tiny even if a global input[type=number] sets bigger fonts */
+#panel-gear .gear-card .rr-row input.enc-input-xs,
+#panel-gear .gear-card .rr-row input[name="shots"],
+#panel-gear .gear-card .rr-row input[name="reloadAP"]{
+  width:15px !important;
+  height:15px !important;
+  font-family:'DeutschGothic', monospace !important;
+  font-size:10px !important;
+  line-height:12px !important;
+  padding:0 !important;
+  border:1px solid #000 !important;
+  box-sizing:border-box !important;
+}
+
+/* Compact text fields (+2px height as requested) */
 .enc-text{
   height:17px;                         /* was 15px */
   font: 11px 'Dominican', serif;       /* text uses Dominican */
   border:1px solid #000; background:#fff;
   padding:0 4px; box-sizing:border-box;
 }
-/* Selects should display text in Dominican (not Deutsch) */
+/* Selects: ensure Dominican for text, not Deutsch */
 .enc-select{
   height:15px;
-  font: 11px 'Dominican', serif;       /* force text font */
+  font: 11px 'Dominican', serif;
   border:1px solid #000; background:#fff;
   padding:0 2px; box-sizing:border-box;
 }
 
 /* Make Damage Type 15px narrower so it stays on the same line */
 #panel-gear .gear-card .ws-row input[name="damageType"]{
-  width:110px;               /* adjust as needed; 15px narrower than prior */
+  width:110px;               /* ~15px narrower than before */
   min-width:90px;
 }
 
@@ -514,7 +528,7 @@ button{
   100%{ transform:scale(1) rotate(0deg); }
 }
 
-/* Minimise stacked over Lock (far right) */
+/* Minimise/Lock stack */
 .mm-wrap{ display:flex; flex-direction:column; gap:2px; }
 .lock-btn{ background-position:center; background-repeat:no-repeat; background-size:contain; }
 
@@ -551,8 +565,6 @@ button{
 .gear-card.drop-target{ outline:2px dashed #0077ff }
 .gear-card.is-locked{ opacity:.96 }
 .gear-card.is-locked .card-title{ opacity:.85 }
-
-/* (Keep gaps uniform — no special negative margins between rows) */
 </style>
 
 
