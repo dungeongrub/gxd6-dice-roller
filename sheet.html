@@ -633,6 +633,91 @@ button{
   margin:0 2px;
 }
 </style>
+<style>
+/* ============================== */
+/* GEAR CARDS — FINAL OVERRIDES   */
+/* ============================== */
+
+/* 0) Kill oversized numerals anywhere inside gear cards (header + body) */
+#panel-gear .gear-card input[type="number"]{
+  font-family:'DeutschGothic', monospace;
+  font-size:10px;          /* ← small everywhere */
+  height:15px;
+  line-height:12px;
+  padding:0;
+  box-sizing:border-box;
+}
+
+/* 1) Boxed rows: each label+field lives in a thin bordered box */
+.field-row.row-boxed{
+  display:flex;
+  flex-wrap:wrap;
+  gap:3px;                 /* 3px buffer between the boxes */
+}
+
+.field-box{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;                 /* tiny gap between label and its input(s) */
+  border:1px solid #000;
+  border-radius:2px;
+  padding:0;               /* zero internal padding */
+  box-sizing:border-box;
+}
+
+.field-box label{
+  font:10px/1 'DominicanSmall', serif;
+  margin:0 2px 0 3px;      /* small breathing room inside the box */
+}
+
+/* 2) Text selects should be Dominican (NOT Deutsch) inside gear cards */
+#panel-gear .gear-card .card-body select.enc-select{
+  font-family:'Dominican', serif;
+  font-size:11px;
+  height:15px;
+  line-height:13px;
+  border:1px solid #000;
+  background:#fff;
+  padding:0 2px;
+  box-sizing:border-box;
+}
+
+/* 3) Compact number inputs for body fields (small font everywhere) */
+.num-xs{                    /* tiny (e.g., Shots/Reload) */
+  width:15px;
+  height:15px;
+  text-align:center;
+  border:1px solid #000;
+  background:#fff;
+  padding:0;
+}
+
+.num-compact{              /* slightly wider but same small font */
+  width:22px;
+  height:15px;
+  text-align:center;
+  border:1px solid #000;
+  background:#fff;
+  padding:0;
+}
+
+/* 4) Damage type text field — 15px narrower */
+.text-xs{
+  height:15px;
+  font:11px 'Dominican', serif;
+  border:1px solid #000;
+  background:#fff;
+  padding:0 3px;
+  box-sizing:border-box;
+}
+.type-text{ width:80px; }  /* narrower so it sticks to the same row */
+
+/* 5) Tiny slash in W/S box */
+.ws-slash{
+  font:10px 'DominicanSmall', serif;
+  margin:0 2px;
+}
+</style>
 
 
 <style>
@@ -2130,14 +2215,13 @@ function createWeaponCard(data){
 
   // ---------- Header ----------
   const header = mkDiv('card-header');
-
   const dragHandle = mkBtn('drag-handle','↕','Drag to reorder');
   const title      = mkInput('text','card-title', data.name||data.title||'', 'Item Name');
 
-  const hdrRight   = mkDiv('hdr-right');
-  const stackWrap  = mkDiv('stack-wrap');
+  const hdrRight  = mkDiv('hdr-right');
+  const stackWrap = mkDiv('stack-wrap');
 
-  // Row 1 in header: Gear Bonus (tiny) + roll
+  // Row H1: Gear Bonus (tiny) + roll
   const gbRow   = mkDiv('hdr-row gb-row');
   const gbLabel = mkDiv('hdr-label'); gbLabel.textContent = 'Gear Bonus';
 
@@ -2145,7 +2229,7 @@ function createWeaponCard(data){
   gbHeader.type = 'number';
   gbHeader.name = 'diceMod';
   gbHeader.value = (data.diceMod ?? data.bonus ?? 0);
-  gbHeader.className = 'gb-input-header enc-input';    // already styled tiny in your CSS
+  gbHeader.className = 'gb-input-header';   // will be small via global override
 
   const gbRoll = document.createElement('img');
   gbRoll.src='img/roll_icon.png'; gbRoll.alt='Roll';
@@ -2155,14 +2239,14 @@ function createWeaponCard(data){
   gbWrap.append(gbHeader, gbRoll);
   gbRow.append(gbLabel, gbWrap);
 
-  // Row 2 in header: Damage (keep, but body also gets its own damage box)
+  // Row H2: Damage (tiny)
   const dmgHdrRow   = mkDiv('hdr-row dmg-row');
   const dmgHdrLabel = mkDiv('hdr-label'); dmgHdrLabel.textContent='damage';
 
   const dmgHeader = document.createElement('input');
   dmgHeader.type='number';
-  dmgHeader.className='dmg-input-header enc-input';
   dmgHeader.value=(data.damage ?? 0);
+  dmgHeader.className='dmg-input-header';   // small via global override
 
   dmgHdrRow.append(dmgHdrLabel, dmgHeader);
 
@@ -2179,53 +2263,66 @@ function createWeaponCard(data){
   header.append(dragHandle, title, hdrRight);
 
   // ---------- Body ----------
-  const body  = mkDiv('card-body');
-  const rows  = mkDiv('fields-rows');
+  const body = mkDiv('card-body');
+  const rows = mkDiv('fields-rows');
 
-  // Row 1: Skill · Type · Grip
-  const metaRow = mkDiv('field-row');
-  // Skill
+  /* Row 1 — Skill | Type | Grip — each inside a box with 3px gaps */
+  const row1 = mkDiv('field-row row-boxed');
+
+  // Skill box
+  const skillBox = mkDiv('field-box');
   const skillLbl = document.createElement('label'); skillLbl.textContent = 'Skill:';
   const skillSel = document.createElement('select'); skillSel.name='skill'; skillSel.className='enc-select';
   ['Fight','Marksmanship','Other'].forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; skillSel.appendChild(o); });
   skillSel.value = data.skill || 'Fight';
+  skillBox.append(skillLbl, skillSel);
 
-  // Type (weapon class)
+  // Type box
+  const typeBox  = mkDiv('field-box');
   const classLbl = document.createElement('label'); classLbl.textContent = 'Type:';
   const classSel = document.createElement('select'); classSel.name='wpnClass'; classSel.className='enc-select';
   ['Bludgeon','Blade','Firearm','Projectile','Static','Thrown'].forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; classSel.appendChild(o); });
   classSel.value = data.wpnClass || 'Bludgeon';
+  typeBox.append(classLbl, classSel);
 
-  // Grip
+  // Grip box
+  const gripBox = mkDiv('field-box');
   const gripLbl = document.createElement('label'); gripLbl.textContent = 'Grip:';
   const gripSel = document.createElement('select'); gripSel.name='grip'; gripSel.className='enc-select';
   ['1 hand','2 hands'].forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; gripSel.appendChild(o); });
   gripSel.value = data.grip || '1 hand';
+  gripBox.append(gripLbl, gripSel);
 
-  metaRow.append(skillLbl, skillSel, classLbl, classSel, gripLbl, gripSel);
-  rows.appendChild(metaRow);
+  row1.append(skillBox, typeBox, gripBox);
+  rows.appendChild(row1);
 
-  // Row 2: three *boxed* groups with 3px buffer
+  /* Row 2 — four boxes: W/S | Damage+Type | Gear Bonus | Shots+Reload */
   const row2 = mkDiv('field-row row-boxed');
 
-  // Box A: W / S  (both numerics = small font)
+  // Box A — W/S (small numerals)
   const wsBox = mkDiv('field-box ws-box');
   const wLbl  = document.createElement('label'); wLbl.textContent = 'W';
-  const wNum  = mkInput('number','num-xs', (data.weight ?? 0)); wNum.name='weight';
+  const wNum  = mkInput('number','num-compact', (data.weight ?? 0)); wNum.name='weight';
   const slash = document.createElement('span'); slash.textContent='/'; slash.className='ws-slash';
   const sLbl  = document.createElement('label'); sLbl.textContent = 'S';
-  const sNum  = mkInput('number','num-xs', (data.stow ?? 0)); sNum.name='stow';
+  const sNum  = mkInput('number','num-compact', (data.stow ?? 0)); sNum.name='stow';
   wsBox.append(wLbl, wNum, slash, sLbl, sNum);
 
-  // Box B: Damage + damage type  (damage numeric = small font)
+  // Box B — damage + type (small numerals)
   const dmgBox = mkDiv('field-box dmg-box');
   const dmgLbl = document.createElement('label'); dmgLbl.textContent = 'damage';
-  const dmgNum = mkInput('number','num-xs', (data.damage ?? 0)); dmgNum.name='damage';
+  const dmgNum = mkInput('number','num-compact', (data.damage ?? 0)); dmgNum.name='damage';
   const typeLbl= document.createElement('label'); typeLbl.textContent = 'type:';
   const typeTxt= mkInput('text','text-xs type-text', (data.damageType ?? data.wpnTypeText ?? '')); typeTxt.name='damageType';
   dmgBox.append(dmgLbl, dmgNum, typeLbl, typeTxt);
 
-  // Box C: Shots + Reload (AP) — shown only for Firearm/Projectile
+  // Box C — Gear Bonus (small numeral; syncs with header)
+  const gbBox  = mkDiv('field-box gb-box');
+  const gbBLbl = document.createElement('label'); gbBLbl.textContent = 'Gear Bonus';
+  const gbBody = mkInput('number','num-compact', (data.diceMod ?? 0)); gbBody.name='diceMod';
+  gbBox.append(gbBLbl, gbBody);
+
+  // Box D — Shots + Reload (AP) — ranged only
   const shotsBox = mkDiv('field-box shots-box');
   const shLbl  = document.createElement('label'); shLbl.textContent = 'Shots';
   const shNum  = mkInput('number','num-xs', (data.shots ?? 0)); shNum.name='shots';
@@ -2233,19 +2330,10 @@ function createWeaponCard(data){
   const rlNum  = mkInput('number','num-xs', (data.reloadAP ?? 0)); rlNum.name='reloadAP';
   shotsBox.append(shLbl, shNum, rlLbl, rlNum);
 
-  row2.append(wsBox, dmgBox, shotsBox);
+  row2.append(wsBox, dmgBox, gbBox, shotsBox);
   rows.appendChild(row2);
 
-  // Keep encumbrance auto-sum live
-  [wNum, sNum].forEach(el => el.addEventListener('input', recalcEncumbrance));
-
-  // Sync header <-> body damage
-  const syncDmgHdr  = () => { dmgNum.value = dmgHeader.value; data.damage = dmgHeader.value; };
-  const syncDmgBody = () => { dmgHeader.value = dmgNum.value;  data.damage = dmgNum.value;  };
-  dmgHeader.addEventListener('input', syncDmgHdr);
-  dmgNum   .addEventListener('input', syncDmgBody);
-
-  // Row 3: Reach/Range (alone)
+  // Row 3 — Reach/Range
   const rrRow = mkDiv('field-row rr-row');
   const rrLbl = document.createElement('label'); rrLbl.textContent = 'Reach/Range';
   const rrSel = document.createElement('select'); rrSel.name='reachRange'; rrSel.className='enc-select';
@@ -2270,12 +2358,38 @@ function createWeaponCard(data){
   body.append(rows, desc);
   card.append(header, body, footer);
 
-  // Roll from Gear Bonus
+  // ---- Behaviour ----
+
+  // Encumbrance auto-sum
+  [wNum, sNum].forEach(el => el.addEventListener('input', recalcEncumbrance));
+
+  // Sync header <-> body damage
+  const syncDmgHdr  = () => { dmgNum.value = dmgHeader.value; data.damage = dmgHeader.value; };
+  const syncDmgBody = () => { dmgHeader.value = dmgNum.value;  data.damage = dmgNum.value;  };
+  dmgHeader.addEventListener('input', syncDmgHdr);
+  dmgNum   .addEventListener('input', syncDmgBody);
+
+  // Sync header <-> body Gear Bonus (for rolling from header)
+  const syncGbHdr  = () => { gbBody.value = gbHeader.value; data.diceMod = gbHeader.value; };
+  const syncGbBody = () => { gbHeader.value = gbBody.value;  data.diceMod = gbBody.value;  };
+  gbHeader.addEventListener('input', syncGbHdr);
+  gbBody  .addEventListener('input', syncGbBody);
+
+  // Roll from header Gear Bonus
   gbRoll.addEventListener('click',()=>{
     gbRoll.classList.remove('is-animating'); void gbRoll.offsetWidth; gbRoll.classList.add('is-animating');
     gbRoll.addEventListener('animationend',()=>gbRoll.classList.remove('is-animating'),{once:true});
-    const v=parseInt(gbHeader.value,10)||0; if(v && typeof window.changePool==='function') window.changePool(+v);
+    const v = parseInt(gbHeader.value,10) || 0;
+    if (v && typeof window.changePool==='function') window.changePool(+v);
   });
+
+  // Ranged-only visibility for Shots/Reload
+  function setRangedVisibility(){
+    const ranged = ['Firearm','Projectile'].includes(classSel.value);
+    shotsBox.style.display = ranged ? 'inline-flex' : 'none';
+  }
+  setRangedVisibility();
+  classSel.addEventListener('change', setRangedVisibility);
 
   // Lock behaviour (keep drag/min/lock and roll usable)
   function applyLockState(){
@@ -2310,14 +2424,6 @@ function createWeaponCard(data){
   // Title binding
   title.addEventListener('input',()=>{ data.name = title.value; });
 
-  // Ranged-only visibility for Shots/Reload
-  function setRangedVisibility(){
-    const ranged = ['Firearm','Projectile'].includes(classSel.value);
-    shotsBox.style.display = ranged ? 'inline-flex' : 'none';
-  }
-  setRangedVisibility();
-  classSel.addEventListener('change', setRangedVisibility);
-
   // Handle-only drag
   let allowDrag=false;
   dragHandle.addEventListener('mousedown',()=>{ allowDrag=true; card.setAttribute('draggable','true'); });
@@ -2332,6 +2438,7 @@ function createWeaponCard(data){
 
   return card;
 }
+
 
    // ---------- ARMOUR CARD BUILDER ----------
   function createArmourCard(data){
