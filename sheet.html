@@ -573,8 +573,67 @@ button{
 .gear-card.is-locked .card-title{ opacity:.85 }
 </style>
 
-
 <!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
+
+<style>
+/* ===== Row of boxed fields (3px gap) ===== */
+.field-row.row-boxed{
+  display:flex;
+  flex-wrap:wrap;
+  gap:3px;                     /* 3px buffer between boxes */
+}
+
+/* Each label+field group lives in a thin bordered box */
+.field-box{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;                     /* tiny gap between label and its inputs */
+  border:1px solid #000;
+  border-radius:2px;
+  padding:0;                   /* zero internal padding */
+  box-sizing:border-box;
+}
+
+/* Labels inside boxes */
+.field-box label{
+  font:10px/1 'DominicanSmall', serif;
+  margin:0 2px 0 3px;
+}
+
+/* Small numerics (match Shots/Reload) */
+.num-xs{
+  width:15px;
+  height:15px;
+  text-align:center;
+  font-family:'DeutschGothic', monospace;
+  font-size:10px;
+  line-height:12px;
+  border:1px solid #000;
+  background:#fff;
+  padding:0;
+  box-sizing:border-box;
+}
+
+/* Small text field for "damage type" */
+.text-xs{
+  height:15px;
+  font:11px 'Dominican', serif;          /* Dominican for text */
+  border:1px solid #000;
+  background:#fff;
+  padding:0 3px;
+  box-sizing:border-box;
+}
+
+/* Make damage type 15px narrower than before (now ~80px) */
+.type-text{ width:80px; }
+
+/* Optional: keep the slash tiny & tidy in the W/S box */
+.ws-slash{
+  font:10px 'DominicanSmall', serif;
+  margin:0 2px;
+}
+</style>
+
 
 <style>
 /* === FINAL OVERRIDES: Encumbrance inputs match Money fields === */
@@ -2062,60 +2121,219 @@ header.append(dragH, title, hdrRight);
   }
 
   // ---------- Individual card builders ----------
-  function createWeaponCard(data){
-    const s = createBaseCardSkeleton('weapon', data, { headerGearBonus:true, headerDamage:true });
+  
+   // ---------- WEAPON CARD BUILDER ----------
+function createWeaponCard(data){
+  const id = data.id || ('gc_' + Math.random().toString(36).slice(2,9));
+  const card = document.createElement('article');
+  card.className = 'gear-card'; card.dataset.cardId = id; card.dataset.cardType = 'weapon';
 
-    // Line 1: Skill · Type · Grip (boxed)
-    const metaRow = mkDiv('field-row boxed');
-    const skillSel = mkSelect('enc-select', ['Fight','Marksmanship','Other'], data.skill || 'Fight'); skillSel.name='skill';
-    const classSel = mkSelect('enc-select', ['Bludgeon','Blade','Firearm','Projectile','Static','Thrown'], data.wpnClass || 'Bludgeon'); classSel.name='wpnClass';
-    const gripSel  = mkSelect('enc-select', ['1 hand','2 hands'], data.grip || '1 hand'); gripSel.name='grip';
-    metaRow.append(
-      box('Skill:', skillSel),
-      box('Type:',  classSel),
-      box('Grip:',  gripSel)
-    );
-    s.rows.appendChild(metaRow);
+  // ---------- Header ----------
+  const header = mkDiv('card-header');
 
-    // Line 2: W/S + Gear Bonus + Damage + Damage Type (boxed)
-    const wsRow = buildWSRowBoxed(data, {
-      inlineGearBonus:true, inlineDamage:true, damageTypeText:true,
-      headerGb: s.gbHeader, headerDmg: s.dmgHeader
+  const dragHandle = mkBtn('drag-handle','↕','Drag to reorder');
+  const title      = mkInput('text','card-title', data.name||data.title||'', 'Item Name');
+
+  const hdrRight   = mkDiv('hdr-right');
+  const stackWrap  = mkDiv('stack-wrap');
+
+  // Row 1 in header: Gear Bonus (tiny) + roll
+  const gbRow   = mkDiv('hdr-row gb-row');
+  const gbLabel = mkDiv('hdr-label'); gbLabel.textContent = 'Gear Bonus';
+
+  const gbHeader = document.createElement('input');
+  gbHeader.type = 'number';
+  gbHeader.name = 'diceMod';
+  gbHeader.value = (data.diceMod ?? data.bonus ?? 0);
+  gbHeader.className = 'gb-input-header enc-input';    // already styled tiny in your CSS
+
+  const gbRoll = document.createElement('img');
+  gbRoll.src='img/roll_icon.png'; gbRoll.alt='Roll';
+  gbRoll.className='gb-roll hdr-15'; gbRoll.title='Add Gear Bonus to dice pool';
+
+  const gbWrap = mkDiv('gb-wrap');
+  gbWrap.append(gbHeader, gbRoll);
+  gbRow.append(gbLabel, gbWrap);
+
+  // Row 2 in header: Damage (keep, but body also gets its own damage box)
+  const dmgHdrRow   = mkDiv('hdr-row dmg-row');
+  const dmgHdrLabel = mkDiv('hdr-label'); dmgHdrLabel.textContent='damage';
+
+  const dmgHeader = document.createElement('input');
+  dmgHeader.type='number';
+  dmgHeader.className='dmg-input-header enc-input';
+  dmgHeader.value=(data.damage ?? 0);
+
+  dmgHdrRow.append(dmgHdrLabel, dmgHeader);
+
+  // Min/Lock
+  const mmWrap  = mkDiv('mm-wrap');
+  const minBtn  = mkBtn('min-btn hdr-btn hdr-15','–','Minimise / expand');
+  const lockBtn = mkBtn('lock-btn hdr-btn hdr-15','','Lock / Unlock');
+  const setLockIcon = (locked)=> lockBtn.style.backgroundImage=`url('img/${locked?'lock.png':'lock_open.png'}')`;
+  setLockIcon(!!data._locked);
+  mmWrap.append(minBtn, lockBtn);
+
+  stackWrap.append(gbRow, dmgHdrRow);
+  hdrRight.append(stackWrap, mmWrap);
+  header.append(dragHandle, title, hdrRight);
+
+  // ---------- Body ----------
+  const body  = mkDiv('card-body');
+  const rows  = mkDiv('fields-rows');
+
+  // Row 1: Skill · Type · Grip
+  const metaRow = mkDiv('field-row');
+  // Skill
+  const skillLbl = document.createElement('label'); skillLbl.textContent = 'Skill:';
+  const skillSel = document.createElement('select'); skillSel.name='skill'; skillSel.className='enc-select';
+  ['Fight','Marksmanship','Other'].forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; skillSel.appendChild(o); });
+  skillSel.value = data.skill || 'Fight';
+
+  // Type (weapon class)
+  const classLbl = document.createElement('label'); classLbl.textContent = 'Type:';
+  const classSel = document.createElement('select'); classSel.name='wpnClass'; classSel.className='enc-select';
+  ['Bludgeon','Blade','Firearm','Projectile','Static','Thrown'].forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; classSel.appendChild(o); });
+  classSel.value = data.wpnClass || 'Bludgeon';
+
+  // Grip
+  const gripLbl = document.createElement('label'); gripLbl.textContent = 'Grip:';
+  const gripSel = document.createElement('select'); gripSel.name='grip'; gripSel.className='enc-select';
+  ['1 hand','2 hands'].forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; gripSel.appendChild(o); });
+  gripSel.value = data.grip || '1 hand';
+
+  metaRow.append(skillLbl, skillSel, classLbl, classSel, gripLbl, gripSel);
+  rows.appendChild(metaRow);
+
+  // Row 2: three *boxed* groups with 3px buffer
+  const row2 = mkDiv('field-row row-boxed');
+
+  // Box A: W / S  (both numerics = small font)
+  const wsBox = mkDiv('field-box ws-box');
+  const wLbl  = document.createElement('label'); wLbl.textContent = 'W';
+  const wNum  = mkInput('number','num-xs', (data.weight ?? 0)); wNum.name='weight';
+  const slash = document.createElement('span'); slash.textContent='/'; slash.className='ws-slash';
+  const sLbl  = document.createElement('label'); sLbl.textContent = 'S';
+  const sNum  = mkInput('number','num-xs', (data.stow ?? 0)); sNum.name='stow';
+  wsBox.append(wLbl, wNum, slash, sLbl, sNum);
+
+  // Box B: Damage + damage type  (damage numeric = small font)
+  const dmgBox = mkDiv('field-box dmg-box');
+  const dmgLbl = document.createElement('label'); dmgLbl.textContent = 'damage';
+  const dmgNum = mkInput('number','num-xs', (data.damage ?? 0)); dmgNum.name='damage';
+  const typeLbl= document.createElement('label'); typeLbl.textContent = 'type:';
+  const typeTxt= mkInput('text','text-xs type-text', (data.damageType ?? data.wpnTypeText ?? '')); typeTxt.name='damageType';
+  dmgBox.append(dmgLbl, dmgNum, typeLbl, typeTxt);
+
+  // Box C: Shots + Reload (AP) — shown only for Firearm/Projectile
+  const shotsBox = mkDiv('field-box shots-box');
+  const shLbl  = document.createElement('label'); shLbl.textContent = 'Shots';
+  const shNum  = mkInput('number','num-xs', (data.shots ?? 0)); shNum.name='shots';
+  const rlLbl  = document.createElement('label'); rlLbl.textContent = 'Reload (AP)';
+  const rlNum  = mkInput('number','num-xs', (data.reloadAP ?? 0)); rlNum.name='reloadAP';
+  shotsBox.append(shLbl, shNum, rlLbl, rlNum);
+
+  row2.append(wsBox, dmgBox, shotsBox);
+  rows.appendChild(row2);
+
+  // Keep encumbrance auto-sum live
+  [wNum, sNum].forEach(el => el.addEventListener('input', recalcEncumbrance));
+
+  // Sync header <-> body damage
+  const syncDmgHdr  = () => { dmgNum.value = dmgHeader.value; data.damage = dmgHeader.value; };
+  const syncDmgBody = () => { dmgHeader.value = dmgNum.value;  data.damage = dmgNum.value;  };
+  dmgHeader.addEventListener('input', syncDmgHdr);
+  dmgNum   .addEventListener('input', syncDmgBody);
+
+  // Row 3: Reach/Range (alone)
+  const rrRow = mkDiv('field-row rr-row');
+  const rrLbl = document.createElement('label'); rrLbl.textContent = 'Reach/Range';
+  const rrSel = document.createElement('select'); rrSel.name='reachRange'; rrSel.className='enc-select';
+  ['Close','Short','Medium','Long'].forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v; rrSel.appendChild(o); });
+  rrSel.value = data.reachRange || 'Close';
+  rrRow.append(rrLbl, rrSel);
+  rows.appendChild(rrRow);
+
+  // Description
+  const desc = document.createElement('textarea');
+  desc.className = 'description';
+  desc.placeholder = 'Description…';
+  desc.value = data.description || '';
+
+  // Footer
+  const footer = mkDiv('card-footer');
+  const btnRemove = document.createElement('button');
+  btnRemove.type='button'; btnRemove.textContent='Remove'; btnRemove.title='Remove this item';
+  btnRemove.addEventListener('click',()=>{ card.remove(); recalcEncumbrance(); });
+  footer.append(btnRemove);
+
+  body.append(rows, desc);
+  card.append(header, body, footer);
+
+  // Roll from Gear Bonus
+  gbRoll.addEventListener('click',()=>{
+    gbRoll.classList.remove('is-animating'); void gbRoll.offsetWidth; gbRoll.classList.add('is-animating');
+    gbRoll.addEventListener('animationend',()=>gbRoll.classList.remove('is-animating'),{once:true});
+    const v=parseInt(gbHeader.value,10)||0; if(v && typeof window.changePool==='function') window.changePool(+v);
+  });
+
+  // Lock behaviour (keep drag/min/lock and roll usable)
+  function applyLockState(){
+    const locked = !!data._locked;
+    setLockIcon(locked);
+    card.classList.toggle('is-locked', locked);
+    card.querySelectorAll('input, textarea, select, button').forEach(el=>{
+      const keep = (el===dragHandle || el===minBtn || el===lockBtn || el===btnRemove);
+      if(keep) return;
+      el.disabled = locked;
     });
-    s.rows.appendChild(wsRow);
-
-    // Line 3: Reach/Range + Shots + Reload(AP) (boxed)
-    const rrRow = mkDiv('field-row boxed rr-row');
-
-    const rrSel = mkSelect('enc-select', ['Close','Short','Medium','Long'], data.reachRange || 'Close'); rrSel.name='reachRange';
-    const shotsNum  = mkInput('number','enc-input-xs', data.shots ?? 0); shotsNum.name='shots';
-    const reloadNum = mkInput('number','enc-input-xs', data.reloadAP ?? 0); reloadNum.name='reloadAP';
-
-    // inline "belt & braces" tiny sizing so globals can’t upsize
-    const tinyCss = 'width:15px;height:15px;font-family:DeutschGothic,monospace;font-size:10px;line-height:12px;padding:0;border:1px solid #000;box-sizing:border-box;';
-    shotsNum.style.cssText  = tinyCss;
-    reloadNum.style.cssText = tinyCss;
-
-    // boxed elements
-    const reachBox  = box('Reach/Range', rrSel);
-    const shotsBox  = box('Shots',       shotsNum);
-    const reloadBox = box('Reload (AP)', reloadNum);
-
-    rrRow.append(reachBox, shotsBox, reloadBox);
-    s.rows.appendChild(rrRow);
-
-    // Show Shots/Reload only for ranged classes
-    function setRangedVisibility(){
-      const ranged = ['Firearm','Projectile'].includes(classSel.value);
-      shotsBox.style.display  = ranged ? 'inline-flex' : 'none';
-      reloadBox.style.display = ranged ? 'inline-flex' : 'none';
-    }
-    setRangedVisibility();
-    classSel.addEventListener('change', setRangedVisibility);
-
-    return s.card;
+    btnRemove.disabled = locked;
+    gbRoll.style.pointerEvents='auto'; gbRoll.style.opacity='1';
   }
+  lockBtn.addEventListener('click',()=>{ data._locked = !data._locked; applyLockState(); });
+  applyLockState();
 
+  // Minimise
+  minBtn.addEventListener('click', ()=>{
+    card.classList.toggle('min');
+    if(!card.classList.contains('min')){
+      requestAnimationFrame(()=>{ desc.style.height='auto'; desc.style.height=(desc.scrollHeight+2)+'px'; });
+    }
+  });
+  header.addEventListener('click',(e)=>{
+    const isCtl = e.target===title || e.target===gbHeader || e.target===gbRoll
+               || e.target===dragHandle || e.target===minBtn || e.target===lockBtn
+               || hdrRight.contains(e.target);
+    if(!isCtl) minBtn.click();
+  });
+
+  // Title binding
+  title.addEventListener('input',()=>{ data.name = title.value; });
+
+  // Ranged-only visibility for Shots/Reload
+  function setRangedVisibility(){
+    const ranged = ['Firearm','Projectile'].includes(classSel.value);
+    shotsBox.style.display = ranged ? 'inline-flex' : 'none';
+  }
+  setRangedVisibility();
+  classSel.addEventListener('change', setRangedVisibility);
+
+  // Handle-only drag
+  let allowDrag=false;
+  dragHandle.addEventListener('mousedown',()=>{ allowDrag=true; card.setAttribute('draggable','true'); });
+  window.addEventListener('mouseup',()=>{ allowDrag=false; card.removeAttribute('draggable'); });
+  card.addEventListener('dragstart',e=>{
+    if(!allowDrag){ e.preventDefault(); return; }
+    card.classList.add('dragging');
+    e.dataTransfer.effectAllowed='move';
+    try{ e.dataTransfer.setData('text/plain', id); }catch{}
+  });
+  card.addEventListener('dragend',()=>{ card.classList.remove('dragging'); document.querySelectorAll('.drop-target').forEach(n=>n.classList.remove('drop-target')); });
+
+  return card;
+}
+
+   // ---------- ARMOUR CARD BUILDER ----------
   function createArmourCard(data){
     const s = createBaseCardSkeleton('armour', data, { headerGearBonus:false, headerDamage:false });
 
@@ -2134,6 +2352,7 @@ header.append(dragH, title, hdrRight);
     return s.card;
   }
 
+   // ---------- GEAR CARD BUILDER ----------
   function createGearCard(data){
     const s = createBaseCardSkeleton('gear', data, { headerGearBonus:true, headerDamage:false });
 
@@ -2144,6 +2363,7 @@ header.append(dragH, title, hdrRight);
     return s.card;
   }
 
+   // ---------- CHEMICAL CARD BUILDER ----------
   function createChemicalCard(data){
     const s = createBaseCardSkeleton('chemical', data, { headerGearBonus:false, headerDamage:false });
 
