@@ -748,6 +748,41 @@ button{
   line-height:12px;
   height:15px;
 }
+
+/* === Catalog image preview (shared by all gear cards) === */
+.card-art {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100px;
+}
+
+.card-art .art-box {
+  width: 100px;
+  height: 100px;
+  border: 1px solid #000;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.card-art .art-box img {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+.card-art .art-select {
+  width: 100px;
+  height: 18px;
+  font: 11px 'Dominican', serif;
+  border: 1px solid #000;
+  background: #fff;
+  padding: 0 2px;
+  box-sizing: border-box;
+}
+
 </style>
 
 
@@ -2043,6 +2078,84 @@ header.append(dragH, title, hdrRight);
 (function GearCardsModuleRefactor(){
   'use strict';
 
+  /* ================= CATALOG (hosting-only, no uploads) ================= */
+  // Map of card-type -> list of { key, name, src }
+  const CATALOG = {
+    weapon: [
+      { key:'',        name:'(none)',   src:'' },
+      { key:'dagger',  name:'Dagger',   src:'img/catalog/weapon/dagger.png' },
+      { key:'pistol',  name:'Pistol',   src:'img/catalog/weapon/pistol.png' },
+    ],
+    armour: [
+      { key:'',        name:'(none)',   src:'' },
+      { key:'leather', name:'Leather',  src:'img/catalog/armour/leather.png' },
+    ],
+    gear: [
+      { key:'',        name:'(none)',   src:'' },
+      { key:'lantern', name:'Lantern',  src:'img/catalog/gear/lantern.png' },
+    ],
+    chemical: [
+      { key:'',        name:'(none)',   src:'' },
+      { key:'vial',    name:'Vial',     src:'img/catalog/chemical/vial.png' },
+    ],
+  };
+
+  // Helper: build 100×100 image box + <select> for a given catalog type.
+  // It also creates a hidden <input name="imageKey"> so your existing export()
+  // automatically saves/restores the chosen art.
+  function buildImagePicker(kind, data){
+    const wrap = document.createElement('div');
+    wrap.className = 'card-art';
+
+    // Hidden field so exportCharacterGear() picks it up
+    const hidden = document.createElement('input');
+    hidden.type = 'hidden';
+    hidden.name = 'imageKey';
+    hidden.value = data.imageKey || '';
+    wrap.appendChild(hidden);
+
+    // 100x100 preview
+    const box = document.createElement('div');
+    box.className = 'art-box';
+    const img = document.createElement('img');
+    img.alt = 'Item art';
+    img.style.display = 'none';      // hidden until something is selected
+    box.appendChild(img);
+    wrap.appendChild(box);
+
+    // Selector
+    const sel = document.createElement('select');
+    sel.className = 'art-select';
+    const list = CATALOG[kind] || [{ key:'', name:'(none)', src:'' }];
+    list.forEach(it => {
+      const o = document.createElement('option');
+      o.value = it.key;
+      o.textContent = it.name;
+      sel.appendChild(o);
+    });
+    sel.value = data.imageKey || '';
+    wrap.appendChild(sel);
+
+    // Push the current selection to the preview
+    function applySelection(key){
+      hidden.value = key;
+      const item = (CATALOG[kind] || []).find(x => x.key === key);
+      const src = item?.src || '';
+      if (src){
+        img.src = src;
+        img.style.display = '';
+      } else {
+        img.removeAttribute('src');
+        img.style.display = 'none';
+      }
+      data.imageKey = key; // keep in the in-memory object too (nice-to-have)
+    }
+    sel.addEventListener('change', () => applySelection(sel.value));
+    applySelection(sel.value); // initial
+
+    return wrap;
+  }
+
   // ---------- Panel & list ----------
   const panel = document.getElementById('gearPanelInner') || document.querySelector('#panel-gear #gearPanelInner');
   if(!panel){ console.warn('[GearCards] #gearPanelInner not found.'); return; }
@@ -2146,6 +2259,10 @@ header.append(dragH, title, hdrRight);
     const footer = mkDiv('card-footer');
     const btnRemove = document.createElement('button'); btnRemove.type='button'; btnRemove.textContent='Remove'; btnRemove.title='Remove this item';
     footer.append(btnRemove);
+	
+	  // --- Art picker (100x100) ---
+  const art = buildImagePicker('weapon', data);
+  body.appendChild(art);
 
     body.append(rows, desc); card.append(header, body, footer);
 
@@ -2458,6 +2575,10 @@ header.append(dragH, title, hdrRight);
     const av  = mkInput('number','enc-input', (data.armor ?? data.armour ?? 0)); av.name='armor';
     const pen = mkInput('text','enc-text', data.penalty || ''); pen.name='penalty';
     r1.append( box('Coverage', cov), box('Armour Value', av), box('Penalties', pen) );
+	    // --- Art picker (100x100) ---
+    const art = buildImagePicker('armour', data);
+    s.body.insertBefore(art, s.body.firstChild);
+
     s.rows.appendChild(r1);
 
     // Sync header <-> body Armour Value
@@ -2479,6 +2600,10 @@ header.append(dragH, title, hdrRight);
   // ---------- CHEMICAL CARD ----------
   function createChemicalCard(data){
     const s = createBaseCardSkeleton('chemical', data, { headerGearBonus:false, headerDamage:false });
+
+    // --- Art picker (100x100) ---
+    const art = buildImagePicker('chemical', data);
+    s.body.insertBefore(art, s.body.firstChild);
 
     // W/S
     const wsRow = buildWSRowBoxed(data, { inlineGearBonus:false, inlineDamage:false });
@@ -2518,6 +2643,10 @@ header.append(dragH, title, hdrRight);
   // ---------- GENERIC GEAR CARD (fallback) ----------
   function createGearCard(data){
     const s = createBaseCardSkeleton('gear', data, { headerGearBonus:true, headerDamage:false });
+	
+	// Art picker on top
+    const art = buildImagePicker('gear', data);
+    s.body.insertBefore(art, s.body.firstChild);
 
     // Row 1: W/S + (optional) inline Gear Bonus, synced with header
     const ws = buildWSRowBoxed(
