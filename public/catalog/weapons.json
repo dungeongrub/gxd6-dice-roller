@@ -10,7 +10,7 @@
     "reachRange": "Close",
     "weight": 1,
     "stow": 1,
-    "gearBonus": 0,
+    "diceMod": 1,
     "description": "A curved cavalry sabre.",
     "img": "/img/catalog/weapons/sabre.jpg",
     "readOnly": true
