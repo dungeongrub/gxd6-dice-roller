@@ -748,41 +748,6 @@ button{
   line-height:12px;
   height:15px;
 }
-
-/* === Catalog image preview (shared by all gear cards) === */
-.card-art {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  width: 100px;
-}
-
-.card-art .art-box {
-  width: 100px;
-  height: 100px;
-  border: 1px solid #000;
-  background: #fff;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-}
-.card-art .art-box img {
-  max-width: 100%;
-  max-height: 100%;
-  display: block;
-}
-
-.card-art .art-select {
-  width: 100px;
-  height: 18px;
-  font: 11px 'Dominican', serif;
-  border: 1px solid #000;
-  background: #fff;
-  padding: 0 2px;
-  box-sizing: border-box;
-}
-
 </style>
 
 
@@ -1184,19 +1149,27 @@ button{
 <!--------------------------- GEAR PANEL ----------------------------->
 <div id="panel-gear" class="tabPanel" style="display:none; position:relative; min-height:380px;">
 
-  <!-- Toolbar -->
-  <div id="gearToolbar">
-    <button type="button" title="Add Weapon"
-            onclick="window.spawnBlankGearCard && spawnBlankGearCard('weapon')">+ Weapon</button>
+<!-- Toolbar -->
+<div id="gearToolbar">
+  <button type="button" title="Add Weapon"
+          onclick="window.spawnBlankGearCard && spawnBlankGearCard('weapon')">+ Weapon</button>
+  <button type="button" title="Catalog"
+          onclick="openCatalogPicker('weapons')">Catalog…</button>
 
-    <button type="button" title="Add Armour"
-            onclick="window.spawnBlankGearCard && spawnBlankGearCard('armor')">+ Armour</button>
+  <button type="button" title="Add Armour"
+          onclick="window.spawnBlankGearCard && spawnBlankGearCard('armor')">+ Armour</button>
+  <button type="button" title="Catalog"
+          onclick="openCatalogPicker('armour')">Catalog…</button>
 
-    <button type="button" title="Add Gear"
-            onclick="window.spawnBlankGearCard && spawnBlankGearCard('gear')">+ Gear</button>
+  <button type="button" title="Add Gear"
+          onclick="window.spawnBlankGearCard && spawnBlankGearCard('gear')">+ Gear</button>
+  <button type="button" title="Catalog"
+          onclick="openCatalogPicker('gear')">Catalog…</button>
 
-    <button type="button" title="Add Chemical"
-            onclick="window.spawnBlankGearCard && spawnBlankGearCard('chemical')">+ Chemical</button>
+  <button type="button" title="Add Chemical"
+          onclick="window.spawnBlankGearCard && spawnBlankGearCard('chemical')">+ Chemical</button>
+  <button type="button" title="Catalog"
+          onclick="openCatalogPicker('chemical')">Catalog…</button>
 
     <!-- Encumbrance box (right side of toolbar) -->
     <div class="enc-block">
@@ -2078,84 +2051,6 @@ header.append(dragH, title, hdrRight);
 (function GearCardsModuleRefactor(){
   'use strict';
 
-  /* ================= CATALOG (hosting-only, no uploads) ================= */
-  // Map of card-type -> list of { key, name, src }
-  const CATALOG = {
-    weapon: [
-      { key:'',        name:'(none)',   src:'' },
-      { key:'dagger',  name:'Dagger',   src:'img/catalog/weapon/dagger.png' },
-      { key:'pistol',  name:'Pistol',   src:'img/catalog/weapon/pistol.png' },
-    ],
-    armour: [
-      { key:'',        name:'(none)',   src:'' },
-      { key:'leather', name:'Leather',  src:'img/catalog/armour/leather.png' },
-    ],
-    gear: [
-      { key:'',        name:'(none)',   src:'' },
-      { key:'lantern', name:'Lantern',  src:'img/catalog/gear/lantern.png' },
-    ],
-    chemical: [
-      { key:'',        name:'(none)',   src:'' },
-      { key:'vial',    name:'Vial',     src:'img/catalog/chemical/vial.png' },
-    ],
-  };
-
-  // Helper: build 100×100 image box + <select> for a given catalog type.
-  // It also creates a hidden <input name="imageKey"> so your existing export()
-  // automatically saves/restores the chosen art.
-  function buildImagePicker(kind, data){
-    const wrap = document.createElement('div');
-    wrap.className = 'card-art';
-
-    // Hidden field so exportCharacterGear() picks it up
-    const hidden = document.createElement('input');
-    hidden.type = 'hidden';
-    hidden.name = 'imageKey';
-    hidden.value = data.imageKey || '';
-    wrap.appendChild(hidden);
-
-    // 100x100 preview
-    const box = document.createElement('div');
-    box.className = 'art-box';
-    const img = document.createElement('img');
-    img.alt = 'Item art';
-    img.style.display = 'none';      // hidden until something is selected
-    box.appendChild(img);
-    wrap.appendChild(box);
-
-    // Selector
-    const sel = document.createElement('select');
-    sel.className = 'art-select';
-    const list = CATALOG[kind] || [{ key:'', name:'(none)', src:'' }];
-    list.forEach(it => {
-      const o = document.createElement('option');
-      o.value = it.key;
-      o.textContent = it.name;
-      sel.appendChild(o);
-    });
-    sel.value = data.imageKey || '';
-    wrap.appendChild(sel);
-
-    // Push the current selection to the preview
-    function applySelection(key){
-      hidden.value = key;
-      const item = (CATALOG[kind] || []).find(x => x.key === key);
-      const src = item?.src || '';
-      if (src){
-        img.src = src;
-        img.style.display = '';
-      } else {
-        img.removeAttribute('src');
-        img.style.display = 'none';
-      }
-      data.imageKey = key; // keep in the in-memory object too (nice-to-have)
-    }
-    sel.addEventListener('change', () => applySelection(sel.value));
-    applySelection(sel.value); // initial
-
-    return wrap;
-  }
-
   // ---------- Panel & list ----------
   const panel = document.getElementById('gearPanelInner') || document.querySelector('#panel-gear #gearPanelInner');
   if(!panel){ console.warn('[GearCards] #gearPanelInner not found.'); return; }
@@ -2259,10 +2154,6 @@ header.append(dragH, title, hdrRight);
     const footer = mkDiv('card-footer');
     const btnRemove = document.createElement('button'); btnRemove.type='button'; btnRemove.textContent='Remove'; btnRemove.title='Remove this item';
     footer.append(btnRemove);
-	
-	  // --- Art picker (100x100) ---
-  const art = buildImagePicker('weapon', data);
-  body.appendChild(art);
 
     body.append(rows, desc); card.append(header, body, footer);
 
@@ -2575,10 +2466,6 @@ header.append(dragH, title, hdrRight);
     const av  = mkInput('number','enc-input', (data.armor ?? data.armour ?? 0)); av.name='armor';
     const pen = mkInput('text','enc-text', data.penalty || ''); pen.name='penalty';
     r1.append( box('Coverage', cov), box('Armour Value', av), box('Penalties', pen) );
-	    // --- Art picker (100x100) ---
-    const art = buildImagePicker('armour', data);
-    s.body.insertBefore(art, s.body.firstChild);
-
     s.rows.appendChild(r1);
 
     // Sync header <-> body Armour Value
@@ -2600,10 +2487,6 @@ header.append(dragH, title, hdrRight);
   // ---------- CHEMICAL CARD ----------
   function createChemicalCard(data){
     const s = createBaseCardSkeleton('chemical', data, { headerGearBonus:false, headerDamage:false });
-
-    // --- Art picker (100x100) ---
-    const art = buildImagePicker('chemical', data);
-    s.body.insertBefore(art, s.body.firstChild);
 
     // W/S
     const wsRow = buildWSRowBoxed(data, { inlineGearBonus:false, inlineDamage:false });
@@ -2643,10 +2526,6 @@ header.append(dragH, title, hdrRight);
   // ---------- GENERIC GEAR CARD (fallback) ----------
   function createGearCard(data){
     const s = createBaseCardSkeleton('gear', data, { headerGearBonus:true, headerDamage:false });
-	
-	// Art picker on top
-    const art = buildImagePicker('gear', data);
-    s.body.insertBefore(art, s.body.firstChild);
 
     // Row 1: W/S + (optional) inline Gear Bonus, synced with header
     const ws = buildWSRowBoxed(
@@ -2754,6 +2633,181 @@ header.append(dragH, title, hdrRight);
 })(); 
 </script>
 
+<script>
+/* ========= CATALOG RUNTIME (read-only, Hosting-backed) =========
+   Files expected (in your deployed /public folder):
+   /catalog/weapons.json, /catalog/armour.json, /catalog/gear.json, /catalog/chemical.json
+   And images under /img/catalog/<kind>/...
+*/
+
+/* 1) Loader */
+async function loadCatalog(kind){
+  // map friendly keys -> filenames
+  const map = { weapons:'weapons', armour:'armour', gear:'gear', chemical:'chemical' };
+  const file = map[kind] || kind;
+  try{
+    const res = await fetch(`/catalog/${file}.json`, { cache:'no-store' });
+    if(!res.ok) throw new Error(res.status + ' ' + res.statusText);
+    return await res.json();
+  }catch(e){
+    console.warn('[Catalog] load failed:', e);
+    return [];
+  }
+}
+
+/* 2) Hydrate a new card from a template object */
+function hydrateCardFromTemplate(cardEl, tpl){
+  if(!cardEl || !tpl) return;
+  // Title
+  const title = cardEl.querySelector('.card-title');
+  if (title) title.value = tpl.name || tpl.title || '';
+
+  // Body & header fields (we already name inputs with [name] attributes)
+  cardEl.querySelectorAll('[name]').forEach(ctrl=>{
+    const k = ctrl.name;
+    if (Object.prototype.hasOwnProperty.call(tpl, k)){
+      ctrl.value = (tpl[k] ?? '');
+      ctrl.dispatchEvent(new Event('input', {bubbles:true})); // let any sync handlers run
+      ctrl.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+  });
+
+  // If you later add an <img class="card-img"> area, set it here:
+  // if (tpl.img && cardEl.querySelector('.card-img')) {
+  //   cardEl.querySelector('.card-img').src = tpl.img;
+  // }
+}
+
+/* 3) Make a lightbox picker and “Add to sheet” */
+async function openCatalogPicker(kind){
+  const items = await loadCatalog(kind);
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;inset:0;background:#0006;display:flex;align-items:center;justify-content:center;z-index:99999;';
+  const panel = document.createElement('div');
+  panel.style.cssText = 'background:#fff;border:1px solid #000;padding:8px;max-width:720px;max-height:75vh;overflow:auto;';
+  const title = document.createElement('div');
+  title.textContent = `Catalog — ${kind}`;
+  title.style.cssText = 'font:14px DominicanSmall;margin-bottom:6px;';
+
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;';
+
+  items.forEach(t=>{
+    const card = document.createElement('div');
+    card.style.cssText = 'border:1px solid #000;padding:6px;display:flex;flex-direction:column;gap:6px;';
+    const img = document.createElement('img');
+    img.src = t.img || '';
+    img.alt = t.name || '';
+    img.style.cssText = 'width:100%;height:100px;object-fit:cover;background:#eee;';
+    const name = document.createElement('div');
+    name.textContent = t.name || '(unnamed)';
+    name.style.cssText = 'font:12px DominicanSmall;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+    const btn = document.createElement('button');
+    btn.textContent = 'Add to sheet';
+    btn.style.cssText = 'border:1px solid #000;background:#fff;cursor:pointer;font:12px DominicanSmall;';
+    btn.onclick = ()=>{
+      // Pick the builder based on kind
+      const k = (kind==='weapons') ? 'weapon' : (kind==='armour' ? 'armor' : kind);
+      const el = (window.spawnBlankGearCard && window.spawnBlankGearCard(k)) || null;
+      if (el) hydrateCardFromTemplate(el, normalizeTemplateForType(t, k));
+      wrap.remove();
+    };
+    card.append(img, name, btn);
+    grid.appendChild(card);
+  });
+
+  const close = document.createElement('button');
+  close.textContent = 'Close';
+  close.style.cssText = 'margin-top:8px;border:1px solid #000;background:#fff;font:12px DominicanSmall;';
+  close.onclick = ()=>wrap.remove();
+
+  panel.append(title, grid, close);
+  wrap.append(panel);
+  document.body.appendChild(wrap);
+}
+
+/* 4) Template normalization so keys match your card inputs */
+function normalizeTemplateForType(t, k){
+  const out = {...t};
+  // Armour: support british/american field names
+  if (k === 'armor' || k === 'armour'){
+    if (out.armour != null && out.armor == null) out.armor = out.armour;
+  }
+  // Weapon: allow `wpnClass` vs `class`
+  if (k === 'weapon'){
+    if (out.class && !out.wpnClass) out.wpnClass = out.class;
+  }
+  return out;
+}
+
+/* 5) “Export to Catalog” button on every card footer (downloads a JSON snippet) */
+function installCatalogExportButton(cardEl){
+  if (!cardEl || cardEl.querySelector('.catalog-export-btn')) return;
+  const footer = cardEl.querySelector('.card-footer');
+  if (!footer) return;
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'catalog-export-btn';
+  btn.textContent = 'Export to Catalog';
+  btn.title = 'Download a JSON snippet you can paste into /public/catalog/<kind>.json';
+  btn.style.cssText = 'border:1px solid #000;background:#fff;cursor:pointer;font:12px DominicanSmall;';
+  btn.onclick = ()=> downloadTemplateJSON(cardEl);
+  footer.insertBefore(btn, footer.firstChild); // before Remove
+}
+
+/* Extract current card into template JSON and download as file */
+function downloadTemplateJSON(cardEl){
+  const type = (cardEl.dataset.cardType || 'gear').toLowerCase();
+  const obj = { type };
+
+  // Name + description
+  obj.name = cardEl.querySelector('.card-title')?.value || '';
+  obj.description = cardEl.querySelector('.description')?.value || '';
+
+  // All [name] controls in header + body
+  cardEl.querySelectorAll('[name]').forEach(ctrl=>{
+    const k = ctrl.name;
+    let v = ctrl.value;
+    // cast numerics where appropriate
+    if (ctrl.type === 'number' && v !== '') v = Number(v);
+    obj[k] = v;
+  });
+
+  // If you add an <img class="card-img"> later: obj.img = cardEl.querySelector('.card-img')?.src || obj.img || '';
+
+  // Mark readOnly so players’ copies won’t try to overwrite a template, but it’s only metadata.
+  obj.readOnly = true;
+
+  const pretty = JSON.stringify(obj, null, 2);
+  const blob = new Blob([pretty], { type:'application/json;charset=utf-8' });
+  const a = document.createElement('a');
+  const fname = `catalog_${type}_${(obj.name||'item').toLowerCase().replace(/[^a-z0-9]+/g,'_')}.json`;
+  a.href = URL.createObjectURL(blob);
+  a.download = fname;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
+}
+
+/* 6) Auto-attach Export button to existing and future cards */
+const GL = document.querySelector('#gearPanelInner .gear-list');
+if (GL){
+  // Existing
+  GL.querySelectorAll('.gear-card').forEach(installCatalogExportButton);
+  // Future
+  const mo = new MutationObserver(muts=>{
+    muts.forEach(m=>{
+      m.addedNodes && m.addedNodes.forEach(n=>{
+        if (n.nodeType===1 && n.classList.contains('gear-card')){
+          installCatalogExportButton(n);
+        }
+      });
+    });
+  });
+  mo.observe(GL, { childList:true });
+}
+</script>
 
 <!-- Close body + html -->
 </body>
