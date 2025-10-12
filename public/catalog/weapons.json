@@ -1,1 +1,19 @@
+[
+  {
+    "id": "wpn_sabre_01",
+    "name": "Sabre",
+    "wpnClass": "Blade",
+    "grip": "1 hand",
+    "skill": "Fight",
+    "damage": 2,
+    "damageType": "cut",
+    "reachRange": "Close",
+    "weight": 1,
+    "stow": 1,
+    "gearBonus": 0,
+    "description": "A curved cavalry sabre.",
+    "img": "/img/catalog/weapons/sabre.jpg",
+    "readOnly": true
+  }
+]
 
