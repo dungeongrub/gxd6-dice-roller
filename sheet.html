@@ -2635,179 +2635,162 @@ header.append(dragH, title, hdrRight);
 
 <script>
 /* ========= CATALOG RUNTIME (read-only, Hosting-backed) =========
-   Files expected (in your deployed /public folder):
-   /catalog/weapons.json, /catalog/armour.json, /catalog/gear.json, /catalog/chemical.json
-   And images under /img/catalog/<kind>/...
+   Your repo puts files at /public/catalog/*.json
+   So on GitHub Pages they are at:
+   https://dungeongrub.github.io/gxd6-dice-roller/public/catalog/*.json
+   Buttons already call openCatalogPicker('weapons'|'armour'|'gear'|'chemical')
 */
 
-/* 1) Loader */
+/* 1) Loader (fixes the path to /public/catalog/...) */
 async function loadCatalog(kind){
-  // map friendly keys -> filenames
-  const map = { weapons:'weapons', armour:'armour', gear:'gear', chemical:'chemical' };
+  const map = { armor:'armour', weapons:'weapons', armour:'armour', gear:'gear', chemical:'chemical' };
   const file = map[kind] || kind;
   try{
-    const res = await fetch(`/catalog/${file}.json`, { cache:'no-store' });
+    const url = new URL(`public/catalog/${file}.json`, window.location.href);
+    const res = await fetch(url.href, { cache:'no-store' });
     if(!res.ok) throw new Error(res.status + ' ' + res.statusText);
-    return await res.json();
+    const data = await res.json();
+    return Array.isArray(data) ? data : (Array.isArray(data.items) ? data.items : []);
   }catch(e){
     console.warn('[Catalog] load failed:', e);
+    alert(`Catalog load failed (${kind}): ${e.message || e}`);
     return [];
   }
 }
 
-/* 2) Hydrate a new card from a template object */
+/* 2) Spawn a blank card for the given kind and return the element */
+function spawnCardForKind(kind){
+  // our spawner expects: weapon | armor | gear | chemical
+  if (kind === 'armour') kind = 'armor';
+  return window.spawnBlankGearCard ? window.spawnBlankGearCard(kind) : null;
+}
+
+/* 3) Hydrate a new card from a catalog template object */
 function hydrateCardFromTemplate(cardEl, tpl){
   if(!cardEl || !tpl) return;
   // Title
   const title = cardEl.querySelector('.card-title');
   if (title) title.value = tpl.name || tpl.title || '';
 
-  // Body & header fields (we already name inputs with [name] attributes)
+  // Description
+  const desc = cardEl.querySelector('.description');
+  if (desc && (tpl.description || tpl.desc)) desc.value = tpl.description || tpl.desc || '';
+
+  // Copy over known fields to [name] controls (only if present)
+  // Common weapon keys we’ll recognize from your JSON:
+  const map = {
+    damage: ['damage','dmg'],
+    damageType: ['damageType','type','wpnType','wpnTypeText'],
+    diceMod: ['diceMod','gearBonus','bonus'],
+    reachRange: ['reachRange','range','reach'],
+    weight: ['weight','w'],
+    stow: ['stow','s'],
+    shots: ['shots','ammo'],
+    reloadAP: ['reloadAP','reload','reloadAp'],
+    skill: ['skill'],
+    wpnClass: ['wpnClass','class','kind','type'],
+    grip: ['grip','hands'],
+
+    // armour
+    armor: ['armor','armour','av'],
+    coverage: ['coverage','cover'],
+    penalty: ['penalty','penalties'],
+
+    // gear/chemical
+    dose: ['dose'],
+    duration: ['duration'],
+    effects: ['effects'],
+    withdrawal: ['withdrawal','crash'],
+    addiction: ['addiction'],
+    price: ['price']
+  };
+
+  // Reverse-lookup helper
+  function getVal(key){
+    const keys = map[key] || [key];
+    for (const k of keys){
+      if (k in tpl && tpl[k] != null) return tpl[k];
+    }
+    return undefined;
+  }
+
+  // Fill every [name] on the card if we have a value
   cardEl.querySelectorAll('[name]').forEach(ctrl=>{
     const k = ctrl.name;
-    if (Object.prototype.hasOwnProperty.call(tpl, k)){
-      ctrl.value = (tpl[k] ?? '');
-      ctrl.dispatchEvent(new Event('input', {bubbles:true})); // let any sync handlers run
-      ctrl.dispatchEvent(new Event('change', {bubbles:true}));
+    const v = getVal(k);
+    if (v === undefined) return;
+    if (ctrl.tagName === 'SELECT'){
+      ctrl.value = String(v);
+    } else if (ctrl.type === 'checkbox'){
+      ctrl.checked = !!v;
+    } else {
+      ctrl.value = String(v);
     }
   });
 
-  // If you later add an <img class="card-img"> area, set it here:
-  // if (tpl.img && cardEl.querySelector('.card-img')) {
-  //   cardEl.querySelector('.card-img').src = tpl.img;
-  // }
+  // Keep header/body mirrors in sync if present (damage / diceMod already synced by card code)
+  // Recalc encumbrance if we changed W/S
+  if (window.recalcEncumbrance) window.recalcEncumbrance();
 }
 
-/* 3) Make a lightbox picker and “Add to sheet” */
-async function openCatalogPicker(kind){
-  const items = await loadCatalog(kind);
-  const wrap = document.createElement('div');
-  wrap.style.cssText = 'position:fixed;inset:0;background:#0006;display:flex;align-items:center;justify-content:center;z-index:99999;';
-  const panel = document.createElement('div');
-  panel.style.cssText = 'background:#fff;border:1px solid #000;padding:8px;max-width:720px;max-height:75vh;overflow:auto;';
+/* 4) A tiny, no-CSS modal picker for now */
+function makePicker(items, onPick){
+  // overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; z-index:100000;
+  `;
+  const box = document.createElement('div');
+  box.style.cssText = `
+    background:#fff; border:1px solid #000; width:420px; max-height:70vh; overflow:auto; padding:8px; font-family: DominicanSmall, Georgia, serif;
+  `;
   const title = document.createElement('div');
-  title.textContent = `Catalog — ${kind}`;
-  title.style.cssText = 'font:14px DominicanSmall;margin-bottom:6px;';
+  title.textContent = 'Select an item';
+  title.style.cssText = 'font-weight:bold; margin-bottom:6px;';
 
-  const grid = document.createElement('div');
-  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;';
-
-  items.forEach(t=>{
-    const card = document.createElement('div');
-    card.style.cssText = 'border:1px solid #000;padding:6px;display:flex;flex-direction:column;gap:6px;';
-    const img = document.createElement('img');
-    img.src = t.img || '';
-    img.alt = t.name || '';
-    img.style.cssText = 'width:100%;height:100px;object-fit:cover;background:#eee;';
+  const list = document.createElement('div');
+  items.forEach((it, i)=>{
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; align-items:center; gap:6px; border-bottom:1px dashed #ddd; padding:4px 0;';
     const name = document.createElement('div');
-    name.textContent = t.name || '(unnamed)';
-    name.style.cssText = 'font:12px DominicanSmall;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
-    const btn = document.createElement('button');
-    btn.textContent = 'Add to sheet';
-    btn.style.cssText = 'border:1px solid #000;background:#fff;cursor:pointer;font:12px DominicanSmall;';
-    btn.onclick = ()=>{
-      // Pick the builder based on kind
-      const k = (kind==='weapons') ? 'weapon' : (kind==='armour' ? 'armor' : kind);
-      const el = (window.spawnBlankGearCard && window.spawnBlankGearCard(k)) || null;
-      if (el) hydrateCardFromTemplate(el, normalizeTemplateForType(t, k));
-      wrap.remove();
-    };
-    card.append(img, name, btn);
-    grid.appendChild(card);
+    name.textContent = it.name || it.title || `Item ${i+1}`;
+    name.style.cssText = 'flex:1 1 auto;';
+    const add = document.createElement('button');
+    add.textContent = 'Add';
+    add.style.cssText = 'border:1px solid #000; background:#fff; padding:2px 6px; cursor:pointer;';
+    add.addEventListener('click', ()=>{ onPick(it); document.body.removeChild(overlay); });
+    row.append(name, add);
+    list.appendChild(row);
   });
 
-  const close = document.createElement('button');
-  close.textContent = 'Close';
-  close.style.cssText = 'margin-top:8px;border:1px solid #000;background:#fff;font:12px DominicanSmall;';
-  close.onclick = ()=>wrap.remove();
+  const cancel = document.createElement('button');
+  cancel.textContent = 'Cancel';
+  cancel.style.cssText = 'margin-top:6px; border:1px solid #000; background:#fff; padding:2px 8px; cursor:pointer;';
+  cancel.addEventListener('click', ()=> document.body.removeChild(overlay));
 
-  panel.append(title, grid, close);
-  wrap.append(panel);
-  document.body.appendChild(wrap);
+  box.append(title, list, cancel);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
 }
 
-/* 4) Template normalization so keys match your card inputs */
-function normalizeTemplateForType(t, k){
-  const out = {...t};
-  // Armour: support british/american field names
-  if (k === 'armor' || k === 'armour'){
-    if (out.armour != null && out.armor == null) out.armor = out.armour;
-  }
-  // Weapon: allow `wpnClass` vs `class`
-  if (k === 'weapon'){
-    if (out.class && !out.wpnClass) out.wpnClass = out.class;
-  }
-  return out;
-}
+/* 5) Public entry: called by the toolbar buttons */
+async function openCatalogPicker(kind){
+  // kind comes in as 'weapons' | 'armour' | 'gear' | 'chemical'
+  const items = await loadCatalog(kind);
+  if (!items.length){ alert(`No items found in ${kind}.json`); return; }
 
-/* 5) “Export to Catalog” button on every card footer (downloads a JSON snippet) */
-function installCatalogExportButton(cardEl){
-  if (!cardEl || cardEl.querySelector('.catalog-export-btn')) return;
-  const footer = cardEl.querySelector('.card-footer');
-  if (!footer) return;
-
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'catalog-export-btn';
-  btn.textContent = 'Export to Catalog';
-  btn.title = 'Download a JSON snippet you can paste into /public/catalog/<kind>.json';
-  btn.style.cssText = 'border:1px solid #000;background:#fff;cursor:pointer;font:12px DominicanSmall;';
-  btn.onclick = ()=> downloadTemplateJSON(cardEl);
-  footer.insertBefore(btn, footer.firstChild); // before Remove
-}
-
-/* Extract current card into template JSON and download as file */
-function downloadTemplateJSON(cardEl){
-  const type = (cardEl.dataset.cardType || 'gear').toLowerCase();
-  const obj = { type };
-
-  // Name + description
-  obj.name = cardEl.querySelector('.card-title')?.value || '';
-  obj.description = cardEl.querySelector('.description')?.value || '';
-
-  // All [name] controls in header + body
-  cardEl.querySelectorAll('[name]').forEach(ctrl=>{
-    const k = ctrl.name;
-    let v = ctrl.value;
-    // cast numerics where appropriate
-    if (ctrl.type === 'number' && v !== '') v = Number(v);
-    obj[k] = v;
+  makePicker(items, (tpl)=>{
+    // spawn the correct blank card and hydrate it
+    let spawnKind = kind;
+    if (spawnKind === 'weapons') spawnKind = 'weapon';
+    if (spawnKind === 'armour')  spawnKind = 'armor';
+    const card = spawnCardForKind(spawnKind);
+    if (!card) { alert('Could not create card'); return; }
+    hydrateCardFromTemplate(card, tpl);
   });
-
-  // If you add an <img class="card-img"> later: obj.img = cardEl.querySelector('.card-img')?.src || obj.img || '';
-
-  // Mark readOnly so players’ copies won’t try to overwrite a template, but it’s only metadata.
-  obj.readOnly = true;
-
-  const pretty = JSON.stringify(obj, null, 2);
-  const blob = new Blob([pretty], { type:'application/json;charset=utf-8' });
-  const a = document.createElement('a');
-  const fname = `catalog_${type}_${(obj.name||'item').toLowerCase().replace(/[^a-z0-9]+/g,'_')}.json`;
-  a.href = URL.createObjectURL(blob);
-  a.download = fname;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
-}
-
-/* 6) Auto-attach Export button to existing and future cards */
-const GL = document.querySelector('#gearPanelInner .gear-list');
-if (GL){
-  // Existing
-  GL.querySelectorAll('.gear-card').forEach(installCatalogExportButton);
-  // Future
-  const mo = new MutationObserver(muts=>{
-    muts.forEach(m=>{
-      m.addedNodes && m.addedNodes.forEach(n=>{
-        if (n.nodeType===1 && n.classList.contains('gear-card')){
-          installCatalogExportButton(n);
-        }
-      });
-    });
-  });
-  mo.observe(GL, { childList:true });
 }
 </script>
+
 
 <!-- Close body + html -->
 </body>
