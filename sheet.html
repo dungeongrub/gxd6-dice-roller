@@ -573,6 +573,11 @@ button{
 .gear-card.is-locked .card-title{ opacity:.85 }
 </style>
 
+<style>
+#gearToolbar{ display:flex; flex-wrap:wrap; align-items:center; gap:3px; }
+#gearToolbar .enc-block{ margin-left:auto; flex-shrink:0; }
+</style>
+
 <!-- =============== GEAR STYLES (INSIDE MAIN TAB) ===================== -->
 
 <style>
@@ -1151,47 +1156,32 @@ button{
 
 <!-- Toolbar -->
 <div id="gearToolbar">
-  <button type="button" title="Add Weapon"
-          onclick="window.spawnBlankGearCard && spawnBlankGearCard('weapon')">+ Weapon</button>
-  <button type="button" title="Catalog"
-          onclick="openCatalogPicker('weapons')">Catalog…</button>
+  <button type="button" title="Catalog" onclick="openCatalogPicker('weapons')">Weapons…</button>
+  <button type="button" title="Catalog" onclick="openCatalogPicker('armour')">Armour…</button>
+  <button type="button" title="Catalog" onclick="openCatalogPicker('gear')">Gear…</button>
+  <button type="button" title="Catalog" onclick="openCatalogPicker('chemical')">Chemical…</button>
 
-  <button type="button" title="Add Armour"
-          onclick="window.spawnBlankGearCard && spawnBlankGearCard('armor')">+ Armour</button>
-  <button type="button" title="Catalog"
-          onclick="openCatalogPicker('armour')">Catalog…</button>
-
-  <button type="button" title="Add Gear"
-          onclick="window.spawnBlankGearCard && spawnBlankGearCard('gear')">+ Gear</button>
-  <button type="button" title="Catalog"
-          onclick="openCatalogPicker('gear')">Catalog…</button>
-
-  <button type="button" title="Add Chemical"
-          onclick="window.spawnBlankGearCard && spawnBlankGearCard('chemical')">+ Chemical</button>
-  <button type="button" title="Catalog"
-          onclick="openCatalogPicker('chemical')">Catalog…</button>
-
-    <!-- Encumbrance box (right side of toolbar) -->
-    <div class="enc-block">
-      <div class="enc-title">Encumbrance</div>
-
-      <div class="enc-row">
-        <span class="enc-cat">Weight</span>
-        <span class="enc-sub">Max.</span>
-        <input id="encWeightMax" class="enc-input" type="number" min="0" step="1" value="0">
-        <span class="enc-sub">Curr.</span>
-        <input id="encWeightCur" class="enc-input" type="number" min="0" step="1" value="0">
-      </div>
-
-      <div class="enc-row">
-        <span class="enc-cat">Stowage</span>
-        <span class="enc-sub">Max.</span>
-        <input id="encStowMax" class="enc-input" type="number" min="0" step="1" value="0">
-        <span class="enc-sub">Curr.</span>
-        <input id="encStowCur" class="enc-input" type="number" min="0" step="1" value="0">
-      </div>
+  <div class="enc-block">
+    <div class="enc-title">Encumbrance</div>
+    <div class="enc-row">
+      <span class="enc-cat">Weight</span>
+      <span class="enc-sub">Max.</span>
+      <input id="encWeightMax" class="enc-input" type="number" min="0" step="1" value="0">
+      <span class="enc-sub">Curr.</span>
+      <input id="encWeightCur" class="enc-input" type="number" min="0" step="1" value="0">
     </div>
-  </div><!-- /#gearToolbar -->
+    <div class="enc-row">
+      <span class="enc-cat">Stowage</span>
+      <span class="enc-sub">Max.</span>
+      <input id="encStowMax" class="enc-input" type="number" min="0" step="1" value="0">
+      <span class="enc-sub">Curr.</span>
+      <input id="encStowCur" class="enc-input" type="number" min="0" step="1" value="0">
+    </div>
+  </div>
+</div>
+
+  
+  <!-- /#gearToolbar -->
 
   <!-- Gear cards area (required by the GearCards module) -->
   <div id="gearPanelInner">
@@ -1467,31 +1457,50 @@ window.deleteCharacter=async()=>{
 };
 </script>
 
-<!-- Skill totals -->
+<!-- Skill totals (robust recalculation) -->
 <script>
 function toNum(v){ const n = parseInt(v,10); return isNaN(n) ? 0 : n; }
-function setupSkillRow(attrCurrentId, baseId){
-  const attrEl  = document.getElementById(attrCurrentId);
-  const lvlEl   = document.getElementById(`${baseId}_lvl`);
-  const modEl   = document.getElementById(`${baseId}_mod`);
-  const totalEl = document.getElementById(`${baseId}_total`);
-  if(!attrEl || !lvlEl || !modEl || !totalEl) return;
-  const recalc = () => { totalEl.value = toNum(attrEl.value) + toNum(lvlEl.value) + toNum(modEl.value); };
-  ['input','change'].forEach(ev=>{
-    attrEl.addEventListener(ev,recalc);
-    lvlEl.addEventListener(ev,recalc);
-    modEl.addEventListener(ev,recalc);
-  });
-  recalc();
-}
-function initBrawnSkillTotals(){ setupSkillRow('brawnCurrent','endurance'); setupSkillRow('brawnCurrent','fight'); setupSkillRow('brawnCurrent','might'); }
-function initAgilitySkillTotals(){ setupSkillRow('agilityCurrent','marksmanship'); setupSkillRow('agilityCurrent','mobility'); setupSkillRow('agilityCurrent','precision'); }
-function initWitsSkillTotals(){ setupSkillRow('witsCurrent','heal'); setupSkillRow('witsCurrent','insight'); setupSkillRow('witsCurrent','logic'); setupSkillRow('witsCurrent','survival'); setupSkillRow('witsCurrent','vigilance'); }
-function initWillSkillTotals(){ setupSkillRow('willCurrent','inspire'); setupSkillRow('willCurrent','manipulate'); setupSkillRow('willCurrent','resolve'); }
-function initAllSkillTotals(){ initBrawnSkillTotals(); initAgilitySkillTotals(); initWitsSkillTotals(); initWillSkillTotals(); }
 
-document.addEventListener('DOMContentLoaded', initAllSkillTotals);
+function recalcOne(base){
+  const attrMap = {
+    endurance:'brawnCurrent', fight:'brawnCurrent', might:'brawnCurrent',
+    marksmanship:'agilityCurrent', mobility:'agilityCurrent', precision:'agilityCurrent',
+    heal:'witsCurrent', insight:'witsCurrent', logic:'witsCurrent', survival:'witsCurrent', vigilance:'witsCurrent',
+    inspire:'willCurrent', manipulate:'willCurrent', resolve:'willCurrent'
+  };
+  const attrEl  = document.getElementById(attrMap[base]);
+  const lvlEl   = document.getElementById(`${base}_lvl`);
+  const modEl   = document.getElementById(`${base}_mod`);
+  const totalEl = document.getElementById(`${base}_total`);
+  if (!attrEl || !lvlEl || !modEl || !totalEl) return;
+  totalEl.value = toNum(attrEl.value) + toNum(lvlEl.value) + toNum(modEl.value);
+}
+
+function recalcAll(){
+  [
+    'endurance','fight','might',
+    'marksmanship','mobility','precision',
+    'heal','insight','logic','survival','vigilance',
+    'inspire','manipulate','resolve'
+  ].forEach(recalcOne);
+}
+
+// update totals whenever *_lvl or *_mod changes…
+document.addEventListener('input', (e)=>{
+  const id = e.target && e.target.id;
+  if (!id) return;
+  if (/_lvl$/.test(id) || /_mod$/.test(id)) recalcOne(id.replace(/_(lvl|mod)$/,''));
+
+  // …or when any current attribute pip changes
+  if (id === 'brawnCurrent' || id === 'agilityCurrent' || id === 'witsCurrent' || id === 'willCurrent'){
+    recalcAll();
+  }
+});
+
+// run once on load
+document.addEventListener('DOMContentLoaded', recalcAll);
 </script>
+
 
 <!-- Dice Roller Logic -->
 <script>
@@ -2636,38 +2645,41 @@ header.append(dragH, title, hdrRight);
 <script>
 /* ========= CATALOG RUNTIME (read-only, Hosting-backed) =========
    Your repo puts files at /public/catalog/*.json
-   So on GitHub Pages they are at:
+   On GitHub Pages they resolve under:
    https://dungeongrub.github.io/gxd6-dice-roller/public/catalog/*.json
-   Buttons already call openCatalogPicker('weapons'|'armour'|'gear'|'chemical')
+   Toolbar buttons call: openCatalogPicker('weapons'|'armour'|'gear'|'chemical')
 */
 
-/* 1) Loader (fixes the path to /public/catalog/...) */
-async function loadCatalog(kind){
+/* 1) Loader (relative to this page; no leading slash) */
+async function loadCatalog(kind) {
   const map = { armor:'armour', weapons:'weapons', armour:'armour', gear:'gear', chemical:'chemical' };
   const file = map[kind] || kind;
-  try{
+  try {
     const url = new URL(`public/catalog/${file}.json`, window.location.href);
-    const res = await fetch(url.href, { cache:'no-store' });
-    if(!res.ok) throw new Error(res.status + ' ' + res.statusText);
+    const res = await fetch(url.href, { cache: 'no-store' });
+    if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
     const data = await res.json();
     return Array.isArray(data) ? data : (Array.isArray(data.items) ? data.items : []);
-  }catch(e){
+  } catch (e) {
     console.warn('[Catalog] load failed:', e);
-    alert(`Catalog load failed (${kind}): ${e.message || e}`);
+    alert(`Catalog load failed for "${kind}": ${e.message || e}`);
     return [];
   }
 }
 
-/* 2) Spawn a blank card for the given kind and return the element */
-function spawnCardForKind(kind){
-  // our spawner expects: weapon | armor | gear | chemical
+/* 2) Spawn a blank card of the matching type and return the element */
+function spawnCardForKind(kind) {
+  // Our spawner expects: weapon | armor | gear | chemical
   if (kind === 'armour') kind = 'armor';
-  return window.spawnBlankGearCard ? window.spawnBlankGearCard(kind) : null;
+  return (typeof window.spawnBlankGearCard === 'function')
+    ? window.spawnBlankGearCard(kind)
+    : null;
 }
 
-/* 3) Hydrate a new card from a catalog template object */
-function hydrateCardFromTemplate(cardEl, tpl){
-  if(!cardEl || !tpl) return;
+/* 3) Hydrate a new card from a catalog template record */
+function hydrateCardFromTemplate(cardEl, tpl) {
+  if (!cardEl || !tpl) return;
+
   // Title
   const title = cardEl.querySelector('.card-title');
   if (title) title.value = tpl.name || tpl.title || '';
@@ -2676,116 +2688,118 @@ function hydrateCardFromTemplate(cardEl, tpl){
   const desc = cardEl.querySelector('.description');
   if (desc && (tpl.description || tpl.desc)) desc.value = tpl.description || tpl.desc || '';
 
-  // Copy over known fields to [name] controls (only if present)
-  // Common weapon keys we’ll recognize from your JSON:
-  const map = {
-    damage: ['damage','dmg'],
-    damageType: ['damageType','type','wpnType','wpnTypeText'],
-    diceMod: ['diceMod','gearBonus','bonus'],
-    reachRange: ['reachRange','range','reach'],
-    weight: ['weight','w'],
-    stow: ['stow','s'],
-    shots: ['shots','ammo'],
-    reloadAP: ['reloadAP','reload','reloadAp'],
-    skill: ['skill'],
-    wpnClass: ['wpnClass','class','kind','type'],
-    grip: ['grip','hands'],
+  // Known key mappings from JSON -> [name] controls on the card
+  const keyMap = {
+    damage:      ['damage','dmg'],
+    damageType:  ['damageType','type','wpnType','wpnTypeText'],
+    diceMod:     ['diceMod','gearBonus','bonus'],
+    reachRange:  ['reachRange','range','reach'],
+    weight:      ['weight','w'],
+    stow:        ['stow','s'],
+    shots:       ['shots','ammo'],
+    reloadAP:    ['reloadAP','reload','reloadAp'],
+    skill:       ['skill'],
+    wpnClass:    ['wpnClass','class','kind','type'],
+    grip:        ['grip','hands'],
 
     // armour
-    armor: ['armor','armour','av'],
-    coverage: ['coverage','cover'],
-    penalty: ['penalty','penalties'],
+    armor:       ['armor','armour','av'],
+    coverage:    ['coverage','cover'],
+    penalty:     ['penalty','penalties'],
 
-    // gear/chemical
-    dose: ['dose'],
-    duration: ['duration'],
-    effects: ['effects'],
-    withdrawal: ['withdrawal','crash'],
-    addiction: ['addiction'],
-    price: ['price']
+    // gear / chemical
+    dose:        ['dose'],
+    duration:    ['duration'],
+    effects:     ['effects'],
+    withdrawal:  ['withdrawal','crash'],
+    addiction:   ['addiction'],
+    price:       ['price']
   };
 
-  // Reverse-lookup helper
-  function getVal(key){
-    const keys = map[key] || [key];
-    for (const k of keys){
+  const lookup = (destKey) => {
+    const candidates = keyMap[destKey] || [destKey];
+    for (const k of candidates) {
       if (k in tpl && tpl[k] != null) return tpl[k];
     }
     return undefined;
-  }
+  };
 
-  // Fill every [name] on the card if we have a value
-  cardEl.querySelectorAll('[name]').forEach(ctrl=>{
+  // Fill any [name] control found on the card
+  cardEl.querySelectorAll('[name]').forEach(ctrl => {
     const k = ctrl.name;
-    const v = getVal(k);
+    const v = lookup(k);
     if (v === undefined) return;
-    if (ctrl.tagName === 'SELECT'){
+
+    if (ctrl.tagName === 'SELECT') {
       ctrl.value = String(v);
-    } else if (ctrl.type === 'checkbox'){
+      ctrl.dispatchEvent(new Event('change', { bubbles: true }));
+    } else if (ctrl.type === 'checkbox') {
       ctrl.checked = !!v;
+      ctrl.dispatchEvent(new Event('change', { bubbles: true }));
     } else {
       ctrl.value = String(v);
+      ctrl.dispatchEvent(new Event('input', { bubbles: true }));
     }
   });
 
-  // Keep header/body mirrors in sync if present (damage / diceMod already synced by card code)
-  // Recalc encumbrance if we changed W/S
-  if (window.recalcEncumbrance) window.recalcEncumbrance();
+  // Recompute encumbrance if weights/stow changed
+  if (typeof window.recalcEncumbrance === 'function') window.recalcEncumbrance();
 }
 
-/* 4) A tiny, no-CSS modal picker for now */
-function makePicker(items, onPick){
-  // overlay
+/* 4) Minimal picker UI */
+function makePicker(items, onPick) {
   const overlay = document.createElement('div');
-  overlay.style.cssText = `
-    position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:center; justify-content:center; z-index:100000;
-  `;
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:100000;';
+
   const box = document.createElement('div');
-  box.style.cssText = `
-    background:#fff; border:1px solid #000; width:420px; max-height:70vh; overflow:auto; padding:8px; font-family: DominicanSmall, Georgia, serif;
-  `;
+  box.style.cssText = 'background:#fff;border:1px solid #000;width:420px;max-height:70vh;overflow:auto;padding:8px;font-family:DominicanSmall,Georgia,serif;';
+
   const title = document.createElement('div');
   title.textContent = 'Select an item';
-  title.style.cssText = 'font-weight:bold; margin-bottom:6px;';
+  title.style.cssText = 'font-weight:bold;margin-bottom:6px;';
 
   const list = document.createElement('div');
-  items.forEach((it, i)=>{
+  items.forEach((it, i) => {
     const row = document.createElement('div');
-    row.style.cssText = 'display:flex; align-items:center; gap:6px; border-bottom:1px dashed #ddd; padding:4px 0;';
+    row.style.cssText = 'display:flex;align-items:center;gap:6px;border-bottom:1px dashed #ddd;padding:4px 0;';
+
     const name = document.createElement('div');
     name.textContent = it.name || it.title || `Item ${i+1}`;
     name.style.cssText = 'flex:1 1 auto;';
+
     const add = document.createElement('button');
     add.textContent = 'Add';
-    add.style.cssText = 'border:1px solid #000; background:#fff; padding:2px 6px; cursor:pointer;';
-    add.addEventListener('click', ()=>{ onPick(it); document.body.removeChild(overlay); });
+    add.style.cssText = 'border:1px solid #000;background:#fff;padding:2px 6px;cursor:pointer;';
+    add.addEventListener('click', () => { onPick(it); document.body.removeChild(overlay); });
+
     row.append(name, add);
     list.appendChild(row);
   });
 
   const cancel = document.createElement('button');
   cancel.textContent = 'Cancel';
-  cancel.style.cssText = 'margin-top:6px; border:1px solid #000; background:#fff; padding:2px 8px; cursor:pointer;';
-  cancel.addEventListener('click', ()=> document.body.removeChild(overlay));
+  cancel.style.cssText = 'margin-top:6px;border:1px solid #000;background:#fff;padding:2px 8px;cursor:pointer;';
+  cancel.addEventListener('click', () => document.body.removeChild(overlay));
 
   box.append(title, list, cancel);
   overlay.appendChild(box);
   document.body.appendChild(overlay);
 }
 
-/* 5) Public entry: called by the toolbar buttons */
-async function openCatalogPicker(kind){
-  // kind comes in as 'weapons' | 'armour' | 'gear' | 'chemical'
+/* 5) Public entry point used by toolbar buttons */
+async function openCatalogPicker(kind) {
+  // Incoming: 'weapons' | 'armour' | 'gear' | 'chemical'
   const items = await loadCatalog(kind);
-  if (!items.length){ alert(`No items found in ${kind}.json`); return; }
+  if (!items.length) { alert(`No items found in ${kind}.json`); return; }
 
-  makePicker(items, (tpl)=>{
-    // spawn the correct blank card and hydrate it
+  makePicker(items, (tpl) => {
     let spawnKind = kind;
     if (spawnKind === 'weapons') spawnKind = 'weapon';
     if (spawnKind === 'armour')  spawnKind = 'armor';
+
     const card = spawnCardForKind(spawnKind);
-    if (!card) { alert('Could not create card'); return; }
+    if (!card) { alert('Could not create card element'); return; }
+
     hydrateCardFromTemplate(card, tpl);
   });
 }
