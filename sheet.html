@@ -2795,79 +2795,241 @@ header.append(dragH, title, hdrRight);
     "stow": 0
   }
 ]</script>
-<!-- ==== /INLINE CATALOG FALLBACKS ==== -->
-
 
 <script>
-/* ========= CATALOG RUNTIME — resilient loader & clear errors =========
-   Expected files in your repo: /public/catalog/weapons.json, armour.json, gear.json, chemical.json
+/* ========= CATALOG RUNTIME — resilient loader & clear errors (DROP-IN REPLACEMENT) =========
+   This block:
+   - Tries multiple known URLs for each catalog file (GitHub Pages + local paths).
+   - Falls back to inline sample data when the file 404s.
+   - Exposes window.openCatalogPicker(kind) that overrides any earlier one.
+   - Works with your existing toolbar buttons: openCatalogPicker('weapons'|'armour'|'gear'|'chemical').
 */
 
-/* Build candidate URLs that work on both project pages and root pages */
-function candidateCatalogUrls(file){
-  const origin   = window.location.origin;
-  const pathSegs = window.location.pathname.split('/').filter(Boolean);
-  const project  = pathSegs.length ? pathSegs[0] : '';  // e.g. "gxd6-dice-roller"
+(function CatalogRuntime(){
+  const KIND_TO_FILE = {
+    weapons:  'weapons.json',
+    armour:   'armour.json',
+    gear:     'gear.json',
+    chemical: 'chemical.json'
+  };
 
-  const urls = [];
-  // A) Relative to the current page (works if sheet.html is at repo root)
-  urls.push(new URL(`public/catalog/${file}.json`, window.location.href).href);
-  // B) Explicit /<project>/public/catalog (works on GH Pages project sites)
-  if (project) urls.push(`${origin}/${project}/public/catalog/${file}.json`);
-  // C) Site root /public/catalog
-  urls.push(`${origin}/public/catalog/${file}.json`);
-  // D) Try /catalog (without "public")
-  urls.push(new URL(`catalog/${file}.json`, window.location.href).href);
-  if (project) urls.push(`${origin}/${project}/catalog/${file}.json`);
-  urls.push(`${origin}/catalog/${file}.json`);
+  // Inline fallback data (used only if all fetch attempts 404)
+  const INLINE_FALLBACK = {
+    weapons: [{
+      id:'wpn_sabre_01', name:'Sabre', wpnClass:'Blade', grip:'1 hand', skill:'Fight',
+      damage:2, damageType:'cut', reachRange:'Close', weight:1, stow:1, diceMod:1,
+      description:'A curved cavalry sabre.', img:'/img/catalog/weapons/sabre.jpg', readOnly:true
+    }],
+    armour: [{
+      id:'arm_leather_jacket', name:'Leather Jacket', coverage:'Torso/Arms',
+      armor:1, penalty:'-', weight:1, stow:0, description:'Worn leather—some protection against cuts.'
+    }],
+    gear: [{
+      id:'gear_rope_10m', name:'Rope, 10 m', weight:1, stow:1, diceMod:0,
+      description:'Sturdy hemp rope.'
+    },{
+      id:'gear_lantern_oil', name:'Lantern (oil)', weight:1, stow:1, diceMod:0,
+      description:'Metal lantern with a small oil reservoir.'
+    }],
+    chemical: [{
+      id:'chem_laudanum', name:'Laudanum', dose:'1 tsp', duration:'1–2 hours',
+      effects:'+1 die vs pain, -1 Wits while active', withdrawal:'Irritability, -1 Will for 1 hour on crash',
+      addiction:'Mild', price:'ș 2', weight:0, stow:0
+    }]
+  };
 
-  // De-dupe
-  return [...new Set(urls)];
-}
+  // Known URL candidates, in the order we’ll try.
+  function candidateUrls(kind){
+    const file = KIND_TO_FILE[kind];
+    const origin   = window.location.origin; // e.g. https://dungeongrub.github.io
+    const path     = window.location.pathname.replace(/\/+$/, ''); // e.g. /gxd6-dice-roller/sheet.html
 
-/* Fetch with multi-path fallback; throws once if all fail */
-async function loadCatalog(kind){
-  const map = { armor:'armour', armour:'armour', weapons:'weapons', gear:'gear', chemical:'chemical' };
-  const key = map[kind] || kind;
-  const urls = candidateCatalogUrls(key);
+    // Project name if hosted as /{project}/sheet.html
+    const segs = path.split('/').filter(Boolean);
+    const project = segs.length ? segs[0] : '';
 
-  let lastErr = null;
-  for (const url of urls){
+    const urls = [
+      // 1) GitHub Pages project path (WORKING for weapons in your logs)
+      `${origin}/${project}/public/catalog/${file}`,
+      // 2) Project root catalog (if you move files later)
+      `${origin}/${project}/catalog/${file}`,
+      // 3) Site root (user/organization pages)
+      `${origin}/public/catalog/${file}`,
+      `${origin}/catalog/${file}`,
+      // 4) Fully hardcoded known working path for your repo (extra safety)
+      `https://dungeongrub.github.io/gxd6-dice-roller/public/catalog/${file}`
+    ];
+
+    // De-dup
+    return [...new Set(urls)];
+  }
+
+  async function fetchJson(url){
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(String(res.status));
+    return await res.json();
+  }
+
+  async function loadCatalog(kind){
+    const urls = candidateUrls(kind);
+    for (const u of urls){
+      try{
+        const data = await fetchJson(u);
+        console.log('[Catalog] loaded:', u);
+        return data;
+      }catch(e){
+        console.warn('[Catalog] try failed:', u, e.message || e);
+      }
+    }
+    console.warn('[Catalog] load failed for', kind, '— using inline fallback');
+    const fb = INLINE_FALLBACK[kind] || [];
+    return Array.isArray(fb) ? fb : [];
+  }
+
+  // Minimal picker UI (non-blocking). If you already have a picker, this still works
+  // because it just spawns cards when you click an item.
+  function ensurePicker(){
+    let wrap = document.getElementById('catalogPicker');
+    if (wrap) return wrap;
+
+    wrap = document.createElement('div');
+    wrap.id = 'catalogPicker';
+    Object.assign(wrap.style, {
+      position:'fixed', inset:'0', background:'rgba(0,0,0,.45)',
+      display:'none', alignItems:'center', justifyContent:'center', zIndex:'100000'
+    });
+
+    const panel = document.createElement('div');
+    Object.assign(panel.style, {
+      width:'520px', maxHeight:'70vh', overflow:'auto',
+      background:'#fff', border:'1px solid #000', padding:'8px'
+    });
+    panel.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <strong style="font:14px 'DominicanSmall',serif">Catalog</strong>
+        <span id="catalogKind" style="font:12px 'DominicanSmall',serif;opacity:.7"></span>
+        <button id="catalogClose" style="margin-left:auto">Close</button>
+      </div>
+      <div id="catalogList" style="display:grid;grid-template-columns:1fr;gap:6px"></div>
+    `;
+    wrap.appendChild(panel);
+    document.body.appendChild(wrap);
+
+    panel.querySelector('#catalogClose').onclick = () => (wrap.style.display='none');
+    wrap.addEventListener('click', e => { if (e.target === wrap) wrap.style.display='none'; });
+
+    return wrap;
+  }
+
+  function spawnFromKind(kind, item){
+    if (kind === 'weapons')       return window.spawnBlankGearCard && window.spawnBlankGearCard('weapon');
+    if (kind === 'armour')        return window.spawnBlankGearCard && window.spawnBlankGearCard('armour');
+    if (kind === 'chemical')      return window.spawnBlankGearCard && window.spawnBlankGearCard('chemical');
+    /* gear */                    return window.spawnBlankGearCard && window.spawnBlankGearCard('gear');
+  }
+
+  // Expose a single override for the toolbar buttons
+  window.openCatalogPicker = async function(kind){
+    kind = (kind || '').toLowerCase();
+    if (!KIND_TO_FILE[kind]) { alert('Unknown catalog: ' + kind); return; }
+
+    const picker = ensurePicker();
+    picker.style.display = 'flex';
+    picker.querySelector('#catalogKind').textContent = '(' + kind + ')';
+    const listEl = picker.querySelector('#catalogList');
+    listEl.innerHTML = 'Loading…';
+
+    let items = [];
     try{
-      const res = await fetch(url, { cache:'no-store' });
-      if (!res.ok) throw new Error(String(res.status));
-      const json = await res.json();
-      console.log('[Catalog] loaded:', url);
-      return json;
-    }catch(err){
-      lastErr = err;
-      console.warn('[Catalog] try failed:', url, err?.message || err);
+      items = await loadCatalog(kind);
+    }catch(e){
+      console.warn('[Catalog] load failed:', e && e.message || e);
+      items = INLINE_FALLBACK[kind] || [];
     }
-  }
-  console.error('[Catalog] load failed:', lastErr?.message || lastErr);
-  throw new Error(lastErr?.message || 'Catalog fetch failed');
-}
 
-/* Toolbar hook: load picker data or gracefully spawn a blank card */
-window.openCatalogPicker = async function(kind){
-  try{
-    const data = await loadCatalog(kind);
-    const count = Array.isArray(data) ? data.length : 0;
-    alert(`Loaded ${count} ${kind} item(s). See console for details.`);
-    console.table(data);
-    // TODO: Build modal picker that injects a selected item into a card.
-  }catch(e){
-    const code = e?.message || '404';
-    const ok = confirm(`${kind} catalog not found (HTTP ${code}).\nAdd a blank ${kind} card instead?`);
-    if (ok){
-      if (kind === 'weapons')                         spawnBlankGearCard('weapon');
-      else if (kind === 'armour' || kind === 'armor') spawnBlankGearCard('armour');
-      else if (kind === 'chemical')                   spawnBlankGearCard('chemical');
-      else                                            spawnBlankGearCard('gear');
+    // Render list
+    listEl.innerHTML = '';
+    if (!items.length){
+      const p = document.createElement('p');
+      p.textContent = 'No items found.';
+      listEl.appendChild(p);
+      return;
     }
-  }
-};
+
+    items.forEach((it) => {
+      const row = document.createElement('div');
+      row.style.border = '1px solid #000';
+      row.style.padding = '4px';
+      row.style.display = 'grid';
+      row.style.gridTemplateColumns = '1fr auto';
+      row.style.alignItems = 'center';
+
+      const name = document.createElement('div');
+      name.innerHTML = `<strong>${it.name || '(unnamed)'}</strong><br><span style="font:11px 'DominicanSmall',serif;opacity:.8">${it.description || ''}</span>`;
+
+      const addBtn = document.createElement('button');
+      addBtn.textContent = 'Add';
+      addBtn.onclick = () => {
+        // Spawn proper card type and import fields
+        const cardEl = spawnFromKind(kind, it);
+        if (!cardEl) return;
+
+        // After spawning, fill the inputs by name
+        cardEl.querySelector('.card-title') && (cardEl.querySelector('.card-title').value = it.name || '');
+
+        const apply = (name, value) => {
+          const el = cardEl.querySelector(`[name="${name}"]`);
+          if (!el) return;
+          if (el.type === 'checkbox') el.checked = !!value;
+          else el.value = value ?? '';
+        };
+
+        // Common fields
+        apply('weight',   it.weight);
+        apply('stow',     it.stow);
+        apply('diceMod',  it.diceMod);
+        apply('description', it.description);
+
+        // Weapons
+        if (kind === 'weapons'){
+          apply('damage',      it.damage);
+          apply('damageType',  it.damageType);
+          apply('reachRange',  it.reachRange);
+          apply('wpnClass',    it.wpnClass);
+          apply('grip',        it.grip);
+          apply('skill',       it.skill);
+        }
+
+        // Armour
+        if (kind === 'armour'){
+          apply('coverage', it.coverage);
+          apply('armor',    it.armor ?? it.armour);
+          apply('penalty',  it.penalty);
+        }
+
+        // Chemical
+        if (kind === 'chemical'){
+          apply('dose',       it.dose);
+          apply('duration',   it.duration);
+          const eff = cardEl.querySelector('[name="effects"]');     if (eff) eff.value = it.effects ?? '';
+          const wd  = cardEl.querySelector('[name="withdrawal"]');  if (wd)  wd.value  = it.withdrawal ?? '';
+          apply('addiction',  it.addiction);
+          apply('price',      it.price);
+        }
+
+        // Update encumbrance after adding
+        if (window.recalcEncumbrance) window.recalcEncumbrance();
+      };
+
+      row.appendChild(name);
+      row.appendChild(addBtn);
+      listEl.appendChild(row);
+    });
+  };
+
+})();
 </script>
+
 
 <script>
 /* Catalog helper: return [] instead of null/undefined */
