@@ -2661,6 +2661,93 @@ header.append(dragH, title, hdrRight);
 })(); 
 </script>
 
+<script>
+/* ===== SIMPLE CATALOG ADDER (replaces openCatalogPicker) ===== */
+(function(){
+  function setField(card, name, value){
+    const el = card.querySelector(`[name="${name}"]`);
+    if (el != null && value != null) el.value = value;
+  }
+  function fillCommon(card, row){
+    setField(card, 'weight', row.weight);
+    setField(card, 'stow',   row.stow);
+    const desc = card.querySelector('textarea.description');
+    if (desc) desc.value = row.description || '';
+    const title = card.querySelector('.card-title');
+    if (title) title.value = row.name || '';
+  }
+  function spawnFromRow(kind, row){
+    const type = (kind === 'armor') ? 'armour' : kind;       // normalize
+    const card = window.spawnBlankGearCard ? window.spawnBlankGearCard(type) : null;
+    if (!card) return;
+
+    // Per-type mapping
+    if (type === 'weapon'){
+      setField(card, 'diceMod',   row.diceMod);
+      setField(card, 'damage',    row.damage);
+      setField(card, 'skill',     row.skill);
+      setField(card, 'wpnClass',  row.wpnClass);
+      setField(card, 'grip',      row.grip);
+      setField(card, 'reachRange',row.reachRange);
+      setField(card, 'damageType',row.damageType || row.type);
+      // shots/reload only meaningful for ranged, but harmless to set
+      setField(card, 'shots',     row.shots);
+      setField(card, 'reloadAP',  row.reloadAP);
+      fillCommon(card, row);
+    } else if (type === 'armour'){
+      setField(card, 'coverage',  row.coverage);
+      setField(card, 'armor',     (row.armor ?? row.armour));
+      setField(card, 'penalty',   row.penalty);
+      fillCommon(card, row);
+    } else if (type === 'chemical'){
+      setField(card, 'dose',      row.dose);
+      setField(card, 'duration',  row.duration);
+      // textareas created in the card body:
+      const eff = card.querySelector('[name="effects"]');
+      if (eff) eff.value = row.effects || '';
+      const wd  = card.querySelector('[name="withdrawal"]');
+      if (wd) wd.value = row.withdrawal || '';
+      setField(card, 'addiction', row.addiction);
+      setField(card, 'price',     row.price);
+      fillCommon(card, row);
+    } else { // gear
+      setField(card, 'diceMod',   row.diceMod);
+      fillCommon(card, row);
+    }
+
+    if (typeof window.recalcEncumbrance === 'function') window.recalcEncumbrance();
+  }
+
+  // Replace picker to add items without a modal
+  window.openCatalogPicker = async function(kind){
+    try{
+      const rows = window.ensureArray(await window.loadCatalog(kind));
+      if (!rows.length){ alert(`No ${kind} catalog items found.`); return; }
+
+      // If just one row, add it silently; else ask if user wants to add all
+      if (rows.length === 1){
+        spawnFromRow(kind, rows[0]);
+        return;
+      }
+      const addAll = confirm(`Add all ${rows.length} ${kind} item(s) to the sheet?\n\nOK: Add all\nCancel: Pick one`);
+      if (addAll){
+        rows.forEach(r => spawnFromRow(kind, r));
+        return;
+      }
+      // Quick numeric chooser
+      const list = rows.map((r,i)=>`${i+1}. ${r.name}`).join('\n');
+      const ans = prompt(`Pick a ${kind} to add:\n\n${list}\n\nEnter number:`);
+      const n = parseInt(ans, 10);
+      if (n>=1 && n<=rows.length) spawnFromRow(kind, rows[n-1]);
+    }catch(err){
+      console.warn('[Catalog] picker failed:', err);
+      alert(`Could not open ${kind} catalog: ${err && err.message ? err.message : err}`);
+    }
+  };
+})();
+</script>
+
+
 <!-- ==== INLINE CATALOG FALLBACKS (use if remote JSON not found) ==== -->
 <script type="application/json" id="catalog-gear">[
   {
@@ -2780,6 +2867,11 @@ window.openCatalogPicker = async function(kind){
     }
   }
 };
+</script>
+
+<script>
+/* Catalog helper: return [] instead of null/undefined */
+window.ensureArray = function (v){ return Array.isArray(v) ? v : []; };
 </script>
 
 <script>
