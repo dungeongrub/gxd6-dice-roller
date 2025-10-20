@@ -1256,9 +1256,18 @@ window.setLockState = (id, locked) => {
   field.style.opacity = locked ? 0.6 : 1;
 };
 
-/* Tiny helpers for + / − buttons by the current-value pips */
-window.stepUpField   = id => { document.getElementById(id)?.stepUp();   };
-window.stepDownField = id => { document.getElementById(id)?.stepDown(); };
+window.stepUpField = (id) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.stepUp();
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+};
+window.stepDownField = (id) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.stepDown();
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+};
 </script>
 
 <script>
@@ -1496,6 +1505,16 @@ document.addEventListener('input', (e)=>{
     recalcAll();
   }
 });
+
+document.addEventListener('change', (e)=>{
+  const id = e.target && e.target.id;
+  if (!id) return;
+  if (/_lvl$/.test(id) || /_mod$/.test(id)) recalcOne(id.replace(/_(lvl|mod)$/,''));
+  if (id === 'brawnCurrent' || id === 'agilityCurrent' || id === 'witsCurrent' || id === 'willCurrent'){
+    recalcAll();
+  }
+});
+
 
 // run once on load
 document.addEventListener('DOMContentLoaded', recalcAll);
@@ -2643,167 +2662,76 @@ header.append(dragH, title, hdrRight);
 </script>
 
 <script>
-/* ========= CATALOG RUNTIME (read-only, Hosting-backed) =========
-   Your repo puts files at /public/catalog/*.json
-   On GitHub Pages they resolve under:
-   https://dungeongrub.github.io/gxd6-dice-roller/public/catalog/*.json
-   Toolbar buttons call: openCatalogPicker('weapons'|'armour'|'gear'|'chemical')
+/* ========= CATALOG RUNTIME — resilient loader & clear errors =========
+   Expected files in your repo: /public/catalog/weapons.json, armour.json, gear.json, chemical.json
 */
 
-/* 1) Loader (relative to this page; no leading slash) */
-async function loadCatalog(kind) {
-  const map = { armor:'armour', weapons:'weapons', armour:'armour', gear:'gear', chemical:'chemical' };
-  const file = map[kind] || kind;
-  try {
-    const url = new URL(`public/catalog/${file}.json`, window.location.href);
-    const res = await fetch(url.href, { cache: 'no-store' });
-    if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
-    const data = await res.json();
-    return Array.isArray(data) ? data : (Array.isArray(data.items) ? data.items : []);
-  } catch (e) {
-    console.warn('[Catalog] load failed:', e);
-    alert(`Catalog load failed for "${kind}": ${e.message || e}`);
-    return [];
+/* Build candidate URLs that work on both project pages and root pages */
+function candidateCatalogUrls(file){
+  const origin   = window.location.origin;
+  const pathSegs = window.location.pathname.split('/').filter(Boolean);
+  const project  = pathSegs.length ? pathSegs[0] : '';  // e.g. "gxd6-dice-roller"
+
+  const urls = [];
+  // A) Relative to the current page (works if sheet.html is at repo root)
+  urls.push(new URL(`public/catalog/${file}.json`, window.location.href).href);
+  // B) Explicit /<project>/public/catalog (works on GH Pages project sites)
+  if (project) urls.push(`${origin}/${project}/public/catalog/${file}.json`);
+  // C) Site root /public/catalog
+  urls.push(`${origin}/public/catalog/${file}.json`);
+  // D) Try /catalog (without "public")
+  urls.push(new URL(`catalog/${file}.json`, window.location.href).href);
+  if (project) urls.push(`${origin}/${project}/catalog/${file}.json`);
+  urls.push(`${origin}/catalog/${file}.json`);
+
+  // De-dupe
+  return [...new Set(urls)];
+}
+
+/* Fetch with multi-path fallback; throws once if all fail */
+async function loadCatalog(kind){
+  const map = { armor:'armour', armour:'armour', weapons:'weapons', gear:'gear', chemical:'chemical' };
+  const key = map[kind] || kind;
+  const urls = candidateCatalogUrls(key);
+
+  let lastErr = null;
+  for (const url of urls){
+    try{
+      const res = await fetch(url, { cache:'no-store' });
+      if (!res.ok) throw new Error(String(res.status));
+      const json = await res.json();
+      console.log('[Catalog] loaded:', url);
+      return json;
+    }catch(err){
+      lastErr = err;
+      console.warn('[Catalog] try failed:', url, err?.message || err);
+    }
   }
+  console.error('[Catalog] load failed:', lastErr?.message || lastErr);
+  throw new Error(lastErr?.message || 'Catalog fetch failed');
 }
 
-/* 2) Spawn a blank card of the matching type and return the element */
-function spawnCardForKind(kind) {
-  // Our spawner expects: weapon | armor | gear | chemical
-  if (kind === 'armour') kind = 'armor';
-  return (typeof window.spawnBlankGearCard === 'function')
-    ? window.spawnBlankGearCard(kind)
-    : null;
-}
-
-/* 3) Hydrate a new card from a catalog template record */
-function hydrateCardFromTemplate(cardEl, tpl) {
-  if (!cardEl || !tpl) return;
-
-  // Title
-  const title = cardEl.querySelector('.card-title');
-  if (title) title.value = tpl.name || tpl.title || '';
-
-  // Description
-  const desc = cardEl.querySelector('.description');
-  if (desc && (tpl.description || tpl.desc)) desc.value = tpl.description || tpl.desc || '';
-
-  // Known key mappings from JSON -> [name] controls on the card
-  const keyMap = {
-    damage:      ['damage','dmg'],
-    damageType:  ['damageType','type','wpnType','wpnTypeText'],
-    diceMod:     ['diceMod','gearBonus','bonus'],
-    reachRange:  ['reachRange','range','reach'],
-    weight:      ['weight','w'],
-    stow:        ['stow','s'],
-    shots:       ['shots','ammo'],
-    reloadAP:    ['reloadAP','reload','reloadAp'],
-    skill:       ['skill'],
-    wpnClass:    ['wpnClass','class','kind','type'],
-    grip:        ['grip','hands'],
-
-    // armour
-    armor:       ['armor','armour','av'],
-    coverage:    ['coverage','cover'],
-    penalty:     ['penalty','penalties'],
-
-    // gear / chemical
-    dose:        ['dose'],
-    duration:    ['duration'],
-    effects:     ['effects'],
-    withdrawal:  ['withdrawal','crash'],
-    addiction:   ['addiction'],
-    price:       ['price']
-  };
-
-  const lookup = (destKey) => {
-    const candidates = keyMap[destKey] || [destKey];
-    for (const k of candidates) {
-      if (k in tpl && tpl[k] != null) return tpl[k];
+/* Toolbar hook: load picker data or gracefully spawn a blank card */
+window.openCatalogPicker = async function(kind){
+  try{
+    const data = await loadCatalog(kind);
+    const count = Array.isArray(data) ? data.length : 0;
+    alert(`Loaded ${count} ${kind} item(s). See console for details.`);
+    console.table(data);
+    // TODO: Build modal picker that injects a selected item into a card.
+  }catch(e){
+    const code = e?.message || '404';
+    const ok = confirm(`${kind} catalog not found (HTTP ${code}).\nAdd a blank ${kind} card instead?`);
+    if (ok){
+      if (kind === 'weapons')                         spawnBlankGearCard('weapon');
+      else if (kind === 'armour' || kind === 'armor') spawnBlankGearCard('armour');
+      else if (kind === 'chemical')                   spawnBlankGearCard('chemical');
+      else                                            spawnBlankGearCard('gear');
     }
-    return undefined;
-  };
-
-  // Fill any [name] control found on the card
-  cardEl.querySelectorAll('[name]').forEach(ctrl => {
-    const k = ctrl.name;
-    const v = lookup(k);
-    if (v === undefined) return;
-
-    if (ctrl.tagName === 'SELECT') {
-      ctrl.value = String(v);
-      ctrl.dispatchEvent(new Event('change', { bubbles: true }));
-    } else if (ctrl.type === 'checkbox') {
-      ctrl.checked = !!v;
-      ctrl.dispatchEvent(new Event('change', { bubbles: true }));
-    } else {
-      ctrl.value = String(v);
-      ctrl.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-  });
-
-  // Recompute encumbrance if weights/stow changed
-  if (typeof window.recalcEncumbrance === 'function') window.recalcEncumbrance();
-}
-
-/* 4) Minimal picker UI */
-function makePicker(items, onPick) {
-  const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:100000;';
-
-  const box = document.createElement('div');
-  box.style.cssText = 'background:#fff;border:1px solid #000;width:420px;max-height:70vh;overflow:auto;padding:8px;font-family:DominicanSmall,Georgia,serif;';
-
-  const title = document.createElement('div');
-  title.textContent = 'Select an item';
-  title.style.cssText = 'font-weight:bold;margin-bottom:6px;';
-
-  const list = document.createElement('div');
-  items.forEach((it, i) => {
-    const row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:6px;border-bottom:1px dashed #ddd;padding:4px 0;';
-
-    const name = document.createElement('div');
-    name.textContent = it.name || it.title || `Item ${i+1}`;
-    name.style.cssText = 'flex:1 1 auto;';
-
-    const add = document.createElement('button');
-    add.textContent = 'Add';
-    add.style.cssText = 'border:1px solid #000;background:#fff;padding:2px 6px;cursor:pointer;';
-    add.addEventListener('click', () => { onPick(it); document.body.removeChild(overlay); });
-
-    row.append(name, add);
-    list.appendChild(row);
-  });
-
-  const cancel = document.createElement('button');
-  cancel.textContent = 'Cancel';
-  cancel.style.cssText = 'margin-top:6px;border:1px solid #000;background:#fff;padding:2px 8px;cursor:pointer;';
-  cancel.addEventListener('click', () => document.body.removeChild(overlay));
-
-  box.append(title, list, cancel);
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
-}
-
-/* 5) Public entry point used by toolbar buttons */
-async function openCatalogPicker(kind) {
-  // Incoming: 'weapons' | 'armour' | 'gear' | 'chemical'
-  const items = await loadCatalog(kind);
-  if (!items.length) { alert(`No items found in ${kind}.json`); return; }
-
-  makePicker(items, (tpl) => {
-    let spawnKind = kind;
-    if (spawnKind === 'weapons') spawnKind = 'weapon';
-    if (spawnKind === 'armour')  spawnKind = 'armor';
-
-    const card = spawnCardForKind(spawnKind);
-    if (!card) { alert('Could not create card element'); return; }
-
-    hydrateCardFromTemplate(card, tpl);
-  });
-}
+  }
+};
 </script>
+
 
 
 <!-- Close body + html -->
