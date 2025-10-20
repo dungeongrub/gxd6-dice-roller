@@ -2661,6 +2661,56 @@ header.append(dragH, title, hdrRight);
 })(); 
 </script>
 
+<!-- ==== INLINE CATALOG FALLBACKS (use if remote JSON not found) ==== -->
+<script type="application/json" id="catalog-gear">[
+  {
+    "id": "gear_rope_10m",
+    "name": "Rope, 10 m",
+    "weight": 1,
+    "stow": 1,
+    "diceMod": 0,
+    "description": "Sturdy hemp rope."
+  },
+  {
+    "id": "gear_lantern_oil",
+    "name": "Lantern (oil)",
+    "weight": 1,
+    "stow": 1,
+    "diceMod": 0,
+    "description": "Metal lantern with a small oil reservoir."
+  }
+]</script>
+
+<script type="application/json" id="catalog-armour">[
+  {
+    "id": "arm_leather_jacket",
+    "name": "Leather Jacket",
+    "coverage": "Torso/Arms",
+    "armor": 1,
+    "penalty": "-",
+    "weight": 1,
+    "stow": 0,
+    "description": "Worn leather—some protection against cuts."
+  }
+]</script>
+
+<script type="application/json" id="catalog-chemical">[
+  {
+    "id": "chem_laudanum",
+    "name": "Laudanum",
+    "dose": "1 tsp",
+    "duration": "1–2 hours",
+    "effects": "+1 die vs pain, -1 Wits while active",
+    "withdrawal": "Irritability, -1 Will for 1 hour on crash",
+    "addiction": "Mild",
+    "price": "ș 2",
+    "weight": 0,
+    "stow": 0
+  }
+]</script>
+<!-- ==== /INLINE CATALOG FALLBACKS ==== -->
+
+
 <script>
 /* ========= CATALOG RUNTIME — resilient loader & clear errors =========
    Expected files in your repo: /public/catalog/weapons.json, armour.json, gear.json, chemical.json
@@ -2732,6 +2782,60 @@ window.openCatalogPicker = async function(kind){
 };
 </script>
 
+<script>
+/* ==== CATALOG PATCH: prefer inline <script id="catalog-..."> fallbacks, then try network ==== */
+(function(){
+  function readInlineCatalog(kind){
+    const el = document.getElementById('catalog-' + kind);
+    if (!el) return null;
+    try {
+      const data = JSON.parse((el.textContent || el.innerText || '[]').trim() || '[]');
+      console.info('[Catalog] using inline fallback for', kind, `(items: ${Array.isArray(data)?data.length:0})`);
+      return Array.isArray(data) ? data : [];
+    } catch(e){
+      console.warn('[Catalog] inline parse error for', kind, e);
+      return [];
+    }
+  }
+
+  // Keep a reference to the original (network) loader if it exists
+  const _origLoadCatalog = (typeof window.loadCatalog === 'function') ? window.loadCatalog : null;
+
+  // Replace global loadCatalog
+  window.loadCatalog = async function(kind){
+    // 1) Inline first (even if empty array—avoids 404 spam)
+    const inline = readInlineCatalog(kind);
+    if (inline) return inline;
+
+    // 2) Fallback to original network loader (your existing logic)
+    if (_origLoadCatalog){
+      try {
+        const data = await _origLoadCatalog(kind);
+        return Array.isArray(data) ? data : [];
+      } catch (e){
+        console.warn('[Catalog] network failed for', kind, e);
+      }
+    }
+
+    // 3) Nothing available
+    console.warn('[Catalog] no data available for', kind, '(inline or network)');
+    return [];
+  };
+
+  // Optional: make openCatalogPicker gracefully handle empty catalogs
+  const _origOpenPicker = (typeof window.openCatalogPicker === 'function') ? window.openCatalogPicker : null;
+  if (_origOpenPicker){
+    window.openCatalogPicker = async function(kind){
+      const rows = await window.loadCatalog(kind);
+      if (!rows || !rows.length){
+        alert(`No ${kind} catalog found yet.\n(Using inline fallbacks or add ${kind}.json to /public/catalog/)`);
+        return;
+      }
+      return _origOpenPicker(kind); // your existing UI flows as-is
+    };
+  }
+})();
+</script>
 
 
 <!-- Close body + html -->
