@@ -2597,183 +2597,229 @@ ${css}
 })(); 
 </script>
 
-<!-- ========= CATALOG RUNTIME — resilient loader with inline fallbacks ========= -->
 <script>
-(function CatalogRuntime(){
-  'use strict';
+/* ========================= CATALOG (INLINE-FIRST) ========================= */
 
-  const CATALOG_INLINE = {
-    weapons: [
-      {
-        id:'wpn_dagger', name:'Dagger', skill:'Fight', wpnClass:'Blade', grip:'1 hand',
-        diceMod:0, damage:1, damageType:'Piercing', weight:1, stow:0,
-        shots:0, reloadAP:0, reachRange:'Close',
-        description:'A simple knife with a crossguard.'
-      },
-      {
-        id:'wpn_pistol', name:'Flintlock Pistol', skill:'Marksmanship', wpnClass:'Firearm', grip:'1 hand',
-        diceMod:0, damage:2, damageType:'Ball', weight:2, stow:1,
-        shots:1, reloadAP:3, reachRange:'Short',
-        description:'Single-shot pistol. Slow to reload.'
-      },
-      {
-        id:'wpn_spear', name:'Boar Spear', skill:'Fight', wpnClass:'Bludgeon', grip:'2 hands',
-        diceMod:0, damage:2, damageType:'Piercing', weight:3, stow:2,
-        shots:0, reloadAP:0, reachRange:'Medium',
-        description:'Heavy spear with a crossbar for bracing.'
-      }
-    ],
-    armour: [
-      {
-        id:'arm_leather_jacket', name:'Leather Jack', coverage:'Torso/Arms',
-        armor:1, penalty:'—', weight:1, stow:0,
-        description:'Worn leather; modest protection.'
-      }
-    ],
-    gear: [
-      { id:'gear_rope10',  name:'Rope (10 m)', diceMod:0, weight:1, stow:1, description:'Sturdy hemp rope.' },
-      { id:'gear_lantern', name:'Lantern (oil)', diceMod:0, weight:1, stow:1, description:'Metal lantern, small oil reservoir.' }
-    ],
-    chemical: [
-      {
-        id:'chem_laudanum', name:'Laudanum', dose:'1 tsp', duration:'1–2 hours',
-        effects:'+1 die vs pain, -1 Wits while active',
-        withdrawal:'Irritability, -1 Will for 1 hour on crash',
-        addiction:'Mild', price:'ș 2', weight:0, stow:0,
-        description:'Opium tincture.'
-      }
-    ]
+/** Toggle this if you ever want to merge in remote JSON too. */
+const USE_REMOTE_CATALOG = false;
+
+/** Your complete inline catalog lives here. Add/modify freely. */
+const CATALOG_INLINE = {
+  weapons: [
+    {
+      id:'wpn_dagger', name:'Dagger', skill:'Fight', wpnClass:'Blade', grip:'1 hand',
+      diceMod:0, damage:1, damageType:'Piercing', weight:1, stow:0,
+      shots:0, reloadAP:0, reachRange:'Close',
+      description:'A simple knife with a crossguard.'
+    },
+    {
+      id:'wpn_pistol', name:'Flintlock Pistol', skill:'Marksmanship', wpnClass:'Firearm', grip:'1 hand',
+      diceMod:0, damage:2, damageType:'Ball', weight:2, stow:1,
+      shots:1, reloadAP:3, reachRange:'Short',
+      description:'Single-shot pistol. Slow to reload.'
+    }
+    // …keep adding your items here…
+  ],
+  armour: [
+    // example:
+    // { id:'arm_gambeson', name:'Gambeson', coverage:'Torso/Arms', armor:1, penalty:'—', weight:2, stow:1, description:'Quilted padding.' }
+  ],
+  gear: [
+    // …
+  ],
+  chemical: [
+    // …
+  ]
+};
+
+/** Normalize catalog items per kind (fill safe defaults). */
+function normCatalogItem(kind, it){
+  const base = {
+    id: it.id || `cat_${kind}_${Math.random().toString(36).slice(2,9)}`,
+    name: it.name || 'Unnamed',
+    description: it.description || '',
+    diceMod: Number(it.diceMod || 0),
+    weight: Number(it.weight || 0),
+    stow: Number(it.stow || 0)
   };
-
-  // Build candidate URLs for a category
-  function catalogUrls(kind){
-    const file = `${kind}.json`;
-    const here  = window.location;
-    const path  = here.pathname.replace(/\/[^\/]*$/, '');
-    return [
-      `${here.origin}${path}/public/catalog/${file}`,
-      `${here.origin}${path}/catalog/${file}`,
-      `${here.origin}/public/catalog/${file}`,
-      `${here.origin}/catalog/${file}`,
-      // Known GitHub Pages locations you tried
-      `https://dungeongrub.github.io/gxd6-dice-roller/public/catalog/${file}`,
-      `https://dungeongrub.github.io/gxd6-dice-roller/catalog/${file}`,
-      `https://dungeongrub.github.io/public/catalog/${file}`,
-      `https://dungeongrub.github.io/catalog/${file}`
-    ];
+  if (kind === 'weapons'){
+    return {
+      ...base,
+      type: 'weapon',
+      skill: it.skill || 'Fight',
+      wpnClass: it.wpnClass || 'Bludgeon',
+      grip: it.grip || '1 hand',
+      damage: Number(it.damage || 0),
+      damageType: it.damageType || '',
+      shots: Number(it.shots || 0),
+      reloadAP: Number(it.reloadAP || 0),
+      reachRange: it.reachRange || 'Close'
+    };
   }
-
-  async function fetchJson(url){
-    try{
-      const res = await fetch(url, {cache:'no-store'});
-      if(!res.ok) throw new Error(res.status+'');
-      return await res.json();
-    }catch(e){
-      console.warn('[Catalog] try failed:', url, e?.message||e);
-      return null;
-    }
+  if (kind === 'armour'){
+    return {
+      ...base,
+      type: 'armour',
+      coverage: it.coverage || '',
+      armor: Number(it.armor ?? it.armour ?? 0),
+      penalty: it.penalty || ''
+    };
   }
+  if (kind === 'chemical'){
+    return {
+      ...base,
+      type: 'chemical',
+      dose: it.dose || '',
+      duration: it.duration || '',
+      effects: it.effects || '',
+      withdrawal: it.withdrawal || it.crash || '',
+      addiction: it.addiction || '',
+      price: it.price || ''
+    };
+  }
+  return { ...base, type: 'gear' };
+}
 
-  async function loadCatalog(kind){
-    const urls = catalogUrls(kind);
-    for (const u of urls){
-      const data = await fetchJson(u);
-      if (data && (Array.isArray(data) ? data.length : (Array.isArray(data[kind]) && data[kind].length))){
-        console.log(`[Catalog] loaded ${kind} from: ${u}`);
-        return Array.isArray(data) ? data : data[kind];
-      }
-    }
-    console.warn(`[Catalog] load failed for ${kind} — using inline fallback`);
-    const inline = CATALOG_INLINE[kind] || [];
-    console.log(`[Catalog] using inline fallback for ${kind} (items: ${inline.length})`);
+/** Merge lists by id, later items override earlier fields. */
+function mergeById(a,b){
+  const map = new Map();
+  [...a,...b].forEach(it => {
+    map.set(it.id, { ...(map.get(it.id)||{}), ...it });
+  });
+  return [...map.values()];
+}
+
+/** Load catalog list for a kind ('weapons'|'armour'|'gear'|'chemical'). */
+async function loadCatalog(kind){
+  const inline = (CATALOG_INLINE[kind] || []).map(it => normCatalogItem(kind, it));
+  if (!USE_REMOTE_CATALOG) return inline;        // <-- INLINE FIRST (your case)
+
+  // If you flip the flag above, we’ll attempt to merge with remote JSON.
+  try{
+    const res = await fetch(`catalog/${kind}.json`, { cache:'no-store' });
+    if (!res.ok) return inline;
+    const remoteRaw = await res.json();
+    const remote = Array.isArray(remoteRaw)
+      ? remoteRaw.map(it => normCatalogItem(kind, it))
+      : [];
+    return mergeById(inline, remote);
+  }catch(_){
     return inline;
   }
+}
 
-  // Minimal prompt-based picker (fast + robust)
-  window.openCatalogPicker = async function(kind){
-    const category = (kind || '').toLowerCase();
-    if (!['weapons','armour','gear','chemical'].includes(category)){
-      alert('Unknown catalog: ' + kind);
-      return;
-    }
-    const items = await loadCatalog(category);
-    if (!items || !items.length){
-      alert('No items available for ' + category);
-      return;
-    }
+/** Build & show the picker modal, then add item on click. */
+async function openCatalogPicker(kind){
+  // kind is 'weapons'|'armour'|'gear'|'chemical'
+  const items = await loadCatalog(kind);
 
-    // Build list text
-    const lines = items.map((it, i)=> `${i+1}. ${it.name || it.title || '(unnamed)'}`);
-    const msg = `Add from ${category}:\n` + lines.join('\n') + `\n\nType number(s) to add (e.g. 1 or 1,3,5). Cancel to abort.`;
-    const ans = prompt(msg, '1');
-    if (!ans) return;
-    const picks = ans.split(/[,\s]+/).map(s=>parseInt(s,10)).filter(n=>Number.isInteger(n) && n>=1 && n<=items.length);
+  // Modal shell
+  const overlay = document.createElement('div');
+  Object.assign(overlay.style, {
+    position:'fixed', inset:'0', background:'rgba(0,0,0,.35)',
+    display:'flex', alignItems:'center', justifyContent:'center', zIndex:'999999'
+  });
 
-    if (!picks.length){ alert('No valid selections.'); return; }
+  const modal = document.createElement('div');
+  Object.assign(modal.style, {
+    width:'520px', maxHeight:'70vh', overflow:'auto',
+    background:'#fff', border:'1px solid #000', borderRadius:'4px',
+    boxShadow:'0 10px 24px rgba(0,0,0,.25)'
+  });
 
-    picks.forEach(n=>{
-      const item = items[n-1];
-      addCatalogItemToSheet(category, item);
+  const head = document.createElement('div');
+  head.textContent = `Catalog: ${kind}`;
+  Object.assign(head.style, {
+    padding:'6px 8px', borderBottom:'1px solid #000', font:'14px DominicanSmall, serif', background:'#f2f2f2'
+  });
+
+  const list = document.createElement('div');
+  Object.assign(list.style, { padding:'6px' });
+
+  // Row for each item
+  items.forEach(it => {
+    const row = document.createElement('div');
+    Object.assign(row.style, {
+      display:'grid',
+      gridTemplateColumns:'1fr auto',
+      gap:'6px', alignItems:'center',
+      padding:'6px 4px',
+      borderBottom:'1px dashed #ddd'
     });
-  };
 
-  function addCatalogItemToSheet(category, item){
-    if (!item) return;
-    let card;
-    if (category==='weapons')       card = window.spawnBlankGearCard('weapon');
-    else if (category==='armour')   card = window.spawnBlankGearCard('armour');
-    else if (category==='chemical') card = window.spawnBlankGearCard('chemical');
-    else                            card = window.spawnBlankGearCard('gear');
+    const left = document.createElement('div');
+    left.innerHTML = `<div style="font:14px GokilNova, DominicanSmall, serif">${it.name}</div>
+      <div style="font:11px Dominican, serif; opacity:.85">
+        ${it.type==='weapon' ? `${it.wpnClass} • ${it.grip} • dmg ${it.damage}${it.damageType? ' ('+it.damageType+')':''} • W/S ${it.weight}/${it.stow}` :
+        it.type==='armour' ? `AV ${it.armor} • ${it.coverage || '—'} • W/S ${it.weight}/${it.stow}` :
+        it.type==='chemical' ? `${it.dose || 'dose ?'} • ${it.duration || 'duration ?'}` :
+        `W/S ${it.weight}/${it.stow}`
+        }
+      </div>
+      <div style="font:11px Dominican, serif; opacity:.7">${it.description || ''}</div>`;
+    const btn = document.createElement('button');
+    btn.textContent = 'Add';
+    Object.assign(btn.style, {
+      border:'1px solid #000', background:'#fff', cursor:'pointer',
+      padding:'2px 8px', font:'12px DominicanSmall, serif'
+    });
+    btn.addEventListener('click', () => {
+      spawnFromCatalog(it);     // add card to the list
+      document.body.removeChild(overlay);
+    });
 
-    if (!card) return;
+    row.append(left, btn);
+    list.appendChild(row);
+  });
 
-    // Common fields
-    const set = (sel, val) => { const el = card.querySelector(sel); if (el) el.value = (val ?? el.value); };
+  const foot = document.createElement('div');
+  Object.assign(foot.style, {
+    padding:'6px 8px', borderTop:'1px solid #000', textAlign:'right', background:'#fafafa'
+  });
+  const close = document.createElement('button');
+  close.textContent = 'Close';
+  Object.assign(close.style, {
+    border:'1px solid #000', background:'#fff', cursor:'pointer',
+    padding:'2px 8px', font:'12px DominicanSmall, serif'
+  });
+  close.addEventListener('click', ()=> document.body.removeChild(overlay));
+  foot.appendChild(close);
 
-    // Title/desc
-    set('.card-title', item.name || item.title || '');
-    set('.description', item.description || '');
+  modal.append(head, list, foot);
+  overlay.appendChild(modal);
+  overlay.addEventListener('click', (e)=>{ if (e.target===overlay) document.body.removeChild(overlay); });
+  document.body.appendChild(overlay);
+}
 
-    // Per-type mapping
-    const type = category;
-    if (type==='weapons'){
-      set('[name="skill"]', item.skill || 'Fight');
-      set('[name="wpnClass"]', item.wpnClass || 'Bludgeon');
-      set('[name="grip"]', item.grip || '1 hand');
-      set('[name="weight"]', item.weight || 0);
-      set('[name="stow"]',   item.stow   || 0);
-      set('[name="diceMod"]', item.diceMod || item.bonus || 0);
-      set('[name="damage"]', item.damage || 0);
-      set('[name="damageType"]', item.damageType || item.wpnTypeText || '');
-      set('[name="shots"]', item.shots || 0);
-      set('[name="reloadAP"]', item.reloadAP || 0);
-      set('[name="reachRange"]', item.reachRange || 'Close');
-    } else if (type==='armour'){
-      set('[name="coverage"]', item.coverage || '');
-      set('[name="armor"]', item.armor ?? item.armour ?? 0);
-      set('[name="penalty"]', item.penalty || '');
-      set('[name="weight"]', item.weight || 0);
-      set('[name="stow"]',   item.stow   || 0);
-    } else if (type==='chemical'){
-      set('[name="weight"]', item.weight || 0);
-      set('[name="stow"]',   item.stow   || 0);
-      set('[name="dose"]', item.dose || '');
-      set('[name="duration"]', item.duration || '');
-      const e = card.querySelector('textarea[name="effects"]'); if (e) e.value = item.effects || '';
-      const w = card.querySelector('textarea[name="withdrawal"]'); if (w) w.value = item.withdrawal || '';
-      set('[name="addiction"]', item.addiction || '');
-      set('[name="price"]', item.price || '');
-    } else { // generic gear
-      set('[name="weight"]', item.weight || 0);
-      set('[name="stow"]',   item.stow   || 0);
-      set('[name="diceMod"]', item.diceMod || 0);
+/** Spawn a card using an item from the catalog and populate its fields. */
+function spawnFromCatalog(it){
+  // kind already normalized on item.type: 'weapon' | 'armour' | 'chemical' | 'gear'
+  const el = window.spawnBlankGearCard(it.type);  // this returns the DOM card
+  if (!el) return;
+
+  // Title/description
+  const title = el.querySelector('.card-title'); if (title) title.value = it.name || '';
+  const desc  = el.querySelector('.description'); if (desc)  desc.value  = it.description || '';
+
+  // Fill all named controls within the card
+  el.querySelectorAll('[name]').forEach(ctrl => {
+    const k = ctrl.name;
+    if (!(k in it)) return;
+    const v = it[k];
+    if (ctrl.tagName === 'SELECT') {
+      ctrl.value = String(v);
+    } else if (ctrl.type === 'checkbox') {
+      ctrl.checked = !!v;
+    } else {
+      ctrl.value = v;
     }
+  });
 
-    if (window.recalcEncumbrance) window.recalcEncumbrance();
-  }
-
-})();
+  // Keep header/body syncs and encumbrance in a good state
+  if (typeof window.recalcEncumbrance === 'function') window.recalcEncumbrance();
+}
 </script>
+
 
 </body>
 </html>
