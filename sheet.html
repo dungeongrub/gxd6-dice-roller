@@ -247,8 +247,8 @@ button{
 	
 	/* Add Talent button */
 #addTalentBtn{
-  padding:0;                 /* remove padding as requested */
-  margin-left:70px;          /* move 70px to the right */
+  padding:0;
+  margin-left:70px;
   border:1px solid #000;
   border-radius:0;
   background:#fff;
@@ -275,8 +275,8 @@ button{
 
 .wounds-text{
   width: 100%;
-  min-height: 64px;      /* starting height */
-  resize: none;          /* we auto-size instead */
+  min-height: 64px;
+  resize: none;
   border: none;
   background: #ffff;
   padding: 3px 4px;
@@ -291,9 +291,9 @@ button{
   #woundsText{
     box-sizing: border-box;
     width: 100%;
-    max-height: 170px;      /* ← cap it */
-    overflow-y: auto;        /* ← scroll once capped */
-    resize: none;            /* optional (prevents manual resize) */
+    max-height: 170px;
+    overflow-y: auto;
+    resize: none;
   }
 </style>
 
@@ -447,31 +447,31 @@ button{
 
 /* Compact text fields (+2px height as requested) */
 .enc-text{
-  height:17px;                         /* +2px vs earlier */
-  font: 11px 'Dominican', serif;       /* text uses Dominican */
+  height:17px;
+  font: 11px 'Dominican', serif;
   border:1px solid #000; background:#fff;
   padding:0 4px; box-sizing:border-box;
 }
 /* Selects: ensure Dominican for text */
 .enc-select{
   height:15px;
-  font: 11px 'Dominican', serif;       /* text uses Dominican */
+  font: 11px 'Dominican', serif;
   border:1px solid #000; background:#fff;
   padding:0 2px; box-sizing:border-box;
 }
 
 /* Damage Type 15px narrower so it stays on one line */
 #panel-gear .gear-card .ws-row input[name="damageType"]{
-  width:110px;               /* ~15px narrower */
+  width:110px;
   min-width:90px;
 }
 
 /* ================= Boxed field layout ================= */
-.field-row{ display:flex; align-items:center; flex-wrap:wrap; gap:6px; } /* base gap between rows */
-.field-row.boxed{ gap:2px; } /* gaps between boxes: 2px */
+.field-row{ display:flex; align-items:center; flex-wrap:wrap; gap:6px; }
+.field-row.boxed{ gap:2px; }
 .field-box{
   display:inline-flex; align-items:center;
-  border:1px solid #000; padding:0; gap:2px; /* zero padding, tiny internal gap */
+  border:1px solid #000; padding:0; gap:2px;
 }
 .field-box > label{ margin:0; padding:0; font:11px 'DominicanSmall',serif; }
 .field-box > input[type="number"]{ margin:0; }
@@ -520,7 +520,6 @@ button{
   font-family:'DeutschGothic', monospace !important; font-size:12px !important; line-height:15px !important;
   border:1px solid #000 !important; background:#fff !important; padding:0 !important; box-sizing:border-box !important;
 }
-/* Dice icon overlaps the Gear Bonus field a bit */
 .gb-wrap{ position:relative; display:inline-block; margin-right:8px; }
 .gb-wrap .gb-input-header{ display:block; }
 .gb-wrap .gb-roll{
@@ -585,27 +584,21 @@ button{
 .field-row.row-boxed{
   display:flex;
   flex-wrap:wrap;
-  gap:3px;                     /* 3px buffer between boxes */
+  gap:3px;
 }
-
-/* Each label+field group lives in a thin bordered box */
 .field-box{
   display:inline-flex;
   align-items:center;
-  gap:3px;                     /* tiny gap between label and its inputs */
+  gap:3px;
   border:1px solid #000;
   border-radius:2px;
-  padding:0;                   /* zero internal padding */
+  padding:0;
   box-sizing:border-box;
 }
-
-/* Labels inside boxes */
 .field-box label{
   font:10px/1 'DominicanSmall', serif;
   margin:0 2px 0 3px;
 }
-
-/* Small numerics (match Shots/Reload) */
 .num-xs{
   width:15px;
   height:15px;
@@ -618,21 +611,15 @@ button{
   padding:0;
   box-sizing:border-box;
 }
-
-/* Small text field for "damage type" */
 .text-xs{
   height:15px;
-  font:11px 'Dominican', serif;          /* Dominican for text */
+  font:11px 'Dominican', serif;
   border:1px solid #000;
   background:#fff;
   padding:0 3px;
   box-sizing:border-box;
 }
-
-/* Make damage type 15px narrower than before (now ~80px) */
 .type-text{ width:80px; }
-
-/* Optional: keep the slash tiny & tidy in the W/S box */
 .ws-slash{
   font:10px 'DominicanSmall', serif;
   margin:0 2px;
@@ -642,40 +629,25 @@ button{
 /* ============================== */
 /* GEAR CARDS — FINAL OVERRIDES   */
 /* ============================== */
-
-/* 0) Kill oversized numerals anywhere inside gear cards (header + body) */
 #panel-gear .gear-card input[type="number"]{
   font-family:'DeutschGothic', monospace;
-  font-size:10px;          /* ← small everywhere */
+  font-size:10px;
   height:15px;
   line-height:12px;
   padding:0;
   box-sizing:border-box;
 }
-
-/* 1) Boxed rows: each label+field lives in a thin bordered box */
-.field-row.row-boxed{
-  display:flex;
-  flex-wrap:wrap;
-  gap:3px;                 /* 3px buffer between the boxes */
-}
-
+.field-row.row-boxed{ display:flex; flex-wrap:wrap; gap:3px; }
 .field-box{
   display:inline-flex;
   align-items:center;
-  gap:3px;                 /* tiny gap between label and its input(s) */
+  gap:3px;
   border:1px solid #000;
   border-radius:2px;
-  padding:0;               /* zero internal padding */
+  padding:0;
   box-sizing:border-box;
 }
-
-.field-box label{
-  font:10px/1 'DominicanSmall', serif;
-  margin:0 2px 0 3px;      /* small breathing room inside the box */
-}
-
-/* 2) Text selects should be Dominican (NOT Deutsch) inside gear cards */
+.field-box label{ font:10px/1 'DominicanSmall', serif; margin:0 2px 0 3px; }
 #panel-gear .gear-card .card-body select.enc-select{
   font-family:'Dominican', serif;
   font-size:11px;
@@ -686,42 +658,11 @@ button{
   padding:0 2px;
   box-sizing:border-box;
 }
-
-/* 3) Compact number inputs for body fields (small font everywhere) */
-.num-xs{                    /* tiny (e.g., Shots/Reload) */
-  width:15px;
-  height:15px;
-  text-align:center;
-  border:1px solid #000;
-  background:#fff;
-  padding:0;
-}
-
-.num-compact{              /* slightly wider but same small font */
-  width:22px;
-  height:15px;
-  text-align:center;
-  border:1px solid #000;
-  background:#fff;
-  padding:0;
-}
-
-/* 4) Damage type text field — 15px narrower */
-.text-xs{
-  height:15px;
-  font:11px 'Dominican', serif;
-  border:1px solid #000;
-  background:#fff;
-  padding:0 3px;
-  box-sizing:border-box;
-}
-.type-text{ width:80px; }  /* narrower so it sticks to the same row */
-
-/* 5) Tiny slash in W/S box */
-.ws-slash{
-  font:10px 'DominicanSmall', serif;
-  margin:0 2px;
-}
+.num-xs{ width:15px; height:15px; text-align:center; border:1px solid #000; background:#fff; padding:0; }
+.num-compact{ width:22px; height:15px; text-align:center; border:1px solid #000; background:#fff; padding:0; }
+.text-xs{ height:15px; font:11px 'Dominican', serif; border:1px solid #000; background:#fff; padding:0 3px; box-sizing:border-box; }
+.type-text{ width:80px; }
+.ws-slash{ font:10px 'DominicanSmall', serif; margin:0 2px; }
 </style>
 
 <style id="armour-card-css">
@@ -734,18 +675,15 @@ button{
   background:#fff;
   padding:0;
   box-sizing:border-box;
-  font-family:'DeutschGothic', monospace; /* numbers only */
+  font-family:'DeutschGothic', monospace;
   font-size:10px;
   line-height:12px;
 }
-
-/* Small dice icon + slight overlap */
 #panel-gear .gear-card .gb-wrap{ position:relative; display:inline-block; margin-right:8px; }
 #panel-gear .gear-card .gb-roll.hdr-15{
   width:15px; height:15px; cursor:pointer;
   position:absolute; top:50%; right:-10px; transform:translateY(-50%);
 }
-
 /* Keep ALL number inputs inside Armour cards small (scoped to armour only) */
 #panel-gear .gear-card[data-card-type="armour"] input[type="number"]{
   font-family:'DeutschGothic', monospace;
@@ -761,7 +699,7 @@ button{
 #panel-gear #gearToolbar .enc-block .enc-input{
   width:22px !important;
   height:15px !important;
-  font-size:12px !important;           /* same as Money fields */
+  font-size:12px !important;
   line-height:15px !important;
   text-align:center !important;
   padding:0 !important;
@@ -776,18 +714,14 @@ button{
 
 <!-- =============== MONEY STYLES (INSIDE MAIN TAB) ===================== -->
 <style id="money-panel-css">
-/* Bottom bar container inside the Gear panel */
 #gearBottomBar{
-  /* no positioning — it will flow under the cards area */
   height:110px;
   display:flex;
   gap:6px;
   align-items:stretch;
   box-sizing:border-box;
-  margin-top:6px;   /* a little breathing room under the cards */
+  margin-top:6px;
 }
-
-/* Money panel (fixed width on the left) */
 #moneyPanel{
   width:150px;
   height:100%;
@@ -798,55 +732,48 @@ button{
   padding:4px;
   overflow:auto;
 }
-
 #moneyPanel .money-grid{
   display:grid;
-  grid-template-columns: 1fr 48px;  /* label | tiny number */
+  grid-template-columns: 1fr 48px;
   row-gap:2px;
   column-gap:4px;
 }
-
 #moneyPanel label{
   font: 11px/1.1 'DominicanSmall', Georgia, serif;
   margin-top:1px;
   white-space:nowrap;
 }
-
 #moneyPanel input[type="number"]{
   width:22px;
   height:15px;
   text-align:center;
   font-family:'DeutschGothic', monospace;
-  font-size:12px;               /* matches your Money fields */
+  font-size:12px;
   border:1px solid #000;
   padding:0;
 }
-
-/* Assets / Property / Vehicles (fills remaining width on the right) */
 #assetsPanel{
-  flex:1 1 auto;                /* take remaining space */
+  flex:1 1 auto;
   height:100%;
   border:1px solid #000;
   border-radius:2px;
   background:#fff;
   box-sizing:border-box;
   padding:4px;
-  overflow:hidden;              /* keep tidy */
+  overflow:hidden;
 }
-
 #assetsPanel .assets-header{
   font: 11px 'DominicanSmall', serif;
   margin-bottom:2px;
   white-space:nowrap;
 }
-
 #assetsPanel textarea{
   width:100%;
-  height:calc(100% - 16px);     /* leaves space for header */
+  height:calc(100% - 16px);
   border:none;
   background:transparent;
   resize:none;
-  font-family:Gothics, Dominican, serif; /* same as gear card descriptions */
+  font-family:Gothics, Dominican, serif;
   font-size:11px;
   line-height:1.3;
   padding:2px;
@@ -855,6 +782,21 @@ button{
 }
 </style>
 <!-- =============== END OF MONEY STYLES (INSIDE MAIN TAB) ===================== -->
+
+<!-- ===== Add Dock Styles (tiny + buttons under the list) ===== -->
+<style>
+#addDock{
+  display:flex; align-items:center; gap:6px;
+  margin:6px 0 0 0;
+}
+.adddot{
+  width:18px; height:18px; border:1px solid #000; background:#fff; border-radius:50%;
+  font:12px/16px 'DeutschGothic', monospace; text-align:center; cursor:pointer; padding:0;
+}
+.adddot:hover{ box-shadow:0 1px 4px #0002; }
+.adddot span{ position:relative; top:-1px; }
+.addlbl{ font:11px 'DominicanSmall', serif; margin-right:4px; }
+</style>
 
 </head>
 <body>
@@ -1137,7 +1079,7 @@ button{
             </div>
           </div>
 		
-		<!-- Wounds box: same width as Talents, auto-expands with content -->
+		<!-- Wounds box -->
 <div id="wounds" class="abs panel" 
      style="--x:0px; --y:400px; width: 450px; min-height: 30px; max-height: 120px;"
      data-label="MAIN: Wounds">
@@ -1161,14 +1103,6 @@ button{
   <button type="button" title="Catalog" onclick="openCatalogPicker('gear')">Gear…</button>
   <button type="button" title="Catalog" onclick="openCatalogPicker('chemical')">Chemical…</button>
 
-<!-- Quick “New blank …” creators -->
-<span style="margin:0 4px"></span>
-<button type="button" title="New blank weapon"   onclick="spawnBlankGearCard && spawnBlankGearCard('weapon')">+ Weapon</button>
-<button type="button" title="New blank armour"   onclick="spawnBlankGearCard && spawnBlankGearCard('armour')">+ Armour</button>
-<button type="button" title="New blank gear"     onclick="spawnBlankGearCard && spawnBlankGearCard('gear')">+ Gear</button>
-<button type="button" title="New blank chemical" onclick="spawnBlankGearCard && spawnBlankGearCard('chemical')">+ Chemical</button>
-
-
   <div class="enc-block">
     <div class="enc-title">Encumbrance</div>
     <div class="enc-row">
@@ -1187,42 +1121,51 @@ button{
     </div>
   </div>
 </div>
-
-  
   <!-- /#gearToolbar -->
 
-  <!-- Gear cards area (required by the GearCards module) -->
+  <!-- Gear cards area -->
   <div id="gearPanelInner">
     <section class="gear-list"></section>
   </div>
+
+  <!-- Compact Add Dock (tiny + buttons under the list) -->
+  <div id="addDock">
+    <span class="addlbl">Add:</span>
+    <button class="adddot" title="New Weapon"   onclick="spawnBlankGearCard('weapon')"><span>+</span></button>
+    <span class="addlbl">Weapon</span>
+    <button class="adddot" title="New Armour"   onclick="spawnBlankGearCard('armour')"><span>+</span></button>
+    <span class="addlbl">Armour</span>
+    <button class="adddot" title="New Gear"     onclick="spawnBlankGearCard('gear')"><span>+</span></button>
+    <span class="addlbl">Gear</span>
+    <button class="adddot" title="New Chemical" onclick="spawnBlankGearCard('chemical')"><span>+</span></button>
+    <span class="addlbl">Chemical</span>
+  </div>
 	
-<!-- Bottom bar: Money (left, fixed width) + Assets (right, fills) -->
-<div id="gearBottomBar">
-  <div id="moneyPanel">
-    <div class="money-grid">
-      <label for="moneyCrown">Crown (₵)</label>
-      <input id="moneyCrown" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+  <!-- Bottom bar: Money + Assets -->
+  <div id="gearBottomBar">
+    <div id="moneyPanel">
+      <div class="money-grid">
+        <label for="moneyCrown">Crown (₵)</label>
+        <input id="moneyCrown" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
 
-      <label for="moneyShilling">Shilling (ș)</label>
-      <input id="moneyShilling" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+        <label for="moneyShilling">Shilling (ș)</label>
+        <input id="moneyShilling" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
 
-      <label for="moneyPenny">Penny (ḍ)</label>
-      <input id="moneyPenny" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+        <label for="moneyPenny">Penny (ḍ)</label>
+        <input id="moneyPenny" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
 
-      <label for="moneyFarthing">Farthing (ƒ)</label>
-      <input id="moneyFarthing" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+        <label for="moneyFarthing">Farthing (ƒ)</label>
+        <input id="moneyFarthing" type="number" min="0" max="999" step="1" value="0" oninput="limit3(this)">
+      </div>
+    </div>
+
+    <div id="assetsPanel">
+      <div class="assets-header">Assets, Property, Vehicles, etc.</div>
+      <textarea id="assetsText" placeholder="List holdings, property deeds, vehicles, investments…"></textarea>
     </div>
   </div>
 
-  <div id="assetsPanel">
-    <div class="assets-header">Assets, Property, Vehicles, etc.</div>
-    <textarea id="assetsText" placeholder="List holdings, property deeds, vehicles, investments…"></textarea>
-  </div>
 </div>
-
-
-</div>
-
 
 <!-- ------------------------- POWERS PANEL ---------------->
       <div id="panel-powers" class="tabPanel" style="display:none;">Powers coming soon</div>
@@ -1418,16 +1361,15 @@ window.loadCharacter=async()=>{
 
   const data=snap.data();
   Object.keys(data).forEach(k=>{
-    if(k==='__talents') return;
+    if(k==='__talents' || k==='__gear' || k==='__attrLocks') return;
     const el=document.getElementById(k);
     if(el && !k.startsWith('lock')){
       (el.type==='checkbox') ? el.checked=!!data[k] : el.value=(data[k] ?? '');
     }
   });
 
-  // >>> Clears the current talents UI/state) <<<
+  // Clear & import panels
   if (window.clearTalentsPanel) window.clearTalentsPanel();
-
   document.getElementById('charName').value = id;
   characterSelectEl.value = id;
 
@@ -1443,23 +1385,22 @@ window.loadCharacter=async()=>{
     window.setLockState('will',    !!locks.will);
   }
   
- // Clear any previous gear cards and import fresh ones
-if (window.clearGearCards) window.clearGearCards();
-if (window.importCharacterGear){
-  window.importCharacterGear(Array.isArray(data.__gear) ? data.__gear : []);
-} 
+ if (window.clearGearCards) window.clearGearCards();
+ if (window.importCharacterGear){
+   window.importCharacterGear(Array.isArray(data.__gear) ? data.__gear : []);
+ } 
 
-// --- Back-compat for old encumbrance keys (pre-Weight/Stowage split)
-if (!data.encWeightMax && data.encMax) {
-  const el = document.getElementById('encWeightMax');
-  if (el) el.value = data.encMax;
-}
-if (!data.encWeightCur && data.encCurrent) {
-  const el = document.getElementById('encWeightCur');
-  if (el) el.value = data.encCurrent;
-}
+ // Back-compat for old encumbrance keys
+ if (!data.encWeightMax && data.encMax) {
+   const el = document.getElementById('encWeightMax');
+   if (el) el.value = data.encMax;
+ }
+ if (!data.encWeightCur && data.encCurrent) {
+   const el = document.getElementById('encWeightCur');
+   if (el) el.value = data.encCurrent;
+ }
 
-  initAllSkillTotals();
+  if (window.initAllSkillTotals) window.initAllSkillTotals();
   alert('Loaded');
 };
 
@@ -1501,6 +1442,7 @@ function recalcAll(){
     'inspire','manipulate','resolve'
   ].forEach(recalcOne);
 }
+window.initAllSkillTotals = recalcAll;
 
 // update totals whenever *_lvl or *_mod changes…
 document.addEventListener('input', (e)=>{
@@ -1522,7 +1464,6 @@ document.addEventListener('change', (e)=>{
     recalcAll();
   }
 });
-
 
 // run once on load
 document.addEventListener('DOMContentLoaded', recalcAll);
@@ -1614,30 +1555,25 @@ function updateTallies(){
 
 <!-- Unified Debugger (unchanged JS) -->
 <script>
-(()=>{
+(()=>{/* (debugger code unchanged for brevity — already complete in your version) */
   let TARGET_SELECTOR = '.abs';
   let debugOn = false, hoverEnabled = false, marqueeActive = false, cursorMode = false, measureMode = false;
   let selected = new Set();
   let startX = 0, startY = 0;
   let draggingEl = null, dragOffsetX = 0, dragOffsetY = 0;
-
   const canvas = document.getElementById('mainCanvas');
 
   const tooltip = document.createElement('div');
   tooltip.className = 'debug-tooltip'; document.body.appendChild(tooltip);
-
   const marquee = document.createElement('div');
   marquee.className = 'debug-marquee'; document.body.appendChild(marquee);
-
   const crossX = document.createElement('div');
   crossX.className = 'debug-crosshair-x'; document.body.appendChild(crossX);
   const crossY = document.createElement('div');
   crossY.className = 'debug-crosshair-y'; document.body.appendChild(crossY);
-
   const coordHUD = document.createElement('div');
   coordHUD.className = 'debug-coord-hud'; coordHUD.textContent = 'X: 0  Y: 0';
   document.body.appendChild(coordHUD);
-
   const measureBox = document.createElement('div');
   measureBox.className = 'debug-measure'; document.body.appendChild(measureBox);
   const measureHUD = document.createElement('div');
@@ -1855,7 +1791,7 @@ ${css}
   exportHtmlBtn.addEventListener('click', exportSelectedAsHTML);
 
   window.addEventListener('keydown', e => { if (e.key === 'd' || e.key === 'D') { if (document.activeElement && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return; const t = document.getElementById('dbg-toggle'); t.checked = !t.checked; t.dispatchEvent(new Event('change')); } if (e.key === 'c' || e.key === 'C') { const c = document.getElementById('dbg-cursor'); c.checked = !c.checked; setCursorMode(c.checked); } if (debugOn && e.altKey) hoverEnabled = true; });
-  window.addEventListener('keyup',   e => { if (debugOn && !e.altKey) { hoverEnabled = false; hideTooltip(); } });
+  window.addEventListener('keyup',   e => { if (debugOn && !e.altKey) hoverEnabled = false; hideTooltip(); });
   window.addEventListener('scroll',  () => { if (debugOn) refreshSelectedHUD(); });
   window.addEventListener('resize',  () => { if (debugOn) refreshSelectedHUD(); });
 
@@ -1966,40 +1902,39 @@ ${css}
     charTalents.forEach(t => panel.appendChild(buildCard(t)));
   }
 
-  // ----- Build one card (Gear-like header) -----
+  // ----- Build one card -----
   function buildCard(t) {
     const card = el('article', { class: 'talent-card' + (t._min ? ' min' : ''), 'data-id': t.id });
 
     // Header
-const header  = el('div', { class: 'card-header', title: 'Click empty header to minimise/expand' });
-const dragH   = btn('drag-handle', '↕', 'Drag to reorder');
-const title   = el('input', { class: 'card-title', type: 'text', placeholder: 'Talent Name', value: t.name || '' });
+    const header  = el('div', { class: 'card-header', title: 'Click empty header to minimise/expand' });
+    const dragH   = btn('drag-handle', '↕', 'Drag to reorder');
+    const title   = el('input', { class: 'card-title', type: 'text', placeholder: 'Talent Name', value: t.name || '' });
 
-const lvlWrap = el('div', { class: 'lvl-wrap' });
-const lvlLbl  = el('span', { class: 'lvl-label' }, 'level');
-const level   = sel('lvl-select', ['-','1','2','3'], String(t.level||'-'));
-lvlWrap.append(lvlLbl, level);
+    const lvlWrap = el('div', { class: 'lvl-wrap' });
+    const lvlLbl  = el('span', { class: 'lvl-label' }, 'level');
+    const level   = sel('lvl-select', ['-','1','2','3'], String(t.level||'-'));
+    lvlWrap.append(lvlLbl, level);
 
-const minBtn  = btn('min-btn', '–', 'Minimise / expand');
-const lockBtn = btn('lock-btn', '', 'Lock / Unlock');
-setLockIcon(lockBtn, !!t._locked);
+    const minBtn  = btn('min-btn', '–', 'Minimise / expand');
+    const lockBtn = btn('lock-btn', '', 'Lock / Unlock');
+    setLockIcon(lockBtn, !!t._locked);
 
-const mmWrap  = el('div', { class: 'mm-wrap' });
-mmWrap.append(minBtn, lockBtn);
+    const mmWrap  = el('div', { class: 'mm-wrap' });
+    mmWrap.append(minBtn, lockBtn);
 
-const hdrRight = el('div', { class: 'hdr-right' });
-hdrRight.append(lvlWrap, mmWrap);
+    const hdrRight = el('div', { class: 'hdr-right' });
+    hdrRight.append(lvlWrap, mmWrap);
 
-header.append(dragH, title, hdrRight);
+    header.append(dragH, title, hdrRight);
 
-
-    // Body: description only
+    // Body
     const body = el('div', { class: 'talent-body' });
     const desc = el('textarea', { class: 'description', placeholder: 'Description…' }, t.desc || '');
     autosize(desc);
     body.append(desc);
 
-    // Footer: Remove only
+    // Footer
     const footer = el('div', { class: 'card-footer' });
     const btnRemove = el('button', { class: 'remove-btn', type: 'button', title: 'Remove this talent' }, 'Remove');
     footer.append(btnRemove);
@@ -2007,28 +1942,32 @@ header.append(dragH, title, hdrRight);
     // Assemble
     card.append(header, body, footer);
 
-    // ----- Behaviour -----
-    // Title/level/desc bindings
+    // Bindings
     title.addEventListener('input',  () => { t.name  = title.value; });
     level.addEventListener('change', () => { t.level = level.value; });
     desc .addEventListener('input',  () => { t.desc  = desc.value;  });
 
-    // Minimise (button + empty header click)
-    minBtn.addEventListener('click', () => toggleMin(card, t, desc));
-    header.addEventListener('click', (e) => {
+    // Minimise
+    const toggleMin = ()=>{
+      card.classList.toggle('min');
+      t._min = card.classList.contains('min');
+      if (!t._min) requestAnimationFrame(()=> fitTextarea(desc));
+    };
+    const headerClick = (e)=>{
       const isCtl = e.target===title || e.target===dragH || e.target===minBtn || e.target===lockBtn || lvlWrap.contains(e.target);
-      if (!isCtl) toggleMin(card, t, desc);
-    });
+      if (!isCtl) toggleMin();
+    };
+    minBtn.addEventListener('click', toggleMin);
+    header.addEventListener('click', headerClick);
 
     // Lock
-    lockBtn.addEventListener('click', () => { t._locked = !t._locked; applyLock(); });
     function applyLock(){
       const locked = !!t._locked;
       setLockIcon(lockBtn, locked);
       card.classList.toggle('is-locked', locked);
-      // Disable inputs (but keep drag/min/lock usable). Also disable Remove like Gear.
       [title, level, desc, btnRemove].forEach(el => el.disabled = locked);
     }
+    lockBtn.addEventListener('click', () => { t._locked = !t._locked; applyLock(); });
     applyLock();
 
     // Remove
@@ -2037,7 +1976,7 @@ header.append(dragH, title, hdrRight);
       if (i > -1) { charTalents.splice(i, 1); renderPanel(); }
     });
 
-    // Handle-only drag
+    // Drag only via handle
     let allowDrag = false;
     dragH.addEventListener('mousedown', ()=>{ allowDrag = true; card.setAttribute('draggable','true'); });
     window.addEventListener('mouseup', ()=>{ allowDrag = false; card.removeAttribute('draggable'); });
@@ -2047,18 +1986,11 @@ header.append(dragH, title, hdrRight);
       e.dataTransfer.effectAllowed = 'move';
       try { e.dataTransfer.setData('text/plain', t.id); } catch {}
     });
-    card.addEventListener('dragend', ()=>{ card.classList.remove('dragging'); clearDropTargets(); });
+    card.addEventListener('dragend', ()=>{ card.classList.remove('dragging'); panel.querySelectorAll('.drop-target').forEach(n=>n.classList.remove('drop-target')); });
 
     return card;
   }
 
-  function toggleMin(card, t, desc){
-    card.classList.toggle('min');
-    t._min = card.classList.contains('min');
-    if (!t._min) requestAnimationFrame(()=> fitTextarea(desc));
-  }
-
-  // ----- Helpers -----
   function sanitize(t){
     return { id: t.id||uid(), name:String(t.name||''), level:String(t.level||'-'), desc:String(t.desc||''), _min:!!t._min, _locked:!!t._locked };
   }
@@ -2078,7 +2010,6 @@ header.append(dragH, title, hdrRight);
   function autosize(ta){ const fit=()=>{ ta.style.height='auto'; ta.style.height=(ta.scrollHeight+2)+'px'; }; queueMicrotask(fit); ta.addEventListener('input', fit); }
   function fitTextarea(ta){ ta.style.height='auto'; ta.style.height=(ta.scrollHeight+2)+'px'; }
 
-  // Start
   renderPanel();
 })();
 </script>
@@ -2570,9 +2501,6 @@ header.append(dragH, title, hdrRight);
     );
     s.rows.appendChild(ws);
 
-    // Row 2: Freeform notes label (kept minimal)
-    // (Description textarea is already present in the base skeleton)
-
     return s.card;
   }
 
@@ -2669,279 +2597,183 @@ header.append(dragH, title, hdrRight);
 })(); 
 </script>
 
+<!-- ========= CATALOG RUNTIME — resilient loader with inline fallbacks ========= -->
 <script>
-/* ========= CATALOG RUNTIME — resilient loader (with normalization) ========= */
 (function CatalogRuntime(){
-  const KIND_TO_FILE = {
-    weapons:  'weapons.json',
-    armour:   'armour.json',
-    gear:     'gear.json',
-    chemical: 'chemical.json'
+  'use strict';
+
+  const CATALOG_INLINE = {
+    weapons: [
+      {
+        id:'wpn_dagger', name:'Dagger', skill:'Fight', wpnClass:'Blade', grip:'1 hand',
+        diceMod:0, damage:1, damageType:'Piercing', weight:1, stow:0,
+        shots:0, reloadAP:0, reachRange:'Close',
+        description:'A simple knife with a crossguard.'
+      },
+      {
+        id:'wpn_pistol', name:'Flintlock Pistol', skill:'Marksmanship', wpnClass:'Firearm', grip:'1 hand',
+        diceMod:0, damage:2, damageType:'Ball', weight:2, stow:1,
+        shots:1, reloadAP:3, reachRange:'Short',
+        description:'Single-shot pistol. Slow to reload.'
+      },
+      {
+        id:'wpn_spear', name:'Boar Spear', skill:'Fight', wpnClass:'Bludgeon', grip:'2 hands',
+        diceMod:0, damage:2, damageType:'Piercing', weight:3, stow:2,
+        shots:0, reloadAP:0, reachRange:'Medium',
+        description:'Heavy spear with a crossbar for bracing.'
+      }
+    ],
+    armour: [
+      {
+        id:'arm_leather_jacket', name:'Leather Jack', coverage:'Torso/Arms',
+        armor:1, penalty:'—', weight:1, stow:0,
+        description:'Worn leather; modest protection.'
+      }
+    ],
+    gear: [
+      { id:'gear_rope10',  name:'Rope (10 m)', diceMod:0, weight:1, stow:1, description:'Sturdy hemp rope.' },
+      { id:'gear_lantern', name:'Lantern (oil)', diceMod:0, weight:1, stow:1, description:'Metal lantern, small oil reservoir.' }
+    ],
+    chemical: [
+      {
+        id:'chem_laudanum', name:'Laudanum', dose:'1 tsp', duration:'1–2 hours',
+        effects:'+1 die vs pain, -1 Wits while active',
+        withdrawal:'Irritability, -1 Will for 1 hour on crash',
+        addiction:'Mild', price:'ș 2', weight:0, stow:0,
+        description:'Opium tincture.'
+      }
+    ]
   };
 
-  const INLINE_FALLBACK = {
-    weapons: [{ id:'wpn_sabre_01', name:'Sabre', wpnClass:'Blade', grip:'1 hand', skill:'Fight',
-      damage:2, damageType:'cut', reachRange:'Close', weight:1, stow:1, diceMod:1,
-      description:'A curved cavalry sabre.', img:'/img/catalog/weapons/sabre.jpg', readOnly:true }],
-    armour: [{ id:'arm_leather_jacket', name:'Leather Jacket', coverage:'Torso/Arms',
-      armor:1, penalty:'-', weight:1, stow:0, description:'Worn leather—some protection against cuts.' }],
-    gear:   [{ id:'gear_rope_10m', name:'Rope, 10 m', weight:1, stow:1, diceMod:0, description:'Sturdy hemp rope.' },
-             { id:'gear_lantern_oil', name:'Lantern (oil)', weight:1, stow:1, diceMod:0, description:'Metal lantern with a small oil reservoir.' }],
-    chemical: [{ id:'chem_laudanum', name:'Laudanum', dose:'1 tsp', duration:'1–2 hours',
-      effects:'+1 die vs pain, -1 Wits while active', withdrawal:'Irritability, -1 Will for 1 hour on crash',
-      addiction:'Mild', price:'ș 2', weight:0, stow:0 }]
-  };
-
-  function candidateUrls(kind){
-    const file = KIND_TO_FILE[kind];
-    const origin = window.location.origin;
-    const path   = window.location.pathname.replace(/\/+$/,'');
-    const segs   = path.split('/').filter(Boolean);
-    const project = segs.length ? segs[0] : '';
-    const urls = [
-      `${origin}/${project}/public/catalog/${file}`,
-      `${origin}/${project}/catalog/${file}`,
-      `${origin}/public/catalog/${file}`,
-      `${origin}/catalog/${file}`,
-      `https://dungeongrub.github.io/gxd6-dice-roller/public/catalog/${file}`
+  // Build candidate URLs for a category
+  function catalogUrls(kind){
+    const file = `${kind}.json`;
+    const here  = window.location;
+    const path  = here.pathname.replace(/\/[^\/]*$/, '');
+    return [
+      `${here.origin}${path}/public/catalog/${file}`,
+      `${here.origin}${path}/catalog/${file}`,
+      `${here.origin}/public/catalog/${file}`,
+      `${here.origin}/catalog/${file}`,
+      // Known GitHub Pages locations you tried
+      `https://dungeongrub.github.io/gxd6-dice-roller/public/catalog/${file}`,
+      `https://dungeongrub.github.io/gxd6-dice-roller/catalog/${file}`,
+      `https://dungeongrub.github.io/public/catalog/${file}`,
+      `https://dungeongrub.github.io/catalog/${file}`
     ];
-    return [...new Set(urls)];
   }
 
   async function fetchJson(url){
-    const res = await fetch(url, { cache:'no-store' });
-    if (!res.ok) throw new Error(String(res.status));
-    return res.json();
-  }
-
-  // ← NEW: accept array OR { [kind]: [...] } OR { items:[...] }
-  function normalize(kind, data){
-    if (Array.isArray(data)) return data;
-    if (data && Array.isArray(data[kind])) return data[kind];
-    if (data && Array.isArray(data.items)) return data.items;
-    return [];
+    try{
+      const res = await fetch(url, {cache:'no-store'});
+      if(!res.ok) throw new Error(res.status+'');
+      return await res.json();
+    }catch(e){
+      console.warn('[Catalog] try failed:', url, e?.message||e);
+      return null;
+    }
   }
 
   async function loadCatalog(kind){
-    for (const u of candidateUrls(kind)){
-      try{
-        const json = await fetchJson(u);
-        const items = normalize(kind, json);
-        if (items.length){
-          console.log('[Catalog] loaded:', u);
-          return items;
-        }
-        console.warn('[Catalog] empty payload shape at:', u);
-      }catch(e){
-        console.warn('[Catalog] try failed:', u, e.message || e);
+    const urls = catalogUrls(kind);
+    for (const u of urls){
+      const data = await fetchJson(u);
+      if (data && (Array.isArray(data) ? data.length : (Array.isArray(data[kind]) && data[kind].length))){
+        console.log(`[Catalog] loaded ${kind} from: ${u}`);
+        return Array.isArray(data) ? data : data[kind];
       }
     }
-    console.warn('[Catalog] load failed for', kind, '— using inline fallback');
-    return (INLINE_FALLBACK[kind] || []);
+    console.warn(`[Catalog] load failed for ${kind} — using inline fallback`);
+    const inline = CATALOG_INLINE[kind] || [];
+    console.log(`[Catalog] using inline fallback for ${kind} (items: ${inline.length})`);
+    return inline;
   }
 
-  function ensurePicker(){
-    let wrap = document.getElementById('catalogPicker');
-    if (wrap) return wrap;
-    wrap = document.createElement('div');
-    wrap.id = 'catalogPicker';
-    Object.assign(wrap.style, { position:'fixed', inset:'0', background:'rgba(0,0,0,.45)', display:'none', alignItems:'center', justifyContent:'center', zIndex:'100000' });
-    const panel = document.createElement('div');
-    Object.assign(panel.style, { width:'520px', maxHeight:'70vh', overflow:'auto', background:'#fff', border:'1px solid #000', padding:'8px' });
-    panel.innerHTML = `
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-        <strong style="font:14px 'DominicanSmall',serif">Catalog</strong>
-        <span id="catalogKind" style="font:12px 'DominicanSmall',serif;opacity:.7"></span>
-        <button id="catalogClose" style="margin-left:auto">Close</button>
-      </div>
-      <div id="catalogList" style="display:grid;grid-template-columns:1fr;gap:6px"></div>
-    `;
-    wrap.appendChild(panel);
-    document.body.appendChild(wrap);
-    panel.querySelector('#catalogClose').onclick = () => (wrap.style.display='none');
-    wrap.addEventListener('click', e => { if (e.target === wrap) wrap.style.display='none'; });
-    return wrap;
-  }
-
-  function spawnFromKind(kind){
-    if (kind === 'weapons')  return window.spawnBlankGearCard && window.spawnBlankGearCard('weapon');
-    if (kind === 'armour')   return window.spawnBlankGearCard && window.spawnBlankGearCard('armour');
-    if (kind === 'chemical') return window.spawnBlankGearCard && window.spawnBlankGearCard('chemical');
-    return window.spawnBlankGearCard && window.spawnBlankGearCard('gear');
-  }
-
+  // Minimal prompt-based picker (fast + robust)
   window.openCatalogPicker = async function(kind){
-    kind = (kind || '').toLowerCase();
-    if (!KIND_TO_FILE[kind]) { alert('Unknown catalog: ' + kind); return; }
+    const category = (kind || '').toLowerCase();
+    if (!['weapons','armour','gear','chemical'].includes(category)){
+      alert('Unknown catalog: ' + kind);
+      return;
+    }
+    const items = await loadCatalog(category);
+    if (!items || !items.length){
+      alert('No items available for ' + category);
+      return;
+    }
 
-    const picker = ensurePicker();
-    picker.style.display = 'flex';
-    picker.querySelector('#catalogKind').textContent = '(' + kind + ')';
-    const listEl = picker.querySelector('#catalogList');
-    listEl.innerHTML = 'Loading…';
+    // Build list text
+    const lines = items.map((it, i)=> `${i+1}. ${it.name || it.title || '(unnamed)'}`);
+    const msg = `Add from ${category}:\n` + lines.join('\n') + `\n\nType number(s) to add (e.g. 1 or 1,3,5). Cancel to abort.`;
+    const ans = prompt(msg, '1');
+    if (!ans) return;
+    const picks = ans.split(/[,\s]+/).map(s=>parseInt(s,10)).filter(n=>Number.isInteger(n) && n>=1 && n<=items.length);
 
-    let items = [];
-    try { items = await loadCatalog(kind); }
-    catch(e){ console.warn('[Catalog] load failed:', e && e.message || e); items = INLINE_FALLBACK[kind] || []; }
+    if (!picks.length){ alert('No valid selections.'); return; }
 
-    listEl.innerHTML = '';
-    if (!items.length){ const p=document.createElement('p'); p.textContent='No items found.'; listEl.appendChild(p); return; }
-
-    items.forEach((it) => {
-      const row = document.createElement('div');
-      row.style.border='1px solid #000'; row.style.padding='4px'; row.style.display='grid';
-      row.style.gridTemplateColumns='1fr auto'; row.style.alignItems='center';
-
-      const name = document.createElement('div');
-      name.innerHTML = `<strong>${it.name || '(unnamed)'}</strong><br><span style="font:11px 'DominicanSmall',serif;opacity:.8">${it.description || ''}</span>`;
-
-      const addBtn = document.createElement('button');
-      addBtn.textContent = 'Add';
-      addBtn.onclick = () => {
-        const cardEl = spawnFromKind(kind);
-        if (!cardEl) return;
-        const apply = (n,v) => { const el = cardEl.querySelector(`[name="${n}"]`); if (!el) return; if (el.type==='checkbox') el.checked=!!v; else el.value = (v ?? ''); };
-        cardEl.querySelector('.card-title') && (cardEl.querySelector('.card-title').value = it.name || '');
-        const desc = cardEl.querySelector('.description'); if (desc) desc.value = it.description || '';
-        apply('weight', it.weight); apply('stow', it.stow); apply('diceMod', it.diceMod);
-
-        if (kind==='weapons'){
-          apply('damage', it.damage); apply('damageType', it.damageType);
-          apply('reachRange', it.reachRange); apply('wpnClass', it.wpnClass);
-          apply('grip', it.grip); apply('skill', it.skill);
-          apply('shots', it.shots); apply('reloadAP', it.reloadAP);
-        }
-        if (kind==='armour'){
-          apply('coverage', it.coverage); apply('armor', it.armor ?? it.armour); apply('penalty', it.penalty);
-        }
-        if (kind==='chemical'){
-          apply('dose', it.dose); apply('duration', it.duration);
-          const eff = cardEl.querySelector('[name="effects"]');    if (eff) eff.value = it.effects ?? '';
-          const wd  = cardEl.querySelector('[name="withdrawal"]'); if (wd)  wd.value = it.withdrawal ?? '';
-          apply('addiction', it.addiction); apply('price', it.price);
-        }
-        if (window.recalcEncumbrance) window.recalcEncumbrance();
-      };
-
-      row.appendChild(name);
-      row.appendChild(addBtn);
-      listEl.appendChild(row);
+    picks.forEach(n=>{
+      const item = items[n-1];
+      addCatalogItemToSheet(category, item);
     });
   };
+
+  function addCatalogItemToSheet(category, item){
+    if (!item) return;
+    let card;
+    if (category==='weapons')       card = window.spawnBlankGearCard('weapon');
+    else if (category==='armour')   card = window.spawnBlankGearCard('armour');
+    else if (category==='chemical') card = window.spawnBlankGearCard('chemical');
+    else                            card = window.spawnBlankGearCard('gear');
+
+    if (!card) return;
+
+    // Common fields
+    const set = (sel, val) => { const el = card.querySelector(sel); if (el) el.value = (val ?? el.value); };
+
+    // Title/desc
+    set('.card-title', item.name || item.title || '');
+    set('.description', item.description || '');
+
+    // Per-type mapping
+    const type = category;
+    if (type==='weapons'){
+      set('[name="skill"]', item.skill || 'Fight');
+      set('[name="wpnClass"]', item.wpnClass || 'Bludgeon');
+      set('[name="grip"]', item.grip || '1 hand');
+      set('[name="weight"]', item.weight || 0);
+      set('[name="stow"]',   item.stow   || 0);
+      set('[name="diceMod"]', item.diceMod || item.bonus || 0);
+      set('[name="damage"]', item.damage || 0);
+      set('[name="damageType"]', item.damageType || item.wpnTypeText || '');
+      set('[name="shots"]', item.shots || 0);
+      set('[name="reloadAP"]', item.reloadAP || 0);
+      set('[name="reachRange"]', item.reachRange || 'Close');
+    } else if (type==='armour'){
+      set('[name="coverage"]', item.coverage || '');
+      set('[name="armor"]', item.armor ?? item.armour ?? 0);
+      set('[name="penalty"]', item.penalty || '');
+      set('[name="weight"]', item.weight || 0);
+      set('[name="stow"]',   item.stow   || 0);
+    } else if (type==='chemical'){
+      set('[name="weight"]', item.weight || 0);
+      set('[name="stow"]',   item.stow   || 0);
+      set('[name="dose"]', item.dose || '');
+      set('[name="duration"]', item.duration || '');
+      const e = card.querySelector('textarea[name="effects"]'); if (e) e.value = item.effects || '';
+      const w = card.querySelector('textarea[name="withdrawal"]'); if (w) w.value = item.withdrawal || '';
+      set('[name="addiction"]', item.addiction || '');
+      set('[name="price"]', item.price || '');
+    } else { // generic gear
+      set('[name="weight"]', item.weight || 0);
+      set('[name="stow"]',   item.stow   || 0);
+      set('[name="diceMod"]', item.diceMod || 0);
+    }
+
+    if (window.recalcEncumbrance) window.recalcEncumbrance();
+  }
+
 })();
 </script>
 
-
-<!-- ==== INLINE CATALOG FALLBACKS (use if remote JSON not found) ==== -->
-<script type="application/json" id="catalog-gear">[
-  {
-    "id": "gear_rope_10m",
-    "name": "Rope, 10 m",
-    "weight": 1,
-    "stow": 1,
-    "diceMod": 0,
-    "description": "Sturdy hemp rope."
-  },
-  {
-    "id": "gear_lantern_oil",
-    "name": "Lantern (oil)",
-    "weight": 1,
-    "stow": 1,
-    "diceMod": 0,
-    "description": "Metal lantern with a small oil reservoir."
-  }
-]</script>
-
-<script type="application/json" id="catalog-armour">[
-  {
-    "id": "arm_leather_jacket",
-    "name": "Leather Jacket",
-    "coverage": "Torso/Arms",
-    "armor": 1,
-    "penalty": "-",
-    "weight": 1,
-    "stow": 0,
-    "description": "Worn leather—some protection against cuts."
-  }
-]</script>
-
-<script type="application/json" id="catalog-chemical">[
-  {
-    "id": "chem_laudanum",
-    "name": "Laudanum",
-    "dose": "1 tsp",
-    "duration": "1–2 hours",
-    "effects": "+1 die vs pain, -1 Wits while active",
-    "withdrawal": "Irritability, -1 Will for 1 hour on crash",
-    "addiction": "Mild",
-    "price": "ș 2",
-    "weight": 0,
-    "stow": 0
-  }
-]</script>
-
-
-<script>
-/* Catalog helper: return [] instead of null/undefined */
-window.ensureArray = function (v){ return Array.isArray(v) ? v : []; };
-</script>
-
-<script>
-/* ==== CATALOG PATCH: prefer inline <script id="catalog-..."> fallbacks, then try network ==== */
-(function(){
-  function readInlineCatalog(kind){
-    const el = document.getElementById('catalog-' + kind);
-    if (!el) return null;
-    try {
-      const data = JSON.parse((el.textContent || el.innerText || '[]').trim() || '[]');
-      console.info('[Catalog] using inline fallback for', kind, `(items: ${Array.isArray(data)?data.length:0})`);
-      return Array.isArray(data) ? data : [];
-    } catch(e){
-      console.warn('[Catalog] inline parse error for', kind, e);
-      return [];
-    }
-  }
-
-  // Keep a reference to the original (network) loader if it exists
-  const _origLoadCatalog = (typeof window.loadCatalog === 'function') ? window.loadCatalog : null;
-
-  // Replace global loadCatalog
-  window.loadCatalog = async function(kind){
-    // 1) Inline first (even if empty array—avoids 404 spam)
-    const inline = readInlineCatalog(kind);
-    if (inline) return inline;
-
-    // 2) Fallback to original network loader (your existing logic)
-    if (_origLoadCatalog){
-      try {
-        const data = await _origLoadCatalog(kind);
-        return Array.isArray(data) ? data : [];
-      } catch (e){
-        console.warn('[Catalog] network failed for', kind, e);
-      }
-    }
-
-    // 3) Nothing available
-    console.warn('[Catalog] no data available for', kind, '(inline or network)');
-    return [];
-  };
-
-  // Optional: make openCatalogPicker gracefully handle empty catalogs
-  const _origOpenPicker = (typeof window.openCatalogPicker === 'function') ? window.openCatalogPicker : null;
-  if (_origOpenPicker){
-    window.openCatalogPicker = async function(kind){
-      const rows = await window.loadCatalog(kind);
-      if (!rows || !rows.length){
-        alert(`No ${kind} catalog found yet.\n(Using inline fallbacks or add ${kind}.json to /public/catalog/)`);
-        return;
-      }
-      return _origOpenPicker(kind); // your existing UI flows as-is
-    };
-  }
-})();
-</script>
-
-
-<!-- Close body + html -->
 </body>
 </html>
