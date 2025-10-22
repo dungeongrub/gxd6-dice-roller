@@ -2598,12 +2598,17 @@ ${css}
 </script>
 
 <script>
-/* ========================= CATALOG (INLINE-FIRST) ========================= */
+/* ========================= CATALOG (REMOTE + INLINE) =========================
+   Drop-in loader + picker. Works on file:// and GitHub Pages.
+   - Tries remote JSON in /public/catalog (or /catalog) first
+   - Falls back to inline items (kept below)
+   - Merges remote + inline by id (no dupes)
+============================================================================ */
 
-/** Toggle this if you ever want to merge in remote JSON too. */
-const USE_REMOTE_CATALOG = false;
+/** Turn this on to use your remote JSON files. */
+const USE_REMOTE_CATALOG = true;
 
-/** Your complete inline catalog lives here. Add/modify freely. */
+/** Your inline catalog (add whatever you like here). */
 const CATALOG_INLINE = {
   weapons: [
     {
@@ -2618,205 +2623,228 @@ const CATALOG_INLINE = {
       shots:1, reloadAP:3, reachRange:'Short',
       description:'Single-shot pistol. Slow to reload.'
     }
-    // …keep adding your items here…
   ],
-  armour: [
-    // example:
-    // { id:'arm_gambeson', name:'Gambeson', coverage:'Torso/Arms', armor:1, penalty:'—', weight:2, stow:1, description:'Quilted padding.' }
-  ],
-  gear: [
-    // …
-  ],
-  chemical: [
-    // …
-  ]
+  armour: [],
+  gear:   [],
+  chemical: []
 };
 
-/** Normalize catalog items per kind (fill safe defaults). */
-function normCatalogItem(kind, it){
+/* ---------- helpers ---------- */
+function norm(kind, it){
+  if (!it || typeof it!=='object') return null;
   const base = {
     id: it.id || `cat_${kind}_${Math.random().toString(36).slice(2,9)}`,
-    name: it.name || 'Unnamed',
+    name: it.name || it.title || 'Unnamed',
     description: it.description || '',
-    diceMod: Number(it.diceMod || 0),
-    weight: Number(it.weight || 0),
-    stow: Number(it.stow || 0)
+    diceMod: Number(it.diceMod ?? it.bonus ?? 0),
+    weight: Number(it.weight ?? 0),
+    stow:   Number(it.stow   ?? 0)
   };
-  if (kind === 'weapons'){
+  if (kind==='weapons'){
     return {
       ...base,
-      type: 'weapon',
       skill: it.skill || 'Fight',
       wpnClass: it.wpnClass || 'Bludgeon',
       grip: it.grip || '1 hand',
-      damage: Number(it.damage || 0),
-      damageType: it.damageType || '',
-      shots: Number(it.shots || 0),
-      reloadAP: Number(it.reloadAP || 0),
+      damage: Number(it.damage ?? 0),
+      damageType: it.damageType || it.wpnTypeText || '',
+      shots: Number(it.shots ?? 0),
+      reloadAP: Number(it.reloadAP ?? 0),
       reachRange: it.reachRange || 'Close'
     };
   }
-  if (kind === 'armour'){
+  if (kind==='armour'){
     return {
       ...base,
-      type: 'armour',
       coverage: it.coverage || '',
       armor: Number(it.armor ?? it.armour ?? 0),
       penalty: it.penalty || ''
     };
   }
-  if (kind === 'chemical'){
+  if (kind==='chemical'){
     return {
       ...base,
-      type: 'chemical',
       dose: it.dose || '',
       duration: it.duration || '',
       effects: it.effects || '',
-      withdrawal: it.withdrawal || it.crash || '',
+      withdrawal: it.withdrawal || '',
       addiction: it.addiction || '',
       price: it.price || ''
     };
   }
-  return { ...base, type: 'gear' };
+  return base; // generic gear
 }
 
-/** Merge lists by id, later items override earlier fields. */
-function mergeById(a,b){
-  const map = new Map();
-  [...a,...b].forEach(it => {
-    map.set(it.id, { ...(map.get(it.id)||{}), ...it });
+function uniqMergeById(a, b){
+  const out = [...a];
+  const seen = new Set(a.map(x => x && x.id).filter(Boolean));
+  (b||[]).forEach(x => {
+    if (!x || !x.id || seen.has(x.id)) return;
+    out.push(x);
   });
-  return [...map.values()];
+  return out;
 }
 
-/** Load catalog list for a kind ('weapons'|'armour'|'gear'|'chemical'). */
-async function loadCatalog(kind){
-  const inline = (CATALOG_INLINE[kind] || []).map(it => normCatalogItem(kind, it));
-  if (!USE_REMOTE_CATALOG) return inline;        // <-- INLINE FIRST (your case)
+/* ---------- remote base detection ---------- */
+function catalogBaseCandidates(){
+  const here = new URL(location.href);
+  const path = here.pathname.split('/').filter(Boolean);
+  const repo = path[0] || ''; // e.g. gxd6-dice-roller
+  const withRepo = repo ? `/${repo}/` : '/';
 
-  // If you flip the flag above, we’ll attempt to merge with remote JSON.
+  return [
+    // relative to current page
+    new URL('./public/catalog/', here).href,
+    new URL('./catalog/', here).href,
+
+    // GitHub Pages style
+    `${here.origin}${withRepo}public/catalog/`,
+    `${here.origin}${withRepo}catalog/`,
+
+    // hard-coded fallbacks you used earlier
+    'https://dungeongrub.github.io/gxd6-dice-roller/public/catalog/',
+    'https://dungeongrub.github.io/gxd6-dice-roller/catalog/',
+    'https://dungeongrub.github.io/public/catalog/',
+    'https://dungeongrub.github.io/catalog/'
+  ];
+}
+
+async function fetchJson(url){
   try{
-    const res = await fetch(`catalog/${kind}.json`, { cache:'no-store' });
-    if (!res.ok) return inline;
-    const remoteRaw = await res.json();
-    const remote = Array.isArray(remoteRaw)
-      ? remoteRaw.map(it => normCatalogItem(kind, it))
-      : [];
-    return mergeById(inline, remote);
-  }catch(_){
-    return inline;
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(String(res.status));
+    return await res.json();
+  }catch(e){
+    console.warn('[Catalog] fetch fail:', url, e?.message || e);
+    return null;
   }
 }
 
-/** Build & show the picker modal, then add item on click. */
-async function openCatalogPicker(kind){
-  // kind is 'weapons'|'armour'|'gear'|'chemical'
-  const items = await loadCatalog(kind);
-
-  // Modal shell
-  const overlay = document.createElement('div');
-  Object.assign(overlay.style, {
-    position:'fixed', inset:'0', background:'rgba(0,0,0,.35)',
-    display:'flex', alignItems:'center', justifyContent:'center', zIndex:'999999'
-  });
-
-  const modal = document.createElement('div');
-  Object.assign(modal.style, {
-    width:'520px', maxHeight:'70vh', overflow:'auto',
-    background:'#fff', border:'1px solid #000', borderRadius:'4px',
-    boxShadow:'0 10px 24px rgba(0,0,0,.25)'
-  });
-
-  const head = document.createElement('div');
-  head.textContent = `Catalog: ${kind}`;
-  Object.assign(head.style, {
-    padding:'6px 8px', borderBottom:'1px solid #000', font:'14px DominicanSmall, serif', background:'#f2f2f2'
-  });
-
-  const list = document.createElement('div');
-  Object.assign(list.style, { padding:'6px' });
-
-  // Row for each item
-  items.forEach(it => {
-    const row = document.createElement('div');
-    Object.assign(row.style, {
-      display:'grid',
-      gridTemplateColumns:'1fr auto',
-      gap:'6px', alignItems:'center',
-      padding:'6px 4px',
-      borderBottom:'1px dashed #ddd'
-    });
-
-    const left = document.createElement('div');
-    left.innerHTML = `<div style="font:14px GokilNova, DominicanSmall, serif">${it.name}</div>
-      <div style="font:11px Dominican, serif; opacity:.85">
-        ${it.type==='weapon' ? `${it.wpnClass} • ${it.grip} • dmg ${it.damage}${it.damageType? ' ('+it.damageType+')':''} • W/S ${it.weight}/${it.stow}` :
-        it.type==='armour' ? `AV ${it.armor} • ${it.coverage || '—'} • W/S ${it.weight}/${it.stow}` :
-        it.type==='chemical' ? `${it.dose || 'dose ?'} • ${it.duration || 'duration ?'}` :
-        `W/S ${it.weight}/${it.stow}`
-        }
-      </div>
-      <div style="font:11px Dominican, serif; opacity:.7">${it.description || ''}</div>`;
-    const btn = document.createElement('button');
-    btn.textContent = 'Add';
-    Object.assign(btn.style, {
-      border:'1px solid #000', background:'#fff', cursor:'pointer',
-      padding:'2px 8px', font:'12px DominicanSmall, serif'
-    });
-    btn.addEventListener('click', () => {
-      spawnFromCatalog(it);     // add card to the list
-      document.body.removeChild(overlay);
-    });
-
-    row.append(left, btn);
-    list.appendChild(row);
-  });
-
-  const foot = document.createElement('div');
-  Object.assign(foot.style, {
-    padding:'6px 8px', borderTop:'1px solid #000', textAlign:'right', background:'#fafafa'
-  });
-  const close = document.createElement('button');
-  close.textContent = 'Close';
-  Object.assign(close.style, {
-    border:'1px solid #000', background:'#fff', cursor:'pointer',
-    padding:'2px 8px', font:'12px DominicanSmall, serif'
-  });
-  close.addEventListener('click', ()=> document.body.removeChild(overlay));
-  foot.appendChild(close);
-
-  modal.append(head, list, foot);
-  overlay.appendChild(modal);
-  overlay.addEventListener('click', (e)=>{ if (e.target===overlay) document.body.removeChild(overlay); });
-  document.body.appendChild(overlay);
+function takeKind(kind, data){
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data[kind])) return data[kind];
+  return [];
 }
 
-/** Spawn a card using an item from the catalog and populate its fields. */
-function spawnFromCatalog(it){
-  // kind already normalized on item.type: 'weapon' | 'armour' | 'chemical' | 'gear'
-  const el = window.spawnBlankGearCard(it.type);  // this returns the DOM card
-  if (!el) return;
+let CATALOG_BASE = null;
+let BASE_PROBED = false;
 
-  // Title/description
-  const title = el.querySelector('.card-title'); if (title) title.value = it.name || '';
-  const desc  = el.querySelector('.description'); if (desc)  desc.value  = it.description || '';
+async function resolveCatalogBase(){
+  if (BASE_PROBED) return CATALOG_BASE;
+  BASE_PROBED = true;
 
-  // Fill all named controls within the card
-  el.querySelectorAll('[name]').forEach(ctrl => {
-    const k = ctrl.name;
-    if (!(k in it)) return;
-    const v = it[k];
-    if (ctrl.tagName === 'SELECT') {
-      ctrl.value = String(v);
-    } else if (ctrl.type === 'checkbox') {
-      ctrl.checked = !!v;
-    } else {
-      ctrl.value = v;
+  const bases = catalogBaseCandidates();
+  for (const base of bases){
+    const probe = await fetchJson(base + 'weapons.json'); // probe weapons.json exists
+    const list = takeKind('weapons', probe);
+    if (Array.isArray(list)) {
+      console.log('[Catalog] using base:', base);
+      CATALOG_BASE = base;
+      return base;
     }
-  });
+  }
+  console.warn('[Catalog] No remote base found — inline only.');
+  CATALOG_BASE = null;
+  return null;
+}
 
-  // Keep header/body syncs and encumbrance in a good state
-  if (typeof window.recalcEncumbrance === 'function') window.recalcEncumbrance();
+/* ---------- main loader ---------- */
+async function loadCatalog(kind){
+  const inline = (CATALOG_INLINE[kind] || []).map(it => norm(kind, it)).filter(Boolean);
+
+  if (!USE_REMOTE_CATALOG){
+    console.log(`[Catalog] remote disabled -> inline (${inline.length})`);
+    return inline;
+  }
+
+  const base = await resolveCatalogBase();
+  if (base){
+    const remoteRaw = await fetchJson(base + `${kind}.json`);
+    const remoteList = takeKind(kind, remoteRaw).map(it => norm(kind, it)).filter(Boolean);
+
+    if (remoteList.length){
+      const merged = uniqMergeById(remoteList, inline);
+      console.log(`[Catalog] ${kind}: remote=${remoteList.length}, inlineExtra=${merged.length-remoteList.length}, total=${merged.length}`);
+      return merged;
+    }
+    console.warn(`[Catalog] ${kind}.json empty at remote — using inline (${inline.length}).`);
+  }
+  return inline;
+}
+
+/* ---------- picker + sheet wiring ---------- */
+window.openCatalogPicker = async function(kind){
+  const category = (kind || '').toLowerCase();
+  if (!['weapons','armour','gear','chemical'].includes(category)){
+    alert('Unknown catalog: ' + kind);
+    return;
+  }
+  const items = await loadCatalog(category);
+  if (!items.length){ alert('No items available for ' + category); return; }
+
+  const lines = items.map((it, i)=> `${i+1}. ${it.name || it.title || '(unnamed)'}`);
+  const msg = `Add from ${category}:\n` + lines.join('\n') + `\n\nType number(s) to add (e.g. 1 or 1,3,5). Cancel to abort.`;
+  const ans = prompt(msg, '1');
+  if (!ans) return;
+  const picks = ans.split(/[,\s]+/).map(s=>parseInt(s,10)).filter(n=>Number.isInteger(n) && n>=1 && n<=items.length);
+  if (!picks.length){ alert('No valid selections.'); return; }
+
+  picks.forEach(n=>{
+    const item = items[n-1];
+    addCatalogItemToSheet(category, item);
+  });
+};
+
+function addCatalogItemToSheet(category, item){
+  if (!item) return;
+  let card;
+  if (category==='weapons')       card = window.spawnBlankGearCard('weapon');
+  else if (category==='armour')   card = window.spawnBlankGearCard('armour');
+  else if (category==='chemical') card = window.spawnBlankGearCard('chemical');
+  else                            card = window.spawnBlankGearCard('gear');
+
+  if (!card) return;
+  const set = (sel, val) => { const el = card.querySelector(sel); if (el) el.value = (val ?? el.value); };
+
+  // Title/desc
+  set('.card-title', item.name || item.title || '');
+  set('.description', item.description || '');
+
+  if (category==='weapons'){
+    set('[name="skill"]',     item.skill || 'Fight');
+    set('[name="wpnClass"]',  item.wpnClass || 'Bludgeon');
+    set('[name="grip"]',      item.grip || '1 hand');
+    set('[name="weight"]',    item.weight || 0);
+    set('[name="stow"]',      item.stow   || 0);
+    set('[name="diceMod"]',   item.diceMod || item.bonus || 0);
+    set('[name="damage"]',    item.damage || 0);
+    set('[name="damageType"]',item.damageType || item.wpnTypeText || '');
+    set('[name="shots"]',     item.shots || 0);
+    set('[name="reloadAP"]',  item.reloadAP || 0);
+    set('[name="reachRange"]',item.reachRange || 'Close');
+  } else if (category==='armour'){
+    set('[name="coverage"]', item.coverage || '');
+    set('[name="armor"]',    item.armor ?? item.armour ?? 0);
+    set('[name="penalty"]',  item.penalty || '');
+    set('[name="weight"]',   item.weight || 0);
+    set('[name="stow"]',     item.stow   || 0);
+  } else if (category==='chemical'){
+    set('[name="weight"]', item.weight || 0);
+    set('[name="stow"]',   item.stow   || 0);
+    set('[name="dose"]', item.dose || '');
+    set('[name="duration"]', item.duration || '');
+    const e = card.querySelector('textarea[name="effects"]'); if (e) e.value = item.effects || '';
+    const w = card.querySelector('textarea[name="withdrawal"]'); if (w) w.value = item.withdrawal || '';
+    set('[name="addiction"]', item.addiction || '');
+    set('[name="price"]', item.price || '');
+  } else {
+    set('[name="weight"]',  item.weight || 0);
+    set('[name="stow"]',    item.stow   || 0);
+    set('[name="diceMod"]', item.diceMod || 0);
+  }
+
+  if (window.recalcEncumbrance) window.recalcEncumbrance();
 }
 </script>
 
